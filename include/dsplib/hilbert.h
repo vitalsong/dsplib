@@ -11,6 +11,7 @@ namespace dsplib {
 class hilbert
 {
 public:
+    hilbert();
     explicit hilbert(const arr_real& h);
 
     //main processing
