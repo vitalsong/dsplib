@@ -28,6 +28,29 @@ private:
     arr_real _d;     ///< filter delay
 };
 
+/*!
+ * \brief FIR complex filter class
+ */
+class fir_cmplx
+{
+public:
+    fir_cmplx();
+    explicit fir_cmplx(const arr_cmplx& h);
+
+    //main processing
+    arr_cmplx process(const arr_cmplx& s);
+
+    //current impulse response
+    const arr_cmplx& impz() const;
+
+    //convolution operation
+    static arr_cmplx conv(const arr_cmplx& x, const arr_cmplx& h);
+
+private:
+    arr_cmplx _h;     ///< impulse response
+    arr_cmplx _d;     ///< filter delay
+};
+
 } ///< dsplib
 
 #endif // FIR_H

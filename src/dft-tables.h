@@ -2,6 +2,7 @@
 #define DFT_TABLES_H
 
 #include <dsplib/types.h>
+#include <stdint.h>
 
 namespace dsplib {
 namespace tables {
