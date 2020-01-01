@@ -374,6 +374,18 @@ void arr_cmplx::set(int p1, int p2, cmplx_t value)
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx arr_cmplx::slice(int i1, int i2) const
+{
+    int n = i2 - i1 + 1;
+    arr_cmplx r(n);
+    for (int i=0; i < n; ++i) {
+        r[i] = _vec[i+i1];
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx arr_cmplx::join(const arr_cmplx &lhs, const arr_cmplx &rhs)
 {
     int n1 = lhs.size();
@@ -386,18 +398,6 @@ arr_cmplx arr_cmplx::join(const arr_cmplx &lhs, const arr_cmplx &rhs)
 
     for (int i=0; i < n2; ++i) {
         r[i+n1] = rhs[i];
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::slice(const arr_cmplx &arr, int p1, int p2)
-{
-    int n = p2 - p1 + 1;
-    arr_cmplx r(n);
-    for (int i=0; i < n; ++i) {
-        r[i] = arr[i+p1];
     }
 
     return r;

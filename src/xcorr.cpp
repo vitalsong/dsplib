@@ -24,13 +24,13 @@ arr_real xcorr(const arr_real &x1, const arr_real &x2)
     arr_real z = real(ifft(z1 * z2));
 
     //center alignment
-    arr_real p1 = arr_real::slice(z, 0, M/2-1);
-    arr_real p2 = arr_real::slice(z, M/2, M-1);
+    arr_real p1 = z.slice(0, M/2-1);
+    arr_real p2 = z.slice(M/2, M-1);
     z = arr_real::join(p2, p1);
 
     //cut off the excess at the edges (?)
     int m = (M - (N1 + N2 - 1)) / 2;
-    arr_real r = arr_real::slice(z, m+1, M-m-1);
+    arr_real r = z.slice(m+1, M-m-1);
 
     return r;
 }

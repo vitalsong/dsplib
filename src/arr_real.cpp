@@ -290,6 +290,18 @@ void arr_real::set(int p1, int p2, real_t value)
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_real arr_real::slice(int i1, int i2) const
+{
+    int n = i2 - i1 + 1;
+    arr_real r(n);
+    for (int i=0; i < n; ++i) {
+        r[i] = _vec[i+i1];
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real arr_real::join(const arr_real &lhs, const arr_real &rhs)
 {
     int n1 = lhs.size();
@@ -302,18 +314,6 @@ arr_real arr_real::join(const arr_real &lhs, const arr_real &rhs)
 
     for (int i=0; i < n2; ++i) {
         r[i+n1] = rhs[i];
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real arr_real::slice(const arr_real &arr, int p1, int p2)
-{
-    int n = p2 - p1 + 1;
-    arr_real r(n);
-    for (int i=0; i < n; ++i) {
-        r[i] = arr[i+p1];
     }
 
     return r;

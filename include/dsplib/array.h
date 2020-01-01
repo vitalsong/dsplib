@@ -84,9 +84,9 @@ public:
 
     void set(int p1, int p2, const arr_real& arr);
     void set(int p1, int p2, real_t value);
+    arr_real slice(int i1, int i2) const;
 
     static arr_real join(const arr_real& lhs, const arr_real& rhs);
-    static arr_real slice(const arr_real& arr, int p1, int p2);
     static arr_real zeros(int n);
     static arr_real init(const std::initializer_list<dsplib::real_t>& list) {
         return arr_real(std::vector<dsplib::real_t>(list));
@@ -183,9 +183,9 @@ public:
     bool empty() const;
     void set(int p1, int p2, const arr_cmplx& arr);
     void set(int p1, int p2, cmplx_t value);
+    arr_cmplx slice(int i1, int i2) const;
 
     static arr_cmplx join(const arr_cmplx& lhs, const arr_cmplx& rhs);
-    static arr_cmplx slice(const arr_cmplx& arr, int p1, int p2);
     static arr_cmplx zeros(int n);
     static arr_cmplx init(const std::initializer_list<dsplib::cmplx_t>& list) {
         return arr_cmplx(std::vector<dsplib::cmplx_t>(list));
