@@ -83,4 +83,12 @@ TEST(MathTest, Angle)
     ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
 }
 
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Randn)
+{
+    auto x = randn(32767);
+    auto s = stddev(x);
+    EXPECT_NEAR(s, 1, 0.02f);
+}
+
 #endif // MATH_TEST_H

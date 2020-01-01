@@ -92,6 +92,9 @@ real_t rms(const arr_cmplx& arr);
 arr_real sin(const arr_real& arr);
 arr_real cos(const arr_real& arr);
 
+//normally distributed random numbers
+arr_real randn(int n);
+
 //approximation of the index correction (-1: 1) by a parabola at three points
 real_t apprx(real_t y0, real_t y1, real_t y2);
 

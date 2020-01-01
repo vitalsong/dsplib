@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <random>
 #include <math.h>
 
 namespace dsplib {
@@ -441,6 +442,20 @@ real_t angle(cmplx_t v)
     }
 
     return ::atan(v.xq / v.xi) + d;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real randn(int n)
+{
+    arr_real r(n);
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution <real_t> d(0, 1);
+    for (int i=0; i < n; ++i) {
+        r[i] = d(gen);
+    }
+
+    return r;
 }
 
 } ///< dsplib

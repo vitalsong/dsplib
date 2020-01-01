@@ -3,27 +3,21 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <random>
 
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
 arr_real awgn(const arr_real &arr, real_t snr)
 {
-    const int N = arr.size();
-    real_t signal = rms(arr);
-    real_t noise = signal * pow(10, ((-1) * snr / 20));
-    real_t stddev = noise;
+    real_t stddev = rms(arr) * pow(10, ((-1) * snr / 20));
 
-    arr_real r(N);
-    const int M = 12;
-    for (int i=0; i < N; ++i)
-    {
-        real_t sum = 0;
-        for (int j=0; j < M; ++j) {
-            sum += rand();
-        }
-
-        r[i] = arr[i] + (stddev * (sum/RAND_MAX - M/2));
+    arr_real r(arr);
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution <real_t> d(0, stddev);
+    for (int i=0; i < r.size(); ++i) {
+        r[i] += d(gen);
     }
 
     return r;
@@ -32,22 +26,16 @@ arr_real awgn(const arr_real &arr, real_t snr)
 //-------------------------------------------------------------------------------------------------
 arr_cmplx awgn(const arr_cmplx &arr, real_t snr)
 {
-    const int N = arr.size();
-    real_t signal = rms(arr)/2;
-    real_t noise = signal * pow(10, ((-1) * snr / 20));
-    real_t stddev = noise;
+    real_t stddev = 0.5 * rms(arr) * pow(10, ((-1) * snr / 20));
 
-    arr_cmplx r(N);
-    const int M = 12;
-    for (int i=0; i < N; ++i)
+    arr_cmplx r(arr);
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution <real_t> d(0, stddev);
+    for (int i=0; i < r.size(); ++i)
     {
-        real_t sum = 0;
-        for (int j=0; j < M; ++j) {
-            sum += rand();
-        }
-
-        r[i].xi = arr[i].xi + (stddev * (sum/RAND_MAX - M/2));
-        r[i].xq = arr[i].xq + (stddev * (sum/RAND_MAX - M/2));
+        r[i].xi += d(gen);
+        r[i].xq += d(gen);
     }
 
     return r;
