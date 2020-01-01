@@ -179,6 +179,22 @@ cmplx_t mean(const arr_cmplx &arr)
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t stddev(const arr_real &arr)
+{
+    real_t m = mean(arr);
+    real_t r = sqrt(mean(pow2(arr - m)));
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t median(const arr_real &arr)
+{
+    arr_real r(arr);
+    std::sort(r.begin(), r.end());
+    return r[r.size()/2];
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real real(const arr_cmplx &x)
 {
     arr_real r(x.size());
@@ -378,6 +394,28 @@ real_t apprx(real_t y0, real_t y1, real_t y2)
     double b = y1 - a - y0;
     double q = (-b);
     return q / (2 * a) - 1;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real pow2(const arr_real &arr)
+{
+    arr_real r(arr);
+    for (int i=0; i < arr.size(); ++i) {
+        r[i] *= r[i];
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx pow2(const arr_cmplx &arr)
+{
+    arr_cmplx r(arr);
+    for (int i=0; i < arr.size(); ++i) {
+        r[i] *= r[i];
+    }
+
+    return r;
 }
 
 } ///< dsplib

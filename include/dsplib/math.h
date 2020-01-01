@@ -44,12 +44,10 @@ real_t mean(const arr_real& arr);
 cmplx_t mean(const arr_cmplx& arr);
 
 //array std
-real_t std(const arr_real& arr);
-cmplx_t std(const arr_cmplx& arr);
+real_t stddev(const arr_real& arr);
 
 //median
 real_t median(const arr_real& arr);
-cmplx_t median(const arr_cmplx& arr);
 
 //real part
 arr_real real(const arr_cmplx& x);
@@ -72,6 +70,10 @@ void zeroing(arr_real& arr);
 
 //the nearest power of two numbers (with rounding up)
 int nextpow2(int m);
+
+//array pow
+arr_real pow2(const arr_real& arr);
+arr_cmplx pow2(const arr_cmplx& arr);
 
 //array log
 arr_real log(const arr_real& arr);

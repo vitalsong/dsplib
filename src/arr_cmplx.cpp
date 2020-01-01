@@ -148,7 +148,7 @@ arr_cmplx &arr_cmplx::operator /=(const arr_cmplx &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator +(const arr_cmplx &rhs)
+arr_cmplx arr_cmplx::operator +(const arr_cmplx &rhs) const
 {
     arr_cmplx temp = *this;
     temp += rhs;
@@ -156,7 +156,7 @@ arr_cmplx arr_cmplx::operator +(const arr_cmplx &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator -(const arr_cmplx &rhs)
+arr_cmplx arr_cmplx::operator -(const arr_cmplx &rhs) const
 {
     arr_cmplx temp = *this;
     temp -= rhs;
@@ -164,7 +164,7 @@ arr_cmplx arr_cmplx::operator -(const arr_cmplx &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator *(const arr_cmplx &rhs)
+arr_cmplx arr_cmplx::operator *(const arr_cmplx &rhs) const
 {
     arr_cmplx temp = *this;
     temp *= rhs;
@@ -172,7 +172,7 @@ arr_cmplx arr_cmplx::operator *(const arr_cmplx &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator /(const arr_cmplx &rhs)
+arr_cmplx arr_cmplx::operator /(const arr_cmplx &rhs) const
 {
     arr_cmplx temp = *this;
     temp /= rhs;
@@ -224,7 +224,7 @@ arr_cmplx &arr_cmplx::operator /=(const cmplx_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator +(const cmplx_t &rhs)
+arr_cmplx arr_cmplx::operator +(const cmplx_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp += rhs;
@@ -232,7 +232,7 @@ arr_cmplx arr_cmplx::operator +(const cmplx_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator -(const cmplx_t &rhs)
+arr_cmplx arr_cmplx::operator -(const cmplx_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp -= rhs;
@@ -240,7 +240,7 @@ arr_cmplx arr_cmplx::operator -(const cmplx_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator *(const cmplx_t &rhs)
+arr_cmplx arr_cmplx::operator *(const cmplx_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp *= rhs;
@@ -248,7 +248,7 @@ arr_cmplx arr_cmplx::operator *(const cmplx_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator /(const cmplx_t &rhs)
+arr_cmplx arr_cmplx::operator /(const cmplx_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp /= rhs;
@@ -286,7 +286,7 @@ arr_cmplx &arr_cmplx::operator /=(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator *(const arr_real &rhs)
+arr_cmplx arr_cmplx::operator *(const arr_real &rhs) const
 {
     arr_cmplx temp = *this;
     temp *= rhs;
@@ -294,7 +294,7 @@ arr_cmplx arr_cmplx::operator *(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator /(const arr_real &rhs)
+arr_cmplx arr_cmplx::operator /(const arr_real &rhs) const
 {
     arr_cmplx temp = *this;
     temp /= rhs;
@@ -324,7 +324,7 @@ arr_cmplx &arr_cmplx::operator /=(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator *(const real_t &rhs)
+arr_cmplx arr_cmplx::operator *(const real_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp *= rhs;
@@ -332,7 +332,7 @@ arr_cmplx arr_cmplx::operator *(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::operator /(const real_t &rhs)
+arr_cmplx arr_cmplx::operator /(const real_t &rhs) const
 {
     arr_cmplx temp = *this;
     temp /= rhs;

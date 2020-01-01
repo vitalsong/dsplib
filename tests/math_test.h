@@ -35,4 +35,43 @@ TEST(MathTest, Min)
     ASSERT_FLOAT_EQ(::min(v2).xq, v2[1].xq);
 }
 
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Median)
+{
+    auto v1 = ::arr_real::init({-1, 0, 1, 2, 3, 4, 5, 6, 7});
+    ASSERT_FLOAT_EQ(::median(v1), 3);
+
+    auto v2 = ::arr_real::init({0, 0, 0, 1});
+    ASSERT_FLOAT_EQ(::median(v2), 0);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Std)
+{
+    auto v1 = ::arr_real::init({5, 5, 5, 5});
+    ASSERT_FLOAT_EQ(::stddev(v1), 0);
+
+    auto v2 = ::arr_real::init({-1, 1, -1, 1});
+    ASSERT_FLOAT_EQ(::stddev(v2), 1);
+
+    auto v3 = ::arr_real::init({2, 4, 4, 4, 5, 5, 7, 9});
+    ASSERT_FLOAT_EQ(::stddev(v3), 2);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Pow2)
+{
+    auto v1 = ::arr_real::init({5, 5, 5, 5});
+    auto r1 = ::arr_real::init({25, 25, 25, 25});
+    ASSERT_EQ_ARR_REAL(::pow2(v1), r1);
+
+    auto v2 = ::arr_real::init({-1, 1, -1, 1});
+    auto r2 = ::arr_real::init({1, 1, 1, 1});
+    ASSERT_EQ_ARR_REAL(::pow2(v2), r2);
+
+    auto v3 = ::arr_cmplx::init({{1, 1}, {1, 0}, {0, 1}, {0, 0}});
+    auto r3 = ::arr_cmplx::init({{0, 2}, {1, 0}, {-1, 0}, {0, 0}});
+    ASSERT_EQ_ARR_CMPLX(::pow2(v3), r3);
+}
+
 #endif // MATH_TEST_H

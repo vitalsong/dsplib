@@ -148,7 +148,7 @@ arr_real &arr_real::operator /=(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator +(const arr_real &rhs)
+arr_real arr_real::operator +(const arr_real &rhs) const
 {
     arr_real temp = *this;
     temp += rhs;
@@ -156,7 +156,7 @@ arr_real arr_real::operator +(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator -(const arr_real &rhs)
+arr_real arr_real::operator -(const arr_real &rhs) const
 {
     arr_real temp = *this;
     temp -= rhs;
@@ -164,7 +164,7 @@ arr_real arr_real::operator -(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator *(const arr_real &rhs)
+arr_real arr_real::operator *(const arr_real &rhs) const
 {
     arr_real temp = *this;
     temp *= rhs;
@@ -172,7 +172,7 @@ arr_real arr_real::operator *(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator /(const arr_real &rhs)
+arr_real arr_real::operator /(const arr_real &rhs) const
 {
     arr_real temp = *this;
     temp /= rhs;
@@ -224,7 +224,7 @@ arr_real &arr_real::operator /=(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator +(const real_t &rhs)
+arr_real arr_real::operator +(const real_t &rhs) const
 {
     arr_real temp = *this;
     temp += rhs;
@@ -232,7 +232,7 @@ arr_real arr_real::operator +(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator -(const real_t &rhs)
+arr_real arr_real::operator -(const real_t &rhs) const
 {
     arr_real temp = *this;
     temp -= rhs;
@@ -240,7 +240,7 @@ arr_real arr_real::operator -(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator *(const real_t &rhs)
+arr_real arr_real::operator *(const real_t &rhs) const
 {
     arr_real temp = *this;
     temp *= rhs;
@@ -248,7 +248,7 @@ arr_real arr_real::operator *(const real_t &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::operator /(const real_t &rhs)
+arr_real arr_real::operator /(const real_t &rhs) const
 {
     arr_real temp = *this;
     temp /= rhs;

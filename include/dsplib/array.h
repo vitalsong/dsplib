@@ -65,20 +65,20 @@ public:
     arr_real& operator *= (const arr_real& rhs);
     arr_real& operator /= (const arr_real& rhs);
 
-    arr_real operator + (const arr_real& rhs);
-    arr_real operator - (const arr_real& rhs);
-    arr_real operator * (const arr_real& rhs);
-    arr_real operator / (const arr_real& rhs);
+    arr_real operator + (const arr_real& rhs) const;
+    arr_real operator - (const arr_real& rhs) const;
+    arr_real operator * (const arr_real& rhs) const;
+    arr_real operator / (const arr_real& rhs) const;
 
     arr_real& operator += (const real_t& rhs);
     arr_real& operator -= (const real_t& rhs);
     arr_real& operator *= (const real_t& rhs);
     arr_real& operator /= (const real_t& rhs);
 
-    arr_real operator + (const real_t& rhs);
-    arr_real operator - (const real_t& rhs);
-    arr_real operator * (const real_t& rhs);
-    arr_real operator / (const real_t& rhs);
+    arr_real operator + (const real_t& rhs) const;
+    arr_real operator - (const real_t& rhs) const;
+    arr_real operator * (const real_t& rhs) const;
+    arr_real operator / (const real_t& rhs) const;
 
     bool empty() const;
 
@@ -155,30 +155,30 @@ public:
     arr_cmplx& operator *= (const arr_cmplx& rhs);
     arr_cmplx& operator /= (const arr_cmplx& rhs);
 
-    arr_cmplx operator + (const arr_cmplx& rhs);
-    arr_cmplx operator - (const arr_cmplx& rhs);
-    arr_cmplx operator * (const arr_cmplx& rhs);
-    arr_cmplx operator / (const arr_cmplx& rhs);
+    arr_cmplx operator + (const arr_cmplx& rhs) const;
+    arr_cmplx operator - (const arr_cmplx& rhs) const;
+    arr_cmplx operator * (const arr_cmplx& rhs) const;
+    arr_cmplx operator / (const arr_cmplx& rhs) const;
 
     arr_cmplx& operator += (const cmplx_t& rhs);
     arr_cmplx& operator -= (const cmplx_t& rhs);
     arr_cmplx& operator *= (const cmplx_t& rhs);
     arr_cmplx& operator /= (const cmplx_t& rhs);
 
-    arr_cmplx operator + (const cmplx_t& rhs);
-    arr_cmplx operator - (const cmplx_t& rhs);
-    arr_cmplx operator * (const cmplx_t& rhs);
-    arr_cmplx operator / (const cmplx_t& rhs);
+    arr_cmplx operator + (const cmplx_t& rhs) const;
+    arr_cmplx operator - (const cmplx_t& rhs) const;
+    arr_cmplx operator * (const cmplx_t& rhs) const;
+    arr_cmplx operator / (const cmplx_t& rhs) const;
 
     arr_cmplx& operator *= (const arr_real& rhs);
     arr_cmplx& operator /= (const arr_real& rhs);
-    arr_cmplx operator * (const arr_real& rhs);
-    arr_cmplx operator / (const arr_real& rhs);
+    arr_cmplx operator * (const arr_real& rhs) const;
+    arr_cmplx operator / (const arr_real& rhs) const;
 
     arr_cmplx& operator *= (const real_t& rhs);
     arr_cmplx& operator /= (const real_t& rhs);
-    arr_cmplx operator * (const real_t& rhs);
-    arr_cmplx operator / (const real_t& rhs);
+    arr_cmplx operator * (const real_t& rhs) const;
+    arr_cmplx operator / (const real_t& rhs) const;
 
     bool empty() const;
     void set(int p1, int p2, const arr_cmplx& arr);
