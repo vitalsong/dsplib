@@ -418,6 +418,31 @@ arr_cmplx pow2(const arr_cmplx &arr)
     return r;
 }
 
+//-------------------------------------------------------------------------------------------------
+arr_real angle(const arr_cmplx &arr)
+{
+    arr_real r(arr.size());
+    for (int i=0; i < r.size(); ++i) {
+        r[i] = angle(arr[i]);
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t angle(cmplx_t v)
+{
+    real_t d = 0;
+    if (v.xi < 0) {
+        d = (v.xq > 0) ? (M_PI) : (-M_PI);
+    }
+    else {
+        d = 0;
+    }
+
+    return ::atan(v.xq / v.xi) + d;
+}
+
 } ///< dsplib
 
 

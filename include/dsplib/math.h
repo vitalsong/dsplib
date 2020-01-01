@@ -21,13 +21,17 @@ int argmax(const arr_cmplx& arr);
 int argmin(const arr_real& arr);
 int argmin(const arr_cmplx& arr);
 
-//modulus (for complex value is sqrt(re^2 + im^2))
+//absolute value and complex magnitude
 arr_real abs(const arr_real& arr);
 real_t abs(real_t v);
 arr_real abs(const arr_cmplx& arr);
 real_t abs(cmplx_t v);
 
-//fast modulus calculation
+//phase angle in the interval [-pi, pi] for each element of a complex array z
+arr_real angle(const arr_cmplx& arr);
+real_t angle(cmplx_t v);
+
+//fast absolute complex magnitude
 arr_real fabs(const arr_cmplx& arr);
 real_t fabs(cmplx_t v);
 

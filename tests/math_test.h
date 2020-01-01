@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <dsplib.h>
+#include <math.h>
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -72,6 +73,14 @@ TEST(MathTest, Pow2)
     auto v3 = ::arr_cmplx::init({{1, 1}, {1, 0}, {0, 1}, {0, 0}});
     auto r3 = ::arr_cmplx::init({{0, 2}, {1, 0}, {-1, 0}, {0, 0}});
     ASSERT_EQ_ARR_CMPLX(::pow2(v3), r3);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Angle)
+{
+    auto x1 = ::arr_cmplx::init({{1, 0}, {0, 1}, {1, 1}, {-1, 0}});
+    auto y1 = ::arr_real::init({0, M_PI/2, M_PI/4, M_PI});
+    ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
 }
 
 #endif // MATH_TEST_H
