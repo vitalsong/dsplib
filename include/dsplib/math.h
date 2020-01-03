@@ -5,6 +5,17 @@
 
 namespace dsplib {
 
+//exponential
+arr_real exp(const arr_real& arr);
+real_t exp(real_t v);
+arr_cmplx exp(const arr_cmplx& arr);
+cmplx_t exp(cmplx_t v);
+
+//complex exponential for zero Re and non-zero Im
+//faster then exp()
+arr_cmplx expj(const arr_real& im);
+cmplx_t expj(real_t im);
+
 //sequence of numbers (not include stop)
 arr_real range(real_t start, real_t stop, real_t step = 1);
 arr_real range(real_t stop);

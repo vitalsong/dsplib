@@ -458,6 +458,63 @@ arr_real range(real_t stop)
     return range(0, stop, 1);
 }
 
+//-------------------------------------------------------------------------------------------------
+arr_real exp(const arr_real &arr)
+{
+    arr_real r(arr);
+    for (int i=0; i < r.size(); ++i) {
+        r[i] = ::exp(r[i]);
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t exp(real_t v)
+{
+    return ::exp(v);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx exp(const arr_cmplx &arr)
+{
+    arr_cmplx r(arr);
+    real_t v;
+    for (int i=0; i < r.size(); ++i)
+    {
+        v = ::exp(r[i].xi);
+        r[i].xi = v * ::cos(r[i].xq);
+        r[i].xq = v * ::sin(r[i].xq);
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+cmplx_t exp(cmplx_t v)
+{
+    return cmplx_t{::exp(v.xi) * ::cos(v.xq), ::exp(v.xi) * ::sin(v.xq)};
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx expj(const arr_real &im)
+{
+    arr_cmplx r(im.size());
+    for (int i=0; i < r.size(); ++i)
+    {
+        r[i].xi = ::cos(im[i]);
+        r[i].xq = ::sin(im[i]);
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+cmplx_t expj(real_t im)
+{
+    return cmplx_t{::cos(im), ::sin(im)};
+}
+
 } ///< dsplib
 
 

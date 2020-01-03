@@ -107,4 +107,25 @@ TEST(MathTest, Range)
     ASSERT_EQ_ARR_REAL(x3, y3);
 }
 
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Exp)
+{
+    auto x1 = dsplib::exp(1);
+    EXPECT_NEAR(x1, 2.7182818284590452, EQ_ABS_ERR);
+
+    auto x2 = dsplib::exp(cmplx_t{0, M_PI});
+    EXPECT_NEAR(x2.xi, -1, EQ_ABS_ERR);
+    EXPECT_NEAR(x2.xq, 0, EQ_ABS_ERR);
+
+    auto x3 = dsplib::expj(M_PI);
+    EXPECT_NEAR(x3.xi, -1, EQ_ABS_ERR);
+    EXPECT_NEAR(x3.xq, 0, EQ_ABS_ERR);
+
+    auto t = range(0, 512) / 8000;
+    auto v = t * 2 * M_PI * 440;
+    auto x4 = dsplib::expj(v);
+    auto y4 = dsplib::complex(dsplib::cos(v), dsplib::sin(v));
+    ASSERT_EQ_ARR_CMPLX(x4, y4);
+}
+
 #endif // MATH_TEST_H

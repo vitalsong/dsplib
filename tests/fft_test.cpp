@@ -25,9 +25,7 @@ TEST(MathTest, FftCmplx)
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
-    auto re = cos(range(nfft) * 2 * M_PI * idx / nfft);
-    auto im = sin(range(nfft) * 2 * M_PI * idx / nfft);
-    auto x = complex(re, im);
+    auto x = expj(range(nfft) * 2 * M_PI * idx / nfft);
     auto y = fft(x) / nfft;
     auto z = abs(y);
     auto r = arr_real::zeros(nfft);
