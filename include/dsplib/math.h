@@ -5,6 +5,10 @@
 
 namespace dsplib {
 
+//sequence of numbers (not include stop)
+arr_real range(real_t start, real_t stop, real_t step = 1);
+arr_real range(real_t stop);
+
 //max element
 real_t max(const arr_real& arr);
 cmplx_t max(const arr_cmplx& arr);
@@ -67,10 +71,6 @@ cmplx_t conj(cmplx_t x);
 
 //complex vector formation
 arr_cmplx complex(const arr_real& re, const arr_real& im);
-
-//array zeroing
-void zeroing(arr_cmplx& arr);
-void zeroing(arr_real& arr);
 
 //the nearest power of two numbers (with rounding up)
 int nextpow2(int m);

@@ -4,6 +4,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCES
     main.cpp
+    arr_cmpl_test.cpp
+    arr_real_test.cpp
+    math_test.cpp
     )
 
 #set(BUILD_GMOCK OFF)

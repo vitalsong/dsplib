@@ -1,6 +1,4 @@
-#include "arr_real_test.h"
-#include "arr_cmpl_test.h"
-#include "math_test.h"
+#include <gtest/gtest.h>
 
 int main(int argc, char *argv[])
 {

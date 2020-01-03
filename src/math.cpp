@@ -230,27 +230,6 @@ real_t imag(cmplx_t x)
 }
 
 //-------------------------------------------------------------------------------------------------
-void zeroing(arr_cmplx &arr)
-{
-    const int N = arr.size();
-    for (int i=0; i < N; ++i)
-    {
-        arr[i].xi = 0;
-        arr[i].xq = 0;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void zeroing(arr_real &arr)
-{
-    const int N = arr.size();
-    for (int i=0; i < N; ++i)
-    {
-        arr[i] = 0;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
 int nextpow2(int m)
 {
     if ((m == 0) || (m == 1)) {
@@ -456,6 +435,27 @@ arr_real randn(int n)
     }
 
     return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real range(real_t start, real_t stop, real_t step)
+{
+    int n = ::round((stop - start) / step);
+    arr_real r(n);
+    real_t v = start;
+    for (int i=0; i < n; ++i)
+    {
+        r[i] = v;
+        v += step;
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real range(real_t stop)
+{
+    return range(0, stop, 1);
 }
 
 } ///< dsplib

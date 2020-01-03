@@ -1,8 +1,6 @@
 #ifndef ARR_CMPL_TEST_H
 #define ARR_CMPL_TEST_H
 
-#include <gtest/gtest.h>
-#include <dsplib.h>
 #include "tests_common.h"
 
 using namespace dsplib;
