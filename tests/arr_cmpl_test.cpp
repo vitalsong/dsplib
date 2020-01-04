@@ -41,7 +41,7 @@ TEST(ArrCmplxTest, Init)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrCmplxTest, Arithm)
+TEST(ArrCmplxTest, ArithmCmplxArr)
 {
     auto a1 = ::arr_cmplx::init({{-1, -1}, {-2, -2}, {3, 3}, {4, 4}});
     auto a2 = ::arr_cmplx::init({{1, 1}, {2, 2}, {-3, -3}, {-4, -4}});
@@ -49,6 +49,67 @@ TEST(ArrCmplxTest, Arithm)
     auto sum_r = ::arr_cmplx::init({{0, 0}, {0, 0}, {0, 0}, {0, 0}});
     auto mlt_r = ::arr_cmplx::init({{0, -2}, {0, -8}, {0, -18}, {0, -32}});
     auto div_r = ::arr_cmplx::init({{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}});
+
+    auto sum = a1 + a2;
+    auto mlt = a1 * a2;
+    auto div = a1 / a2;
+
+    ASSERT_EQ_ARR_CMPLX(sum, sum_r);
+    ASSERT_EQ_ARR_CMPLX(mlt, mlt_r);
+    ASSERT_EQ_ARR_CMPLX(div, div_r);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, ArithmRealArr)
+{
+    auto a1 = ::arr_cmplx::init({{-1, -1}, {-2, -2}, {3, 3}, {4, 4}});
+    auto a2 = ::arr_real::init({1, 2, -3, -4});
+
+    auto sum_r = ::arr_cmplx::init({{0, -1}, {0, -2}, {0, 3}, {0, 4}});
+    auto mlt_r = ::arr_cmplx::init({{-1, -1}, {-4, -4}, {-9, -9}, {-16, -16}});
+    auto div_r = ::arr_cmplx::init({{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}});
+
+    auto sum = a1 + a2;
+    auto mlt = a1 * a2;
+    auto div = a1 / a2;
+    ASSERT_EQ_ARR_CMPLX(sum, sum_r);
+    ASSERT_EQ_ARR_CMPLX(mlt, mlt_r);
+    ASSERT_EQ_ARR_CMPLX(div, div_r);
+
+    sum = a2 + a1;
+    mlt = a2 * a1;
+    ASSERT_EQ_ARR_CMPLX(sum, sum_r);
+    ASSERT_EQ_ARR_CMPLX(mlt, mlt_r);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, ArithmCmplxValue)
+{
+    auto a1 = ::arr_cmplx::init({{-1, -1}, {-2, -2}, {3, 3}, {4, 4}});
+    auto a2 = cmplx_t{-1, -1};
+
+    auto sum_r = ::arr_cmplx::init({{-2, -2}, {-3, -3}, {2, 2}, {3, 3}});
+    auto mlt_r = ::arr_cmplx::init({{0, 2}, {0, 4}, {0, -6}, {0, -8}});
+    auto div_r = ::arr_cmplx::init({{1, 0}, {2, 0}, {-3, 0}, {-4, 0}});
+
+    auto sum = a1 + a2;
+    auto mlt = a1 * a2;
+    auto div = a1 / a2;
+
+    ASSERT_EQ_ARR_CMPLX(sum, sum_r);
+    ASSERT_EQ_ARR_CMPLX(mlt, mlt_r);
+    ASSERT_EQ_ARR_CMPLX(div, div_r);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, ArithmRealValue)
+{
+    auto a1 = ::arr_cmplx::init({{-1, -1}, {-2, -2}, {3, 3}, {4, 4}});
+    auto a2 = real_t{-2};
+
+    auto sum_r = ::arr_cmplx::init({{-3, -1}, {-4, -2}, {1, 3}, {2, 4}});
+    auto mlt_r = ::arr_cmplx::init({{2, 2}, {4, 4}, {-6, -6}, {-8, -8}});
+    auto div_r = ::arr_cmplx::init({{0.5, 0.5}, {1, 1}, {-1.5, -1.5}, {-2, -2}});
 
     auto sum = a1 + a2;
     auto mlt = a1 * a2;

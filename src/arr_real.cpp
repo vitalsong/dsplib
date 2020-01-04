@@ -180,6 +180,38 @@ arr_real arr_real::operator /(const arr_real &rhs) const
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator +(const arr_cmplx &rhs) const
+{
+    arr_cmplx temp(rhs);
+    temp += *this;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator -(const arr_cmplx &rhs) const
+{
+    arr_cmplx temp(rhs);
+    temp -= *this;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator *(const arr_cmplx &rhs) const
+{
+    arr_cmplx temp(rhs);
+    temp *= *this;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator /(const arr_cmplx &rhs) const
+{
+    arr_cmplx temp(rhs);
+    temp /= *this;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real &arr_real::operator +=(const real_t &rhs)
 {
     int n = _vec.size();
@@ -251,6 +283,38 @@ arr_real arr_real::operator *(const real_t &rhs) const
 arr_real arr_real::operator /(const real_t &rhs) const
 {
     arr_real temp = *this;
+    temp /= rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator +(const cmplx_t &rhs) const
+{
+    arr_cmplx temp(_vec.data(), _vec.size());
+    temp += rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator -(const cmplx_t &rhs) const
+{
+    arr_cmplx temp(_vec.data(), _vec.size());
+    temp -= rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator *(const cmplx_t &rhs) const
+{
+    arr_cmplx temp(_vec.data(), _vec.size());
+    temp *= rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_real::operator /(const cmplx_t &rhs) const
+{
+    arr_cmplx temp(_vec.data(), _vec.size());
     temp /= rhs;
     return temp;
 }

@@ -5,6 +5,9 @@
 
 namespace dsplib {
 
+class arr_real;
+class arr_cmplx;
+
 /*!
  * \brief Real array
  */
@@ -17,10 +20,10 @@ public:
     arr_real(arr_real&& v);
 
     template <typename T>
-    explicit arr_real(const T* x, int nx)
+    explicit arr_real(const T* x, size_t nx)
     {
         _vec.resize(nx);
-        for (int i=0; i < nx; ++i) {
+        for (size_t i=0; i < nx; ++i) {
             _vec[i] = x[i];
         }
     }
@@ -70,6 +73,11 @@ public:
     arr_real operator * (const arr_real& rhs) const;
     arr_real operator / (const arr_real& rhs) const;
 
+    arr_cmplx operator + (const arr_cmplx& rhs) const;
+    arr_cmplx operator - (const arr_cmplx& rhs) const;
+    arr_cmplx operator * (const arr_cmplx& rhs) const;
+    arr_cmplx operator / (const arr_cmplx& rhs) const;
+
     arr_real& operator += (const real_t& rhs);
     arr_real& operator -= (const real_t& rhs);
     arr_real& operator *= (const real_t& rhs);
@@ -79,6 +87,11 @@ public:
     arr_real operator - (const real_t& rhs) const;
     arr_real operator * (const real_t& rhs) const;
     arr_real operator / (const real_t& rhs) const;
+
+    arr_cmplx operator + (const cmplx_t& rhs) const;
+    arr_cmplx operator - (const cmplx_t& rhs) const;
+    arr_cmplx operator * (const cmplx_t& rhs) const;
+    arr_cmplx operator / (const cmplx_t& rhs) const;
 
     bool empty() const;
 
@@ -107,10 +120,10 @@ public:
     arr_cmplx(arr_cmplx&& v);
 
     template <typename T>
-    explicit arr_cmplx(const T* x, int nx)
+    explicit arr_cmplx(const T* x, size_t nx)
     {
         _vec.resize(nx);
-        for (int i=0; i < nx; ++i) {
+        for (size_t i=0; i < nx; ++i) {
             _vec[i] = x[i];
         }
     }
@@ -170,13 +183,23 @@ public:
     arr_cmplx operator * (const cmplx_t& rhs) const;
     arr_cmplx operator / (const cmplx_t& rhs) const;
 
+    arr_cmplx& operator += (const arr_real& rhs);
+    arr_cmplx& operator -= (const arr_real& rhs);
     arr_cmplx& operator *= (const arr_real& rhs);
     arr_cmplx& operator /= (const arr_real& rhs);
+
+    arr_cmplx operator + (const arr_real& rhs) const;
+    arr_cmplx operator - (const arr_real& rhs) const;
     arr_cmplx operator * (const arr_real& rhs) const;
     arr_cmplx operator / (const arr_real& rhs) const;
 
+    arr_cmplx& operator += (const real_t& rhs);
+    arr_cmplx& operator -= (const real_t& rhs);
     arr_cmplx& operator *= (const real_t& rhs);
     arr_cmplx& operator /= (const real_t& rhs);
+
+    arr_cmplx operator + (const real_t& rhs) const;
+    arr_cmplx operator - (const real_t& rhs) const;
     arr_cmplx operator * (const real_t& rhs) const;
     arr_cmplx operator / (const real_t& rhs) const;
 

@@ -256,6 +256,36 @@ arr_cmplx arr_cmplx::operator /(const cmplx_t &rhs) const
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx &arr_cmplx::operator +=(const arr_real &rhs)
+{
+    if (this->size() != rhs.size()) {
+        throw std::invalid_argument("array sizes are different");
+    }
+
+    int n = _vec.size();
+    for (int i=0; i < n; ++i) {
+        _vec[i].xi += rhs[i];
+    }
+
+    return *this;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx &arr_cmplx::operator -=(const arr_real &rhs)
+{
+    if (this->size() != rhs.size()) {
+        throw std::invalid_argument("array sizes are different");
+    }
+
+    int n = _vec.size();
+    for (int i=0; i < n; ++i) {
+        _vec[i].xi -= rhs[i];
+    }
+
+    return *this;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx &arr_cmplx::operator *=(const arr_real &rhs)
 {
     if (this->size() != rhs.size()) {
@@ -286,6 +316,22 @@ arr_cmplx &arr_cmplx::operator /=(const arr_real &rhs)
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx arr_cmplx::operator +(const arr_real &rhs) const
+{
+    arr_cmplx temp = *this;
+    temp += rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_cmplx::operator -(const arr_real &rhs) const
+{
+    arr_cmplx temp = *this;
+    temp -= rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx arr_cmplx::operator *(const arr_real &rhs) const
 {
     arr_cmplx temp = *this;
@@ -299,6 +345,28 @@ arr_cmplx arr_cmplx::operator /(const arr_real &rhs) const
     arr_cmplx temp = *this;
     temp /= rhs;
     return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx &arr_cmplx::operator +=(const real_t &rhs)
+{
+    int n = _vec.size();
+    for (int i=0; i < n; ++i) {
+        _vec[i].xi += rhs;
+    }
+
+    return *this;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx &arr_cmplx::operator -=(const real_t &rhs)
+{
+    int n = _vec.size();
+    for (int i=0; i < n; ++i) {
+        _vec[i].xi -= rhs;
+    }
+
+    return *this;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -321,6 +389,22 @@ arr_cmplx &arr_cmplx::operator /=(const real_t &rhs)
     }
 
     return *this;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_cmplx::operator +(const real_t &rhs) const
+{
+    arr_cmplx temp = *this;
+    temp += rhs;
+    return temp;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx arr_cmplx::operator -(const real_t &rhs) const
+{
+    arr_cmplx temp = *this;
+    temp -= rhs;
+    return temp;
 }
 
 //-------------------------------------------------------------------------------------------------
