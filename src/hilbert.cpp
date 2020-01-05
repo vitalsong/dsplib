@@ -54,7 +54,7 @@ arr_cmplx hilbert::process(const arr_real &s)
 
     //save the I channel
     for (int i=0; i < ns; ++i) {
-        r[i].xi = t[i];
+        r[i].re = t[i];
     }
 
     //pass the Q channel through the FIR filter
@@ -62,7 +62,7 @@ arr_cmplx hilbert::process(const arr_real &s)
 
     //save the Q channel
     for (int i=0; i < ns; ++i) {
-        r[i].xq = t[i];
+        r[i].im = t[i];
     }
 
     return r;

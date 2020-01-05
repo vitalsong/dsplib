@@ -35,8 +35,8 @@ static void _cash(size_t size)
     for (size_t i=0; i < size; ++i)
     {
         p = double(i) / size;
-        ms[i].xi = cos(2 * M_PI * p);
-        ms[i].xq = -sin(2 * M_PI * p);
+        ms[i].re = cos(2 * M_PI * p);
+        ms[i].im = -sin(2 * M_PI * p);
     }
 
     g_tables.insert({size, ms});

@@ -31,8 +31,8 @@ TEST(ArrCmplxTest, Init)
     ::arr_cmplx a8{v1.data(), v1.size()};
     for (int i=0; i < 4; ++i)
     {
-        ASSERT_FLOAT_EQ(v1[i], a8[i].xi);
-        ASSERT_FLOAT_EQ(0, a8[i].xq);
+        ASSERT_FLOAT_EQ(v1[i], a8[i].re);
+        ASSERT_FLOAT_EQ(0, a8[i].im);
     }
 
     std::vector <::cmplx_t> v2 = {{1, 1}, {2, 2}, {3, 3}, {4, 4}};

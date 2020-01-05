@@ -34,8 +34,8 @@ arr_cmplx awgn(const arr_cmplx &arr, real_t snr)
     std::normal_distribution <real_t> d(0, stddev);
     for (int i=0; i < r.size(); ++i)
     {
-        r[i].xi += d(gen);
-        r[i].xq += d(gen);
+        r[i].re += d(gen);
+        r[i].im += d(gen);
     }
 
     return r;

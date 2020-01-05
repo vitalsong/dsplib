@@ -23,8 +23,8 @@ static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2)
     ASSERT_EQ(r1.size(), r2.size());
     for (int i=0; i < r1.size(); ++i)
     {
-        EXPECT_NEAR(r1[i].xi, r2[i].xi, EQ_ABS_ERR);
-        EXPECT_NEAR(r1[i].xq, r2[i].xq, EQ_ABS_ERR);
+        EXPECT_NEAR(r1[i].re, r2[i].re, EQ_ABS_ERR);
+        EXPECT_NEAR(r1[i].im, r2[i].im, EQ_ABS_ERR);
     }
 }
 

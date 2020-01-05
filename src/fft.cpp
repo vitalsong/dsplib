@@ -114,8 +114,8 @@ arr_cmplx fft(const arr_real &arr)
 
     for (int i=0; i < arr.size(); ++i)
     {
-        r[i].xi = arr[i];
-        r[i].xq = 0;
+        r[i].re = arr[i];
+        r[i].im = 0;
     }
 
     const cmplx_t* w = tables::dft_table(n);

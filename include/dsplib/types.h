@@ -13,23 +13,23 @@ typedef double real_t;
 //basic complex type
 struct cmplx_t
 {
-    cmplx_t(real_t _xi = 0, real_t _xq = 0) noexcept
+    cmplx_t(real_t _re = 0, real_t _im = 0) noexcept
     {
-        xi = _xi;
-        xq = _xq;
+        re = _re;
+        im = _im;
     }
 
     cmplx_t(const cmplx_t&) = default;
     cmplx_t& operator = (const cmplx_t&) = default;
 
-    real_t xi;
-    real_t xq;
+    real_t re;
+    real_t im;
 
     template <typename T>
     cmplx_t& operator = (const T& rhs) noexcept
     {
-        xi = rhs;
-        xq = 0;
+        re = rhs;
+        im = 0;
         return *this;
     }
 
@@ -39,39 +39,39 @@ struct cmplx_t
 
     cmplx_t& operator - () noexcept
     {
-        xi = -xi;
-        xq = -xq;
+        re = -re;
+        im = -im;
         return *this;
     }
 
     cmplx_t& operator += (const cmplx_t& rhs) noexcept
     {
-        xi += rhs.xi;
-        xq += rhs.xq;
+        re += rhs.re;
+        im += rhs.im;
         return *this;
     }
 
     cmplx_t& operator -= (const cmplx_t& rhs) noexcept
     {
-        xi -= rhs.xi;
-        xq -= rhs.xq;
+        re -= rhs.re;
+        im -= rhs.im;
         return *this;
     }
 
     cmplx_t& operator *= (const cmplx_t& rhs) noexcept
     {
-        real_t ti = (xi * rhs.xi) - (xq * rhs.xq);
-        xq = (xi * rhs.xq) + (xq * rhs.xi);
-        xi = ti;
+        real_t ti = (re * rhs.re) - (im * rhs.im);
+        im = (re * rhs.im) + (im * rhs.re);
+        re = ti;
         return *this;
     }
 
     cmplx_t& operator /= (const cmplx_t& rhs) noexcept
     {
-        real_t b = (rhs.xi * rhs.xi) + (rhs.xq * rhs.xq);
-        real_t ti = ((xi * rhs.xi) + (xq * rhs.xq)) / b;
-        xq = ((rhs.xi * xq) - (xi * rhs.xq)) / b;
-        xi = ti;
+        real_t b = (rhs.re * rhs.re) + (rhs.im * rhs.im);
+        real_t ti = ((re * rhs.re) + (im * rhs.im)) / b;
+        im = ((rhs.re * im) - (re * rhs.im)) / b;
+        re = ti;
         return *this;
     }
 
@@ -105,8 +105,8 @@ struct cmplx_t
 
     cmplx_t& operator *= (const real_t& rhs) noexcept
     {
-        xi = (xi * rhs);
-        xq = (xq * rhs);
+        re = (re * rhs);
+        im = (im * rhs);
         return *this;
     }
 
@@ -119,8 +119,8 @@ struct cmplx_t
 
     cmplx_t& operator /= (const real_t& rhs) noexcept
     {
-        xi = (xi / rhs);
-        xq = (xq / rhs);
+        re = (re / rhs);
+        im = (im / rhs);
         return *this;
     }
 
@@ -132,11 +132,11 @@ struct cmplx_t
     }
 
     bool operator > (const cmplx_t& rhs) const noexcept {
-        return (xi * xi + xq * xq) > (rhs.xi * rhs.xi + rhs.xq * rhs.xq);
+        return (re * re + im * im) > (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 
     bool operator < (const cmplx_t& rhs) const noexcept {
-        return (xi * xi + xq * xq) < (rhs.xi * rhs.xi + rhs.xq * rhs.xq);
+        return (re * re + im * im) < (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 };
 

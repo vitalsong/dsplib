@@ -16,8 +16,8 @@ TEST(MathTest, Max)
     ASSERT_FLOAT_EQ(::max(v1), v1[3]);
 
     ASSERT_EQ(::argmax(v2), 0);
-    ASSERT_FLOAT_EQ(::max(v2).xi, v2[0].xi);
-    ASSERT_FLOAT_EQ(::max(v2).xq, v2[0].xq);
+    ASSERT_FLOAT_EQ(::max(v2).re, v2[0].re);
+    ASSERT_FLOAT_EQ(::max(v2).im, v2[0].im);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -30,8 +30,8 @@ TEST(MathTest, Min)
     ASSERT_FLOAT_EQ(::min(v1), v1[0]);
 
     ASSERT_EQ(::argmin(v2), 1);
-    ASSERT_FLOAT_EQ(::min(v2).xi, v2[1].xi);
-    ASSERT_FLOAT_EQ(::min(v2).xq, v2[1].xq);
+    ASSERT_FLOAT_EQ(::min(v2).re, v2[1].re);
+    ASSERT_FLOAT_EQ(::min(v2).im, v2[1].im);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -114,12 +114,12 @@ TEST(MathTest, Exp)
     EXPECT_NEAR(x1, 2.7182818284590452, EQ_ABS_ERR);
 
     auto x2 = dsplib::exp(cmplx_t{0, M_PI});
-    EXPECT_NEAR(x2.xi, -1, EQ_ABS_ERR);
-    EXPECT_NEAR(x2.xq, 0, EQ_ABS_ERR);
+    EXPECT_NEAR(x2.re, -1, EQ_ABS_ERR);
+    EXPECT_NEAR(x2.im, 0, EQ_ABS_ERR);
 
     auto x3 = dsplib::expj(M_PI);
-    EXPECT_NEAR(x3.xi, -1, EQ_ABS_ERR);
-    EXPECT_NEAR(x3.xq, 0, EQ_ABS_ERR);
+    EXPECT_NEAR(x3.re, -1, EQ_ABS_ERR);
+    EXPECT_NEAR(x3.im, 0, EQ_ABS_ERR);
 
     auto t = range(0, 512) / 8000;
     auto v = t * 2 * M_PI * 440;

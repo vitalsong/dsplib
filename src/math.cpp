@@ -71,7 +71,7 @@ arr_real abs(const arr_cmplx &arr)
     arr_real r(arr.size());
     const int N = arr.size();
     for (int i=0; i < N; ++i) {
-        r[i] = sqrt(arr[i].xi * arr[i].xi + arr[i].xq * arr[i].xq);
+        r[i] = sqrt(arr[i].re * arr[i].re + arr[i].im * arr[i].im);
     }
 
     return r;
@@ -80,7 +80,7 @@ arr_real abs(const arr_cmplx &arr)
 //-------------------------------------------------------------------------------------------------
 real_t abs(cmplx_t v)
 {
-    return sqrt(v.xi * v.xi + v.xq * v.xq);
+    return sqrt(v.re * v.re + v.im * v.im);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -99,15 +99,15 @@ arr_real fabs(const arr_cmplx &arr)
 real_t fabs(cmplx_t v)
 {
     double min, max;
-    if (abs(v.xi) > abs(v.xq))
+    if (abs(v.re) > abs(v.im))
     {
-        min = abs(v.xq);
-        max = abs(v.xi);
+        min = abs(v.im);
+        max = abs(v.re);
     }
     else
     {
-        min = abs(v.xi);
-        max = abs(v.xq);
+        min = abs(v.re);
+        max = abs(v.im);
     }
 
     return max + (min / 2);
@@ -132,8 +132,8 @@ arr_cmplx round(const arr_cmplx &arr)
     const int N = arr.size();
     for (int i=0; i < N; ++i)
     {
-        r[i].xi = ::round(arr[i].xi);
-        r[i].xq = ::round(arr[i].xq);
+        r[i].re = ::round(arr[i].re);
+        r[i].im = ::round(arr[i].im);
     }
 
     return r;
@@ -158,8 +158,8 @@ cmplx_t sum(const arr_cmplx &arr)
     const int N = arr.size();
     for (int i=0; i < N; ++i)
     {
-        acc.xi += arr[i].xi;
-        acc.xq += arr[i].xq;
+        acc.re += arr[i].re;
+        acc.im += arr[i].im;
     }
 
     return acc;
@@ -200,7 +200,7 @@ arr_real real(const arr_cmplx &x)
 {
     arr_real r(x.size());
     for (int i=0; i < x.size(); ++i) {
-        r[i] = x[i].xi;
+        r[i] = x[i].re;
     }
 
     return r;
@@ -209,7 +209,7 @@ arr_real real(const arr_cmplx &x)
 //-------------------------------------------------------------------------------------------------
 real_t real(cmplx_t x)
 {
-    return x.xi;
+    return x.re;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ arr_real imag(const arr_cmplx &x)
 {
     arr_real r(x.size());
     for (int i=0; i < x.size(); ++i) {
-        r[i] = x[i].xq;
+        r[i] = x[i].im;
     }
 
     return r;
@@ -226,7 +226,7 @@ arr_real imag(const arr_cmplx &x)
 //-------------------------------------------------------------------------------------------------
 real_t imag(cmplx_t x)
 {
-    return x.xq;
+    return x.im;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -261,8 +261,8 @@ arr_cmplx complex(const arr_real &re, const arr_real &im)
     arr_cmplx r(n);
     for (int i=0; i < n; ++i)
     {
-        r[i].xi = re[i];
-        r[i].xq = im[i];
+        r[i].re = re[i];
+        r[i].im = im[i];
     }
 
     return r;
@@ -320,8 +320,8 @@ real_t rms(const arr_cmplx &arr)
     real_t sum = 0;
     for (int i=0; i < N; ++i)
     {
-        sum += (arr[i].xi * arr[i].xi);
-        sum += (arr[i].xq * arr[i].xq);
+        sum += (arr[i].re * arr[i].re);
+        sum += (arr[i].im * arr[i].im);
     }
 
     return sqrt(sum/N);
@@ -355,7 +355,7 @@ arr_cmplx conj(const arr_cmplx &x)
     int n = x.size();
     arr_cmplx r = x;
     for (int i=0; i < n; ++i) {
-        r[i].xq = -r[i].xq;
+        r[i].im = -r[i].im;
     }
     return r;
 }
@@ -363,7 +363,7 @@ arr_cmplx conj(const arr_cmplx &x)
 //-------------------------------------------------------------------------------------------------
 cmplx_t conj(cmplx_t x)
 {
-    x.xq = -x.xq;
+    x.im = -x.im;
     return x;
 }
 
@@ -413,14 +413,14 @@ arr_real angle(const arr_cmplx &arr)
 real_t angle(cmplx_t v)
 {
     real_t d = 0;
-    if (v.xi < 0) {
-        d = (v.xq > 0) ? (M_PI) : (-M_PI);
+    if (v.re < 0) {
+        d = (v.im > 0) ? (M_PI) : (-M_PI);
     }
     else {
         d = 0;
     }
 
-    return ::atan(v.xq / v.xi) + d;
+    return ::atan(v.im / v.re) + d;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -482,9 +482,9 @@ arr_cmplx exp(const arr_cmplx &arr)
     real_t v;
     for (int i=0; i < r.size(); ++i)
     {
-        v = ::exp(r[i].xi);
-        r[i].xi = v * ::cos(r[i].xq);
-        r[i].xq = v * ::sin(r[i].xq);
+        v = ::exp(r[i].re);
+        r[i].re = v * ::cos(r[i].im);
+        r[i].im = v * ::sin(r[i].im);
     }
 
     return r;
@@ -493,7 +493,7 @@ arr_cmplx exp(const arr_cmplx &arr)
 //-------------------------------------------------------------------------------------------------
 cmplx_t exp(cmplx_t v)
 {
-    return cmplx_t{::exp(v.xi) * ::cos(v.xq), ::exp(v.xi) * ::sin(v.xq)};
+    return cmplx_t{::exp(v.re) * ::cos(v.im), ::exp(v.re) * ::sin(v.im)};
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -502,8 +502,8 @@ arr_cmplx expj(const arr_real &im)
     arr_cmplx r(im.size());
     for (int i=0; i < r.size(); ++i)
     {
-        r[i].xi = ::cos(im[i]);
-        r[i].xq = ::sin(im[i]);
+        r[i].re = ::cos(im[i]);
+        r[i].im = ::sin(im[i]);
     }
 
     return r;

@@ -264,7 +264,7 @@ arr_cmplx &arr_cmplx::operator +=(const arr_real &rhs)
 
     int n = _vec.size();
     for (int i=0; i < n; ++i) {
-        _vec[i].xi += rhs[i];
+        _vec[i].re += rhs[i];
     }
 
     return *this;
@@ -279,7 +279,7 @@ arr_cmplx &arr_cmplx::operator -=(const arr_real &rhs)
 
     int n = _vec.size();
     for (int i=0; i < n; ++i) {
-        _vec[i].xi -= rhs[i];
+        _vec[i].re -= rhs[i];
     }
 
     return *this;
@@ -352,7 +352,7 @@ arr_cmplx &arr_cmplx::operator +=(const real_t &rhs)
 {
     int n = _vec.size();
     for (int i=0; i < n; ++i) {
-        _vec[i].xi += rhs;
+        _vec[i].re += rhs;
     }
 
     return *this;
@@ -363,7 +363,7 @@ arr_cmplx &arr_cmplx::operator -=(const real_t &rhs)
 {
     int n = _vec.size();
     for (int i=0; i < n; ++i) {
-        _vec[i].xi -= rhs;
+        _vec[i].re -= rhs;
     }
 
     return *this;

@@ -33,4 +33,15 @@ TEST(MathTest, FftCmplx)
     ASSERT_EQ_ARR_REAL(r, z);
 }
 
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Ifft)
+{
+    using namespace dsplib;
+    int nfft = 512;
+    auto x = complex(randn(nfft), randn(nfft));
+    auto y = fft(x);
+    auto xx = ifft(y);
+    ASSERT_EQ_ARR_CMPLX(x, xx);
+}
+
 #endif // FFT_TEST_H
