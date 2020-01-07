@@ -41,14 +41,16 @@ const double IR[4] = {1, 0, 0, 0};
 dsplib::arr_real h = dsplib::arr_real(IR, 4);
 auto flt = dsplib::fir(h);
 dsplib::arr_real x = dsplib::randn(10000);
-dsplib::arr_real y = flt.process(x);
+dsplib::arr_real y = flt.filter(x);
 ```
 
 Hilbert filter:
 ```cpp
 auto flt = dsplib::hilbert();
 dsplib::arr_real x = dsplib::randn(10000);
-dsplib::arr_cmplx y = flt.process(x);
+dsplib::arr_cmplx y1 = flt.filter(x); //sequence
+//or
+dsplib::arr_cmplx y2 = hilbert::process(x);
 ```
 
 Add White Gaussian Noise:
