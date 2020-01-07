@@ -11,5 +11,6 @@
 #include <dsplib/types.h>
 #include <dsplib/awgn.h>
 #include <dsplib/xcorr.h>
+#include <dsplib/medfilt.h>
 
 #endif // DSPLIB_H

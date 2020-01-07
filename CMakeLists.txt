@@ -14,6 +14,7 @@ set(SOURCES
     src/math.cpp
     src/window.cpp
     src/xcorr.cpp
+    src/medfilt.cpp
     )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})

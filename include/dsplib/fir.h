@@ -15,7 +15,7 @@ public:
     explicit fir(const arr_real& h);
 
     //main processing
-    arr_real process(const arr_real& s);
+    arr_real filter(const arr_real& s);
 
     //current impulse response
     const arr_real& impz() const;
@@ -38,7 +38,7 @@ public:
     explicit fir_cmplx(const arr_cmplx& h);
 
     //main processing
-    arr_cmplx process(const arr_cmplx& s);
+    arr_cmplx filter(const arr_cmplx& s);
 
     //current impulse response
     const arr_cmplx& impz() const;

@@ -15,13 +15,13 @@ public:
     explicit hilbert(const arr_real& h);
 
     //main processing
-    arr_cmplx process(const arr_real& s);
+    arr_cmplx filter(const arr_real& s);
 
     //current impulse response
     const arr_real& impz() const;
 
     //calculation of the analytical signal using DFT
-    static arr_cmplx dftcalc(const arr_real& s);
+    static arr_cmplx process(const arr_real& s);
 
 private:
     fir _fir;       ///< FIR filter for I channel

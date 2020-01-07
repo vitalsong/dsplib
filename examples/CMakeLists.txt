@@ -3,7 +3,8 @@ project(dsplib-examples LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCES
-    spectrum.cpp
+    #spectrum.cpp
+    medfilt.cpp
     )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../tools/plot)

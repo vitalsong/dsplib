@@ -38,7 +38,7 @@ hilbert::hilbert(const arr_real &h) : _fir(h)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert::process(const arr_real &s)
+arr_cmplx hilbert::filter(const arr_real &s)
 {
     int nd = _d.size();
     int ns = s.size();
@@ -58,7 +58,7 @@ arr_cmplx hilbert::process(const arr_real &s)
     }
 
     //pass the Q channel through the FIR filter
-    t = _fir.process(s);
+    t = _fir.filter(s);
 
     //save the Q channel
     for (int i=0; i < ns; ++i) {
@@ -75,7 +75,7 @@ const arr_real &hilbert::impz() const
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert::dftcalc(const arr_real &s)
+arr_cmplx hilbert::process(const arr_real &s)
 {
     int n = int(1) << nextpow2(s.size());
     arr_real in = arr_real::join(s, arr_real::zeros(n - s.size()));
