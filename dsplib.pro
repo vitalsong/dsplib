@@ -16,7 +16,6 @@ HEADERS += \
     include/dsplib.h \
     include/dsplib/hilbert.h \
     include/dsplib/fir.h \
-    include/dsplib/iir.h \
     include/dsplib/medfilt.h \
     include/dsplib/math.h \
     include/dsplib/xcorr.h \
@@ -24,7 +23,6 @@ HEADERS += \
     include/dsplib/types.h \
     include/dsplib/array.h \
     include/dsplib/math.h \
-    include/dsplib/service.h \
     include/dsplib/awgn.h \
     include/dsplib/fft.h \
     include/dsplib/ifft.h \
