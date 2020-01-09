@@ -2,6 +2,7 @@
 #define TYPES_H
 
 #include <vector>
+#include <stdint.h>
 
 namespace dsplib {
 
