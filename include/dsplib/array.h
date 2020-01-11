@@ -2,6 +2,7 @@
 #define ARRAY_H
 
 #include <dsplib/types.h>
+#include <vector>
 
 namespace dsplib {
 

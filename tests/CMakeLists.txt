@@ -8,6 +8,7 @@ set(SOURCES
     arr_real_test.cpp
     math_test.cpp
     fft_test.cpp
+    base_test.cpp
     )
 
 #set(BUILD_GMOCK OFF)

@@ -1,8 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <vector>
-#include <stdint.h>
+#include <cstddef>
+#include <complex>
 
 namespace dsplib {
 
@@ -14,23 +14,34 @@ typedef double real_t;
 //basic complex type
 struct cmplx_t
 {
-    cmplx_t(real_t _re = 0, real_t _im = 0) noexcept
-    {
-        re = _re;
-        im = _im;
-    }
+    constexpr cmplx_t(real_t _re = 0, real_t _im = 0) : re(_re), im(_im){}
+    constexpr cmplx_t(const std::complex<real_t>& v) : re(v.real()), im(v.imag()){}
+    constexpr cmplx_t(const cmplx_t&) = default;
 
-    cmplx_t(const cmplx_t&) = default;
-    cmplx_t& operator = (const cmplx_t&) = default;
+    //because cmplx_t x = 10i; is not compiled (C++14)
+    constexpr cmplx_t(_Complex double v) : cmplx_t(std::complex<double>(v)) {}
+
+    constexpr operator std::complex<real_t>() const {
+        return std::complex<real_t>(re, im);
+    }
 
     real_t re;
     real_t im;
+
+    cmplx_t& operator = (const cmplx_t&) = default;
 
     template <typename T>
     cmplx_t& operator = (const T& rhs) noexcept
     {
         re = rhs;
         im = 0;
+        return *this;
+    }
+
+    cmplx_t& operator = (const std::complex<double>& v) noexcept
+    {
+        re = v.real();
+        im = v.imag();
         return *this;
     }
 
@@ -140,6 +151,15 @@ struct cmplx_t
         return (re * re + im * im) < (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 };
+
+//user-defined literals (since C++14 can use std::complex literals i or j)
+constexpr cmplx_t operator"" _j(unsigned long long v) {
+    return cmplx_t{0.0, static_cast<real_t>(v)};
+}
+
+constexpr cmplx_t operator"" _j(long double v) {
+    return cmplx_t{0.0, static_cast<real_t>(v)};
+}
 
 } ///< dsplib
 

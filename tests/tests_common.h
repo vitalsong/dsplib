@@ -8,6 +8,14 @@
 
 //-------------------------------------------------------------------------------------------------
 template <typename T1, typename T2>
+static void ASSERT_CMPLX_EQ(const T1& val1, const T2& val2)
+{
+    ASSERT_EQ(val1.re, val2.re);
+    ASSERT_EQ(val1.im, val2.im);
+}
+
+//-------------------------------------------------------------------------------------------------
+template <typename T1, typename T2>
 static void ASSERT_EQ_ARR_REAL(const T1& r1, const T2& r2)
 {
     ASSERT_EQ(r1.size(), r2.size());
