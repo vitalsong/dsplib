@@ -4,75 +4,90 @@ C++ DSP library for MATLAB similar programming.
 
 ## Usage
 
-Basic operations:
+Scalar operations:
+```cpp
+dsplib::real_t v1;
+dsplib::cmplx_t v2;
+v1 = 10;
+v2 = v1;
+v2 = 10-10i;
+v2 = {10, -10};
+v2.re = 10;
+v2.im = -10;
+v2 = std::complex<double>(10, -10);
+```
+
+Vector operations:
 ```cpp
 using namespace dsplib;
-int n = 100;
-arr_real x1 = arr_real(n);
-arr_cmplx x2 = arr_cmplx(n);
-x1[0] = 10;
-x2[0] = {10, 10};
-x2[1].xi = 20;
-x2[1].xq = 20;
+arr_real x1 = arr_real::init({0, 1, 2, 3, 4});
+arr_cmplx x2 = arr_cmplx::init({1i, 1+2i, 4, -5-5i});
 arr_real y1 = x1 * x1;
 arr_real y2 = x1 * 1000;
 arr_cmplx y3 = x1 * x2;
 arr_cmplx y4 = x2 * 1000;
 arr_cmplx y5 = x2.slice(0, 10);
-arr_cmplx y6 = x1 * cmplx_t{0, 1};
+arr_cmplx y6 = x1 * 2i;
 ```
 
 Fast Fourier Transform:
 ```cpp
-dsplib::arr_real x = dsplib::randn(512);
-dsplib::arr_cmplx y = dsplib::fft(x);
+using namespace dsplib;
+arr_real x = randn(512);
+arr_cmplx y = fft(x);
 ```
 
 Inverse Fast Fourier Transform:
 ```cpp
-dsplib::arr_cmplx x = dsplib::arr_cmplx::zeros(512);
+using namespace dsplib;
+arr_cmplx x = arr_cmplx::zeros(512);
 x[10] = 1;
-dsplib::arr_cmplx y = dsplib::ifft(x);
+arr_cmplx y = ifft(x);
 ```
 
 FIR filter:
-```cpp 
+```cpp
+using namespace dsplib;
 const double IR[4] = {1, 0, 0, 0};
-dsplib::arr_real h = dsplib::arr_real(IR, 4);
-auto flt = dsplib::fir(h);
-dsplib::arr_real x = dsplib::randn(10000);
-dsplib::arr_real y = flt.filter(x);
+arr_real h = arr_real(IR, 4);
+auto flt = fir(h);
+arr_real x = randn(10000);
+arr_real y = flt.filter(x);
 ```
 
 Hilbert filter:
 ```cpp
-auto flt = dsplib::hilbert();
-dsplib::arr_real x = dsplib::randn(10000);
-dsplib::arr_cmplx y1 = flt.filter(x); //sequence
+using namespace dsplib;
+auto flt = hilbert();
+arr_real x = randn(10000);
+arr_cmplx y1 = flt.filter(x); //sequence
 //or
-dsplib::arr_cmplx y2 = hilbert::process(x);
+arr_cmplx y2 = hilbert::process(x);
 ```
 
 Add White Gaussian Noise:
 ```cpp
-dsplib::arr_real x = dsplib::randn(10000);
-dsplib::arr_real y = dsplib::awgn(x, 10);   //10dB
+using namespace dsplib;
+arr_real x = randn(10000);
+arr_real y = awgn(x, 10);   //10dB
 ```
 
 Cross-correlation:
 ```cpp
-dsplib::arr_real x1 = dsplib::randn(500);
-dsplib::arr_real x2 = dsplib::awgn(x1, 10);
-dsplib::arr_real y = dsplib::xcorr(x1, x2);
+using namespace dsplib;
+arr_real x1 = randn(500);
+arr_real x2 = awgn(x1, 10);
+arr_real y = xcorr(x1, x2);
 ```
 
 Simple Spectrum Analyze (16-bit scale):
 ```cpp
+using namespace dsplib;
 int nfft = 1024;
-dsplib::arr_real x = dsplib::randn(nfft) * 1000;
-dsplib::arr_real w = dsplib::window::hann(nfft);
+arr_real x = randn(nfft) * 1000;
+arr_real w = window::hann(nfft);
 x *= w;
-dsplib::arr_cmplx y = dsplib::fft(x) / (nfft / 2);
-dsplib::arr_real z = dsplib::abs(y);
-z = dsplib::log10(z / 0x7FFF) * 20;
+arr_cmplx y = fft(x) / (nfft / 2);
+arr_real z = abs(y);
+z = log10(z / 0x7FFF) * 20;
 ```
