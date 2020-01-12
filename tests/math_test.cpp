@@ -10,28 +10,26 @@ using namespace dsplib;
 TEST(MathTest, Max)
 {
     auto v1 = ::arr_real::init({1, 2, 3, 4});
-    auto v2 = ::arr_cmplx::init({{1, 5}, {2, 0}, {3, 0}, {4, 0}});
+    auto v2 = ::arr_cmplx::init({1+5i, 2, 3, 4});
 
     ASSERT_EQ(::argmax(v1), 3);
     ASSERT_FLOAT_EQ(::max(v1), v1[3]);
 
     ASSERT_EQ(::argmax(v2), 0);
-    ASSERT_FLOAT_EQ(::max(v2).re, v2[0].re);
-    ASSERT_FLOAT_EQ(::max(v2).im, v2[0].im);
+    ASSERT_CMPLX_EQ(::max(v2), v2[0]);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Min)
 {
     auto v1 = ::arr_real::init({1, 2, 3, 4});
-    auto v2 = ::arr_cmplx::init({{1, 5}, {2, 0}, {3, 0}, {4, 0}});
+    auto v2 = ::arr_cmplx::init({1+5i, 2, 3, 4});
 
     ASSERT_EQ(::argmin(v1), 0);
     ASSERT_FLOAT_EQ(::min(v1), v1[0]);
 
     ASSERT_EQ(::argmin(v2), 1);
-    ASSERT_FLOAT_EQ(::min(v2).re, v2[1].re);
-    ASSERT_FLOAT_EQ(::min(v2).im, v2[1].im);
+    ASSERT_CMPLX_EQ(::min(v2), v2[1]);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -68,15 +66,15 @@ TEST(MathTest, Pow2)
     auto r2 = ::arr_real::init({1, 1, 1, 1});
     ASSERT_EQ_ARR_REAL(::pow2(v2), r2);
 
-    auto v3 = ::arr_cmplx::init({{1, 1}, {1, 0}, {0, 1}, {0, 0}});
-    auto r3 = ::arr_cmplx::init({{0, 2}, {1, 0}, {-1, 0}, {0, 0}});
+    auto v3 = ::arr_cmplx::init({1+1i, 1, 1i, 0});
+    auto r3 = ::arr_cmplx::init({2i, 1, -1, 0});
     ASSERT_EQ_ARR_CMPLX(::pow2(v3), r3);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Angle)
 {
-    auto x1 = ::arr_cmplx::init({{1, 0}, {0, 1}, {1, 1}, {-1, 0}});
+    auto x1 = ::arr_cmplx::init({1, 1i, 1+1i, -1});
     auto y1 = ::arr_real::init({0, M_PI/2, M_PI/4, M_PI});
     ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
 }

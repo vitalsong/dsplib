@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <complex>
 
+#include <dsplib/literals.h>
+
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
@@ -151,15 +153,6 @@ struct cmplx_t
         return (re * re + im * im) < (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 };
-
-//user-defined literals (since C++14 can use std::complex literals i or j)
-constexpr cmplx_t operator"" _j(unsigned long long v) {
-    return cmplx_t{0.0, static_cast<real_t>(v)};
-}
-
-constexpr cmplx_t operator"" _j(long double v) {
-    return cmplx_t{0.0, static_cast<real_t>(v)};
-}
 
 } ///< dsplib
 
