@@ -58,7 +58,7 @@ static void fir_example()
 
     //view spectrum
     int nfft = 1024;
-    auto r = x_out.slice(0, nfft-1) * dsp::window::hamming(nfft);
+    auto r = x_out.slice(0, nfft) * dsp::window::hamming(nfft);
     auto y = dsp::fft(r) / (nfft/2);
     auto z = dsp::log10(dsp::abs(y) / 0x7FFF) * 20;
 

@@ -356,7 +356,7 @@ void arr_real::set(int p1, int p2, real_t value)
 //-------------------------------------------------------------------------------------------------
 arr_real arr_real::slice(int i1, int i2) const
 {
-    int n = i2 - i1 + 1;
+    int n = i2 - i1;
     arr_real r(n);
     for (int i=0; i < n; ++i) {
         r[i] = _vec[i+i1];

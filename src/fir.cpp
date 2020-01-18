@@ -42,7 +42,7 @@ arr_real fir::filter(const arr_real &s)
     //keep filter delay
     int nd = _h.size() - 1;
     int nx = x.size();
-    _d = x.slice((nx - nd), (nx - 1));
+    _d = x.slice((nx - nd), nx);
 
     return r;
 }
@@ -58,7 +58,7 @@ arr_cmplx fir_cmplx::filter(const arr_cmplx &s)
     //keep filter delay
     int nd = _h.size() - 1;
     int nx = x.size();
-    _d = x.slice((nx - nd), (nx - 1));
+    _d = x.slice((nx - nd), nx);
 
     return r;
 }

@@ -24,13 +24,13 @@ arr_real xcorr(const arr_real &x1, const arr_real &x2)
     arr_real z = real(ifft(z1 * z2));
 
     //center alignment
-    arr_real p1 = z.slice(0, M/2-1);
-    arr_real p2 = z.slice(M/2, M-1);
+    arr_real p1 = z.slice(0, M/2);
+    arr_real p2 = z.slice(M/2, M);
     z = arr_real::join(p2, p1);
 
     //cut off the excess at the edges (?)
     int m = (M - (N1 + N2 - 1)) / 2;
-    return z.slice(m+1, M-m-1);
+    return z.slice(m+1, M-m);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -56,13 +56,13 @@ arr_cmplx xcorr(const arr_cmplx &x1, const arr_cmplx &x2)
     auto z = ifft(z1 * z2);
 
     //center alignment
-    arr_cmplx p1 = z.slice(0, M/2-1);
-    arr_cmplx p2 = z.slice(M/2, M-1);
+    arr_cmplx p1 = z.slice(0, M/2);
+    arr_cmplx p2 = z.slice(M/2, M);
     z = arr_cmplx::join(p2, p1);
 
     //cut off the excess at the edges (?)
     int m = (M - (N1 + N2 - 1)) / 2;
-    return z.slice(m+1, M-m-1);
+    return z.slice(m+1, M-m);
 }
 
 //-------------------------------------------------------------------------------------------------

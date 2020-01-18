@@ -460,7 +460,7 @@ void arr_cmplx::set(int p1, int p2, cmplx_t value)
 //-------------------------------------------------------------------------------------------------
 arr_cmplx arr_cmplx::slice(int i1, int i2) const
 {
-    int n = i2 - i1 + 1;
+    int n = i2 - i1;
     arr_cmplx r(n);
     for (int i=0; i < n; ++i) {
         r[i] = _vec[i+i1];

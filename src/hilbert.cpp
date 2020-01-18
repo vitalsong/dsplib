@@ -47,7 +47,7 @@ arr_cmplx hilbert::filter(const arr_real &s)
     //update delay
     //PS: ugly, replace the function delay (_d, s)
     arr_real t = arr_real::join(_d, s);
-    _d = t.slice(n-nd, n-1);
+    _d = t.slice(n-nd, n);
 
     //vector for storing the result
     arr_cmplx r(ns);
