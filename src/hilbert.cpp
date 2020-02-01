@@ -25,20 +25,20 @@ const real_t DEFAULT_FIR[DEFAULT_FIR_SIZE] = {
 }
 
 //-------------------------------------------------------------------------------------------------
-hilbert::hilbert() : hilbert(arr_real(DEFAULT_FIR, DEFAULT_FIR_SIZE))
+hilbert_filter::hilbert_filter() : hilbert_filter(arr_real(DEFAULT_FIR, DEFAULT_FIR_SIZE))
 {
     //nothing to do
 }
 
 //-------------------------------------------------------------------------------------------------
-hilbert::hilbert(const arr_real &h) : _fir(h)
+hilbert_filter::hilbert_filter(const arr_real &h) : _fir(h)
 {
     _h = h;
     _d = arr_real::zeros((h.size()-1)/2);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert::filter(const arr_real &s)
+arr_cmplx hilbert_filter::filter(const arr_real &s)
 {
     int nd = _d.size();
     int ns = s.size();
@@ -69,13 +69,13 @@ arr_cmplx hilbert::filter(const arr_real &s)
 }
 
 //-------------------------------------------------------------------------------------------------
-const arr_real &hilbert::impz() const
+const arr_real &hilbert_filter::impz() const
 {
     return _h;
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert::process(const arr_real &s)
+arr_cmplx hilbert(const arr_real &s)
 {
     int n = int(1) << nextpow2(s.size());
     arr_real in = arr_real::join(s, arr_real::zeros(n - s.size()));

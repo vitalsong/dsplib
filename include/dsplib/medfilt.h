@@ -5,13 +5,16 @@
 
 namespace dsplib {
 
-//nth-order one-dimensional median filter
-class medfilt
+arr_real medfilt(arr_real& x, int n);
+
+/*!
+ * \brief Nth-order one-dimensional median filter
+ */
+class median_filter
 {
 public:
-    explicit medfilt(int n=3);
+    explicit median_filter(int n=3);
     arr_real filter(const arr_real& x);
-    static arr_real process(arr_real& x, int n);
 
 private:
     arr_real _d;    ///< delay

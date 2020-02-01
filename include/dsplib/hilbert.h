@@ -6,22 +6,26 @@
 namespace dsplib {
 
 /*!
+ * \brief Calculation of the analytical signal using DFT
+ * \param s Input [n]
+ * \return Output [n]
+ */
+arr_cmplx hilbert(const arr_real& s);
+
+/*!
  * \brief Hilbert filter class
  */
-class hilbert
+class hilbert_filter
 {
 public:
-    hilbert();
-    explicit hilbert(const arr_real& h);
+    hilbert_filter();
+    explicit hilbert_filter(const arr_real& h);
 
     //main processing
     arr_cmplx filter(const arr_real& s);
 
     //current impulse response
     const arr_real& impz() const;
-
-    //calculation of the analytical signal using DFT
-    static arr_cmplx process(const arr_real& s);
 
 private:
     fir _fir;       ///< FIR filter for I channel

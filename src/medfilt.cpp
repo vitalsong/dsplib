@@ -37,7 +37,7 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old)
 }
 
 //------------------------------------------------------------------------------------------
-medfilt::medfilt(int n)
+median_filter::median_filter(int n)
 {
     assert(n >= 3);
     _i = 0;
@@ -47,7 +47,7 @@ medfilt::medfilt(int n)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real medfilt::filter(const arr_real &x)
+arr_real median_filter::filter(const arr_real &x)
 {
     auto y = arr_real::zeros(x.size());
     for (int i=0; i < x.size(); ++i)
@@ -62,9 +62,9 @@ arr_real medfilt::filter(const arr_real &x)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real medfilt::process(arr_real &x, int n)
+arr_real medfilt(arr_real &x, int n)
 {
-    auto flt = medfilt(n);
+    auto flt = median_filter(n);
     auto y = flt.filter(x);
     return y;
 }

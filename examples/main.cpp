@@ -25,7 +25,7 @@ static void medfilt_example()
     int fs = 100;
     auto t = dsp::range(0, 1, 1.0/fs);
     auto x = dsp::sin(t*2*M_PI*3) + dsp::sin(t*2*M_PI*40)*0.25;
-    auto y = dsp::medfilt::process(x, 10);
+    auto y = dsp::medfilt(x, 10);
 
     plt::title("Medfilt Example");
     plt::plot(t, x);
@@ -74,7 +74,7 @@ static void hilbert_example()
     int n = 1000;
     auto t = dsp::range(0, n) * 2 * M_PI * 40 / fs;
     auto x = dsp::sin(t) * 100;
-    auto y = dsp::hilbert::process(x);
+    auto y = dsp::hilbert(x);
 
     plt::title("Hilbert Example");
     plt::plot(dsp::real(y));
