@@ -38,7 +38,7 @@ hilbert_filter::hilbert_filter(const arr_real &h) : _fir(h)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert_filter::filter(const arr_real &s)
+arr_cmplx hilbert_filter::process(const arr_real &s)
 {
     int nd = _d.size();
     int ns = s.size();
@@ -58,7 +58,7 @@ arr_cmplx hilbert_filter::filter(const arr_real &s)
     }
 
     //pass the Q channel through the FIR filter
-    t = _fir.filter(s);
+    t = _fir.process(s);
 
     //save the Q channel
     for (int i=0; i < ns; ++i) {

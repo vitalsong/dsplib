@@ -32,7 +32,7 @@ fir_cmplx::fir_cmplx(const arr_cmplx &h)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real fir::filter(const arr_real &s)
+arr_real fir::process(const arr_real &s)
 {
     auto x = arr_real::join(_d, s);
 
@@ -48,7 +48,7 @@ arr_real fir::filter(const arr_real &s)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fir_cmplx::filter(const arr_cmplx &s)
+arr_cmplx fir_cmplx::process(const arr_cmplx &s)
 {
     auto x = arr_cmplx::join(_d, s);
 

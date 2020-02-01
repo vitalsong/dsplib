@@ -22,7 +22,7 @@ public:
     explicit hilbert_filter(const arr_real& h);
 
     //main processing
-    arr_cmplx filter(const arr_real& s);
+    arr_cmplx process(const arr_real& s);
 
     //current impulse response
     const arr_real& impz() const;

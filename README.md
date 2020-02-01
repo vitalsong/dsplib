@@ -52,7 +52,7 @@ const double IR[4] = {1, 0, 0, 0};
 arr_real h = arr_real(IR, 4);
 auto flt = fir(h);
 arr_real x = randn(10000);
-arr_real y = flt.filter(x);
+arr_real y = flt.process(x);
 ```
 
 Hilbert filter:
@@ -60,7 +60,7 @@ Hilbert filter:
 using namespace dsplib;
 auto flt = hilbert_filter();
 arr_real x = randn(10000);
-arr_cmplx y1 = flt.filter(x);
+arr_cmplx y1 = flt.process(x);
 //or
 arr_cmplx y2 = hilbert(x);
 ```

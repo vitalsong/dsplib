@@ -3,6 +3,21 @@
 namespace plt = dsplib::plot;
 namespace dsp = dsplib;
 
+//fs = 2000Hz, start = 200Hz, stop = 300Hz, attenuation = -80dB
+static const int IR_LEN = 45;
+static const double IR[IR_LEN] =
+{
+    -0.00038208231336125866, -0.0014251618131260284, -0.0034611155687191593, -0.006377681668456472, -0.009338694093439029,
+    -0.010721539707974506, -0.008542541437724895, -0.0013790909582854624, 0.010515511659775947, 0.024478484368800194,
+    0.03568818871259766, 0.038677302188105625, 0.029782915282474908, 0.009586710099600326, -0.015891560978081032,
+    -0.0361941327639497, -0.03970916681917197, -0.0182415126115788, 0.028935349277648056, 0.09341675013735361,
+    0.15945198560909052, 0.20882683425444856, 0.22711048813297713, 0.20882683425444856, 0.15945198560909052,
+    0.09341675013735361, 0.028935349277648056, -0.0182415126115788, -0.03970916681917197, -0.0361941327639497,
+    -0.015891560978081032, 0.009586710099600326, 0.029782915282474908, 0.038677302188105625, 0.03568818871259766,
+    0.024478484368800194, 0.010515511659775947, -0.0013790909582854624, -0.008542541437724895, -0.010721539707974506,
+    -0.009338694093439029, -0.006377681668456472, -0.0034611155687191593, -0.0014251618131260284, -0.00038208231336125866
+};
+
 //--------------------------------------------------------------------------------
 static void spectrum_example()
 {
@@ -49,21 +64,18 @@ static void xcorr_example()
 //--------------------------------------------------------------------------------
 static void fir_example()
 {
-    const double IR[4] = {0.25, 0.25, 0.25, 0.25};
+    int fs = 2000;
+    int n = 200;
 
-    //filter
-    auto flt = dsp::fir(dsp::arr_real(IR, 4));
-    auto x_in = dsp::randn(10000) * 100;
-    auto x_out = flt.filter(x_in);
-
-    //view spectrum
-    int nfft = 1024;
-    auto r = x_out.slice(0, nfft) * dsp::window::hamming(nfft);
-    auto y = dsp::fft(r) / (nfft/2);
-    auto z = dsp::log10(dsp::abs(y) / 0x7FFF) * 20;
+    dsp::arr_real h(IR, IR_LEN);
+    auto flt = dsp::fir(h);
+    auto t = dsp::range(0, n) * 2 * M_PI * 50 / fs;
+    auto x_in = dsp::sin(t) * 100 + dsp::randn(n) * 10;
+    auto x_out = flt.process(x_in);
 
     plt::title("LP FIR Example");
-    plt::plot(z);
+    plt::plot(x_in);
+    plt::plot(x_out);
     plt::show();
 }
 
@@ -83,11 +95,31 @@ static void hilbert_example()
 }
 
 //--------------------------------------------------------------------------------
-int main()
+static void interp_example()
 {
+    int fs = 2000;
+    int n = 30;
+    int m = 4;
+
+    dsp::arr_real h(IR, IR_LEN);
+    auto flt = dsp::interp_filter(h, m);
+    auto t = dsp::range(0, n) * 2 * M_PI * 200 / fs;
+    auto x_in = dsp::sin(t) * 100;
+    auto x_out = flt.process(x_in);
+
+    plt::title("Interp 4x Example");
+    plt::plot(dsp::range(0, n * m, m), x_in.slice(0, n));
+    plt::plot(x_out.slice(0, n * m));
+    plt::show();
+}
+
+//--------------------------------------------------------------------------------
+int main()
+{  
     spectrum_example();
     medfilt_example();
     xcorr_example();
     fir_example();
     hilbert_example();
+    interp_example();
 }

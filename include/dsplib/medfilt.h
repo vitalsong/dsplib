@@ -14,7 +14,7 @@ class median_filter
 {
 public:
     explicit median_filter(int n=3);
-    arr_real filter(const arr_real& x);
+    arr_real process(const arr_real& x);
 
 private:
     arr_real _d;    ///< delay

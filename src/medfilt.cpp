@@ -47,7 +47,7 @@ median_filter::median_filter(int n)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real median_filter::filter(const arr_real &x)
+arr_real median_filter::process(const arr_real &x)
 {
     auto y = arr_real::zeros(x.size());
     for (int i=0; i < x.size(); ++i)
@@ -65,7 +65,7 @@ arr_real median_filter::filter(const arr_real &x)
 arr_real medfilt(arr_real &x, int n)
 {
     auto flt = median_filter(n);
-    auto y = flt.filter(x);
+    auto y = flt.process(x);
     return y;
 }
 
