@@ -26,7 +26,7 @@ arr_real y1 = x1 * x1;
 arr_real y2 = x1 * 1000;
 arr_cmplx y3 = x1 * x2;
 arr_cmplx y4 = x2 * 1000;
-arr_cmplx y5 = x2.slice(0, 10);
+arr_cmplx y5 = x2.slice(0, 2);
 arr_cmplx y6 = x1 * 2i;
 ```
 
@@ -58,11 +58,11 @@ arr_real y = flt.filter(x);
 Hilbert filter:
 ```cpp
 using namespace dsplib;
-auto flt = hilbert();
+auto flt = hilbert_filter();
 arr_real x = randn(10000);
-arr_cmplx y1 = flt.filter(x); //sequence
+arr_cmplx y1 = flt.filter(x);
 //or
-arr_cmplx y2 = hilbert::process(x);
+arr_cmplx y2 = hilbert(x);
 ```
 
 Add White Gaussian Noise:
