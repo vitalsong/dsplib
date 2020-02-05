@@ -7,6 +7,7 @@
 #include <dsplib/literals.h>
 
 namespace dsplib {
+using namespace std::complex_literals;
 
 //-------------------------------------------------------------------------------------------------
 //base scalar type
@@ -19,9 +20,6 @@ struct cmplx_t
     constexpr cmplx_t(real_t _re = 0, real_t _im = 0) : re(_re), im(_im){}
     constexpr cmplx_t(const std::complex<real_t>& v) : re(v.real()), im(v.imag()){}
     constexpr cmplx_t(const cmplx_t&) = default;
-
-    //because cmplx_t x = 10i; is not compiled (C++14)
-    constexpr cmplx_t(_Complex double v) : cmplx_t(std::complex<double>(v)) {}
 
     constexpr operator std::complex<real_t>() const {
         return std::complex<real_t>(re, im);
