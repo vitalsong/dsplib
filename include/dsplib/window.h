@@ -1,5 +1,4 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -15,5 +14,3 @@ arr_real gauss(int n);
 
 } ///< window
 } ///< dsplib
-
-#endif // WINDOW_H

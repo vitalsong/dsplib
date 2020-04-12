@@ -1,5 +1,4 @@
-#ifndef HILBERT_H
-#define HILBERT_H
+#pragma once
 
 #include <dsplib/fir.h>
 
@@ -34,5 +33,3 @@ private:
 };
 
 }   ///< dsplib
-
-#endif // HILBERT_H

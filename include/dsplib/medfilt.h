@@ -1,5 +1,4 @@
-#ifndef MEDFILT_H
-#define MEDFILT_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -24,5 +23,3 @@ private:
 };
 
 }   ///< dsplib
-
-#endif // MEDFILT_H

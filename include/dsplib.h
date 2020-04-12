@@ -1,5 +1,4 @@
-#ifndef DSPLIB_H
-#define DSPLIB_H
+#pragma once
 
 #include <dsplib/array.h>
 #include <dsplib/fft.h>
@@ -13,5 +12,3 @@
 #include <dsplib/xcorr.h>
 #include <dsplib/medfilt.h>
 #include <dsplib/interp.h>
-
-#endif // DSPLIB_H

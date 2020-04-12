@@ -1,5 +1,4 @@
-#ifndef DFT_H
-#define DFT_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -22,5 +21,3 @@ arr_cmplx fft(const arr_cmplx& arr);
 arr_cmplx fft(const arr_real& arr);
 
 } ///< dsplib
-
-#endif // DFT_H

@@ -1,5 +1,4 @@
-#ifndef FIR_H
-#define FIR_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } ///< dsplib
-
-#endif // FIR_H

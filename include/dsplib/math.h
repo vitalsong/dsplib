@@ -1,5 +1,4 @@
-#ifndef MATH_H
-#define MATH_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -110,5 +109,3 @@ arr_real randn(int n);
 real_t apprx(real_t y0, real_t y1, real_t y2);
 
 } ///< dsplib
-
-#endif // MATH_H

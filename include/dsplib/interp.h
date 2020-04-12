@@ -1,5 +1,4 @@
-#ifndef INTERP_H
-#define INTERP_H
+#pragma once
 
 #include <dsplib/array.h>
 #include <dsplib/fir.h>
@@ -33,5 +32,3 @@ private:
 };
 
 }   ///< dsplib
-
-#endif // INTERP_H

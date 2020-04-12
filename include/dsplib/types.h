@@ -1,8 +1,4 @@
-#ifndef TYPES_H
-#define TYPES_H
-
-#include <cstddef>
-#include <complex>
+#pragma once
 
 #include <dsplib/literals.h>
 
@@ -153,5 +149,3 @@ struct cmplx_t
 };
 
 } ///< dsplib
-
-#endif // TYPES_H

@@ -1,5 +1,4 @@
-#ifndef XCORR_H
-#define XCORR_H
+#pragma once
 
 #include <dsplib/array.h>
 
@@ -25,5 +24,3 @@ arr_cmplx xcorr(const arr_cmplx& x1, const arr_cmplx& x2);
 arr_cmplx xcorr(const arr_cmplx& x);
 
 } ///< dsplib
-
-#endif // XCORR_H

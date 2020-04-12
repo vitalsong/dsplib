@@ -1,5 +1,4 @@
-#ifndef IDFT_H
-#define IDFT_H
+#pragma once
 
 #include <dsplib/types.h>
 #include <dsplib/array.h>
@@ -15,5 +14,3 @@ namespace dsplib {
 arr_cmplx ifft(const arr_cmplx& arr);
 
 } ///< dsplib
-
-#endif // IDFT_H

@@ -1,5 +1,4 @@
-#ifndef ARRAY_H
-#define ARRAY_H
+#pragma once
 
 #include <dsplib/types.h>
 #include <vector>
@@ -220,5 +219,3 @@ private:
 };
 
 } ///< dsplib
-
-#endif // ARRAY_H

@@ -1,11 +1,10 @@
-#ifndef COMPLEX_LITERALS
-#define COMPLEX_LITERALS
+#pragma once
+
+#include <complex>
 
 #pragma GCC system_header
 
 #if (__cplusplus >= 201103L) & (__cplusplus < 201309)
-
-#include <complex>
 
 namespace std _GLIBCXX_VISIBILITY(default) {
 inline namespace literals {
@@ -44,5 +43,3 @@ _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace
 
 #endif  // C++11/14
-
-#endif  /* COMPLEX_LITERALS */
