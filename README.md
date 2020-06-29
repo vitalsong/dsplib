@@ -1,5 +1,7 @@
 # DSPLIB
 
+[![Build Status](https://travis-ci.com/vitalsong/dsplib.svg?branch=master)](https://travis-ci.com/vitalsong/dsplib)
+
 C++ DSP library for MATLAB similar programming.
 
 ## Usage
