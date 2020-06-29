@@ -9,12 +9,12 @@ set(SOURCES
     math_test.cpp
     fft_test.cpp
     base_test.cpp
-    )
+)
 
-#set(BUILD_GMOCK OFF)
+set(BUILD_GMOCK OFF)
 add_subdirectory(googletests)
 include_directories(googletests/googletest/include)
-add_test(${PROJECT_NAME} "dsplib-tests")
+add_test(${PROJECT_NAME} "tests")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} dsplib gtest)

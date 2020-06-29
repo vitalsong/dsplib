@@ -13,14 +13,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #define __cpp_lib_complex_udls 201309
 
-  constexpr std::complex<float>
-  operator""if(long double __num)
-  { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
-  constexpr std::complex<float>
-  operator""if(unsigned long long __num)
-  { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
   constexpr std::complex<double>
   operator""i(long double __num)
   { return std::complex<double>{0.0, static_cast<double>(__num)}; }

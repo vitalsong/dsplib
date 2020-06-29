@@ -2,6 +2,27 @@
 
 #include <dsplib/literals.h>
 
+// fix for interger real (because 5+5i is not compiled, but 5.0+5i is OK)
+//-------------------------------------------------------------------------------------------------
+inline std::complex<double> operator + (const int& lhs, const std::complex<double>& rhs) {
+    return std::complex<double>(double(lhs)) + rhs;
+}
+
+//-------------------------------------------------------------------------------------------------
+inline std::complex<double> operator - (const int& lhs, const std::complex<double>& rhs) {
+    return std::complex<double>(double(lhs)) - rhs;
+}
+
+//-------------------------------------------------------------------------------------------------
+inline std::complex<double> operator + (const std::complex<double>& lhs, const int& rhs) {
+    return lhs + std::complex<double>(double(rhs));
+}
+
+//-------------------------------------------------------------------------------------------------
+inline std::complex<double> operator - (const std::complex<double>& lhs, const int& rhs) {
+    return lhs - std::complex<double>(double(rhs));
+}
+
 namespace dsplib {
 using namespace std::complex_literals;
 
@@ -15,6 +36,7 @@ struct cmplx_t
 {
     constexpr cmplx_t(real_t _re = 0, real_t _im = 0) : re(_re), im(_im){}
     constexpr cmplx_t(const std::complex<real_t>& v) : re(v.real()), im(v.imag()){}
+    constexpr cmplx_t(_Complex double v) : cmplx_t(std::complex<double>(v)) {}
     constexpr cmplx_t(const cmplx_t&) = default;
 
     constexpr operator std::complex<real_t>() const {
