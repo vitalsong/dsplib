@@ -1,5 +1,4 @@
-#ifndef TESTS_COMMON_H
-#define TESTS_COMMON_H
+#pragma once
 
 #include <dsplib.h>
 #include <gtest/gtest.h>
@@ -35,5 +34,3 @@ static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2)
         EXPECT_NEAR(r1[i].im, r2[i].im, EQ_ABS_ERR);
     }
 }
-
-#endif // TESTS_COMMON_H

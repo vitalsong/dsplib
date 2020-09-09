@@ -19,13 +19,13 @@ set(SOURCES
     src/xcorr.cpp
     src/medfilt.cpp
     src/interp.cpp
-    )
+    src/dft.cpp
+)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_definitions(${PROJECT_NAME} PRIVATE _USE_MATH_DEFINES)
 
-#enable_testing()
-if (CMAKE_TESTING_ENABLED)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     add_subdirectory(tests)
-endif ()
+endif()

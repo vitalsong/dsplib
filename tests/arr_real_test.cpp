@@ -1,6 +1,3 @@
-#ifndef ARR_REAL_TEST_H
-#define ARR_REAL_TEST_H
-
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -91,5 +88,3 @@ TEST(ArrRealTest, Zeros)
     auto v = ::arr_real::zeros(4);
     ASSERT_EQ_ARR_REAL(r, v);
 }
-
-#endif // ARR_REAL_TEST_H

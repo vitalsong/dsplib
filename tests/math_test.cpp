@@ -1,6 +1,3 @@
-#ifndef MATH_TEST_H
-#define MATH_TEST_H
-
 #include <math.h>
 #include "tests_common.h"
 
@@ -125,5 +122,3 @@ TEST(MathTest, Exp)
     auto y4 = dsplib::complex(dsplib::cos(v), dsplib::sin(v));
     ASSERT_EQ_ARR_CMPLX(x4, y4);
 }
-
-#endif // MATH_TEST_H

@@ -1,6 +1,3 @@
-#ifndef FFT_TEST_H
-#define FFT_TEST_H
-
 #include "tests_common.h"
 
 //-------------------------------------------------------------------------------------------------
@@ -24,5 +21,3 @@ TEST(BaseTest, CmplxStdLiteral)
     ASSERT_EQ(x5.real(), 10);
     ASSERT_EQ(x5.imag(), -10);
 }
-
-#endif // FFT_TEST_H

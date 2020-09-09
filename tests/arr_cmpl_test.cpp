@@ -1,6 +1,3 @@
-#ifndef ARR_CMPL_TEST_H
-#define ARR_CMPL_TEST_H
-
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -156,5 +153,3 @@ TEST(ArrCmplxTest, Zeros)
     auto v = ::arr_cmplx::zeros(4);
     ASSERT_EQ_ARR_CMPLX(r, v);
 }
-
-#endif // ARR_CMPL_TEST_H
