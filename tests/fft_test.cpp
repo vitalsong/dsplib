@@ -10,7 +10,7 @@ TEST(MathTest, FftReal)
     auto x = sin(range(nfft) * 2 * M_PI * idx / nfft);
     auto y = fft(x) / nfft;
     auto z = abs(y);
-    auto r = arr_real::zeros(nfft);
+    auto r = zeros(nfft);
     r[idx] = 0.5;
     r[nfft-idx] = 0.5;
     ASSERT_EQ_ARR_REAL(r, z);
@@ -25,7 +25,7 @@ TEST(MathTest, FftCmplx)
     auto x = expj(range(nfft) * 2 * M_PI * idx / nfft);
     auto y = fft(x) / nfft;
     auto z = abs(y);
-    auto r = arr_real::zeros(nfft);
+    auto r = zeros(nfft);
     r[idx] = 1;
     ASSERT_EQ_ARR_REAL(r, z);
 }

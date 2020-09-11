@@ -10,7 +10,7 @@ TEST(DftTest, DftReal)
     auto x = sin(range(ndft) * 2 * M_PI * idx / ndft);
     auto y = dft(x) / ndft;
     auto z = abs(y);
-    auto r = arr_real::zeros(ndft);
+    auto r = zeros(ndft);
     r[idx] = 0.5;
     r[ndft-idx] = 0.5;
     ASSERT_EQ_ARR_REAL(r, z);
@@ -25,7 +25,7 @@ TEST(DftTest, DftCmplx)
     auto x = expj(range(ndft) * 2 * M_PI * idx / ndft);
     auto y = dft(x) / ndft;
     auto z = abs(y);
-    auto r = arr_real::zeros(ndft);
+    auto r = zeros(ndft);
     r[idx] = 1;
     ASSERT_EQ_ARR_REAL(r, z);
 }

@@ -18,6 +18,7 @@ arr_real::arr_real(const std::vector<real_t> &v) : arr_real(v.data(), v.size()) 
 //-------------------------------------------------------------------------------------------------
 arr_real::arr_real(int n) {
     _vec.resize(n);
+    std::fill(_vec.data(), _vec.data() + n, 0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -362,14 +363,6 @@ arr_real arr_real::slice(int i1, int i2) const
         r[i] = _vec[i+i1];
     }
 
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real arr_real::zeros(int n)
-{
-    arr_real r(n);
-    std::fill(r.data(), r.data() + n, 0);
     return r;
 }
 

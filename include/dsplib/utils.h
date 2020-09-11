@@ -33,4 +33,12 @@ T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), co
     return r;
 }
 
+//create array of all zeros
+inline arr_real zeros(int n)
+{
+    arr_real r(n);
+    std::fill(r.data(), r.data() + n, 0);
+    return r;
+}
+
 }   // namespace dsplib

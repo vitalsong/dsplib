@@ -150,6 +150,6 @@ TEST(ArrCmplxTest, Join)
 TEST(ArrCmplxTest, Zeros)
 {
     auto r = ::arr_cmplx::init({0, 0, 0, 0});
-    auto v = ::arr_cmplx::zeros(4);
+    auto v = zeros(4) * 1i;
     ASSERT_EQ_ARR_CMPLX(r, v);
 }

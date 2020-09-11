@@ -99,7 +99,6 @@ public:
     void set(int p1, int p2, real_t value);
     arr_real slice(int i1, int i2) const;
 
-    static arr_real zeros(int n);
     static arr_real init(const std::initializer_list<dsplib::real_t>& list) {
         return arr_real(std::vector<dsplib::real_t>(list));
     }
@@ -117,6 +116,7 @@ public:
     arr_cmplx();
     arr_cmplx(const arr_cmplx& v);
     arr_cmplx(arr_cmplx&& v);
+    arr_cmplx(const arr_real& v);
 
     template <typename T>
     explicit arr_cmplx(const T* x, size_t nx)
@@ -207,7 +207,6 @@ public:
     void set(int p1, int p2, cmplx_t value);
     arr_cmplx slice(int i1, int i2) const;
 
-    static arr_cmplx zeros(int n);
     static arr_cmplx init(const std::initializer_list<dsplib::cmplx_t>& list) {
         return arr_cmplx(std::vector<dsplib::cmplx_t>(list));
     }
@@ -215,5 +214,90 @@ public:
 private:
     std::vector <cmplx_t> _vec;
 };
+
+//--------------------------------------------------------------------------------
+inline arr_cmplx operator + (const real_t& lhs, const arr_cmplx& rhs) {
+    return rhs + lhs;
+}
+
+inline arr_cmplx operator - (const real_t& lhs, const arr_cmplx& rhs) {
+    arr_cmplx r(rhs);
+    return -r + lhs;
+}
+
+inline arr_cmplx operator * (const real_t& lhs, const arr_cmplx& rhs) {
+    return rhs * lhs;
+}
+
+inline arr_cmplx operator / (const real_t& lhs, const arr_cmplx& rhs) {
+    arr_cmplx r(rhs);
+    int n = r.size();
+    for (int i=0; i < n; ++i) {
+        r[i] = lhs / rhs[i];
+    }
+
+    return r;
+}
+
+//--------------------------------------------------------------------------------
+inline arr_real operator + (const real_t& lhs, const arr_real& rhs) {
+    return rhs + lhs;
+}
+
+inline arr_cmplx operator + (const cmplx_t& lhs, const arr_real& rhs) {
+    return rhs + lhs;
+}
+
+inline arr_real operator - (const real_t& lhs, const arr_real& rhs) {
+    arr_real r(rhs);
+    return -r + lhs;
+}
+
+inline arr_cmplx operator - (const cmplx_t& lhs, const arr_real& rhs) {
+    arr_cmplx r(rhs);
+    return -r + lhs;
+}
+
+inline arr_real operator * (const real_t& lhs, const arr_real& rhs) {
+    return rhs * lhs;
+}
+
+inline arr_cmplx operator * (const cmplx_t& lhs, const arr_real& rhs) {
+    return rhs * lhs;
+}
+
+inline arr_real operator / (const real_t& lhs, const arr_real& rhs) {
+    arr_real r(rhs.size());
+    for (int i=0; i < r.size(); ++i) {
+        r[i] = lhs / rhs[i];
+    }
+
+    return r;
+}
+
+inline arr_cmplx operator / (const cmplx_t& lhs, const arr_real& rhs) {
+    arr_cmplx r(rhs.size());
+    for (int i=0; i < r.size(); ++i) {
+        r[i] = lhs / rhs[i];
+    }
+
+    return r;
+}
+
+inline arr_cmplx operator * (const arr_real& lhs, const std::complex<double>& rhs) {
+    return lhs * cmplx_t(rhs);
+}
+
+inline arr_cmplx operator * (const std::complex<double>& lhs, const arr_real& rhs) {
+    return rhs * cmplx_t(lhs);
+}
+
+inline arr_cmplx operator * (const arr_real& lhs, _Complex double rhs) {
+    return lhs * cmplx_t(rhs);
+}
+
+inline arr_cmplx operator * (_Complex double lhs, const arr_real& rhs) {
+    return rhs * cmplx_t(lhs);
+}
 
 } ///< dsplib

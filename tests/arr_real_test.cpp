@@ -85,6 +85,6 @@ TEST(ArrRealTest, Join)
 TEST(ArrRealTest, Zeros)
 {
     auto r = ::arr_real::init({0, 0, 0, 0});
-    auto v = ::arr_real::zeros(4);
+    auto v = zeros(4);
     ASSERT_EQ_ARR_REAL(r, v);
 }

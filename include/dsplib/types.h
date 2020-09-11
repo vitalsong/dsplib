@@ -170,4 +170,24 @@ struct cmplx_t
     }
 };
 
+inline cmplx_t operator + (const real_t& lhs, const cmplx_t& rhs) {
+    return rhs + lhs;
+}
+
+inline cmplx_t operator - (const real_t& lhs, const cmplx_t& rhs) {
+    cmplx_t r(rhs);
+    return -r + lhs;
+}
+
+inline cmplx_t operator * (const real_t& lhs, const cmplx_t& rhs) {
+    return rhs * lhs;
+}
+
+inline cmplx_t operator / (const real_t& lhs, const cmplx_t& rhs) {
+    cmplx_t r(rhs);
+    r.re = lhs / r.re;
+    r.im = lhs / r.im;
+    return r;
+}
+
 } ///< dsplib

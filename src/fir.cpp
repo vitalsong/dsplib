@@ -22,14 +22,14 @@ fir_cmplx::fir_cmplx()
 fir::fir(const arr_real &h)
 {
     _h = h;
-    _d = arr_real::zeros(h.size()-1);
+    _d = zeros(h.size()-1);
 }
 
 //-------------------------------------------------------------------------------------------------
 fir_cmplx::fir_cmplx(const arr_cmplx &h)
 {
     _h = h;
-    _d = arr_cmplx::zeros(h.size()-1);
+    _d = zeros(h.size()-1);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ hilbert_filter::hilbert_filter() : hilbert_filter(arr_real(DEFAULT_FIR, DEFAULT_
 hilbert_filter::hilbert_filter(const arr_real &h) : _fir(h)
 {
     _h = h;
-    _d = arr_real::zeros((h.size()-1)/2);
+    _d = zeros((h.size()-1)/2);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ const arr_real &hilbert_filter::impz() const
 arr_cmplx hilbert(const arr_real &s)
 {
     int n = int(1) << nextpow2(s.size());
-    arr_real in = concatenate(s, arr_real::zeros(n - s.size()));
+    arr_real in = concatenate(s, zeros(n - s.size()));
 
     //direct DFT
     arr_cmplx r = fft(in);

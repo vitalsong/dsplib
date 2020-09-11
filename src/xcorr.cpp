@@ -16,8 +16,8 @@ arr_real xcorr(const arr_real &x1, const arr_real &x2)
     const int M = 1 << nextpow2(N1 + N2 - 1);
 
     //padding with zeros
-    arr_real y1 = concatenate(x1, arr_real::zeros(M - N1));
-    arr_real y2 = concatenate(x2, arr_real::zeros(M - N2));
+    arr_real y1 = concatenate(x1, zeros(M - N1));
+    arr_real y2 = concatenate(x2, zeros(M - N2));
 
     //calculation xcorr through FFT/IFFT
     arr_cmplx z1 = conj(fft(y1));
@@ -48,8 +48,8 @@ arr_cmplx xcorr(const arr_cmplx &x1, const arr_cmplx &x2)
     const int M = 1 << nextpow2(N1 + N2 - 1);
 
     //padding with zeros
-    auto y1 = concatenate(x1, arr_cmplx::zeros(M - N1));
-    auto y2 = concatenate(x2, arr_cmplx::zeros(M - N2));
+    auto y1 = concatenate(x1, 1i * zeros(M - N1));
+    auto y2 = concatenate(x2, 1i * zeros(M - N2));
 
     //calculation xcorr through FFT/IFFT
     auto z1 = conj(fft(y1));

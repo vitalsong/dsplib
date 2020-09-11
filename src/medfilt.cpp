@@ -1,4 +1,5 @@
 #include <dsplib/medfilt.h>
+#include <dsplib/utils.h>
 #include <string.h>
 #include <assert.h>
 
@@ -42,14 +43,14 @@ median_filter::median_filter(int n)
     assert(n >= 3);
     _i = 0;
     _n = (n / 2) * 2 + 1;
-    _d = arr_real::zeros(_n);
-    _s = arr_real::zeros(_n);
+    _d = zeros(_n);
+    _s = zeros(_n);
 }
 
 //------------------------------------------------------------------------------------------
 arr_real median_filter::process(const arr_real &x)
 {
-    auto y = arr_real::zeros(x.size());
+    auto y = zeros(x.size());
     for (int i=0; i < x.size(); ++i)
     {
         _i = (_i + 1) % _n;

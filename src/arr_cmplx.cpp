@@ -13,11 +13,23 @@ arr_cmplx::arr_cmplx(const arr_cmplx &v) : _vec(v._vec) {}
 arr_cmplx::arr_cmplx(arr_cmplx &&v) : _vec(std::move(v._vec)) {}
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx::arr_cmplx(const arr_real& v)
+{
+    _vec.resize(v.size());
+    for (size_t i = 0; i < v.size(); i++)
+    {
+        _vec[i].re = v[i];
+        _vec[i].im = 0;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx::arr_cmplx(const std::vector<cmplx_t> &v) : arr_cmplx(v.data(), v.size()) {}
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx::arr_cmplx(int n) {
     _vec.resize(n);
+    std::fill(_vec.data(), _vec.data() + n, 0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -466,14 +478,6 @@ arr_cmplx arr_cmplx::slice(int i1, int i2) const
         r[i] = _vec[i+i1];
     }
 
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::zeros(int n)
-{
-    arr_cmplx r(n);
-    std::fill(r.data(), r.data() + n, 0);
     return r;
 }
 

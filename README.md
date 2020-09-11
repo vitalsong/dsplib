@@ -42,7 +42,7 @@ arr_cmplx y = fft(x);
 Inverse Fast Fourier Transform:
 ```cpp
 using namespace dsplib;
-arr_cmplx x = arr_cmplx::zeros(512);
+arr_cmplx x = 1i * zeros(512);
 x[10] = 1;
 arr_cmplx y = ifft(x);
 ```
