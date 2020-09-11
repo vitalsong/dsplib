@@ -470,24 +470,6 @@ arr_cmplx arr_cmplx::slice(int i1, int i2) const
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::join(const arr_cmplx &lhs, const arr_cmplx &rhs)
-{
-    int n1 = lhs.size();
-    int n2 = rhs.size();
-    arr_cmplx r(n1 + n2);
-
-    for (int i=0; i < n1; ++i) {
-        r[i] = lhs[i];
-    }
-
-    for (int i=0; i < n2; ++i) {
-        r[i+n1] = rhs[i];
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_cmplx arr_cmplx::zeros(int n)
 {
     arr_cmplx r(n);

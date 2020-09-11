@@ -15,10 +15,6 @@ cmplx_t exp(cmplx_t v);
 arr_cmplx expj(const arr_real& im);
 cmplx_t expj(real_t im);
 
-//sequence of numbers (not include stop)
-arr_real range(real_t start, real_t stop, real_t step = 1);
-arr_real range(real_t stop);
-
 //max element
 real_t max(const arr_real& arr);
 cmplx_t max(const arr_cmplx& arr);

@@ -366,24 +366,6 @@ arr_real arr_real::slice(int i1, int i2) const
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real arr_real::join(const arr_real &lhs, const arr_real &rhs)
-{
-    int n1 = lhs.size();
-    int n2 = rhs.size();
-    arr_real r(n1 + n2);
-
-    for (int i=0; i < n1; ++i) {
-        r[i] = lhs[i];
-    }
-
-    for (int i=0; i < n2; ++i) {
-        r[i+n1] = rhs[i];
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_real arr_real::zeros(int n)
 {
     arr_real r(n);

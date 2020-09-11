@@ -13,3 +13,4 @@
 #include <dsplib/medfilt.h>
 #include <dsplib/interp.h>
 #include <dsplib/dft.h>
+#include <dsplib/utils.h>

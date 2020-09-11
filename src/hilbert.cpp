@@ -2,6 +2,7 @@
 #include <dsplib/fft.h>
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
+#include <dsplib/utils.h>
 
 namespace dsplib {
 
@@ -46,7 +47,7 @@ arr_cmplx hilbert_filter::process(const arr_real &s)
 
     //update delay
     //PS: ugly, replace the function delay (_d, s)
-    arr_real t = arr_real::join(_d, s);
+    arr_real t = concatenate(_d, s);
     _d = t.slice(n-nd, n);
 
     //vector for storing the result
@@ -78,7 +79,7 @@ const arr_real &hilbert_filter::impz() const
 arr_cmplx hilbert(const arr_real &s)
 {
     int n = int(1) << nextpow2(s.size());
-    arr_real in = arr_real::join(s, arr_real::zeros(n - s.size()));
+    arr_real in = concatenate(s, arr_real::zeros(n - s.size()));
 
     //direct DFT
     arr_cmplx r = fft(in);

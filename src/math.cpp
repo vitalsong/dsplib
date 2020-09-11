@@ -438,27 +438,6 @@ arr_real randn(int n)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real range(real_t start, real_t stop, real_t step)
-{
-    int n = ::round((stop - start) / step);
-    arr_real r(n);
-    real_t v = start;
-    for (int i=0; i < n; ++i)
-    {
-        r[i] = v;
-        v += step;
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real range(real_t stop)
-{
-    return range(0, stop, 1);
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_real exp(const arr_real &arr)
 {
     arr_real r(arr);

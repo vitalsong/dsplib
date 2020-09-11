@@ -99,7 +99,6 @@ public:
     void set(int p1, int p2, real_t value);
     arr_real slice(int i1, int i2) const;
 
-    static arr_real join(const arr_real& lhs, const arr_real& rhs);
     static arr_real zeros(int n);
     static arr_real init(const std::initializer_list<dsplib::real_t>& list) {
         return arr_real(std::vector<dsplib::real_t>(list));
@@ -208,7 +207,6 @@ public:
     void set(int p1, int p2, cmplx_t value);
     arr_cmplx slice(int i1, int i2) const;
 
-    static arr_cmplx join(const arr_cmplx& lhs, const arr_cmplx& rhs);
     static arr_cmplx zeros(int n);
     static arr_cmplx init(const std::initializer_list<dsplib::cmplx_t>& list) {
         return arr_cmplx(std::vector<dsplib::cmplx_t>(list));

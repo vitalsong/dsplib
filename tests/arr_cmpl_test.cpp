@@ -139,8 +139,8 @@ TEST(ArrCmplxTest, Join)
     auto j1 = ::arr_cmplx::init({{100, 100}, {200, 200}, {-100, -100}, {-200, -200}});
     auto j2 = ::arr_cmplx::init({{-100, -100}, {-200, -200}, {100, 100}, {200, 200}});
 
-    auto r1 = ::arr_cmplx::join(a1, a2);
-    auto r2 = ::arr_cmplx::join(a2, a1);
+    auto r1 = concatenate(a1, a2);
+    auto r2 = concatenate(a2, a1);
 
     ASSERT_EQ_ARR_CMPLX(r1, j1);
     ASSERT_EQ_ARR_CMPLX(r2, j2);

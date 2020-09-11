@@ -20,6 +20,7 @@ set(SOURCES
     src/medfilt.cpp
     src/interp.cpp
     src/dft.cpp
+    src/utils.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
@@ -28,4 +29,5 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE _USE_MATH_DEFINES)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     add_subdirectory(tests)
+    #add_subdirectory(examples)
 endif()
