@@ -4,6 +4,68 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
+void slice_real::operator = (const slice_real &rhs) 
+{
+    int n1 = (p2 - p1 + 1) / step;
+    int n2 = (rhs.p2 - rhs.p1 + 1) / rhs.step;
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    real_t* d1 = data + p1;
+    const real_t* d2 = rhs.data + rhs.p1;
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += rhs.step;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_real::operator = (const arr_real &rhs)
+{
+    const int n1 = (p2 - p1 + 1) / step;
+    const int n2 = rhs.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    real_t* d1 = data + p1;
+    const real_t* d2 = rhs.data();
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_real::operator = (const real_t &value) 
+{
+    const int n = (p2 - p1 + 1) / step;
+    real_t* d1 = data + p1;
+    for (size_t i = 0; i < n; i++) {
+        *d1 = value;
+        d1 += step;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_real::operator = (const std::initializer_list<real_t> &list)
+{
+    const int n1 = (p2 - p1 + 1) / step;
+    const int n2 = list.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    real_t* d1 = data + p1;
+    const real_t* d2 = list.begin();
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real::arr_real() {}
 
 //-------------------------------------------------------------------------------------------------
@@ -22,6 +84,22 @@ arr_real::arr_real(int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_real::arr_real(const slice_real& slice) {
+    const int n1 = (slice.p2 - slice.p1 + 1) / slice.step;
+    const int n2 = _vec.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    const real_t* d1 = slice.data + slice.p1;
+    real_t* d2 = _vec.data();
+    for (size_t i = 0; i < n2; i++) {
+        *d2 = *d1;
+        d1 += slice.step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 real_t *arr_real::data() {
     return _vec.data();
 }
@@ -29,11 +107,6 @@ real_t *arr_real::data() {
 //-------------------------------------------------------------------------------------------------
 const real_t *arr_real::data() const {
     return _vec.data();
-}
-
-//-------------------------------------------------------------------------------------------------
-int arr_real::size() const {
-    return _vec.size();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -327,42 +400,13 @@ bool arr_real::empty() const
 }
 
 //-------------------------------------------------------------------------------------------------
-void arr_real::set(int p1, int p2, const arr_real &arr)
+slice_real arr_real::slice(int i1, int i2)
 {
-    int n = (p2 - p1 + 1);
-
-    if (((p1 + n) > this->size()) || (n > arr.size())) {
-        throw std::overflow_error("array size error");
-    }
-
-    for (int i=0; i < n; ++i) {
-        _vec[p1+i] = arr[i];
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void arr_real::set(int p1, int p2, real_t value)
-{
-    int n = (p2 - p1 + 1);
-
-    if ((p1 + n) > this->size()) {
-        throw std::overflow_error("array size error");
-    }
-
-    for (int i=0; i < n; ++i) {
-        _vec[p1+i] = value;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real arr_real::slice(int i1, int i2) const
-{
-    int n = i2 - i1;
-    arr_real r(n);
-    for (int i=0; i < n; ++i) {
-        r[i] = _vec[i+i1];
-    }
-
+    slice_real r;
+    r.p1 = i1;
+    r.p2 = i2;
+    r.step = 1;
+    r.data = _vec.data();
     return r;
 }
 

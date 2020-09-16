@@ -4,6 +4,68 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
+void slice_cmplx::operator = (const slice_cmplx &rhs) 
+{
+    int n1 = (p2 - p1 + 1) / step;
+    int n2 = (rhs.p2 - rhs.p1 + 1) / rhs.step;
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    cmplx_t* d1 = data + p1;
+    const cmplx_t* d2 = rhs.data + rhs.p1;
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += rhs.step;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_cmplx::operator = (const arr_cmplx &rhs)
+{
+    const int n1 = (p2 - p1 + 1) / step;
+    const int n2 = rhs.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    cmplx_t* d1 = data + p1;
+    const cmplx_t* d2 = rhs.data();
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_cmplx::operator = (const cmplx_t &value) 
+{
+    const int n = (p2 - p1 + 1) / step;
+    cmplx_t* d1 = data + p1;
+    for (size_t i = 0; i < n; i++) {
+        *d1 = value;
+        d1 += step;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+void slice_cmplx::operator = (const std::initializer_list<cmplx_t> &list)
+{
+    const int n1 = (p2 - p1 + 1) / step;
+    const int n2 = list.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    cmplx_t* d1 = data + p1;
+    const cmplx_t* d2 = list.begin();
+    for (size_t i = 0; i < n2; i++) {
+        *d1 = *d2;
+        d1 += step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx::arr_cmplx() {}
 
 //-------------------------------------------------------------------------------------------------
@@ -33,6 +95,22 @@ arr_cmplx::arr_cmplx(int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_cmplx::arr_cmplx(const slice_cmplx& slice) {
+    const int n1 = (slice.p2 - slice.p1 + 1) / slice.step;
+    const int n2 = _vec.size();
+    if (n1 != n2) {
+        throw std::range_error("Not equal size");
+    }
+    const cmplx_t* d1 = slice.data + slice.p1;
+    cmplx_t* d2 = _vec.data();
+    for (size_t i = 0; i < n2; i++) {
+        *d2 = *d1;
+        d1 += slice.step;
+        d2 += 1;
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 cmplx_t *arr_cmplx::data() {
     return _vec.data();
 }
@@ -40,11 +118,6 @@ cmplx_t *arr_cmplx::data() {
 //-------------------------------------------------------------------------------------------------
 const cmplx_t *arr_cmplx::data() const {
     return _vec.data();
-}
-
-//-------------------------------------------------------------------------------------------------
-int arr_cmplx::size() const {
-    return _vec.size();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -442,42 +515,13 @@ bool arr_cmplx::empty() const
 }
 
 //-------------------------------------------------------------------------------------------------
-void arr_cmplx::set(int p1, int p2, const arr_cmplx &arr)
+slice_cmplx arr_cmplx::slice(int i1, int i2)
 {
-    int n = (p2 - p1 + 1);
-
-    if (((p1 + n) > this->size()) || (n > arr.size())) {
-        throw std::overflow_error("array size error");
-    }
-
-    for (int i=0; i < n; ++i) {
-        _vec[p1+i] = arr[i];
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void arr_cmplx::set(int p1, int p2, cmplx_t value)
-{
-    int n = (p2 - p1 + 1);
-
-    if ((p1 + n) > this->size()) {
-        throw std::overflow_error("array size error");
-    }
-
-    for (int i=0; i < n; ++i) {
-        _vec[p1+i] = value;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_cmplx arr_cmplx::slice(int i1, int i2) const
-{
-    int n = i2 - i1;
-    arr_cmplx r(n);
-    for (int i=0; i < n; ++i) {
-        r[i] = _vec[i+i1];
-    }
-
+    slice_cmplx r;
+    r.p1 = i1;
+    r.p2 = i2;
+    r.step = 1;
+    r.data = _vec.data();
     return r;
 }
 

@@ -10,6 +10,7 @@ arr_real range(real_t start, real_t stop, real_t step = 1);
 arr_real range(real_t stop);
 
 //join a sequence of arrays
+//TODO: add impl for slices
 template<class T>
 T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), const T& a5 = T())
 {

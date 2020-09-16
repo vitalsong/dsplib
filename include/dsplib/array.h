@@ -2,11 +2,40 @@
 
 #include <dsplib/types.h>
 #include <vector>
+#include <string.h>
 
 namespace dsplib {
 
 class arr_real;
 class arr_cmplx;
+
+class slice_real
+{
+public:
+    void operator = (const slice_real &rhs);
+    void operator = (const arr_real &rhs);
+    void operator = (const real_t &value);
+    void operator = (const std::initializer_list<real_t> &list);
+
+    int p1;
+    int p2;
+    int step;
+    real_t* data;
+};
+
+class slice_cmplx
+{
+public:
+    void operator = (const slice_cmplx &rhs);
+    void operator = (const arr_cmplx &rhs);
+    void operator = (const cmplx_t &value);
+    void operator = (const std::initializer_list<cmplx_t> &list);
+
+    int p1;
+    int p2;
+    int step;
+    cmplx_t* data;
+};
 
 /*!
  * \brief Real array
@@ -18,6 +47,11 @@ public:
     arr_real();
     arr_real(const arr_real& v);
     arr_real(arr_real&& v);
+    arr_real(const slice_real& slice);
+
+    arr_real(const std::initializer_list<real_t> &list) {
+        _vec = std::vector<real_t>(list);
+    }
 
     template <typename T>
     explicit arr_real(const T* x, size_t nx)
@@ -52,10 +86,18 @@ public:
 
     real_t* data();
     const real_t* data() const;
-    int size() const;
+
+    int size() const {
+        return _vec.size();
+    }
 
     arr_real& operator = (const arr_real &rhs);
     arr_real& operator = (arr_real &&rhs);
+
+    arr_real& operator = (const slice_real &rhs) {
+        *this = arr_real(rhs);
+        return *this;
+    }
 
     const real_t& operator [] (int i) const;
     real_t& operator [] (int i);
@@ -95,13 +137,7 @@ public:
 
     bool empty() const;
 
-    void set(int p1, int p2, const arr_real& arr);
-    void set(int p1, int p2, real_t value);
-    arr_real slice(int i1, int i2) const;
-
-    static arr_real init(const std::initializer_list<dsplib::real_t>& list) {
-        return arr_real(std::vector<dsplib::real_t>(list));
-    }
+    slice_real slice(int i1, int i2);
 
 private:
     std::vector <real_t> _vec;
@@ -117,6 +153,11 @@ public:
     arr_cmplx(const arr_cmplx& v);
     arr_cmplx(arr_cmplx&& v);
     arr_cmplx(const arr_real& v);
+    arr_cmplx(const slice_cmplx& slice);
+
+    arr_cmplx(const std::initializer_list<cmplx_t> &list) {
+        _vec = std::vector<cmplx_t>(list);
+    }
 
     template <typename T>
     explicit arr_cmplx(const T* x, size_t nx)
@@ -151,10 +192,18 @@ public:
 
     cmplx_t* data();
     const cmplx_t* data() const;
-    int size() const;
+
+    int size() const {
+        return _vec.size();
+    }
 
     arr_cmplx& operator = (const arr_cmplx& rhs);
     arr_cmplx& operator = (arr_cmplx &&rhs);
+
+    arr_cmplx& operator = (const slice_cmplx &rhs) {
+        *this = arr_cmplx(rhs);
+        return *this;
+    }
 
     const cmplx_t& operator [] (int i) const;
     cmplx_t& operator [] (int i);
@@ -203,13 +252,8 @@ public:
     arr_cmplx operator / (const real_t& rhs) const;
 
     bool empty() const;
-    void set(int p1, int p2, const arr_cmplx& arr);
-    void set(int p1, int p2, cmplx_t value);
-    arr_cmplx slice(int i1, int i2) const;
-
-    static arr_cmplx init(const std::initializer_list<dsplib::cmplx_t>& list) {
-        return arr_cmplx(std::vector<dsplib::cmplx_t>(list));
-    }
+    
+    slice_cmplx slice(int i1, int i2);
 
 private:
     std::vector <cmplx_t> _vec;
