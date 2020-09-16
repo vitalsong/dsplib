@@ -22,8 +22,9 @@ v2 = std::complex<double>(10, -10);
 Vector operations:
 ```cpp
 using namespace dsplib;
-arr_real x1 = arr_real::init({0, 1, 2, 3, 4});
-arr_cmplx x2 = arr_cmplx::init({1i, 1+2i, 4, -5-5i});
+arr_real x1 = {0, 1, 2, 3, 4};
+arr_cmplx x2 = {1i, 1+2i, 4, -5-5i};
+x2.slice(2, 3) = {1i, 2i};
 arr_real y1 = x1 * x1;
 arr_real y2 = x1 * 1000;
 arr_cmplx y3 = x1 * x2;
