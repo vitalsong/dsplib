@@ -84,6 +84,27 @@ public:
         return _vec.end();
     }
 
+    void push_back(const real_t& v) {
+        _vec.push_back(v);
+    }
+
+    void push_front(const real_t& v) {
+        _vec.insert(_vec.begin(), v);
+    }
+
+    real_t pop_back() {
+        auto r = _vec.back();
+        _vec.pop_back();
+        return r;
+    }
+
+    real_t pop_front() {
+        auto r = _vec.front();
+        memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(real_t));
+        _vec.resize(_vec.size() - 1);
+        return r;
+    }
+
     real_t* data();
     const real_t* data() const;
 
@@ -188,6 +209,27 @@ public:
 
     const_iterator end() const {
         return _vec.end();
+    }
+
+    void push_back(const cmplx_t& v) {
+        _vec.push_back(v);
+    }
+
+    void push_front(const cmplx_t& v) {
+        _vec.insert(_vec.begin(), v);
+    }
+
+    cmplx_t pop_back() {
+        auto r = _vec.back();
+        _vec.pop_back();
+        return r;
+    }
+
+    cmplx_t pop_front() {
+        auto r = _vec.front();
+        memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(cmplx_t));
+        _vec.resize(_vec.size() - 1);
+        return r;
     }
 
     cmplx_t* data();
