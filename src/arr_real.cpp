@@ -85,14 +85,11 @@ arr_real::arr_real(int n) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real::arr_real(const slice_real& slice) {
-    const int n1 = (slice.p2 - slice.p1 + 1) / slice.step;
-    const int n2 = _vec.size();
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
+    const int n = (slice.p2 - slice.p1 + 1) / slice.step;
+    _vec.resize(n);
     const real_t* d1 = slice.data + slice.p1;
     real_t* d2 = _vec.data();
-    for (size_t i = 0; i < n2; i++) {
+    for (size_t i = 0; i < n; i++) {
         *d2 = *d1;
         d1 += slice.step;
         d2 += 1;

@@ -74,6 +74,11 @@ TEST(ArrRealTest, Slice)
     arr_real a4_r = {1, 2, 100, 200};
     a4.slice(2, 3) = arr_real{100, 200};
     ASSERT_EQ_ARR_REAL(a4, a4_r);
+
+    arr_real a5 = {0, 1, 2, 3};
+    arr_real a5_r = {-1, -2, -3, -4};
+    a5 = a5_r.slice(0, 3);
+    ASSERT_EQ_ARR_REAL(a5, a5_r);
 }
 
 //-------------------------------------------------------------------------------------------------
