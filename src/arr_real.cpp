@@ -6,8 +6,8 @@ namespace dsplib {
 //-------------------------------------------------------------------------------------------------
 void slice_real::operator = (const slice_real &rhs) 
 {
-    int n1 = (p2 - p1 + 1) / step;
-    int n2 = (rhs.p2 - rhs.p1 + 1) / rhs.step;
+    int n1 = (p2 - p1) / step;
+    int n2 = (rhs.p2 - rhs.p1) / rhs.step;
     if (n1 != n2) {
         throw std::range_error("Not equal size");
     }
@@ -23,7 +23,7 @@ void slice_real::operator = (const slice_real &rhs)
 //-------------------------------------------------------------------------------------------------
 void slice_real::operator = (const arr_real &rhs)
 {
-    const int n1 = (p2 - p1 + 1) / step;
+    const int n1 = (p2 - p1) / step;
     const int n2 = rhs.size();
     if (n1 != n2) {
         throw std::range_error("Not equal size");
@@ -40,7 +40,7 @@ void slice_real::operator = (const arr_real &rhs)
 //-------------------------------------------------------------------------------------------------
 void slice_real::operator = (const real_t &value) 
 {
-    const int n = (p2 - p1 + 1) / step;
+    const int n = (p2 - p1) / step;
     real_t* d1 = data + p1;
     for (size_t i = 0; i < n; i++) {
         *d1 = value;
@@ -51,7 +51,7 @@ void slice_real::operator = (const real_t &value)
 //-------------------------------------------------------------------------------------------------
 void slice_real::operator = (const std::initializer_list<real_t> &list)
 {
-    const int n1 = (p2 - p1 + 1) / step;
+    const int n1 = (p2 - p1) / step;
     const int n2 = list.size();
     if (n1 != n2) {
         throw std::range_error("Not equal size");
@@ -85,7 +85,7 @@ arr_real::arr_real(int n) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real::arr_real(const slice_real& slice) {
-    const int n = (slice.p2 - slice.p1 + 1) / slice.step;
+    const int n = (slice.p2 - slice.p1) / slice.step;
     _vec.resize(n);
     const real_t* d1 = slice.data + slice.p1;
     real_t* d2 = _vec.data();
