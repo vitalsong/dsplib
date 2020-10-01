@@ -24,7 +24,7 @@ Vector operations:
 using namespace dsplib;
 arr_real x1 = {0, 1, 2, 3, 4};
 arr_cmplx x2 = {1i, 1+2i, 4, -5-5i};
-x2.slice(2, 3) = {1i, 2i};
+x2.slice(2, 4) = {1i, 2i};
 arr_real y1 = x1 * x1;
 arr_real y2 = x1 * 1000;
 arr_cmplx y3 = x1 * x2;
