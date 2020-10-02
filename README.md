@@ -4,6 +4,9 @@
 
 C++ DSP library for MATLAB similar programming.
 
+![dsplib_1](doc/preview_top.png)
+![dsplib_2](doc/preview_bottom.png)
+
 ## Usage
 
 Scalar operations:
