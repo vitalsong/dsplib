@@ -2,7 +2,7 @@
 #define PLOT_H
 
 #include <dsplib.h>
-#include <matplotlibcpp.h>
+#include <plot/matplotlibcpp.h>
 
 namespace dsplib {
 namespace plot {

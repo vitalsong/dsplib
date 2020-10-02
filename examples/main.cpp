@@ -1,4 +1,4 @@
-#include <plot.h>
+#include <plot/plot.h>
 
 namespace plt = dsplib::plot;
 namespace dsp = dsplib;
