@@ -111,7 +111,7 @@ arr_cmplx fft(const arr_cmplx &arr)
 arr_cmplx fft(const arr_real &arr)
 {
     int n = 1L << nextpow2(arr.size());
-    arr_cmplx r = zeros(n);
+    arr_cmplx r = 1i * zeros(n);
 
     for (int i=0; i < arr.size(); ++i)
     {

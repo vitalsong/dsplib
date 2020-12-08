@@ -85,24 +85,6 @@ TEST(MathTest, Randn)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Range)
-{
-    auto x1 = range(0, 10);
-    auto xx1 = range(10);
-    arr_real y1 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    ASSERT_EQ_ARR_REAL(x1, y1);
-    ASSERT_EQ_ARR_REAL(xx1, y1);
-
-    auto x2 = range(-1, 0, 0.1);
-    arr_real y2 = {-1, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1};
-    ASSERT_EQ_ARR_REAL(x2, y2);
-
-    auto x3 = range(-1, 1, 0.5);
-    arr_real y3 = {-1, -0.5, 0, 0.5};
-    ASSERT_EQ_ARR_REAL(x3, y3);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(MathTest, Exp)
 {
     auto x1 = dsplib::exp(1);
