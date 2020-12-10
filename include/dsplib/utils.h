@@ -43,33 +43,11 @@ inline arr_real zeros(int n)
 }
 
 //repeat copies of array elements
-template<class T>
-T _repelem(const T& x, int n)
-{
-    if (n == 0) {
-        return T(0);
-    }
+arr_real repelem(const arr_real& x, int n);
+arr_cmplx repelem(const arr_cmplx& x, int n);
 
-    if (n == 1) {
-        return x;
-    }
-
-    T r(x.size() * n);
-    for (size_t i = 0; i < x.size(); i++) {
-        int t1 = i * n;
-        int t2 = t1 + n;
-        std::fill(r.data() + t1, r.data() + t2, x[i]);
-    }
-    
-    return r;
-}
-
-inline dsplib::arr_real repelem(const dsplib::arr_real& x, int n) {
-    return _repelem<dsplib::arr_real>(x, n);
-}
-
-inline dsplib::arr_cmplx repelem(const dsplib::arr_cmplx& x, int n) {
-    return _repelem<dsplib::arr_cmplx>(x, n);
-}
+//flip order of elements
+arr_real flip(const arr_real& x);
+arr_cmplx flip(const arr_cmplx& x);
 
 }   // namespace dsplib

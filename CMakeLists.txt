@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
-project(dsplib LANGUAGES CXX)
+project(dsplib LANGUAGES CXX VERSION 0.1.0)
+add_compile_options(-Wall -Wextra -Wno-sign-compare)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +12,7 @@ option(BUILD_EXAMPLES "Build all examples." OFF)
 set(SOURCES
     src/arr_cmplx.cpp
     src/arr_real.cpp
+    src/slice.cpp
     src/awgn.cpp
     src/dft-tables.cpp
     src/fft.cpp

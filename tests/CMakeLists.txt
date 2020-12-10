@@ -11,6 +11,7 @@ set(SOURCES
     base_test.cpp
     dft_test.cpp
     utils_test.cpp
+    slice_test.cpp
 )
 
 add_subdirectory(googletests)

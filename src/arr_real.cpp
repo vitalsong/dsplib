@@ -4,68 +4,6 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-void slice_real::operator = (const slice_real &rhs) 
-{
-    int n1 = (p2 - p1) / step;
-    int n2 = (rhs.p2 - rhs.p1) / rhs.step;
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    real_t* d1 = data + p1;
-    const real_t* d2 = rhs.data + rhs.p1;
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += rhs.step;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_real::operator = (const arr_real &rhs)
-{
-    const int n1 = (p2 - p1) / step;
-    const int n2 = rhs.size();
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    real_t* d1 = data + p1;
-    const real_t* d2 = rhs.data();
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += 1;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_real::operator = (const real_t &value) 
-{
-    const int n = (p2 - p1) / step;
-    real_t* d1 = data + p1;
-    for (size_t i = 0; i < n; i++) {
-        *d1 = value;
-        d1 += step;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_real::operator = (const std::initializer_list<real_t> &list)
-{
-    const int n1 = (p2 - p1) / step;
-    const int n2 = list.size();
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    real_t* d1 = data + p1;
-    const real_t* d2 = list.begin();
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += 1;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_real::arr_real() {}
 
 //-------------------------------------------------------------------------------------------------
@@ -85,15 +23,9 @@ arr_real::arr_real(int n) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real::arr_real(const slice_real& slice) {
-    const int n = (slice.p2 - slice.p1) / slice.step;
-    _vec.resize(n);
-    const real_t* d1 = slice.data + slice.p1;
-    real_t* d2 = _vec.data();
-    for (size_t i = 0; i < n; i++) {
-        *d2 = *d1;
-        d1 += slice.step;
-        d2 += 1;
-    }
+    _vec.resize((slice.p2 - slice.p1) / slice.step);
+    auto r = this->slice(0, _vec.size());
+    r = slice;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -134,12 +66,20 @@ arr_real &arr_real::operator = (arr_real &&rhs)
 
 //-------------------------------------------------------------------------------------------------
 const real_t &arr_real::operator [](int i) const {
-    return *(_vec.data() + i);
+    if (i >= 0) {
+        return _vec[i];
+    } else {
+        return _vec[_vec.size() + i];
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 real_t &arr_real::operator [](int i) {
-    return *(_vec.data() + i);
+    if (i >= 0) {
+        return _vec[i];
+    } else {
+        return _vec[_vec.size() + i];
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -397,13 +337,22 @@ bool arr_real::empty() const
 }
 
 //-------------------------------------------------------------------------------------------------
-slice_real arr_real::slice(int i1, int i2)
+slice_real arr_real::slice(int i1, int i2, int m)
 {
+    if (m < 1) {
+        throw std::range_error("Step must be greater 1");
+    }
+
+    if (i2 - i1 > _vec.size()) {
+        throw std::range_error("Slice range is greater vector size");
+    }
+
     slice_real r;
     r.p1 = i1;
     r.p2 = i2;
-    r.step = 1;
+    r.step = m;
     r.data = _vec.data();
+    r.size = _vec.size();
     return r;
 }
 

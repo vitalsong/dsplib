@@ -118,20 +118,6 @@ TEST(ArrCmplxTest, ArithmRealValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrCmplxTest, Slice)
-{
-    arr_cmplx a1 = {0, 1+1i, 2+2i, 3+3i};
-    arr_cmplx a1_r = {-100-100i, -100-100i, 2+2i, 3+3i};
-    a1.slice(0, 2) = -100-100i;
-    ASSERT_EQ_ARR_CMPLX(a1, a1_r);
-
-    arr_cmplx a2 = {1+1i, 2+2i, 3+3i, 4+4i};
-    arr_cmplx a2_r = {1+1i, 2+2i, 100+100i, 200+200i};
-    a2.slice(2, 4) = {100+100i, 200+200i};
-    ASSERT_EQ_ARR_CMPLX(a2, a2_r);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(ArrCmplxTest, Join)
 {
     arr_cmplx a1 = {100+100i, 200+200i};

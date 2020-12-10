@@ -4,68 +4,6 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-void slice_cmplx::operator = (const slice_cmplx &rhs) 
-{
-    int n1 = (p2 - p1) / step;
-    int n2 = (rhs.p2 - rhs.p1) / rhs.step;
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    cmplx_t* d1 = data + p1;
-    const cmplx_t* d2 = rhs.data + rhs.p1;
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += rhs.step;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_cmplx::operator = (const arr_cmplx &rhs)
-{
-    const int n1 = (p2 - p1) / step;
-    const int n2 = rhs.size();
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    cmplx_t* d1 = data + p1;
-    const cmplx_t* d2 = rhs.data();
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += 1;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_cmplx::operator = (const cmplx_t &value) 
-{
-    const int n = (p2 - p1) / step;
-    cmplx_t* d1 = data + p1;
-    for (size_t i = 0; i < n; i++) {
-        *d1 = value;
-        d1 += step;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-void slice_cmplx::operator = (const std::initializer_list<cmplx_t> &list)
-{
-    const int n1 = (p2 - p1) / step;
-    const int n2 = list.size();
-    if (n1 != n2) {
-        throw std::range_error("Not equal size");
-    }
-    cmplx_t* d1 = data + p1;
-    const cmplx_t* d2 = list.begin();
-    for (size_t i = 0; i < n2; i++) {
-        *d1 = *d2;
-        d1 += step;
-        d2 += 1;
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_cmplx::arr_cmplx() {}
 
 //-------------------------------------------------------------------------------------------------
@@ -96,15 +34,9 @@ arr_cmplx::arr_cmplx(int n) {
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx::arr_cmplx(const slice_cmplx& slice) {
-    const int n = (slice.p2 - slice.p1) / slice.step;
-    _vec.resize(n);
-    const cmplx_t* d1 = slice.data + slice.p1;
-    cmplx_t* d2 = _vec.data();
-    for (size_t i = 0; i < n; i++) {
-        *d2 = *d1;
-        d1 += slice.step;
-        d2 += 1;
-    }
+    _vec.resize((slice.p2 - slice.p1) / slice.step);
+    auto r = this->slice(0, _vec.size());
+    r = slice;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -145,12 +77,20 @@ arr_cmplx &arr_cmplx::operator =(arr_cmplx &&rhs)
 
 //-------------------------------------------------------------------------------------------------
 const cmplx_t &arr_cmplx::operator [](int i) const {
-    return *(_vec.data() + i);
+    if (i >= 0) {
+        return _vec[i];
+    } else {
+        return _vec[_vec.size() + i];
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 cmplx_t &arr_cmplx::operator [](int i) {
-    return *(_vec.data() + i);
+    if (i >= 0) {
+        return _vec[i];
+    } else {
+        return _vec[_vec.size() + i];
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -512,13 +452,22 @@ bool arr_cmplx::empty() const
 }
 
 //-------------------------------------------------------------------------------------------------
-slice_cmplx arr_cmplx::slice(int i1, int i2)
+slice_cmplx arr_cmplx::slice(int i1, int i2, int m)
 {
+    if (m < 1) {
+        throw std::range_error("Step must be greater 1");
+    }
+
+    if (i2 - i1 > _vec.size()) {
+        throw std::range_error("Slice range is greater vector size");
+    }
+
     slice_cmplx r;
     r.p1 = i1;
     r.p2 = i2;
-    r.step = 1;
+    r.step = m;
     r.data = _vec.data();
+    r.size = _vec.size();
     return r;
 }
 

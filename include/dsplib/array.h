@@ -12,29 +12,41 @@ class arr_cmplx;
 class slice_real
 {
 public:
-    void operator = (const slice_real &rhs);
-    void operator = (const arr_real &rhs);
-    void operator = (const real_t &value);
-    void operator = (const std::initializer_list<real_t> &list);
+    slice_real() = default;
+    slice_real(const slice_real &rhs) {
+        *this = rhs;
+    }
 
-    int p1;
-    int p2;
-    int step;
-    real_t* data;
+    slice_real& operator = (const slice_real &rhs);
+    slice_real& operator = (const arr_real &rhs);
+    slice_real& operator = (const real_t &value);
+    slice_real& operator = (const std::initializer_list<real_t> &list);
+
+    int p1 = 0;
+    int p2 = 0;
+    int step = 0;
+    int size = 0;
+    real_t* data = nullptr;
 };
 
 class slice_cmplx
 {
 public:
-    void operator = (const slice_cmplx &rhs);
-    void operator = (const arr_cmplx &rhs);
-    void operator = (const cmplx_t &value);
-    void operator = (const std::initializer_list<cmplx_t> &list);
+    slice_cmplx() = default;
+    slice_cmplx(const slice_cmplx &rhs) {
+        *this = rhs;
+    }
 
-    int p1;
-    int p2;
-    int step;
-    cmplx_t* data;
+    slice_cmplx& operator = (const slice_cmplx &rhs);
+    slice_cmplx& operator = (const arr_cmplx &rhs);
+    slice_cmplx& operator = (const cmplx_t &value);
+    slice_cmplx& operator = (const std::initializer_list<cmplx_t> &list);
+
+    int p1 = 0;
+    int p2 = 0;
+    int step = 0;
+    int size = 0;
+    cmplx_t* data = nullptr;
 };
 
 /*!
@@ -158,7 +170,7 @@ public:
 
     bool empty() const;
 
-    slice_real slice(int i1, int i2);
+    slice_real slice(int i1, int i2, int m=1);
 
 private:
     std::vector <real_t> _vec;
@@ -295,7 +307,7 @@ public:
 
     bool empty() const;
     
-    slice_cmplx slice(int i1, int i2);
+    slice_cmplx slice(int i1, int i2, int m=1);
 
 private:
     std::vector <cmplx_t> _vec;

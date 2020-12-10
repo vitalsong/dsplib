@@ -53,35 +53,6 @@ TEST(ArrRealTest, Arithm)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Slice)
-{
-    arr_real a1 = {0, 1, 2, 3};
-    arr_real a1_r = {-100, -100, 2, 3};
-    a1.slice(0, 2) = -100;
-    ASSERT_EQ_ARR_REAL(a1, a1_r);
-
-    arr_real a2 = {1, 2, 3, 4};
-    arr_real a2_r = {1, 2, 100, 200};
-    a2.slice(2, 4) = {100, 200};
-    ASSERT_EQ_ARR_REAL(a2, a2_r);
-
-    arr_real a3 = {-1, -2, -3, -4};
-    arr_real a3_r = {-3, -4, -3, -4};
-    a3.slice(0, 2) = a3.slice(2, 4);
-    ASSERT_EQ_ARR_REAL(a3, a3_r);
-
-    arr_real a4 = {1, 2, 3, 4};
-    arr_real a4_r = {1, 2, 100, 200};
-    a4.slice(2, 4) = arr_real{100, 200};
-    ASSERT_EQ_ARR_REAL(a4, a4_r);
-
-    arr_real a5 = {0, 1, 2, 3};
-    arr_real a5_r = {-1, -2, -3, -4};
-    a5 = a5_r.slice(0, 4);
-    ASSERT_EQ_ARR_REAL(a5, a5_r);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(ArrRealTest, Concatenate)
 {
     arr_real a1 = {100, 200};

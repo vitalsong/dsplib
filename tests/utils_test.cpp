@@ -1,4 +1,5 @@
 #include "dsplib/array.h"
+#include "dsplib/utils.h"
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -69,6 +70,21 @@ TEST(UtilsTest, RepelemCmplx)
     {
         auto x1 = repelem(arr_real{1.0, 2, 3, 4} * 1i, 2);
         arr_cmplx x2 = 1i * arr_real{1, 1, 2, 2, 3, 3, 4, 4};
+        ASSERT_EQ_ARR_CMPLX(x1, x2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(UtilsTest, Flip)
+{
+    {
+        arr_real x1 = {1, 2, 3, 4};
+        auto x2 = flip(arr_real{4, 3, 2, 1});
+        ASSERT_EQ_ARR_REAL(x1, x2);
+    }
+    {
+        arr_cmplx x1 = {1, 2, 3, 4};
+        auto x2 = flip(arr_cmplx{4, 3, 2, 1});
         ASSERT_EQ_ARR_CMPLX(x1, x2);
     }
 }
