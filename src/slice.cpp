@@ -12,6 +12,10 @@ void _assign_slice(Slice& lhs, const Slice& rhs)
         throw std::range_error("Not equal size");
     }
 
+    if (n1 == 0 && n2 == 0) {
+        return;
+    }
+
     int i1 = (lhs.p1 + lhs.size) % lhs.size;
     int i2 = (rhs.p1 + rhs.size) % rhs.size;
     for (size_t i = 0; i < n2; i++) {
@@ -29,6 +33,10 @@ void _assign_arr(Slice& lhs, const Arr& rhs)
     const int n2 = rhs.size();
     if (n1 != n2) {
         throw std::range_error("Not equal size");
+    }
+
+    if (n1 == 0 && n2 == 0) {
+        return;
     }
 
     int i1 = (lhs.p1 + lhs.size) % lhs.size;
@@ -58,6 +66,10 @@ void _assign_list(Slice& lhs, const std::initializer_list<Type>& list)
     const int n2 = list.size();
     if (n1 != n2) {
         throw std::range_error("Not equal size");
+    }
+
+    if (n1 == 0 && n2 == 0) {
+        return;
     }
 
     int i1 = (lhs.p1 + lhs.size) % lhs.size;
