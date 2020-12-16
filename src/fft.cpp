@@ -101,7 +101,8 @@ static void _fft(cmplx_t* x, const cmplx_t* w, int n)
 arr_cmplx fft(const arr_cmplx &arr)
 {
     int n = 1L << nextpow2(arr.size());
-    arr_cmplx r = concatenate(arr, 1i * zeros(n - arr.size()));
+    arr_cmplx r = zeros(n - arr.size());
+    r = concatenate(arr, r);
     const cmplx_t* w = tables::dft_table(n);
     _fft(r.data(), w, n);
     return r;
@@ -111,7 +112,7 @@ arr_cmplx fft(const arr_cmplx &arr)
 arr_cmplx fft(const arr_real &arr)
 {
     int n = 1L << nextpow2(arr.size());
-    arr_cmplx r = 1i * zeros(n);
+    arr_cmplx r = arr_cmplx(zeros(n));
 
     for (int i=0; i < arr.size(); ++i)
     {

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <dsplib.h>
+#include <dsplib/literals.h>
 #include <gtest/gtest.h>
 
 #define EQ_ABS_ERR (0.000000001)
+
+using namespace std::complex_literals;
 
 //-------------------------------------------------------------------------------------------------
 template <typename T1, typename T2>

@@ -29,7 +29,7 @@ fir::fir(const arr_real &h)
 fir_cmplx::fir_cmplx(const arr_cmplx &h)
 {
     _h = h;
-    _d = 1i * zeros(h.size()-1);
+    _d = arr_cmplx(zeros(h.size()-1));
 }
 
 //-------------------------------------------------------------------------------------------------
