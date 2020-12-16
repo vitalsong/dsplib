@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsplib/literals.h>
+#include <complex>
 
 // fix for interger real (because 5+5i is not compiled, but 5.0+5i is OK)
 //-------------------------------------------------------------------------------------------------
@@ -24,7 +24,6 @@ inline std::complex<double> operator - (const std::complex<double>& lhs, const i
 }
 
 namespace dsplib {
-using namespace std::complex_literals;
 
 //-------------------------------------------------------------------------------------------------
 //base scalar type
