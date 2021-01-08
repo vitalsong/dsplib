@@ -3,4 +3,4 @@
 	url = ../../google/googletest.git
 [submodule "external/matplot"]
 	path = external/matplot
-	url = git@github.com:alandefreitas/matplotplusplus.git
+	url = ../../alandefreitas/matplotplusplus.git
