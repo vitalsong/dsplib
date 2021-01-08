@@ -14,10 +14,6 @@ set(SOURCES
     slice_test.cpp
 )
 
-add_subdirectory(googletests)
-include_directories(googletests/googletest/include)
-set(BUILD_GMOCK OFF)
-
 add_test(${PROJECT_NAME} ${PROJECT_NAME})
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} dsplib gtest)
