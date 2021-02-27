@@ -1,6 +1,0 @@
-[submodule "tests/googletests"]
-	path = external/googletest
-	url = ../../google/googletest.git
-[submodule "external/matplot"]
-	path = external/matplot
-	url = ../../alandefreitas/matplotplusplus.git

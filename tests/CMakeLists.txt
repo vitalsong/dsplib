@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(dsplib-tests LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
+
+include(${CMAKE_SOURCE_DIR}/cmake/fetch_helper.cmake)
+FetchHelper(googletest https://github.com/google/googletest.git origin/master)
 
 set(SOURCES
     main.cpp
