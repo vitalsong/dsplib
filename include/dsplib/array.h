@@ -68,6 +68,7 @@ public:
     template <typename T>
     explicit arr_real(const T* x, size_t nx)
     {
+        static_assert(std::is_convertible<T, real_t>::value, "Type is not convertible to dsplib::real_t");
         _vec.resize(nx);
         for (size_t i=0; i < nx; ++i) {
             _vec[i] = x[i];
@@ -172,6 +173,17 @@ public:
 
     slice_real slice(int i1, int i2, int m=1);
 
+    template<typename T>
+    std::vector<T> unpack() const {
+        static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
+        static_assert(std::is_scalar<T>::value, "Type is not scalar");
+        std::vector<T> res(_vec.size());
+        for (size_t i = 0; i < _vec.size(); i++) {
+            res[i] = _vec[i];
+        }
+        return res;
+    }
+
 private:
     std::vector <real_t> _vec;
 };
@@ -203,7 +215,7 @@ public:
 
     //from [1, 2, 3, 4] to [{1, 2j}, {3, 4j}]
     template<typename T>
-    static arr_cmplx pack_iq(const T* x, size_t nx) {
+    static arr_cmplx pack(const T* x, size_t nx) {
         if (nx % 2 != 0) {
             throw(std::runtime_error("Array size is not even"));
         }
@@ -218,18 +230,19 @@ public:
     }
 
     template<typename T>
-    static arr_cmplx pack_iq(const std::vector<T>& arr) {
+    static arr_cmplx pack(const std::vector<T>& arr) {
         static_assert(std::is_scalar<T>::value, "Type is not scalar");
-        return pack_iq(arr.data(), arr.size());
+        return arr_cmplx::pack(arr.data(), arr.size());
     }
 
     template<typename T>
-    static std::vector<T> unpack_iq(const arr_cmplx& arr) {
+    std::vector<T> unpack() const {
         static_assert(std::is_scalar<T>::value, "Type is not scalar");
-        std::vector<T> res(arr.size() * 2);
-        for (size_t i = 0; i < arr.size(); i++) {
-            res[2 * i] = arr[i].re;
-            res[2 * i + 1] = arr[i].im;
+        static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
+        std::vector<T> res(_vec.size() * 2);
+        for (size_t i = 0; i < _vec.size(); i++) {
+            res[2 * i] = _vec[i].re;
+            res[2 * i + 1] = _vec[i].im;
         }
         return res;
     }
