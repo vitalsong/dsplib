@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(dsplib LANGUAGES CXX VERSION 0.1.0)
-
-if (NOT MSVC)
-    add_compile_options(-Wall -Wextra -Wno-sign-compare)
-endif()
+project(dsplib LANGUAGES CXX VERSION 0.2.0)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -31,8 +27,15 @@ set(SOURCES
 )
 
 add_library(${PROJECT_NAME} ${SOURCES})
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-sign-compare)
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_definitions(${PROJECT_NAME} PUBLIC _USE_MATH_DEFINES)
+
+set(FETCHCONTENT_FULLY_DISCONNECTED ON)
 
 if (DSPLIB_BUILD_EXAMPLES)
     add_subdirectory(examples)

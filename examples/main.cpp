@@ -152,8 +152,8 @@ static void lms_example()
     int L = 10000;
     auto flt = dsp::fir(IR);
     auto t = dsp::range(0, L) / 1000;
-    auto s = dsp::sin(2 * M_PI * 3 * t);
-    auto x = 1 * dsp::randn(L);
+    auto s = dsp::sin(2 * M_PI * 3 * t) + dsp::sin(2 * M_PI * 4 * t);
+    auto x = 10 * dsp::randn(L);
     auto d = flt.process(x) + s;
 
     auto mu_max = 2 / ((M + 1) * dsp::mean(x * x));

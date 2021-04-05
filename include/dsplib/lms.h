@@ -23,18 +23,19 @@ public:
         arr_real w;   //weights
     };
 
-    result process(const arr_real& x, const arr_real& d)
+    result process(const arr_real& x, const arr_real& d, bool bypass = false)
     {
         int nx = x.size();
         auto y = zeros(nx);
         auto e = zeros(nx);
         auto tu = concatenate(_u, x);
+        double mu = (bypass) ? (0) : (_m);
 
         for (size_t k = 0; k < nx; k++) {
             _u = tu.slice(k + 1, k + _len + 1);
             y[k] = sum(_w * _u);
             e[k] = d[k] - y[k];
-            _w += _m * e[k] * _u;
+            _w += mu * e[k] * _u;
         }
 
         return {y, e, _w};

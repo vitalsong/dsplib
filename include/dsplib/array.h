@@ -188,17 +188,50 @@ public:
     arr_cmplx(const arr_real& v);
     arr_cmplx(const slice_cmplx& slice);
 
-    arr_cmplx(const std::initializer_list<cmplx_t> &list) {
+    arr_cmplx(const std::initializer_list<cmplx_t>& list) {
         _vec = std::vector<cmplx_t>(list);
     }
 
-    template <typename T>
-    explicit arr_cmplx(const T* x, size_t nx)
-    {
+    template<typename T>
+    explicit arr_cmplx(const T* x, size_t nx) {
+        static_assert(std::is_convertible<T, cmplx_t>::value, "Type is not convertible to dsplib::cmplx_t");
         _vec.resize(nx);
-        for (size_t i=0; i < nx; ++i) {
+        for (size_t i = 0; i < nx; ++i) {
             _vec[i] = x[i];
         }
+    }
+
+    //from [1, 2, 3, 4] to [{1, 2j}, {3, 4j}]
+    template<typename T>
+    static arr_cmplx pack_iq(const T* x, size_t nx) {
+        if (nx % 2 != 0) {
+            throw(std::runtime_error("Array size is not even"));
+        }
+
+        const T* p = x;
+        arr_cmplx r(nx / 2);
+        for (size_t i = 0; i < r.size(); i++) {
+            r[i].re = *(p++);
+            r[i].im = *(p++);
+        }
+        return r;
+    }
+
+    template<typename T>
+    static arr_cmplx pack_iq(const std::vector<T>& arr) {
+        static_assert(std::is_scalar<T>::value, "Type is not scalar");
+        return pack_iq(arr.data(), arr.size());
+    }
+
+    template<typename T>
+    static std::vector<T> unpack_iq(const arr_cmplx& arr) {
+        static_assert(std::is_scalar<T>::value, "Type is not scalar");
+        std::vector<T> res(arr.size() * 2);
+        for (size_t i = 0; i < arr.size(); i++) {
+            res[2 * i] = arr[i].re;
+            res[2 * i + 1] = arr[i].im;
+        }
+        return res;
     }
 
     explicit arr_cmplx(const std::vector<cmplx_t>& v);

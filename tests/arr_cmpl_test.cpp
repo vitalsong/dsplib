@@ -139,3 +139,14 @@ TEST(ArrCmplxTest, Zeros)
     auto v = zeros(4) * 1i;
     ASSERT_EQ_ARR_CMPLX(r, v);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, FromIQ)
+{
+    std::vector<short> s1 = {1, -2, -3, +4};
+    arr_cmplx a1 = arr_cmplx::pack_iq(s1);
+    arr_cmplx a2 = {1 - 2i, -3 + 4i};
+    std::vector<short> s2 = arr_cmplx::unpack_iq<short>(a1);
+    ASSERT_EQ_ARR_REAL(s1, s2);
+    ASSERT_EQ_ARR_CMPLX(a1, a2);
+}
