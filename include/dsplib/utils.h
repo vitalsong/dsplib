@@ -50,4 +50,21 @@ arr_cmplx repelem(const arr_cmplx& x, int n);
 arr_real flip(const arr_real& x);
 arr_cmplx flip(const arr_cmplx& x);
 
+enum class dtype
+{
+    int16,
+    uint16,
+    int32,
+    uint32
+};
+
+enum class endian
+{
+    little = LITTLE_ENDIAN,
+    big = BIG_ENDIAN
+};
+
+arr_real from_file(std::string file, dtype type = dtype::int16, endian order = endian::little, size_t offset = 0,
+                   size_t count = SIZE_MAX);
+
 }   // namespace dsplib

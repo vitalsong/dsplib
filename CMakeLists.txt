@@ -35,7 +35,7 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_definitions(${PROJECT_NAME} PUBLIC _USE_MATH_DEFINES)
 
-set(FETCHCONTENT_FULLY_DISCONNECTED ON)
+option(FETCHCONTENT_UPDATES_DISCONNECTED "" ON)
 
 if (DSPLIB_BUILD_EXAMPLES)
     add_subdirectory(examples)
