@@ -99,6 +99,7 @@ arr_real sin(const arr_real& arr);
 arr_real cos(const arr_real& arr);
 
 //normally distributed random numbers
+real_t randn();
 arr_real randn(int n);
 
 //approximation of the index correction (-1: 1) by a parabola at three points

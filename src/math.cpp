@@ -438,6 +438,15 @@ arr_real randn(int n)
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t randn()
+{
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution<real_t> d(0, 1);
+    return d(gen);
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real exp(const arr_real &arr)
 {
     arr_real r(arr);
