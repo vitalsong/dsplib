@@ -168,6 +168,31 @@ static void lms_example()
 }
 
 //--------------------------------------------------------------------------------
+static void tuner_example()
+{
+    int fs = 8000;
+    int n = 2048;
+
+    dsplib::tuner tuner1(fs, 1000);
+    dsplib::tuner tuner2(fs, -1000);
+
+    auto t = dsp::range(n) / fs;
+
+    auto y1 = 100 * dsp::expj(2 * M_PI * 440 * t);   ///< 440 Hz
+    auto y2 = tuner1.process(y1);                    ///< 1440 Hz
+    auto y3 = tuner2.process(y1);                    ///< -560 Hz
+
+    auto z1 = 20 * dsp::log10(dsp::abs(dsp::fft(y1)));
+    auto z2 = 20 * dsp::log10(dsp::abs(dsp::fft(y2)));
+    auto z3 = 20 * dsp::log10(dsp::abs(dsp::fft(y3)));
+
+    matplot::title("Tuner Example");
+    matplot::plot({z1, z2, z3});
+    matplot::legend({"Original", "+1000Hz", "-1000Hz"});
+    matplot::show();
+}
+
+//--------------------------------------------------------------------------------
 int main()
 {
     lms_example();
@@ -177,4 +202,5 @@ int main()
     fir_example();
     hilbert_example();
     interp_example();
+    tuner_example();
 }

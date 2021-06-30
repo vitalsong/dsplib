@@ -15,3 +15,4 @@
 #include <dsplib/dft.h>
 #include <dsplib/utils.h>
 #include <dsplib/lms.h>
+#include <dsplib/tuner.h>
