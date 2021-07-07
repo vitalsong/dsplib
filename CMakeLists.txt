@@ -25,6 +25,7 @@ set(SOURCES
     src/dft.cpp
     src/utils.cpp
     src/tuner.cpp
+    src/agc.cpp
 )
 
 add_library(${PROJECT_NAME} ${SOURCES})

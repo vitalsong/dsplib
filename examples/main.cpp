@@ -20,10 +20,10 @@ auto plot(dsp::arr_real& x, std::initializer_list<dsp::arr_real> y)
 //---------------------------------------------------------------------------------
 auto plot(std::initializer_list<dsp::arr_real> y)
 {
-    std::set<std::vector<double>> yy;
+    std::vector<std::vector<double>> yy;
     for (auto dy : y) {
         std::vector<double> xx(dy.begin(), dy.end());
-        yy.insert(xx);
+        yy.push_back(xx);
     }
     return plot(yy);
 }
@@ -193,8 +193,22 @@ static void tuner_example()
 }
 
 //--------------------------------------------------------------------------------
+void agc_example()
+{
+    auto agc = dsp::agc(1, 30, 100, 0.01, 0.01);
+    auto t = dsp::range(10000) / 8000;
+    auto x = 10 * dsp::sin(2 * M_PI * 440 * t);
+    auto [y, g] = agc.process(x);
+    matplot::title("Agc example");
+    matplot::plot({x, y});
+    matplot::legend({"Input", "Output"});
+    matplot::show();
+}
+
+//--------------------------------------------------------------------------------
 int main()
 {
+    agc_example();
     lms_example();
     spectrum_example();
     medfilt_example();

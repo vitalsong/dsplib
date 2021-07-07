@@ -16,3 +16,4 @@
 #include <dsplib/utils.h>
 #include <dsplib/lms.h>
 #include <dsplib/tuner.h>
+#include <dsplib/agc.h>
