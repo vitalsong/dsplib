@@ -1,40 +1,40 @@
-#ifndef DFT_TABLES_H
-#define DFT_TABLES_H
+#pragma once
 
 #include <dsplib/types.h>
+#include <vector>
+#include <memory>
 #include <stdint.h>
 
 namespace dsplib {
 namespace tables {
 
-/*!
- * \brief Get (or generate) a table for calculating DFT
- * \param size DFT base
- * \return Table pointer
- */
-const cmplx_t* dft_table(size_t size);
+using dft_ptr = std::shared_ptr<std::vector<cmplx_t>>;
 
 /*!
- * \brief Generate and cahed DFT table
- * \param size DFT base
+ * \brief Get (or generate) a table for calculating DFT
+ * \param n DFT base
+ * \return Table pointer
  */
-void dft_cash(size_t size);
+const dft_ptr dft_table(size_t n);
 
 /*!
  * \brief Clear table from cache
- * \warning Calling this feature may be hazardous to your health!
- * \param size DFT base
+ * \param n DFT base
  */
-void dft_clear(size_t size);
+void dft_clear(size_t n);
 
 /*!
- * \brief Check for a table in the cache
- * \param size DFT base
- * \return Table state
+ * \brief Check if table cached
+ * \param n DFT base
+ * \return Cached
  */
-bool dft_cashed(size_t size);
+bool dft_cached(size_t n);
 
-}   ///< tables
-}   ///< dsplib
+//bit-reverse table
+using bitrev_ptr = std::shared_ptr<std::vector<int32_t>>;
+const bitrev_ptr bitrev_table(size_t n);
+bool bitrev_cached(size_t n);
+void bitrev_clear(size_t n);
 
-#endif // DFT_TABLES_H
+}   // namespace tables
+}   // namespace dsplib
