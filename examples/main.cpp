@@ -9,10 +9,10 @@ namespace matplot {
 //---------------------------------------------------------------------------------
 auto plot(dsp::arr_real& x, std::initializer_list<dsp::arr_real> y)
 {
-    std::set<std::vector<double>> yy;
+    std::vector<std::vector<double>> yy;
     for (auto dy : y) {
         std::vector<double> xx(dy.begin(), dy.end());
-        yy.insert(xx);
+        yy.push_back(xx);
     }
     return plot(x, yy);
 }
@@ -48,16 +48,18 @@ static dsp::arr_real IR = {
 //--------------------------------------------------------------------------------
 static void spectrum_example()
 {
-    int nfft = 512;
-    auto v = dsp::range(0, nfft) * 2 * M_PI * 440 / 8000;
+    const int fs = 8000;
+    const int nfft = 512;
+    auto v = dsp::range(0, nfft) * 2 * M_PI * 440 / fs;
     auto x = dsp::expj(v) * 1000;
     x = dsp::awgn(x, 10);
     x *= dsp::window::hamming(nfft);
     auto y = dsp::fft(x) / nfft;
-    auto z = dsp::log10(dsp::abs(y) / 0x7FFF) * 20;
-
+    y = y.slice(0, nfft / 2);
+    auto z = 20 * dsp::log10(dsp::abs(y) / 0x7FFF);
+    auto freqs = dsp::range(nfft / 2) * fs / nfft;
     matplot::title("Spectrum Example");
-    matplot::plot(z);
+    matplot::plot(freqs, z);
     matplot::show();
 }
 
@@ -186,8 +188,9 @@ static void tuner_example()
     auto z2 = 20 * dsp::log10(dsp::abs(dsp::fft(y2)));
     auto z3 = 20 * dsp::log10(dsp::abs(dsp::fft(y3)));
 
+    auto freqs = dsp::range(n) * fs / n;
     matplot::title("Tuner Example");
-    matplot::plot({z1, z2, z3});
+    matplot::plot(freqs, {z1, z2, z3});
     matplot::legend({"Original", "+1000Hz", "-1000Hz"});
     matplot::show();
 }
