@@ -1,14 +1,14 @@
 [package]
 name = "dsplib"
-version = "0.3.0"
+version = "0.3.1"
 
 [lib]
 lang = "c++11"
 
-[test]
+[[test]]
 lang = "c++17"
 
-[[bin]]
+[[test]]
 name = "dsplib-examples"
 path = "examples"
 lang = "c++17"

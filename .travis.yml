@@ -17,8 +17,7 @@ env:
   - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 script:
-  - mkdir build
-  - cd build
+  - mkdir build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU -DCMAKE_TESTING_ENABLED=True
-  - cmake --build .
-  - ctest --output-on-failure
+  - make dsplib-test
+  - ./dsplib-test
