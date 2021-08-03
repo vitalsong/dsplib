@@ -414,7 +414,7 @@ real_t angle(cmplx_t v)
 {
     real_t d = 0;
     if (v.re < 0) {
-        d = (v.im > 0) ? (M_PI) : (-M_PI);
+        d = (v.im > 0) ? (pi) : (-pi);
     }
     else {
         d = 0;

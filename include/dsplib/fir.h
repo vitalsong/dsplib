@@ -23,8 +23,8 @@ public:
     static arr_real conv(const arr_real& x, const arr_real& h);
 
 private:
-    arr_real _h;     ///< impulse response
-    arr_real _d;     ///< filter delay
+    arr_real _h;   ///< impulse response
+    arr_real _d;   ///< filter delay
 };
 
 /*!
@@ -46,8 +46,27 @@ public:
     static arr_cmplx conv(const arr_cmplx& x, const arr_cmplx& h);
 
 private:
-    arr_cmplx _h;     ///< impulse response
-    arr_cmplx _d;     ///< filter delay
+    arr_cmplx _h;   ///< impulse response
+    arr_cmplx _d;   ///< filter delay
 };
 
-} ///< dsplib
+/*!
+ * \brief Fast fir implementation for IR len > 200
+ */
+class fir_fft
+{
+public:
+    fir_fft() = default;
+    explicit fir_fft(const arr_real& h);
+    arr_real process(const arr_real& x);
+
+private:
+    dsplib::arr_real _x;
+    dsplib::arr_cmplx _h;
+    dsplib::arr_real _olap;
+    int _nx{0};
+    int _m{0};
+    int _n{0};
+};
+
+}   // namespace dsplib

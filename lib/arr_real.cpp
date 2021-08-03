@@ -356,4 +356,23 @@ slice_real arr_real::slice(int i1, int i2, int m)
     return r;
 }
 
+//-------------------------------------------------------------------------------------------------
+arr_real &arr_real::operator ^=(const real_t &base)
+{
+    int n = _vec.size();
+    for (int i=0; i < n; ++i) {
+        _vec[i] = pow(_vec[i], base);
+    }
+
+    return *this;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real arr_real::operator ^(const real_t &base) const
+{
+    arr_real temp(_vec.data(), _vec.size());
+    temp ^= base;
+    return temp;
+}
+
 }   ///< dsplab

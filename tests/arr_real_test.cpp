@@ -24,11 +24,11 @@ TEST(ArrRealTest, Init)
     ASSERT_TRUE(a2.empty());
     ASSERT_TRUE(a3.empty());
 
-    std::vector <short> v1 = {-1, -2, 3, 4};
+    std::vector<short> v1 = {-1, -2, 3, 4};
     arr_real a8{v1.data(), v1.size()};
     ASSERT_EQ_ARR_REAL(v1, a8);
 
-    std::vector <::real_t> v2 = {1, 2, 3, 4};
+    std::vector<::real_t> v2 = {1, 2, 3, 4};
     arr_real a9{v2};
     ASSERT_EQ_ARR_REAL(v2, a9);
 }
@@ -73,4 +73,22 @@ TEST(ArrRealTest, Zeros)
     arr_real r = {0, 0, 0, 0};
     auto v = zeros(4);
     ASSERT_EQ_ARR_REAL(r, v);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, Pow)
+{
+    {
+        arr_real x1 = {1, -1, 2, -2};
+        arr_real r1 = {1, 1, 4, 4};
+        auto y1 = x1 ^ 2;
+        ASSERT_EQ_ARR_REAL(r1, y1);
+    }
+
+    {
+        arr_real x1 = {1, -2.0, 3, -4.0};
+        arr_real r1 = {1, 1, 1, 1};
+        auto y1 = x1 ^ 0;
+        ASSERT_EQ_ARR_REAL(r1, y1);
+    }
 }

@@ -169,6 +169,10 @@ public:
     arr_cmplx operator * (const cmplx_t& rhs) const;
     arr_cmplx operator / (const cmplx_t& rhs) const;
 
+    //power
+    arr_real& operator ^= (const real_t& base);
+    arr_real operator ^ (const real_t& base) const;
+
     bool empty() const;
 
     slice_real slice(int i1, int i2, int m=1);

@@ -72,7 +72,7 @@ TEST(MathTest, Pow2)
 TEST(MathTest, Angle)
 {
     arr_cmplx x1 = {1, 1i, 1+1i, -1};
-    arr_real y1 = {0, M_PI/2, M_PI/4, M_PI};
+    arr_real y1 = {0, pi/2, pi/4, pi};
     ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
 }
 
@@ -90,16 +90,16 @@ TEST(MathTest, Exp)
     auto x1 = dsplib::exp(1);
     EXPECT_NEAR(x1, 2.7182818284590452, EQ_ABS_ERR);
 
-    auto x2 = dsplib::exp(cmplx_t{0, M_PI});
+    auto x2 = dsplib::exp(cmplx_t{0, pi});
     EXPECT_NEAR(x2.re, -1, EQ_ABS_ERR);
     EXPECT_NEAR(x2.im, 0, EQ_ABS_ERR);
 
-    auto x3 = dsplib::expj(M_PI);
+    auto x3 = dsplib::expj(pi);
     EXPECT_NEAR(x3.re, -1, EQ_ABS_ERR);
     EXPECT_NEAR(x3.im, 0, EQ_ABS_ERR);
 
     auto t = range(0, 512) / 8000;
-    auto v = t * 2 * M_PI * 440;
+    auto v = t * 2 * pi * 440;
     auto x4 = dsplib::expj(v);
     auto y4 = dsplib::complex(dsplib::cos(v), dsplib::sin(v));
     ASSERT_EQ_ARR_CMPLX(x4, y4);

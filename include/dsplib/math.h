@@ -23,6 +23,12 @@ cmplx_t max(const arr_cmplx& arr);
 real_t min(const arr_real& arr);
 cmplx_t min(const arr_cmplx& arr);
 
+template<typename T>
+T min(const T& v1, const T& v2)
+{
+    return std::min(v1, v2);
+}
+
 //max element index
 int argmax(const arr_real& arr);
 int argmax(const arr_cmplx& arr);
@@ -105,4 +111,4 @@ arr_real randn(int n);
 //approximation of the index correction (-1: 1) by a parabola at three points
 real_t apprx(real_t y0, real_t y1, real_t y2);
 
-} ///< dsplib
+}   // namespace dsplib

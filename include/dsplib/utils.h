@@ -42,6 +42,13 @@ inline arr_real zeros(int n)
     return r;
 }
 
+inline arr_real ones(int n)
+{
+    arr_real r(n);
+    std::fill(r.data(), r.data() + n, 1);
+    return r;
+}
+
 //repeat copies of array elements
 arr_real repelem(const arr_real& x, int n);
 arr_cmplx repelem(const arr_cmplx& x, int n);

@@ -22,8 +22,8 @@ static dft_ptr _gen_dft_table(size_t size)
     double p;
     for (size_t i = 0; i < size; ++i) {
         p = i / double(size);
-        data[i].re = ::cos(2 * M_PI * p);
-        data[i].im = -::sin(2 * M_PI * p);
+        data[i].re = ::cos(2 * pi * p);
+        data[i].im = -::sin(2 * pi * p);
     }
 
     return tb;

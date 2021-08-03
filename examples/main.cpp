@@ -50,7 +50,7 @@ static void spectrum_example()
 {
     const int fs = 8000;
     const int nfft = 512;
-    auto v = dsp::range(0, nfft) * 2 * M_PI * 440 / fs;
+    auto v = dsp::range(0, nfft) * 2 * dsp::pi * 440 / fs;
     auto x = dsp::expj(v) * 1000;
     x = dsp::awgn(x, 10);
     x *= dsp::window::hamming(nfft);
@@ -68,7 +68,7 @@ static void medfilt_example()
 {
     int fs = 100;
     auto t = dsp::range(0, 1, 1.0 / fs);
-    auto x = dsp::sin(t * 2 * M_PI * 3) + dsp::sin(t * 2 * M_PI * 40) * 0.25;
+    auto x = dsp::sin(t * 2 * dsp::pi * 3) + dsp::sin(t * 2 * dsp::pi * 40) * 0.25;
     auto y = dsp::medfilt(x, 10);
 
     matplot::title("Medfilt Example");
@@ -98,7 +98,7 @@ static void fir_example()
     int n = 200;
 
     auto flt = dsp::fir(IR);
-    auto t = dsp::range(0, n) * 2 * M_PI * 50 / fs;
+    auto t = dsp::range(0, n) * 2 * dsp::pi * 50 / fs;
     auto x_in = dsp::sin(t) * 100 + dsp::randn(n) * 10;
     auto x_out = flt.process(x_in);
 
@@ -113,7 +113,7 @@ static void hilbert_example()
 {
     int fs = 8000;
     int n = 1000;
-    auto t = dsp::range(0, n) * 2 * M_PI * 40 / fs;
+    auto t = dsp::range(0, n) * 2 * dsp::pi * 40 / fs;
     auto x = dsp::sin(t) * 100;
     auto y = dsp::hilbert(x);
 
@@ -133,7 +133,7 @@ static void interp_example()
     int m = 4;
 
     auto flt = dsp::interp_filter(IR, m);
-    auto t = dsp::range(0, n) * 2 * M_PI * 200 / fs;
+    auto t = dsp::range(0, n) * 2 * dsp::pi * 200 / fs;
     auto x_in = dsp::sin(t) * 100;
     auto x_out = flt.process(x_in);
 
@@ -154,7 +154,7 @@ static void lms_example()
     int L = 10000;
     auto flt = dsp::fir(IR);
     auto t = dsp::range(0, L) / 1000;
-    auto s = dsp::sin(2 * M_PI * 3 * t) + dsp::sin(2 * M_PI * 4 * t);
+    auto s = dsp::sin(2 * dsp::pi * 3 * t) + dsp::sin(2 * dsp::pi * 4 * t);
     auto x = 10 * dsp::randn(L);
     auto d = flt.process(x) + s;
 
@@ -180,7 +180,7 @@ static void tuner_example()
 
     auto t = dsp::range(n) / fs;
 
-    auto y1 = 100 * dsp::expj(2 * M_PI * 440 * t);   ///< 440 Hz
+    auto y1 = 100 * dsp::expj(2 * dsp::pi * 440 * t);   ///< 440 Hz
     auto y2 = tuner1.process(y1);                    ///< 1440 Hz
     auto y3 = tuner2.process(y1);                    ///< -560 Hz
 
@@ -200,7 +200,7 @@ void agc_example()
 {
     auto agc = dsp::agc(1, 30, 100, 0.01, 0.01);
     auto t = dsp::range(10000) / 8000;
-    auto x = 10 * dsp::sin(2 * M_PI * 440 * t);
+    auto x = 10 * dsp::sin(2 * dsp::pi * 440 * t);
     auto [y, g] = agc.process(x);
     matplot::title("Agc example");
     matplot::plot({x, y});

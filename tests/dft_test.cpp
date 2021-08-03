@@ -7,7 +7,7 @@ TEST(DftTest, DftReal)
     using namespace dsplib;
     int idx = 10;
     int ndft = 200;
-    auto x = sin(range(ndft) * 2 * M_PI * idx / ndft);
+    auto x = sin(range(ndft) * 2 * pi * idx / ndft);
     auto y = dft(x) / ndft;
     auto z = abs(y);
     auto r = zeros(ndft);
@@ -22,7 +22,7 @@ TEST(DftTest, DftCmplx)
     using namespace dsplib;
     int idx = 10;
     int ndft = 311;
-    auto x = expj(range(ndft) * 2 * M_PI * idx / ndft);
+    auto x = expj(range(ndft) * 2 * pi * idx / ndft);
     auto y = dft(x) / ndft;
     auto z = abs(y);
     auto r = zeros(ndft);

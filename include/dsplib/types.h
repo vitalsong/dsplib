@@ -25,6 +25,8 @@ inline std::complex<double> operator - (const std::complex<double>& lhs, const i
 
 namespace dsplib {
 
+constexpr double pi = 3.141592653589793238463;
+
 //-------------------------------------------------------------------------------------------------
 //base scalar type
 typedef double real_t;

@@ -20,7 +20,7 @@ tuner::sin_table_t tuner::get_table(int fs)
         tb->resize(fs);
         double* data = tb->data();
         for (size_t i = 0; i < fs; i++) {
-            data[i] = sin(2 * M_PI * i / double(fs));
+            data[i] = sin(2 * pi * i / double(fs));
         }
         fs_table[fs] = tb;
     }
