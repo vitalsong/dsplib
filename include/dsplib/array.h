@@ -7,13 +7,16 @@
 
 namespace dsplib {
 
+template<bool _Cond, typename _Iftrue, typename _Iffalse>
+using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
+
 //Detect out type for operations:
 //real + real -> real
 //cmplx + cmplx -> cmplx
 //real + cmplx -> cmplx
 //cmplx + real -> cmplx
 template<typename Bt, typename It>
-using ResultType = std::conditional_t<std::is_same_v<Bt, cmplx_t> || std::is_same_v<It, cmplx_t>, cmplx_t, real_t>;
+using ResultType = conditional_t<std::is_same<Bt, cmplx_t>::value || std::is_same<It, cmplx_t>::value, cmplx_t, real_t>;
 
 template<typename T>
 class base_array
@@ -210,7 +213,7 @@ public:
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator+=(const T2& rhs)
     {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (int i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs;
         }
@@ -220,7 +223,7 @@ public:
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator-=(const T2& rhs)
     {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (int i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs;
         }
@@ -230,7 +233,7 @@ public:
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator*=(const T2& rhs)
     {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (int i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs;
         }
@@ -240,7 +243,7 @@ public:
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator/=(const T2& rhs)
     {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (int i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs;
         }
