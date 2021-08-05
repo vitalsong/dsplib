@@ -145,7 +145,7 @@ TEST(ArrCmplxTest, UnpackReal)
 {
     std::vector<short> r1 = {1, -2, -3, +4};
     arr_real s1(r1.data(), r1.size());
-    std::vector<short> r2 = s1.unpack<short>();
+    std::vector<short> r2 = from_real<short>(s1);
     ASSERT_EQ_ARR_REAL(r1, r2);
 }
 
@@ -153,9 +153,9 @@ TEST(ArrCmplxTest, UnpackReal)
 TEST(ArrCmplxTest, UnpackCmplx)
 {
     std::vector<short> s1 = {1, -2, -3, +4};
-    arr_cmplx a1 = arr_cmplx::pack(s1);
+    arr_cmplx a1 = to_complex(s1);
     arr_cmplx a2 = {1 - 2i, -3 + 4i};
-    std::vector<short> s2 = a1.unpack<short>();
+    std::vector<short> s2 = from_complex<short>(a1);
     ASSERT_EQ_ARR_REAL(s1, s2);
     ASSERT_EQ_ARR_CMPLX(a1, a2);
 }
