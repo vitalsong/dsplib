@@ -414,27 +414,27 @@ protected:
 };
 
 //--------------------------------------------------------------------------------
-template<class T, class L>
-inline base_array<T> operator+(const L& lhs, const base_array<T>& rhs)
+template<class T>
+inline base_array<T> operator+(const real_t& lhs, const base_array<T>& rhs)
 {
     return rhs + lhs;
 }
 
-template<class T, class L>
-inline base_array<T> operator-(const L& lhs, const base_array<T>& rhs)
+template<class T>
+inline base_array<T> operator-(const real_t& lhs, const base_array<T>& rhs)
 {
     base_array<T> r(rhs);
     return (-r) + lhs;
 }
 
-template<class T, class L>
-inline base_array<T> operator*(const L& lhs, const base_array<T>& rhs)
+template<class T>
+inline base_array<T> operator*(const real_t& lhs, const base_array<T>& rhs)
 {
     return rhs * lhs;
 }
 
-template<class T, class L>
-inline base_array<T> operator/(const L& lhs, const base_array<T>& rhs)
+template<class T>
+inline base_array<T> operator/(const real_t& lhs, const base_array<T>& rhs)
 {
     base_array<T> r(rhs);
     int n = r.size();
@@ -457,6 +457,7 @@ inline base_array<cmplx_t> operator*(const std::complex<double>& lhs, const base
 }
 
 //----------------------------------------------------------------------------------------
+//TODO: remove
 inline base_array<cmplx_t> operator*(const base_array<real_t>& lhs, _Complex double rhs)
 {
     return lhs * cmplx_t(rhs);

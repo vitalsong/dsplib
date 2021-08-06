@@ -76,21 +76,21 @@ arr_real from_file(std::string file, dtype type = dtype::int16, endian order = e
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-arr_real to_real(const T* x, size_t nx)
+inline arr_real to_real(const T* x, size_t nx)
 {
     return dsplib::arr_real(x, nx);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-arr_real to_real(const std::vector<T>& arr)
+inline arr_real to_real(const std::vector<T>& arr)
 {
     return dsplib::arr_real(arr);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-std::vector<T> from_real(const arr_real& arr)
+inline std::vector<T> from_real(const arr_real& arr)
 {
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
@@ -102,7 +102,7 @@ std::vector<T> from_real(const arr_real& arr)
 }
 
 template<typename T>
-arr_cmplx to_complex(const T* x, size_t nx)
+inline arr_cmplx to_complex(const T* x, size_t nx)
 {
     if (nx % 2 != 0) {
         throw(std::runtime_error("Array size is not even"));
@@ -118,14 +118,14 @@ arr_cmplx to_complex(const T* x, size_t nx)
 }
 
 template<typename T>
-arr_cmplx to_complex(const std::vector<T>& arr)
+inline arr_cmplx to_complex(const std::vector<T>& arr)
 {
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
     return to_complex(arr.data(), arr.size());
 }
 
 template<typename T>
-std::vector<T> from_complex(const arr_cmplx& arr)
+inline std::vector<T> from_complex(const arr_cmplx& arr)
 {
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
