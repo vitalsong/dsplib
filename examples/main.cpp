@@ -2,6 +2,8 @@
 #include <dsplib.h>
 #include <set>
 
+using namespace std::complex_literals;
+
 namespace dsp = dsplib;
 
 namespace matplot {
@@ -196,22 +198,43 @@ static void tuner_example()
 }
 
 //--------------------------------------------------------------------------------
-void agc_example()
+void agc_example_sinus()
 {
-    auto agc = dsp::agc(1, 30, 100, 0.01, 0.01);
+    auto agc = dsp::agc(1, 30, 1000, 0.01);
     auto t = dsp::range(10000) / 8000;
-    auto x = 10 * dsp::sin(2 * dsp::pi * 440 * t);
+    auto x = 10 * expj(2 * dsp::pi * 440 * t);
     auto [y, g] = agc.process(x);
+    matplot::plot({dsp::real(x), dsp::real(y)});
+    matplot::show();
+}
+
+//--------------------------------------------------------------------------------
+void agc_example_impulse()
+{
+    auto agc1 = dsp::agc(1, 30, 100, 0.02, 0.02);
+    auto agc2 = dsp::agc(1, 24, 100, 0.02, 0.02);
+
+    auto xx1 = 0.1 * dsp::expj(dsp::pi / 4 * dsp::range(200));
+    auto xx2 = 0.1 * dsp::expj(dsp::pi / 8 * dsp::range(200));
+
+    auto z = 1i * dsp::zeros(400);
+    auto x = dsp::concatenate(xx1, z, xx2, z);
+
+    auto [r1, g1] = agc1.process(x);
+    auto [r2, g2] = agc2.process(x);
+
+    auto rabs1 = dsp::abs(r1) ^ 2;
+    auto rabs2 = dsp::abs(r2) ^ 2;
     matplot::title("Agc example");
-    matplot::plot({x, y});
-    matplot::legend({"Input", "Output"});
+    matplot::plot({rabs1, rabs2});
     matplot::show();
 }
 
 //--------------------------------------------------------------------------------
 int main()
 {
-    agc_example();
+    agc_example_sinus();
+    agc_example_impulse();
     lms_example();
     spectrum_example();
     medfilt_example();

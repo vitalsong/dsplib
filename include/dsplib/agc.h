@@ -1,8 +1,11 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <memory>
 
 namespace dsplib {
+
+struct agc_impl;
 
 //Adaptively adjust gain for constant signal level output
 class agc
@@ -16,28 +19,20 @@ public:
     explicit agc(double target_level = 1, double max_gain = 60.0, int average_len = 100, double t_rise = 0.01,
                  double t_fall = 0.01);
 
+    ~agc();
+
+    template<typename T>
     struct result
     {
-        arr_real y;
+        base_array<T> y;
         arr_real gain;
     };
 
-    result process(const arr_real& x);
+    result<real_t> process(const arr_real& x);
+    result<cmplx_t> process(const arr_cmplx& x);
 
 private:
-    void _update_detector();
-
-    double _max_gain;      ///< max gain (db)
-    double _trise;         ///< step size for gain updates (rise)
-    double _tfall;         ///< step size for gain updates (fall)
-    double _zvalue;        ///< exp filter delay
-    double _gain_m;        ///< gain coeff
-    double _max_gain_m;    ///< max gain coeff
-    double _min_gain_m;    ///< min gain coeff
-    double _level;         ///< target level (db)
-    double _rms_acum;      ///< rms accum
-    double _rms_counter;   ///< rms calculation counter
-    double _rms_period;    ///< rms calculation period
+    std::unique_ptr<agc_impl> _d;
 };
 
 }   // namespace dsplib
