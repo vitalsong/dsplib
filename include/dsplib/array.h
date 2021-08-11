@@ -457,18 +457,6 @@ inline base_array<cmplx_t> operator*(const std::complex<double>& lhs, const base
 }
 
 //----------------------------------------------------------------------------------------
-//TODO: remove
-inline base_array<cmplx_t> operator*(const base_array<real_t>& lhs, _Complex double rhs)
-{
-    return lhs * cmplx_t(rhs);
-}
-
-inline base_array<cmplx_t> operator*(_Complex double lhs, const base_array<real_t>& rhs)
-{
-    return rhs * cmplx_t(lhs);
-}
-
-//----------------------------------------------------------------------------------------
 using slice_real = slice<real_t>;
 using slice_cmplx = slice<cmplx_t>;
 
