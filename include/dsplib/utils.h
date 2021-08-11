@@ -67,8 +67,8 @@ enum class dtype
 
 enum class endian
 {
-    little = LITTLE_ENDIAN,
-    big = BIG_ENDIAN
+    little,
+    big
 };
 
 arr_real from_file(std::string file, dtype type = dtype::int16, endian order = endian::little, size_t offset = 0,
