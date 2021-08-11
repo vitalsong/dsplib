@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <ccomplex>
 
 // fix for interger real (because 5+5i is not compiled, but 5.0+5i is OK)
 //-------------------------------------------------------------------------------------------------
