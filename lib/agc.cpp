@@ -67,7 +67,7 @@ static agc::result<T> _process(agc_impl& agc, const base_array<T>& x)
 //------------------------------------------------------------------------------------------
 agc::agc(double target_level, double max_gain, int average_len, double t_rise, double t_fall)
 {
-    _d = std::make_unique<agc_impl>();
+    _d = std::unique_ptr<agc_impl>(new agc_impl());
 
     if (average_len == 0) {
         throw std::runtime_error("average_len must be greater 0");
