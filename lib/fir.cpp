@@ -80,7 +80,7 @@ const arr_cmplx& fir_cmplx::impz() const
 
 //-------------------------------------------------------------------------------------------------
 template<class T>
-static void _conv(const T* __restrict__ x, const T* __restrict__ h, T* __restrict__ r, int nh, int nx)
+static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int nh, int nx)
 {
     const int nr = nx - nh + 1;
     for (int i = 0; i < nr; ++i) {
