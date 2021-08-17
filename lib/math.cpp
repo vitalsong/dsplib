@@ -183,7 +183,16 @@ cmplx_t mean(const arr_cmplx &arr)
 real_t stddev(const arr_real &arr)
 {
     real_t m = mean(arr);
-    real_t r = sqrt(mean(pow2(arr - m)));
+    real_t r = sqrt(sum(pow2(arr - m)) / (arr.size()-1));
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t stddev(const arr_cmplx &arr)
+{
+    auto m = mean(arr);
+    auto d = arr - m;
+    real_t r = sqrt(sum(pow2(real(d)) + pow2(imag(d))) / (arr.size()-1));
     return r;
 }
 

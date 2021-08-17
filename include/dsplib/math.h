@@ -63,8 +63,9 @@ cmplx_t sum(const arr_cmplx& arr);
 real_t mean(const arr_real& arr);
 cmplx_t mean(const arr_cmplx& arr);
 
-//array std
+//standard deviation
 real_t stddev(const arr_real& arr);
+real_t stddev(const arr_cmplx &arr);
 
 //median
 real_t median(const arr_real& arr);
