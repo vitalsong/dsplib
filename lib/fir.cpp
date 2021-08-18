@@ -3,6 +3,7 @@
 #include <dsplib/utils.h>
 #include <dsplib/fft.h>
 #include <dsplib/ifft.h>
+#include <cassert>
 
 namespace dsplib {
 
@@ -79,14 +80,27 @@ const arr_cmplx& fir_cmplx::impz() const
 }
 
 //-------------------------------------------------------------------------------------------------
-template<class T>
-static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int nh, int nx)
+static void _conv(const real_t* restrict x, const real_t* restrict h, real_t* restrict r, int nh, int nx)
 {
     const int nr = nx - nh + 1;
+    assert(nr > 0);
     for (int i = 0; i < nr; ++i) {
         r[i] = 0;
         for (int k = 0; k < nh; ++k) {
-            r[i] += x[i + k] * h[nh - k - 1];
+            r[i] += x[i + k] * h[k];
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+static void _conv(const cmplx_t* restrict x, const cmplx_t* restrict h, cmplx_t* restrict r, int nh, int nx)
+{
+    const int nr = nx - nh + 1;
+    assert(nr > 0);
+    for (int i = 0; i < nr; ++i) {
+        r[i] = 0;
+        for (int k = 0; k < nh; ++k) {
+            r[i] += x[i + k] * h[k].conj();
         }
     }
 }
@@ -95,7 +109,8 @@ static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int n
 arr_real fir::conv(const arr_real& x, const arr_real& h)
 {
     arr_real r(x.size() - h.size() + 1);
-    _conv<real_t>(x.data(), h.data(), r.data(), h.size(), x.size());
+    auto hh = flip(h);
+    _conv(x.data(), hh.data(), r.data(), hh.size(), x.size());
     return r;
 }
 
@@ -103,38 +118,44 @@ arr_real fir::conv(const arr_real& x, const arr_real& h)
 arr_cmplx fir_cmplx::conv(const arr_cmplx& x, const arr_cmplx& h)
 {
     arr_cmplx r(x.size() - h.size() + 1);
-    _conv<cmplx_t>(x.data(), h.data(), r.data(), h.size(), x.size());
+    auto hh = flip(h);
+    _conv(x.data(), hh.data(), r.data(), hh.size(), x.size());
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
-fir_fft::fir_fft(const arr_real& h)
+fir_fft::fir_fft(const arr_cmplx& h)
 {
     int fft_len = 1L << nextpow2(2 * h.size());
     _n = fft_len - h.size();
     _m = h.size();
     _olap = zeros(_m);
-    auto dh = concatenate(h, zeros(fft_len - h.size()));
+    auto dh = concatenate(h, arr_cmplx(fft_len - h.size()));
     _h = fft(dh);
     _x = zeros(fft_len);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real fir_fft::process(const arr_real& x)
+fir_fft::fir_fft(const arr_real& h)
+  : fir_fft(arr_cmplx(h))
+{}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx fir_fft::process(const arr_cmplx& x)
 {
     if (_n == 0) {
         return x;
     }
 
     const int nr = (x.size() + _nx) / _n * _n;
-    arr_real r(nr);
-    real_t* pr = r.data();
+    arr_cmplx r(nr);
+    cmplx_t* pr = r.data();
     for (const auto& val : x) {
         _x[_nx] = val;
         _nx += 1;
         if (_nx == _n) {
             const auto yy = fft(_x) * _h;
-            auto ry = real(ifft(yy));
+            auto ry = ifft(yy);
             for (size_t i = 0; i < _m; i++) {
                 ry[i] += _olap[i];
             }
@@ -149,6 +170,12 @@ arr_real fir_fft::process(const arr_real& x)
         }
     }
     return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real fir_fft::process(const arr_real& x)
+{
+    return real(process(arr_cmplx(x)));
 }
 
 }   // namespace dsplib

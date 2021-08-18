@@ -58,12 +58,14 @@ class fir_fft
 public:
     fir_fft() = default;
     explicit fir_fft(const arr_real& h);
+    explicit fir_fft(const arr_cmplx& h);
     arr_real process(const arr_real& x);
+    arr_cmplx process(const arr_cmplx& x);
 
 private:
-    dsplib::arr_real _x;
+    dsplib::arr_cmplx _x;
     dsplib::arr_cmplx _h;
-    dsplib::arr_real _olap;
+    dsplib::arr_cmplx _olap;
     int _nx{0};
     int _m{0};
     int _n{0};

@@ -176,6 +176,10 @@ struct cmplx_t
     bool operator < (const cmplx_t& rhs) const noexcept {
         return (re * re + im * im) < (rhs.re * rhs.re + rhs.im * rhs.im);
     }
+
+    cmplx_t conj() const {
+        return {re, -im};
+    }
 };
 
 inline cmplx_t operator + (const real_t& lhs, const cmplx_t& rhs) {
