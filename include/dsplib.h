@@ -18,3 +18,4 @@
 #include <dsplib/tuner.h>
 #include <dsplib/agc.h>
 #include <dsplib/sinad.h>
+#include <dsplib/detector.h>

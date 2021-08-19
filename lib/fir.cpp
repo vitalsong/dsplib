@@ -130,7 +130,7 @@ fir_fft::fir_fft(const arr_cmplx& h)
     _n = fft_len - h.size();
     _m = h.size();
     _olap = zeros(_m);
-    auto dh = concatenate(h, arr_cmplx(fft_len - h.size()));
+    auto dh = concatenate(conj(h), arr_cmplx(fft_len - h.size()));
     _h = fft(dh);
     _x = zeros(fft_len);
 }

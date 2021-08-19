@@ -183,8 +183,8 @@ static void tuner_example()
     auto t = dsp::range(n) / fs;
 
     auto y1 = 100 * dsp::expj(2 * dsp::pi * 440 * t);   ///< 440 Hz
-    auto y2 = tuner1.process(y1);                    ///< 1440 Hz
-    auto y3 = tuner2.process(y1);                    ///< -560 Hz
+    auto y2 = tuner1.process(y1);                       ///< 1440 Hz
+    auto y3 = tuner2.process(y1);                       ///< -560 Hz
 
     auto z1 = 20 * dsp::log10(dsp::abs(dsp::fft(y1)));
     auto z2 = 20 * dsp::log10(dsp::abs(dsp::fft(y2)));
@@ -204,6 +204,8 @@ void agc_example_sinus()
     auto t = dsp::range(10000) / 8000;
     auto x = 10 * expj(2 * dsp::pi * 440 * t);
     auto [y, g] = agc.process(x);
+    
+    matplot::title("Agc example");
     matplot::plot({dsp::real(x), dsp::real(y)});
     matplot::show();
 }
@@ -225,14 +227,58 @@ void agc_example_impulse()
 
     auto rabs1 = dsp::abs(r1) ^ 2;
     auto rabs2 = dsp::abs(r2) ^ 2;
+    
     matplot::title("Agc example");
     matplot::plot({rabs1, rabs2});
     matplot::show();
 }
 
 //--------------------------------------------------------------------------------
+void detector_example()
+{
+    const int r = 1;
+    const int n = 100;
+    auto zch_p = (-1) * (dsp::pi * r * (dsp::range(n) ^ 2)) / n;
+    auto zch = dsp::expj(zch_p);
+    auto dtc = dsp::detector(zch);
+    auto t = dsp::range(1000) / 8000.0;
+    auto ns = dsp::expj(2 * dsp::pi * 440 * t);
+    auto x = dsp::concatenate(ns, zch, ns);
+
+    //gauss channel
+    x = dsp::awgn(x, 10);
+
+    const int M = 16;
+    const int L = x.size() / M;
+    bool ready = false;
+    dsp::arr_cmplx aligned;
+    for (size_t i = 0; i < L; i++) {
+        int t0 = i * M;
+        int t1 = (i + 1) * M;
+        dsp::arr_cmplx sx = x.slice(t0, t1);
+
+        //wait preambula
+        auto dres = dtc.process(sx);
+        if (dres.triggered) {
+            aligned = dres.delay;
+            ready = true;
+            continue;
+        }
+
+        if (ready) {
+            aligned = dsp::concatenate(aligned, sx);
+        }
+    }
+
+    matplot::title("Aligned preambula + signal");
+    matplot::plot(dsp::real(aligned));
+    matplot::show();
+}
+
+//--------------------------------------------------------------------------------
 int main()
 {
+    detector_example();
     agc_example_sinus();
     agc_example_impulse();
     lms_example();

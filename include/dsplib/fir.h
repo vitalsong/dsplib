@@ -59,8 +59,16 @@ public:
     fir_fft() = default;
     explicit fir_fft(const arr_real& h);
     explicit fir_fft(const arr_cmplx& h);
+
+    //usually in.size() != out.size()
     arr_real process(const arr_real& x);
     arr_cmplx process(const arr_cmplx& x);
+
+    //optimal input size for y[nx] = process(x[nx])
+    int block_size() const
+    {
+        return _n;
+    }
 
 private:
     dsplib::arr_cmplx _x;
