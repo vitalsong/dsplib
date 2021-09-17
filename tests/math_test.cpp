@@ -117,3 +117,21 @@ TEST(MathTest, Exp)
     auto y4 = dsplib::complex(dsplib::cos(v), dsplib::sin(v));
     ASSERT_EQ_ARR_CMPLX(x4, y4);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Downsample)
+{
+    {
+        dsplib::arr_real x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        dsplib::arr_real y = {1, 4, 7, 10};
+        auto r = dsplib::downsample(x, 3);
+        ASSERT_EQ_ARR_REAL(y, r);
+    }
+
+    {
+        dsplib::arr_cmplx x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        dsplib::arr_cmplx y = {3, 6, 9};
+        auto r = dsplib::downsample(x, 3, 2);
+        ASSERT_EQ_ARR_CMPLX(y, r);
+    }
+}

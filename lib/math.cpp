@@ -512,6 +512,33 @@ cmplx_t expj(real_t im)
     return cmplx_t{::cos(im), ::sin(im)};
 }
 
+//-------------------------------------------------------------------------------------------------
+template<class T>
+static T _downsample(const T& arr, int n, int phase = 0)
+{
+    if (n == 0) {
+        throw std::invalid_argument("downsample factor must be greater 0");
+    }
+
+    T r;
+    for (size_t i = phase; i < arr.size(); i += n) {
+        r.push_back(arr[i]);
+    }
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real downsample(const arr_real& arr, int n, int phase)
+{
+    return _downsample(arr, n, phase);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx downsample(const arr_cmplx& arr, int n, int phase)
+{
+    return _downsample(arr, n, phase);
+}
+
 } ///< dsplib
 
 

@@ -65,7 +65,7 @@ cmplx_t mean(const arr_cmplx& arr);
 
 //standard deviation
 real_t stddev(const arr_real& arr);
-real_t stddev(const arr_cmplx &arr);
+real_t stddev(const arr_cmplx& arr);
 
 //median
 real_t median(const arr_real& arr);
@@ -111,5 +111,9 @@ arr_real randn(int n);
 
 //approximation of the index correction (-1: 1) by a parabola at three points
 real_t apprx(real_t y0, real_t y1, real_t y2);
+
+//decrease sample rate by integer factor
+arr_real downsample(const arr_real& arr, int n, int phase = 0);
+arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
 
 }   // namespace dsplib
