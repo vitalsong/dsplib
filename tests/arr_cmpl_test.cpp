@@ -118,18 +118,22 @@ TEST(ArrCmplxTest, ArithmRealValue)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrCmplxTest, Join)
+TEST(ArrCmplxTest, Concatenate)
 {
-    arr_cmplx a1 = {100+100i, 200+200i};
-    arr_cmplx a2 = {-100-100i, -200-200i};
-    arr_cmplx j1 = {100+100i, 200+200i, -100-100i, -200-200i};
-    arr_cmplx j2 = {-100-100i, -200-200i, 100+100i, 200+200i};
-
+    arr_cmplx a1 = {100 + 100i, 200 + 200i};
+    arr_cmplx a2 = {-100 - 100i, -200 - 200i};
+    arr_cmplx j1 = {100 + 100i, 200 + 200i, -100 - 100i, -200 - 200i};
+    arr_cmplx j2 = {-100 - 100i, -200 - 200i, 100 + 100i, 200 + 200i};
+    
     auto r1 = concatenate(a1, a2);
     auto r2 = concatenate(a2, a1);
-
     ASSERT_EQ_ARR_CMPLX(r1, j1);
     ASSERT_EQ_ARR_CMPLX(r2, j2);
+
+    ASSERT_EQ_ARR_CMPLX((a1 | a2), j1);
+    ASSERT_EQ_ARR_CMPLX((a2 | a1), j2);
+    ASSERT_EQ_ARR_CMPLX((zeros(3) | a1), arr_cmplx{0, 0, 0, 100 + 100i, 200 + 200i});
+    ASSERT_EQ_ARR_CMPLX((a1 | zeros(3)), arr_cmplx{100 + 100i, 200 + 200i, 0, 0, 0});
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -62,9 +62,11 @@ TEST(ArrRealTest, Concatenate)
 
     auto r1 = concatenate(a1, a2);
     auto r2 = concatenate(a2, a1);
-
     ASSERT_EQ_ARR_REAL(r1, j1);
     ASSERT_EQ_ARR_REAL(r2, j2);
+
+    ASSERT_EQ_ARR_REAL(a1 | a2, j1);
+    ASSERT_EQ_ARR_REAL(a2 | a1, j2);
 }
 
 //-------------------------------------------------------------------------------------------------

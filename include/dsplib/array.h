@@ -390,6 +390,26 @@ public:
     }
 
     //--------------------------------------------------------------------
+    //concatenate syntax
+    template<class T2, class R = ResultType<T, T2>>
+    base_array<R>& operator|=(const base_array<T2>& rhs)
+    {
+        _vec.reserve(_vec.size() + rhs.size());
+        for (int i = 0; i < rhs.size(); ++i) {
+            _vec.push_back(rhs[i]);
+        }
+        return *this;
+    }
+
+    template<class T2, class R = ResultType<T, T2>>
+    base_array<R> operator|(const base_array<T2>& rhs) const
+    {
+        base_array<R> temp(*this);
+        temp |= rhs;
+        return temp;
+    }
+
+    //--------------------------------------------------------------------
     ::dsplib::slice<T> slice(int i1, int i2, int m = 1)
     {
         if (m < 1) {
