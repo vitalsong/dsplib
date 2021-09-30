@@ -76,10 +76,7 @@ public:
     explicit base_array(const T2* x, size_t nx)
     {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
-        _vec.resize(nx);
-        for (size_t i = 0; i < nx; ++i) {
-            _vec[i] = x[i];
-        }
+        _vec.insert(_vec.end(), x, x + nx);
     }
 
     //--------------------------------------------------------------------
@@ -202,8 +199,8 @@ public:
     }
 
     base_array<T>& operator-()
-    {
-        for (int i = 0; i < _vec.size(); ++i) {
+    {   
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] = (-_vec[i]);
         }
         return *this;
@@ -214,7 +211,7 @@ public:
     base_array<R>& operator+=(const T2& rhs)
     {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs;
         }
         return *this;
@@ -224,7 +221,7 @@ public:
     base_array<R>& operator-=(const T2& rhs)
     {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs;
         }
         return *this;
@@ -234,7 +231,7 @@ public:
     base_array<R>& operator*=(const T2& rhs)
     {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs;
         }
         return *this;
@@ -244,7 +241,7 @@ public:
     base_array<R>& operator/=(const T2& rhs)
     {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs;
         }
         return *this;
@@ -291,7 +288,7 @@ public:
             throw std::invalid_argument("array sizes are different");
         }
 
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs[i];
         }
 
@@ -305,7 +302,7 @@ public:
             throw std::invalid_argument("array sizes are different");
         }
 
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs[i];
         }
 
@@ -319,7 +316,7 @@ public:
             throw std::invalid_argument("array sizes are different");
         }
 
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs[i];
         }
 
@@ -333,7 +330,7 @@ public:
             throw std::invalid_argument("array sizes are different");
         }
 
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs[i];
         }
 
@@ -376,7 +373,7 @@ public:
     //--------------------------------------------------------------------
     base_array<T>& operator^=(const real_t& rhs)
     {
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] = pow(_vec[i], rhs);
         }
         return *this;
@@ -394,10 +391,7 @@ public:
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator|=(const base_array<T2>& rhs)
     {
-        _vec.reserve(_vec.size() + rhs.size());
-        for (int i = 0; i < rhs.size(); ++i) {
-            _vec.push_back(rhs[i]);
-        }
+        _vec.insert(_vec.end(), rhs.begin(), rhs.end());
         return *this;
     }
 
@@ -457,8 +451,7 @@ template<class T>
 inline base_array<T> operator/(const real_t& lhs, const base_array<T>& rhs)
 {
     base_array<T> r(rhs);
-    int n = r.size();
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < r.size(); ++i) {
         r[i] = lhs / rhs[i];
     }
 
