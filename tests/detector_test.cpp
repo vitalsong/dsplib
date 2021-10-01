@@ -11,7 +11,7 @@ static dsplib::arr_cmplx zadoff_chu(int r, int n)
 TEST(Detector, SingleDetect)
 {
     using namespace dsplib;
-    auto zch = zadoff_chu(1, 200);
+    auto zch = zadoff_chu(1, 201) | zadoff_chu(1, 101);
     auto dtc = detector(zch, 0.5);
     auto noise = 1i * randn(10000);
     auto x = noise | zch | noise;
@@ -25,7 +25,7 @@ TEST(Detector, SingleDetect)
 TEST(Detector, FlowDetect)
 {
     using namespace dsplib;
-    auto zch = zadoff_chu(1, 200);
+    auto zch = zadoff_chu(1, 201) | zadoff_chu(1, 101);
     auto dtc = detector(zch, 0.5);
     auto noise = 1i * randn(10000);
     auto x = noise | zch | noise;

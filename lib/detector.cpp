@@ -65,7 +65,7 @@ detector::detector(const arr_cmplx& h, real_t threshold, int release)
     assert(nh > 0);
     _d = std::unique_ptr<detector_impl>(new detector_impl);
     _d->delay = zeros(nh + release);
-    _d->fir_match = fir_fft(h / (nh * rms(h)));
+    _d->fir_match = fir_fft(flip(h) / (nh * rms(h)));
     _d->block_size = _d->fir_match.block_size();
     _d->fir_pow = ave_fir(nh);
     _d->release_time = release;
@@ -85,7 +85,7 @@ static detector::result _detecting(detector_impl* _d, const arr_cmplx& x)
     assert(x.size() == _d->block_size);
 
     //update delay
-    auto delay = concatenate(_d->delay, x);
+    auto delay = _d->delay | x;
     _d->delay = delay.slice(delay.size() - _d->delay.size(), delay.size());
 
     //match fir line
