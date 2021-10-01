@@ -38,7 +38,7 @@ fir_cmplx::fir_cmplx(const arr_cmplx& h)
 //-------------------------------------------------------------------------------------------------
 arr_real fir::process(const arr_real& s)
 {
-    auto x = concatenate(_d, s);
+    auto x = _d | s;
 
     //convolution
     arr_real r = fir::conv(x, _h);
@@ -54,7 +54,7 @@ arr_real fir::process(const arr_real& s)
 //-------------------------------------------------------------------------------------------------
 arr_cmplx fir_cmplx::process(const arr_cmplx& s)
 {
-    auto x = concatenate(_d, s);
+    auto x = _d | s;
 
     //convolution
     arr_cmplx r = fir_cmplx::conv(x, _h);
@@ -80,7 +80,8 @@ const arr_cmplx& fir_cmplx::impz() const
 }
 
 //-------------------------------------------------------------------------------------------------
-static void _conv(const real_t* restrict x, const real_t* restrict h, real_t* restrict r, int nh, int nx)
+template<class T>
+static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int nh, int nx)
 {
     const int nr = nx - nh + 1;
     assert(nr > 0);
@@ -88,19 +89,6 @@ static void _conv(const real_t* restrict x, const real_t* restrict h, real_t* re
         r[i] = 0;
         for (int k = 0; k < nh; ++k) {
             r[i] += x[i + k] * h[k];
-        }
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-static void _conv(const cmplx_t* restrict x, const cmplx_t* restrict h, cmplx_t* restrict r, int nh, int nx)
-{
-    const int nr = nx - nh + 1;
-    assert(nr > 0);
-    for (int i = 0; i < nr; ++i) {
-        r[i] = 0;
-        for (int k = 0; k < nh; ++k) {
-            r[i] += x[i + k] * h[k].conj();
         }
     }
 }
@@ -118,7 +106,7 @@ arr_real fir::conv(const arr_real& x, const arr_real& h)
 arr_cmplx fir_cmplx::conv(const arr_cmplx& x, const arr_cmplx& h)
 {
     arr_cmplx r(x.size() - h.size() + 1);
-    auto hh = flip(h);
+    auto hh = conj(flip(h));
     _conv(x.data(), hh.data(), r.data(), hh.size(), x.size());
     return r;
 }
@@ -130,7 +118,7 @@ fir_fft::fir_fft(const arr_cmplx& h)
     _n = fft_len - h.size();
     _m = h.size();
     _olap = zeros(_m);
-    auto dh = concatenate(conj(h), arr_cmplx(fft_len - h.size()));
+    auto dh = conj(h) | zeros(fft_len - h.size());
     _h = fft(dh);
     _x = zeros(fft_len);
 }

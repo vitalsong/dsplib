@@ -220,7 +220,7 @@ void agc_example_impulse()
     auto xx2 = 0.1 * dsp::expj(dsp::pi / 8 * dsp::range(200));
 
     auto z = 1i * dsp::zeros(400);
-    auto x = dsp::concatenate(xx1, z, xx2, z);
+    auto x = xx1 | z | xx2 | z;
 
     auto [r1, g1] = agc1.process(x);
     auto [r2, g2] = agc2.process(x);
@@ -243,7 +243,7 @@ void detector_example()
     auto dtc = dsp::detector(zch);
     auto t = dsp::range(1000) / 8000.0;
     auto ns = dsp::expj(2 * dsp::pi * 440 * t);
-    auto x = dsp::concatenate(ns, zch, ns);
+    auto x = ns | zch | ns;
 
     //gauss channel
     x = dsp::awgn(x, 10);
@@ -266,7 +266,7 @@ void detector_example()
         }
 
         if (ready) {
-            aligned = dsp::concatenate(aligned, sx);
+            aligned |= sx;
         }
     }
 

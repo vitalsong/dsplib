@@ -28,7 +28,7 @@ public:
         int nx = x.size();
         auto y = zeros(nx);
         auto e = zeros(nx);
-        auto tu = concatenate(_u, x);
+        auto tu = _u | x;
         double mu = (bypass) ? (0) : (_m);
 
         for (size_t k = 0; k < nx; k++) {
