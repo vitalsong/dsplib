@@ -135,3 +135,16 @@ TEST(MathTest, Downsample)
         ASSERT_EQ_ARR_CMPLX(y, r);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Rms)
+{
+    {
+        auto x = dsplib::expj(2 * dsplib::pi * 440 * dsplib::range(10000) / 8000.0);
+        auto y = dsplib::real(x);
+        auto rms_x = dsplib::rms(x);
+        auto rms_y = dsplib::rms(y);
+        ASSERT_NEAR(rms_x, 1, 0.0001);
+        ASSERT_NEAR(rms_y, 0.707142132106764, 0.0001);
+    }
+}

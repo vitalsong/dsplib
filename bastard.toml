@@ -1,6 +1,6 @@
 [package]
 name = "dsplib"
-version = "0.9.0"
+version = "0.9.1"
 
 [lib]
 lang = "c++11"
