@@ -3,25 +3,21 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Init)
-{
+TEST(ArrRealTest, Init) {
     arr_real a1;
-    arr_real a2{};
-    arr_real a3{a1};
+    arr_real a3(a1);
     arr_real a4(10);
     arr_real a5 = a4;
     arr_real a6 = a5 + a4;
-    arr_real a7{a6 + a4};
+    arr_real a7(a6 + a4);
 
     ASSERT_EQ(a1.size(), 0);
-    ASSERT_EQ(a2.size(), 0);
     ASSERT_EQ(a3.size(), 0);
     ASSERT_EQ(a4.size(), 10);
     ASSERT_EQ(a5.size(), 10);
     ASSERT_EQ(a6.size(), 10);
     ASSERT_EQ(a7.size(), 10);
     ASSERT_TRUE(a1.empty());
-    ASSERT_TRUE(a2.empty());
     ASSERT_TRUE(a3.empty());
 
     std::vector<short> v1 = {-1, -2, 3, 4};
@@ -29,13 +25,12 @@ TEST(ArrRealTest, Init)
     ASSERT_EQ_ARR_REAL(v1, a8);
 
     std::vector<::real_t> v2 = {1, 2, 3, 4};
-    arr_real a9{v2};
+    arr_real a9(v2);
     ASSERT_EQ_ARR_REAL(v2, a9);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Arithm)
-{
+TEST(ArrRealTest, Arithm) {
     arr_real a1 = {-1, -2, 3, 4};
     arr_real a2 = {1, 2, -3, -4};
 
@@ -53,8 +48,7 @@ TEST(ArrRealTest, Arithm)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Concatenate)
-{
+TEST(ArrRealTest, Concatenate) {
     arr_real a1 = {100, 200};
     arr_real a2 = {-100, -200};
     arr_real j1 = {100, 200, -100, -200};
@@ -70,16 +64,14 @@ TEST(ArrRealTest, Concatenate)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Zeros)
-{
+TEST(ArrRealTest, Zeros) {
     arr_real r = {0, 0, 0, 0};
     auto v = zeros(4);
     ASSERT_EQ_ARR_REAL(r, v);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Pow)
-{
+TEST(ArrRealTest, Pow) {
     {
         arr_real x1 = {1, -1, 2, -2};
         arr_real r1 = {1, 1, 4, 4};

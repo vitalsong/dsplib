@@ -9,22 +9,20 @@ namespace dsp = dsplib;
 namespace matplot {
 
 //---------------------------------------------------------------------------------
-auto plot(dsp::arr_real& x, std::initializer_list<dsp::arr_real> y)
-{
+auto plot(dsp::arr_real& x, std::initializer_list<dsp::arr_real> y) {
     std::vector<std::vector<double>> yy;
     for (auto dy : y) {
-        std::vector<double> xx(dy.begin(), dy.end());
+        auto xx = dy.to_vec<double>();
         yy.push_back(xx);
     }
     return plot(x, yy);
 }
 
 //---------------------------------------------------------------------------------
-auto plot(std::initializer_list<dsp::arr_real> y)
-{
+auto plot(std::initializer_list<dsp::arr_real> y) {
     std::vector<std::vector<double>> yy;
     for (auto dy : y) {
-        std::vector<double> xx(dy.begin(), dy.end());
+        auto xx = dy.to_vec<double>();
         yy.push_back(xx);
     }
     return plot(yy);
@@ -48,8 +46,7 @@ static dsp::arr_real IR = {
   -0.00038208231336125866};
 
 //--------------------------------------------------------------------------------
-static void spectrum_example()
-{
+static void spectrum_example() {
     const int fs = 8000;
     const int nfft = 512;
     auto v = dsp::range(0, nfft) * 2 * dsp::pi * 440 / fs;
@@ -66,8 +63,7 @@ static void spectrum_example()
 }
 
 //--------------------------------------------------------------------------------
-static void medfilt_example()
-{
+static void medfilt_example() {
     int fs = 100;
     auto t = dsp::range(0, 1, 1.0 / fs);
     auto x = dsp::sin(t * 2 * dsp::pi * 3) + dsp::sin(t * 2 * dsp::pi * 40) * 0.25;
@@ -80,8 +76,7 @@ static void medfilt_example()
 }
 
 //--------------------------------------------------------------------------------
-static void xcorr_example()
-{
+static void xcorr_example() {
     int n = 1000;
     auto x1 = dsp::randn(n) * 100;
     auto x2 = dsp::awgn(x1, 10);
@@ -94,8 +89,7 @@ static void xcorr_example()
 }
 
 //--------------------------------------------------------------------------------
-static void fir_example()
-{
+static void fir_example() {
     int fs = 2000;
     int n = 200;
 
@@ -111,8 +105,7 @@ static void fir_example()
 }
 
 //--------------------------------------------------------------------------------
-static void hilbert_example()
-{
+static void hilbert_example() {
     int fs = 8000;
     int n = 1000;
     auto t = dsp::range(0, n) * 2 * dsp::pi * 40 / fs;
@@ -128,8 +121,7 @@ static void hilbert_example()
 }
 
 //--------------------------------------------------------------------------------
-static void interp_example()
-{
+static void interp_example() {
     int fs = 2000;
     int n = 30;
     int m = 4;
@@ -150,8 +142,7 @@ static void interp_example()
 }
 
 //--------------------------------------------------------------------------------
-static void lms_example()
-{
+static void lms_example() {
     int M = 100;
     int L = 10000;
     auto flt = dsp::fir(IR);
@@ -172,8 +163,7 @@ static void lms_example()
 }
 
 //--------------------------------------------------------------------------------
-static void tuner_example()
-{
+static void tuner_example() {
     int fs = 8000;
     int n = 2048;
 
@@ -198,21 +188,19 @@ static void tuner_example()
 }
 
 //--------------------------------------------------------------------------------
-void agc_example_sinus()
-{
+void agc_example_sinus() {
     auto agc = dsp::agc(1, 30, 1000, 0.01);
     auto t = dsp::range(10000) / 8000;
     auto x = 10 * expj(2 * dsp::pi * 440 * t);
     auto [y, g] = agc.process(x);
-    
+
     matplot::title("Agc example");
     matplot::plot({dsp::real(x), dsp::real(y)});
     matplot::show();
 }
 
 //--------------------------------------------------------------------------------
-void agc_example_impulse()
-{
+void agc_example_impulse() {
     auto agc1 = dsp::agc(1, 30, 100, 0.02, 0.02);
     auto agc2 = dsp::agc(1, 24, 100, 0.02, 0.02);
 
@@ -227,15 +215,14 @@ void agc_example_impulse()
 
     auto rabs1 = dsp::abs(r1) ^ 2;
     auto rabs2 = dsp::abs(r2) ^ 2;
-    
+
     matplot::title("Agc example");
     matplot::plot({rabs1, rabs2});
     matplot::show();
 }
 
 //--------------------------------------------------------------------------------
-void detector_example()
-{
+void detector_example() {
     const int r = 1;
     const int n = 100;
     auto zch_p = (-1) * (dsp::pi * r * (dsp::range(n) ^ 2)) / n;
@@ -276,8 +263,7 @@ void detector_example()
 }
 
 //--------------------------------------------------------------------------------
-int main()
-{
+int main() {
     detector_example();
     agc_example_sinus();
     agc_example_impulse();

@@ -15,22 +15,22 @@
 
 // fix for interger real (because 5+5i is not compiled, but 5.0+5i is OK)
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator + (const int& lhs, const std::complex<double>& rhs) {
+inline std::complex<double> operator+(const int& lhs, const std::complex<double>& rhs) {
     return std::complex<double>(double(lhs)) + rhs;
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator - (const int& lhs, const std::complex<double>& rhs) {
+inline std::complex<double> operator-(const int& lhs, const std::complex<double>& rhs) {
     return std::complex<double>(double(lhs)) - rhs;
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator + (const std::complex<double>& lhs, const int& rhs) {
+inline std::complex<double> operator+(const std::complex<double>& lhs, const int& rhs) {
     return lhs + std::complex<double>(double(rhs));
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator - (const std::complex<double>& lhs, const int& rhs) {
+inline std::complex<double> operator-(const std::complex<double>& lhs, const int& rhs) {
     return lhs - std::complex<double>(double(rhs));
 }
 
@@ -44,13 +44,9 @@ using real_t = double;
 
 struct cmplx_t;
 
-struct _cmplx_base_t {
-    double re{0};
-    double im{0};
-};
-
 template<typename T, class = void>
-struct cmplx_convert_to_t : std::false_type {};
+struct cmplx_convert_to_t : std::false_type
+{};
 
 template<typename T>
 struct cmplx_convert_to_t<T, typename std::enable_if<std::is_scalar<T>::value>::type>;
@@ -59,7 +55,8 @@ template<typename T>
 constexpr cmplx_t to_cmplx_cast(const T& v);
 
 template<typename T>
-struct cmplx_convert_from_t : std::false_type {};
+struct cmplx_convert_from_t : std::false_type
+{};
 
 template<typename T>
 constexpr T from_cmplx_cast(const cmplx_t& v);
@@ -71,7 +68,10 @@ struct cmplx_t
     template<typename T>
     using convert_fn_t = std::function<cmplx_t(T)>;
 
-    constexpr cmplx_t(real_t _re = 0, real_t _im = 0) : re(_re), im(_im){}
+    constexpr cmplx_t(real_t _re = 0, real_t _im = 0)
+      : re(_re)
+      , im(_im) {
+    }
     constexpr cmplx_t(const cmplx_t&) = default;
 
     template<typename T>
@@ -87,43 +87,38 @@ struct cmplx_t
     real_t re;
     real_t im;
 
-    cmplx_t& operator = (const cmplx_t&) = default;
+    cmplx_t& operator=(const cmplx_t&) = default;
 
-    cmplx_t& operator + () noexcept {
+    cmplx_t& operator+() noexcept {
         return *this;
     }
 
-    cmplx_t& operator - () noexcept
-    {
+    cmplx_t& operator-() noexcept {
         re = -re;
         im = -im;
         return *this;
     }
 
-    cmplx_t& operator += (const cmplx_t& rhs) noexcept
-    {
+    cmplx_t& operator+=(const cmplx_t& rhs) noexcept {
         re += rhs.re;
         im += rhs.im;
         return *this;
     }
 
-    cmplx_t& operator -= (const cmplx_t& rhs) noexcept
-    {
+    cmplx_t& operator-=(const cmplx_t& rhs) noexcept {
         re -= rhs.re;
         im -= rhs.im;
         return *this;
     }
 
-    cmplx_t& operator *= (const cmplx_t& rhs) noexcept
-    {
+    cmplx_t& operator*=(const cmplx_t& rhs) noexcept {
         real_t ti = (re * rhs.re) - (im * rhs.im);
         im = (re * rhs.im) + (im * rhs.re);
         re = ti;
         return *this;
     }
 
-    cmplx_t& operator /= (const cmplx_t& rhs) noexcept
-    {
+    cmplx_t& operator/=(const cmplx_t& rhs) noexcept {
         real_t b = (rhs.re * rhs.re) + (rhs.im * rhs.im);
         real_t ti = ((re * rhs.re) + (im * rhs.im)) / b;
         im = ((rhs.re * im) - (re * rhs.im)) / b;
@@ -131,67 +126,59 @@ struct cmplx_t
         return *this;
     }
 
-    cmplx_t operator + (const cmplx_t &rhs) const noexcept
-    {
+    cmplx_t operator+(const cmplx_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp += rhs;
         return tmp;
     }
 
-    cmplx_t operator - (const cmplx_t &rhs) const noexcept
-    {
+    cmplx_t operator-(const cmplx_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp -= rhs;
         return tmp;
     }
 
-    cmplx_t operator * (const cmplx_t &rhs) const noexcept
-    {
+    cmplx_t operator*(const cmplx_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp *= rhs;
         return tmp;
     }
 
-    cmplx_t operator / (const cmplx_t &rhs) const noexcept
-    {
+    cmplx_t operator/(const cmplx_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp /= rhs;
         return tmp;
     }
 
-    cmplx_t& operator *= (const real_t& rhs) noexcept
-    {
+    cmplx_t& operator*=(const real_t& rhs) noexcept {
         re = (re * rhs);
         im = (im * rhs);
         return *this;
     }
 
-    cmplx_t operator * (const real_t& rhs) const noexcept
-    {
+    cmplx_t operator*(const real_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp *= rhs;
         return tmp;
     }
 
-    cmplx_t& operator /= (const real_t& rhs) noexcept
-    {
+    cmplx_t& operator/=(const real_t& rhs) noexcept {
         re = (re / rhs);
         im = (im / rhs);
         return *this;
     }
 
-    cmplx_t operator / (const real_t& rhs) const noexcept
-    {
+    cmplx_t operator/(const real_t& rhs) const noexcept {
         cmplx_t tmp = *this;
         tmp /= rhs;
         return tmp;
     }
 
-    bool operator > (const cmplx_t& rhs) const noexcept {
+    bool operator>(const cmplx_t& rhs) const noexcept {
         return (re * re + im * im) > (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 
-    bool operator < (const cmplx_t& rhs) const noexcept {
+    bool operator<(const cmplx_t& rhs) const noexcept {
         return (re * re + im * im) < (rhs.re * rhs.re + rhs.im * rhs.im);
     }
 
@@ -200,20 +187,20 @@ struct cmplx_t
     }
 };
 
-inline cmplx_t operator + (const real_t& lhs, const cmplx_t& rhs) {
+inline cmplx_t operator+(const real_t& lhs, const cmplx_t& rhs) {
     return rhs + lhs;
 }
 
-inline cmplx_t operator - (const real_t& lhs, const cmplx_t& rhs) {
+inline cmplx_t operator-(const real_t& lhs, const cmplx_t& rhs) {
     cmplx_t r(rhs);
     return -r + lhs;
 }
 
-inline cmplx_t operator * (const real_t& lhs, const cmplx_t& rhs) {
+inline cmplx_t operator*(const real_t& lhs, const cmplx_t& rhs) {
     return rhs * lhs;
 }
 
-inline cmplx_t operator / (const real_t& lhs, const cmplx_t& rhs) {
+inline cmplx_t operator/(const real_t& lhs, const cmplx_t& rhs) {
     cmplx_t r(rhs);
     r.re = lhs / r.re;
     r.im = lhs / r.im;
@@ -221,7 +208,8 @@ inline cmplx_t operator / (const real_t& lhs, const cmplx_t& rhs) {
 }
 
 template<typename T>
-struct cmplx_convert_to_t<T, typename std::enable_if<std::is_scalar<T>::value>::type> : std::true_type {
+struct cmplx_convert_to_t<T, typename std::enable_if<std::is_scalar<T>::value>::type> : std::true_type
+{
     static cmplx_t cast(const T& v) {
         return cmplx_t{static_cast<double>(v), 0};
     }
@@ -255,4 +243,4 @@ constexpr T from_cmplx_cast(const cmplx_t& v) {
     return cmplx_convert_from_t<T>::cast(v);
 }
 
-} ///< dsplib
+}   // namespace dsplib

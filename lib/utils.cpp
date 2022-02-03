@@ -5,8 +5,7 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-arr_real range(real_t start, real_t stop, real_t step)
-{
+arr_real range(real_t start, real_t stop, real_t step) {
     int n = ::round((stop - start) / step);
     arr_real r(n);
     real_t v = start;
@@ -19,15 +18,13 @@ arr_real range(real_t start, real_t stop, real_t step)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real range(real_t stop)
-{
+arr_real range(real_t stop) {
     return range(0, stop, 1);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<class T>
-T _repelem(const T& x, int n)
-{
+T _repelem(const T& x, int n) {
     if (n == 0) {
         return T(0);
     }
@@ -47,28 +44,24 @@ T _repelem(const T& x, int n)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real repelem(const arr_real& x, int n)
-{
+arr_real repelem(const arr_real& x, int n) {
     return _repelem<arr_real>(x, n);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx repelem(const arr_cmplx& x, int n)
-{
+arr_cmplx repelem(const arr_cmplx& x, int n) {
     return _repelem<arr_cmplx>(x, n);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real flip(const arr_real& x)
-{
+arr_real flip(const arr_real& x) {
     arr_real r(x);
     std::reverse(r.begin(), r.end());
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx flip(const arr_cmplx& x)
-{
+arr_cmplx flip(const arr_cmplx& x) {
     arr_cmplx r(x);
     std::reverse(r.begin(), r.end());
     return r;
@@ -80,8 +73,7 @@ T _from_bytes(const uint8_t* bytes, endian order);
 
 //-------------------------------------------------------------------------------------------------
 template<typename T>
-T _from_bytes_16(const uint8_t* bytes, endian order)
-{
+T _from_bytes_16(const uint8_t* bytes, endian order) {
     static_assert(sizeof(T) == 2, "The type is the wrong size");
 
     switch (order) {
@@ -91,26 +83,25 @@ T _from_bytes_16(const uint8_t* bytes, endian order)
     case endian::big:
         return (T(bytes[0]) << 8) | (T(bytes[1]) << 0);
     }
+
+    return T();
 }
 
 //-------------------------------------------------------------------------------------------------
 template<>
-int16_t _from_bytes(const uint8_t* bytes, endian order)
-{
+int16_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_16<int16_t>(bytes, order);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<>
-uint16_t _from_bytes(const uint8_t* bytes, endian order)
-{
+uint16_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_16<uint16_t>(bytes, order);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<typename T>
-T _from_bytes_32(const uint8_t* bytes, endian order)
-{
+T _from_bytes_32(const uint8_t* bytes, endian order) {
     static_assert(sizeof(T) == 4, "The type is the wrong size");
 
     switch (order) {
@@ -120,26 +111,25 @@ T _from_bytes_32(const uint8_t* bytes, endian order)
     case endian::big:
         return (T(bytes[0]) << 24) | (T(bytes[1]) << 16) | (T(bytes[2]) << 8) | (T(bytes[3]) << 0);
     }
+
+    return T();
 }
 
 //-------------------------------------------------------------------------------------------------
 template<>
-int32_t _from_bytes(const uint8_t* bytes, endian order)
-{
+int32_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_32<int32_t>(bytes, order);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<>
-uint32_t _from_bytes(const uint8_t* bytes, endian order)
-{
+uint32_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_32<uint32_t>(bytes, order);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<typename T>
-arr_real _from_file(std::string file, size_t count, endian order, size_t offset)
-{
+arr_real _from_file(std::string file, size_t count, endian order, size_t offset) {
     FILE* fid = fopen(file.c_str(), "rb");
     if (!fid) {
         throw std::runtime_error("open file error");
@@ -163,8 +153,7 @@ arr_real _from_file(std::string file, size_t count, endian order, size_t offset)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real from_file(std::string file, dtype type, endian order, size_t offset, size_t count)
-{
+arr_real from_file(std::string file, dtype type, endian order, size_t offset, size_t count) {
     switch (type) {
     case dtype::int16:
         return _from_file<int16_t>(file, count, order, offset);

@@ -54,7 +54,7 @@ BraceWrapping:
     AfterClass: 'true'
     AfterControlStatement: 'false'
     AfterEnum : 'true'
-    AfterFunction : 'true'
+    AfterFunction : 'false'
     AfterNamespace : 'false'
     AfterStruct : 'true'
     AfterUnion : 'true'

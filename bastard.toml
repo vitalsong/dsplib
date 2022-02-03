@@ -1,6 +1,6 @@
 [package]
 name = "dsplib"
-version = "0.9.1"
+version = "0.10.0"
 
 [lib]
 lang = "c++11"
@@ -14,7 +14,7 @@ path = "examples"
 lang = "c++17"
 
 [dev-dependencies]
-gtest = { git = "https://github.com/google/googletest.git" }
+gtest = { git = "https://github.com/google/googletest.git", rev = "release-1.11.0" }
 matplot = { git = "https://github.com/alandefreitas/matplotplusplus.git" }
 
 [options.gtest]

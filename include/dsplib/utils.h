@@ -12,8 +12,7 @@ arr_real range(real_t stop);
 //join a sequence of arrays
 //TODO: add impl for slices
 template<class T>
-T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), const T& a5 = T())
-{
+T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), const T& a5 = T()) {
     std::array<const T*, 5> arrays{&a1, &a2, &a3, &a4, &a5};
 
     size_t nr = 0;
@@ -35,15 +34,13 @@ T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), co
 }
 
 //create array of all zeros
-inline arr_real zeros(int n)
-{
+inline arr_real zeros(int n) {
     arr_real r(n);
     std::fill(r.data(), r.data() + n, 0);
     return r;
 }
 
-inline arr_real ones(int n)
-{
+inline arr_real ones(int n) {
     arr_real r(n);
     std::fill(r.data(), r.data() + n, 1);
     return r;
@@ -76,22 +73,19 @@ arr_real from_file(std::string file, dtype type = dtype::int16, endian order = e
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-[[deprecated]] inline arr_real to_real(const T* x, size_t nx)
-{
+inline arr_real to_real(const T* x, size_t nx) {
     return dsplib::arr_real(x, nx);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-[[deprecated]] inline arr_real to_real(const std::vector<T>& arr)
-{
+inline arr_real to_real(const std::vector<T>& arr) {
     return dsplib::arr_real(arr);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-[[deprecated]] inline std::vector<T> from_real(const arr_real& arr)
-{
+inline std::vector<T> from_real(const arr_real& arr) {
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
     std::vector<T> res(arr.size());
@@ -102,8 +96,7 @@ template<typename T>
 }
 
 template<typename T>
-[[deprecated]] inline arr_cmplx to_complex(const T* x, size_t nx)
-{
+inline arr_cmplx to_complex(const T* x, size_t nx) {
     if (nx % 2 != 0) {
         throw(std::runtime_error("Array size is not even"));
     }
@@ -118,15 +111,13 @@ template<typename T>
 }
 
 template<typename T>
-[[deprecated]] inline arr_cmplx to_complex(const std::vector<T>& arr)
-{
+inline arr_cmplx to_complex(const std::vector<T>& arr) {
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
     return to_complex(arr.data(), arr.size());
 }
 
 template<typename T>
-[[deprecated]] inline std::vector<T> from_complex(const arr_cmplx& arr)
-{
+inline std::vector<T> from_complex(const arr_cmplx& arr) {
     static_assert(std::is_scalar<T>::value, "Type is not scalar");
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     std::vector<T> res(arr.size() * 2);
