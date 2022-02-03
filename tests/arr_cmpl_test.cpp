@@ -5,13 +5,13 @@ using namespace dsplib;
 //-------------------------------------------------------------------------------------------------
 TEST(ArrCmplxTest, Init)
 {
-    ::arr_cmplx a1;
-    ::arr_cmplx a2{};
-    ::arr_cmplx a3{a1};
-    ::arr_cmplx a4(10);
-    ::arr_cmplx a5 = a4;
-    ::arr_cmplx a6 = a5 + a4;
-    ::arr_cmplx a7{a6 + a4};
+    arr_cmplx a1;
+    arr_cmplx a2{};
+    arr_cmplx a3{a1};
+    arr_cmplx a4(10);
+    arr_cmplx a5 = a4;
+    arr_cmplx a6 = a5 + a4;
+    arr_cmplx a7{a6 + a4};
 
     ASSERT_EQ(a1.size(), 0);
     ASSERT_EQ(a2.size(), 0);
@@ -25,15 +25,15 @@ TEST(ArrCmplxTest, Init)
     ASSERT_TRUE(a3.empty());
 
     std::vector <short> v1 = {-1, -2, 3, 4};
-    ::arr_cmplx a8{v1.data(), v1.size()};
+    arr_cmplx a8(v1.data(), v1.size());
     for (int i=0; i < 4; ++i)
     {
         ASSERT_FLOAT_EQ(v1[i], a8[i].re);
         ASSERT_FLOAT_EQ(0, a8[i].im);
     }
 
-    std::vector <::cmplx_t> v2 = {1+1i, 2+2i, 3+3i, 4+4i};
-    ::arr_cmplx a9{v2};
+    std::vector <cmplx_t> v2 = {1+1i, 2+2i, 3+3i, 4+4i};
+    arr_cmplx a9(v2);
     ASSERT_EQ_ARR_CMPLX(v2, a9);
 }
 
@@ -149,7 +149,7 @@ TEST(ArrCmplxTest, UnpackReal)
 {
     std::vector<short> r1 = {1, -2, -3, +4};
     arr_real s1(r1.data(), r1.size());
-    std::vector<short> r2 = from_real<short>(s1);
+    std::vector<short> r2 = s1.to_vec<short>();
     ASSERT_EQ_ARR_REAL(r1, r2);
 }
 
@@ -162,4 +162,22 @@ TEST(ArrCmplxTest, UnpackCmplx)
     std::vector<short> s2 = from_complex<short>(a1);
     ASSERT_EQ_ARR_REAL(s1, s2);
     ASSERT_EQ_ARR_CMPLX(a1, a2);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, VecToArray)
+{
+    {
+        std::vector<short> x = {1, 2, -3, -2};
+        arr_cmplx a1(x);
+        arr_cmplx a2 = {1+0i, 2+0i, -3+0i, -2+0i};
+        ASSERT_EQ_ARR_CMPLX(a1, a2);
+    }
+
+    {
+        std::vector<std::complex<int>> x = {1+0i, 2+0i, -3+0i, -2+0i};
+        arr_cmplx a1(x);
+        arr_cmplx a2 = {1+0i, 2+0i, -3+0i, -2+0i};
+        ASSERT_EQ_ARR_CMPLX(a1, a2);
+    }
 }

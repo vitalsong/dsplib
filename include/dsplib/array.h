@@ -48,6 +48,13 @@ public:
       : _vec(v)
     {}
 
+    template<typename T2>
+    explicit base_array(const std::vector<T2>& v)
+    {
+        static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
+        _vec.assign(v.begin(), v.end());
+    }
+
     base_array(std::vector<T>&& v)
       : _vec(std::move(v))
     {}
@@ -421,6 +428,13 @@ public:
         r.data = _vec.data();
         r.size = _vec.size();
         return r;
+    }
+
+    template<typename R>
+    std::vector<R> to_vec() const
+    {
+        static_assert(std::is_convertible<T, R>::value, "Type is not convertible");
+        return std::vector<R>(_vec.begin(), _vec.end());
     }
 
 protected:
