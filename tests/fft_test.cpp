@@ -40,3 +40,15 @@ TEST(MathTest, Ifft)
     auto xx = ifft(y);
     ASSERT_EQ_ARR_CMPLX(x, xx);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Czt)
+{
+    using namespace dsplib;
+    arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i, -1.50000000000000 - 0.866025403784439i};
+    arr_real x = {1.0, 2.0, 3.0};
+    const int m = x.size();
+    cmplx_t w = expj(-2 * pi / m);
+    auto czt_res = czt(x, m, w);
+    ASSERT_EQ_ARR_CMPLX(czt_res, dft_ref);
+}

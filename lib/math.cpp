@@ -405,6 +405,20 @@ arr_cmplx pow2(const arr_cmplx &arr)
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t pow(real_t x, real_t n)
+{
+    return std::pow(x, n);
+}
+
+//-------------------------------------------------------------------------------------------------
+cmplx_t pow(cmplx_t x, real_t n)
+{
+    real_t x_p = angle(x);
+    real_t x_a = abs(x);
+    return std::pow(x_a, n) * expj(x_p * n);
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real angle(const arr_cmplx &arr)
 {
     arr_real r(arr.size());

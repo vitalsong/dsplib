@@ -201,10 +201,7 @@ inline cmplx_t operator*(const real_t& lhs, const cmplx_t& rhs) {
 }
 
 inline cmplx_t operator/(const real_t& lhs, const cmplx_t& rhs) {
-    cmplx_t r(rhs);
-    r.re = lhs / r.re;
-    r.im = lhs / r.im;
-    return r;
+    return cmplx_t(lhs) / rhs;
 }
 
 template<typename T>

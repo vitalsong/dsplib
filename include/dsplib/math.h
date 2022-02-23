@@ -19,14 +19,20 @@ cmplx_t expj(real_t im);
 real_t max(const arr_real& arr);
 cmplx_t max(const arr_cmplx& arr);
 
+template<typename T1, typename T2>
+auto max(const T1& v1, const T2& v2) -> decltype(v1 + v2)
+{
+    return (v1 > v2) ? (v1) : (v2);
+}
+
 //min element
 real_t min(const arr_real& arr);
 cmplx_t min(const arr_cmplx& arr);
 
-template<typename T>
-T min(const T& v1, const T& v2)
+template<typename T1, typename T2>
+auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2)
 {
-    return std::min(v1, v2);
+    return (v1 < v2) ? (v1) : (v2);
 }
 
 //max element index
@@ -91,6 +97,8 @@ int nextpow2(int m);
 //array pow
 arr_real pow2(const arr_real& arr);
 arr_cmplx pow2(const arr_cmplx& arr);
+real_t pow(real_t x, real_t n);
+cmplx_t pow(cmplx_t x, real_t n);
 
 //array log
 arr_real log(const arr_real& arr);
@@ -115,5 +123,25 @@ real_t apprx(real_t y0, real_t y1, real_t y2);
 //decrease sample rate by integer factor
 arr_real downsample(const arr_real& arr, int n, int phase = 0);
 arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
+
+//----------------------------------------------------------------------------------------
+//pow(scalar, vec) -> vec
+inline arr_real operator^(const real_t& v, const arr_real& rhs)
+{
+    arr_real res = rhs;
+    for (size_t i = 0; i < rhs.size(); i++) {
+        res[i] = pow(v, rhs[i]);
+    }
+    return res;
+}
+
+inline arr_cmplx operator^(const cmplx_t& v, const arr_real& rhs)
+{
+    arr_cmplx res = rhs;
+    for (size_t i = 0; i < rhs.size(); i++) {
+        res[i] = pow(v, rhs[i]);
+    }
+    return res;
+}
 
 }   // namespace dsplib

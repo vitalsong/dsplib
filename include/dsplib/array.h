@@ -394,6 +394,26 @@ public:
     }
 
     //--------------------------------------------------------------------
+    //TODO: implement pow(cmplx_t, cmplx_t)
+    base_array<T>& operator^=(const base_array<real_t>& rhs)
+    {
+        if (rhs.size() != _vec.size()) {
+            throw std::invalid_argument("different vector size");
+        }
+        for (size_t i = 0; i < _vec.size(); ++i) {
+            _vec[i] = pow(_vec[i], rhs[i]);
+        }
+        return *this;
+    }
+
+    base_array<T> operator^(const base_array<real_t>& rhs) const
+    {
+        base_array<T> temp(*this);
+        temp ^= rhs;
+        return temp;
+    }
+
+    //--------------------------------------------------------------------
     //concatenate syntax
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator|=(const base_array<T2>& rhs)
