@@ -13,6 +13,7 @@
 #include <dsplib/medfilt.h>
 #include <dsplib/interp.h>
 #include <dsplib/dft.h>
+#include <dsplib/czt.h>
 #include <dsplib/utils.h>
 #include <dsplib/lms.h>
 #include <dsplib/tuner.h>
