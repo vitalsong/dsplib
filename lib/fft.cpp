@@ -1,41 +1,36 @@
 #include <dsplib/fft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <dsplib/czt.h>
 
 #include "dft-tables.h"
 
-#include <string.h>
-#include <assert.h>
+#include <cassert>
 
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
-static void _reversal(cmplx_t* w, int n)
-{
-    auto tb = tables::bitrev_table(n);
-    const int32_t* bitrev = tb->data();
+static void _reversal(cmplx_t* restrict w, const int32_t* restrict bitrev, int n) {
     for (int i = 0; i < n; ++i) {
-        int k = bitrev[i];
+        const int k = bitrev[i];
         std::swap(w[i], w[k]);
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w)
-{
+static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) {
     w *= x2;
     x2 = x1 - w;
     x1 = x1 + w;
 }
 
 //-------------------------------------------------------------------------------------------------
-static void _fft(cmplx_t* x, const cmplx_t* w, int n)
-{
+static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t* restrict bitrev, int n) {
     assert(n % 2 == 0);
 
     //reverse sampling
-    _reversal(x, n);
+    _reversal(x, bitrev, n);
 
     int h = 1;       ///< number of butterflies in clusters (and step between elements)
     int m = n / 2;   ///< number of clusters (and step for the butterfly table)
@@ -67,30 +62,47 @@ static void _fft(cmplx_t* x, const cmplx_t* w, int n)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fft(const arr_cmplx& arr)
+class fft_plan_impl
 {
-    const int n = 1L << nextpow2(arr.size());
-    arr_cmplx r = zeros(n);
-    memcpy(r.data(), arr.data(), arr.size() * sizeof(cmplx_t));
-    auto w = tables::dft_table(n);
-    _fft(r.data(), w->data(), n);
-    return r;
+public:
+    explicit fft_plan_impl(int n) {
+        const int n2 = 1L << nextpow2(n);
+        if (n == n2) {
+            //n == 2^K
+            auto brev = tables::bitrev_table(n2);
+            auto coeff = tables::dft_table(n2);
+            solve = [brev, coeff, n](const arr_cmplx& x) {
+                arr_cmplx r = x;
+                _fft2(r.data(), coeff->data(), brev->data(), n);
+                return r;
+            };
+        } else {
+            //n != 2^K
+            cmplx_t w = expj(-2 * pi / n);
+            auto plan = czt_plan(n, n, w);
+            solve = [plan](const arr_cmplx& x) {
+                return plan(x);
+            };
+        }
+    }
+
+    std::function<arr_cmplx(const arr_cmplx&)> solve;
+};
+
+//-------------------------------------------------------------------------------------------------
+fft_plan::fft_plan(int n)
+  : _d{std::make_shared<fft_plan_impl>(n)} {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fft(const arr_real& arr)
-{
-    const int n = 1L << nextpow2(arr.size());
-    arr_cmplx r = arr_cmplx(zeros(n));
+arr_cmplx fft_plan::operator()(const arr_cmplx& x) const {
+    return _d->solve(x);
+}
 
-    for (int i = 0; i < arr.size(); ++i) {
-        r[i].re = arr[i];
-        r[i].im = 0;
-    }
-
-    auto w = tables::dft_table(n);
-    _fft(r.data(), w->data(), n);
-    return r;
+//-------------------------------------------------------------------------------------------------
+arr_cmplx fft(const arr_cmplx& arr) {
+    fft_plan plan(arr.size());
+    return plan(arr);
 }
 
 }   // namespace dsplib

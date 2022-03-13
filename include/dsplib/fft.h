@@ -1,8 +1,21 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <memory>
 
 namespace dsplib {
+
+class fft_plan_impl;
+
+class fft_plan
+{
+public:
+    fft_plan(int n);
+    arr_cmplx operator()(const arr_cmplx& x) const;
+
+private:
+    std::shared_ptr<fft_plan_impl> _d;
+};
 
 /*!
  * \brief Fast Fourier Transform (complex)
@@ -11,13 +24,5 @@ namespace dsplib {
  * \return Result array [N]
  */
 arr_cmplx fft(const arr_cmplx& arr);
-
-/*!
- * \brief Fast Fourier Transform (real)
- * \details FFT for real signal
- * \param arr Input array [N]
- * \return Result array [N]
- */
-arr_cmplx fft(const arr_real& arr);
 
 }   // namespace dsplib

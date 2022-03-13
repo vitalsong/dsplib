@@ -2,19 +2,16 @@
 #include <dsplib/fft.h>
 #include <dsplib/math.h>
 
-#include <string.h>
-
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx ifft(const arr_cmplx &arr)
-{
-    int n = arr.size();
-    arr_cmplx r = conj(arr);
+arr_cmplx ifft(const arr_cmplx& x) {
+    const int n = x.size();
+    arr_cmplx r = conj(x);
     r = fft(r);
     r /= n;
     r = conj(r);
     return r;
 }
 
-}   ///< dsplib
+}   // namespace dsplib

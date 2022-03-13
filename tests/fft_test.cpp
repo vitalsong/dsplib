@@ -2,8 +2,7 @@
 #include <math.h>
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftReal)
-{
+TEST(MathTest, FftReal) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -12,13 +11,12 @@ TEST(MathTest, FftReal)
     auto z = abs(y);
     auto r = zeros(nfft);
     r[idx] = 0.5;
-    r[nfft-idx] = 0.5;
+    r[nfft - idx] = 0.5;
     ASSERT_EQ_ARR_REAL(r, z);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftCmplx)
-{
+TEST(MathTest, FftCmplx) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -31,24 +29,100 @@ TEST(MathTest, FftCmplx)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Ifft)
-{
+TEST(MathTest, Ifft) {
     using namespace dsplib;
-    int nfft = 512;
-    auto x = complex(randn(nfft), randn(nfft));
-    auto y = fft(x);
-    auto xx = ifft(y);
-    ASSERT_EQ_ARR_CMPLX(x, xx);
+
+    {
+        const int nfft = 512;
+        auto x = randn(nfft) + 1i * randn(nfft);
+        auto y = fft(x);
+        auto xx = ifft(y);
+        ASSERT_EQ_ARR_CMPLX(x, xx);
+    }
+
+    {
+        const int nfft = 500;
+        arr_cmplx x = randn(nfft) + 1i * randn(nfft);
+        auto y = fft(x);
+        auto xx = ifft(y);
+        ASSERT_EQ_ARR_CMPLX(x, xx);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Czt)
-{
+TEST(MathTest, Czt) {
     using namespace dsplib;
-    arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i, -1.50000000000000 - 0.866025403784439i};
+    arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i,
+                         -1.50000000000000 - 0.866025403784439i};
     arr_real x = {1.0, 2.0, 3.0};
     const int m = x.size();
     cmplx_t w = expj(-2 * pi / m);
     auto czt_res = czt(x, m, w);
     ASSERT_EQ_ARR_CMPLX(czt_res, dft_ref);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CztICzt) {
+    using namespace dsplib;
+    for (size_t i = 0; i < 1000; i++) {
+        int n = rand() % 2000 + 16;
+        arr_cmplx x_in = randn(n) + 1i * randn(n);
+        auto y = czt(x_in, n, expj(-2 * pi / n));
+        auto x_out = czt(y, n, expj(2 * pi / n)) / n;
+        ASSERT_EQ_ARR_CMPLX(x_in, x_out);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CztFft2) {
+    using namespace dsplib;
+    for (size_t i = 0; i < 1000; i++) {
+        int n = rand() % 2000 + 16;
+        n = 1L << nextpow2(n);
+        cmplx_t w = expj(-2 * pi / n);
+        arr_cmplx x = randn(n) + 1i * randn(n);
+        auto y1 = czt(x, n, w);
+        auto y2 = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CztIFft2) {
+    using namespace dsplib;
+    for (size_t i = 0; i < 1000; i++) {
+        int n = rand() % 2000 + 16;
+        n = 1L << nextpow2(n);
+        cmplx_t w = expj(2 * pi / n);
+        arr_cmplx x = randn(n) + 1i * randn(n);
+        auto y1 = czt(x, n, w);
+        auto y2 = ifft(x) * n;
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CztDft) {
+    using namespace dsplib;
+    for (size_t i = 0; i < 1000; i++) {
+        const int n = rand() % 500 + 100;
+        cmplx_t w = expj(-2 * pi / n);
+        arr_cmplx x = randn(n) + 1i * randn(n);
+        auto y1 = czt(x, n, w);
+        auto y2 = dft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CztIDft) {
+    using namespace dsplib;
+    for (size_t i = 0; i < 1000; i++) {
+        const int n = rand() % 500 + 100;
+        cmplx_t w = expj(2 * pi / n);
+        arr_cmplx x = randn(n) + 1i * randn(n);
+        auto y1 = czt(x, n, w);
+        auto y2 = idft(x) * n;
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
 }
