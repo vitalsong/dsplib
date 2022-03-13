@@ -45,8 +45,11 @@ arr_cmplx czt_plan::operator()(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
+arr_cmplx czt_plan::solve(const arr_cmplx& x) const {
+    return _d->solve(x);
+}
+
 arr_cmplx czt(arr_cmplx x, int m, cmplx_t w, cmplx_t a) {
-    //TODO: caching by (n, m, w, a)?
     czt_plan plan(x.size(), m, w, a);
     return plan(x);
 }

@@ -12,6 +12,7 @@ class czt_plan
 public:
     explicit czt_plan(int n, int m, cmplx_t w, cmplx_t a = 1);
     arr_cmplx operator()(const arr_cmplx& x) const;
+    arr_cmplx solve(const arr_cmplx& x) const;
 
 private:
     std::shared_ptr<czt_plan_impl> _d;

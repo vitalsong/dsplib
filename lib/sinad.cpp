@@ -7,14 +7,14 @@
 namespace dsplib {
 
 //------------------------------------------------------------------------------------
-real_t sinad(const arr_real& x)
-{
+real_t sinad(const arr_real& x) {
     if (x.size() > 0x7fff) {
         throw std::runtime_error("The vector size is too large");
     }
 
-    auto rfft = fft(x * window::gauss(x.size()));
-    int n = rfft.size();
+    const int n = 1L << nextpow2(x.size());
+    auto y = zeropad(x * window::gauss(x.size()), n);
+    auto rfft = fft(y);
 
     double re, im;
     auto spectrum = zeros(n / 2);

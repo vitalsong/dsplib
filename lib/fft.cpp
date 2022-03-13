@@ -4,10 +4,16 @@
 #include <dsplib/czt.h>
 
 #include "dft-tables.h"
+#include "datacache.h"
 
 #include <cassert>
 
 namespace dsplib {
+
+//-------------------------------------------------------------------------------------------------
+//caching czt(n, n, exp(-2pi/n), 1) for nfft != 2^m
+using czt_plan_ptr = std::shared_ptr<czt_plan>;
+static datacache<size_t, czt_plan_ptr> g_czt_cache;
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
@@ -78,10 +84,15 @@ public:
             };
         } else {
             //n != 2^K
-            cmplx_t w = expj(-2 * pi / n);
-            auto plan = czt_plan(n, n, w);
+            if (!g_czt_cache.cached(n)) {
+                cmplx_t w = expj(-2 * pi / n);
+                auto plan = std::make_shared<czt_plan>(n, n, w);
+                g_czt_cache.update(n, plan);
+            }
+
+            auto plan = g_czt_cache.get(n);
             solve = [plan](const arr_cmplx& x) {
-                return plan(x);
+                return plan->solve(x);
             };
         }
     }
@@ -96,6 +107,11 @@ fft_plan::fft_plan(int n)
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx fft_plan::operator()(const arr_cmplx& x) const {
+    return _d->solve(x);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx fft_plan::solve(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 

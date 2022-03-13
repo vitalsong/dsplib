@@ -128,4 +128,17 @@ inline std::vector<T> from_complex(const arr_cmplx& arr) {
     return res;
 }
 
+template<typename T>
+base_array<T> zeropad(const base_array<T>& x, int n) {
+    if (x.size() > n) {
+        throw std::runtime_error("padding size error");
+    }
+
+    if (x.size() == n) {
+        return x;
+    }
+
+    return x | zeros(n - x.size());
+}
+
 }   // namespace dsplib
