@@ -100,29 +100,3 @@ TEST(MathTest, CztIFft2) {
         ASSERT_EQ_ARR_CMPLX(y1, y2);
     }
 }
-
-//-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztDft) {
-    using namespace dsplib;
-    for (size_t i = 0; i < 1000; i++) {
-        const int n = rand() % 500 + 100;
-        cmplx_t w = expj(-2 * pi / n);
-        arr_cmplx x = randn(n) + 1i * randn(n);
-        auto y1 = czt(x, n, w);
-        auto y2 = dft(x);
-        ASSERT_EQ_ARR_CMPLX(y1, y2);
-    }
-}
-
-//-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztIDft) {
-    using namespace dsplib;
-    for (size_t i = 0; i < 1000; i++) {
-        const int n = rand() % 500 + 100;
-        cmplx_t w = expj(2 * pi / n);
-        arr_cmplx x = randn(n) + 1i * randn(n);
-        auto y1 = czt(x, n, w);
-        auto y2 = idft(x) * n;
-        ASSERT_EQ_ARR_CMPLX(y1, y2);
-    }
-}

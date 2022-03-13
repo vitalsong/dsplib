@@ -12,6 +12,7 @@ namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
 //caching czt(n, n, exp(-2pi/n), 1) for nfft != 2^m
+//TODO: optional disable caching
 using czt_plan_ptr = std::shared_ptr<czt_plan>;
 static datacache<size_t, czt_plan_ptr> g_czt_cache;
 
@@ -75,8 +76,8 @@ public:
         const int n2 = 1L << nextpow2(n);
         if (n == n2) {
             //n == 2^K
-            auto brev = tables::bitrev_table(n2);
-            auto coeff = tables::dft_table(n2);
+            auto brev = tables::bitrev_table(n);
+            auto coeff = tables::dft_table(n);
             solve = [brev, coeff, n](const arr_cmplx& x) {
                 arr_cmplx r = x;
                 _fft2(r.data(), coeff->data(), brev->data(), n);

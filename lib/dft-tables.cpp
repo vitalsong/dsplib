@@ -10,12 +10,12 @@
 namespace dsplib {
 namespace tables {
 
+//TODO: optional disable caching
 static datacache<size_t, dft_ptr> g_dft_cache;
 static datacache<size_t, bitrev_ptr> g_bitrev_cache;
 
 //-------------------------------------------------------------------------------------------------
-static dft_ptr _gen_dft_table(size_t size)
-{
+static dft_ptr _gen_dft_table(size_t size) {
     auto tb = std::make_shared<std::vector<cmplx_t>>(size);
     auto data = tb->data();
 
@@ -30,8 +30,7 @@ static dft_ptr _gen_dft_table(size_t size)
 }
 
 //-------------------------------------------------------------------------------------------------
-const dft_ptr dft_table(size_t size)
-{
+const dft_ptr dft_table(size_t size) {
     if (g_dft_cache.cached(size)) {
         return g_dft_cache.get(size);
     }
@@ -41,33 +40,28 @@ const dft_ptr dft_table(size_t size)
 }
 
 //-------------------------------------------------------------------------------------------------
-void dft_clear(size_t size)
-{
+void dft_clear(size_t size) {
     g_dft_cache.reset(size);
 }
 
 //-------------------------------------------------------------------------------------------------
-bool dft_cached(size_t size)
-{
+bool dft_cached(size_t size) {
     return g_dft_cache.cached(size);
 }
 
 //-------------------------------------------------------------------------------------------------
-static inline int _get_bit(int a, int pos)
-{
+static inline int _get_bit(int a, int pos) {
     return (a >> pos) & 0x1;
 }
 
 //-------------------------------------------------------------------------------------------------
-static inline void _set_bit(int& a, int pos, int bit)
-{
+static inline void _set_bit(int& a, int pos, int bit) {
     a &= ~(1 << pos);
     a |= (bit << pos);
 }
 
 //-------------------------------------------------------------------------------------------------
-static inline int _bitrev(int a, int s)
-{
+static inline int _bitrev(int a, int s) {
     int r = 0;
     for (int i = 0; i < ((s + 1) / 2); ++i) {
         _set_bit(r, (s - i - 1), _get_bit(a, i));
@@ -78,8 +72,7 @@ static inline int _bitrev(int a, int s)
 }
 
 //-------------------------------------------------------------------------------------------------
-static bitrev_ptr _gen_bitrev_table(size_t size)
-{
+static bitrev_ptr _gen_bitrev_table(size_t size) {
     auto tb = std::make_shared<std::vector<int32_t>>(size);
     auto data = tb->data();
     const int s = nextpow2(size);
@@ -96,8 +89,7 @@ static bitrev_ptr _gen_bitrev_table(size_t size)
 }
 
 //-------------------------------------------------------------------------------------------------
-const bitrev_ptr bitrev_table(size_t size)
-{
+const bitrev_ptr bitrev_table(size_t size) {
     if (g_bitrev_cache.cached(size)) {
         return g_bitrev_cache.get(size);
     }
@@ -107,14 +99,12 @@ const bitrev_ptr bitrev_table(size_t size)
 }
 
 //-------------------------------------------------------------------------------------------------
-bool bitrev_cached(size_t n)
-{
+bool bitrev_cached(size_t n) {
     return g_bitrev_cache.cached(n);
 }
 
 //-------------------------------------------------------------------------------------------------
-void bitrev_clear(size_t n)
-{
+void bitrev_clear(size_t n) {
     g_bitrev_cache.reset(n);
 }
 
