@@ -4,8 +4,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Slice)
-{
+TEST(ArrRealTest, Slice) {
     {
         arr_real x1 = {0, 1, 2, 3};
         arr_real x2 = {-100, -100, 2, 3};
@@ -39,8 +38,7 @@ TEST(ArrRealTest, Slice)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(SliceTest, Cmplx)
-{
+TEST(SliceTest, Cmplx) {
     {
         arr_cmplx x1 = {0, 1 + 1i, 2 + 2i, 3 + 3i};
         arr_cmplx x2 = {-100 - 100i, -100 - 100i, 2 + 2i, 3 + 3i};
@@ -56,8 +54,7 @@ TEST(SliceTest, Cmplx)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, RealNegIndex)
-{
+TEST(ArrRealTest, RealNegIndex) {
     {
         arr_real x = {0, 1, 2, 3};
         ASSERT_FLOAT_EQ(x[-1], 3);
@@ -72,7 +69,9 @@ TEST(ArrRealTest, RealNegIndex)
         x2 = x1.slice(-1, 1);
         ASSERT_EQ_ARR_REAL(x2, arr_real{3, 0});
         x2 = x1.slice(-1, 0);
-        ASSERT_EQ_ARR_REAL(x2, arr_real{3,});
+        ASSERT_EQ_ARR_REAL(x2, arr_real{
+                                 3,
+                               });
         //TODO?:
         // x2 = x1.slice(2, -1);
         // ASSERT_EQ_ARR_REAL(x2, arr_real{2, 3});
@@ -80,8 +79,7 @@ TEST(ArrRealTest, RealNegIndex)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, CmplxNegIndex)
-{
+TEST(ArrRealTest, CmplxNegIndex) {
     {
         arr_cmplx x = 1i * arr_real{0, 1, 2, 3};
         ASSERT_CMPLX_EQ(x[-1], cmplx_t(3i));
@@ -96,6 +94,15 @@ TEST(ArrRealTest, CmplxNegIndex)
         x2 = x1.slice(-1, 1);
         ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{3, 0});
         x2 = x1.slice(-1, 0);
-        ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{3,});
+        ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{
+                                       3,
+                                     });
     }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, ConstSlice) {
+    const arr_real x1 = {0, 1, 2, 3};
+    arr_real x2 = x1.slice(1, 3);
+    ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2});
 }

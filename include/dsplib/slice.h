@@ -6,20 +6,83 @@ template<typename T>
 class base_array;
 
 template<typename T>
-class slice
+class slice_t;
+
+template<typename T>
+class const_slice_t;
+
+//TODO: use common slice class
+template<typename T>
+class const_slice_t
 {
 public:
-    slice() = default;
+    friend class base_array<T>;
+    friend class slice_t<T>;
 
-    slice(const slice& rhs)
-    {
+    const_slice_t(const base_array<T>& arr, int i1, int i2, int m)
+      : _i1{i1}
+      , _i2{i2}
+      , _m{m}
+      , _n{arr.size()}
+      , _base{arr} {
+        if (_m < 1) {
+            throw std::range_error("Step must be greater 1");
+        }
+
+        if (_i2 - _i1 > _n) {
+            throw std::range_error("Slice range is greater vector size");
+        }
+    }
+
+    const_slice_t(const const_slice_t& rhs) {
         *this = rhs;
     }
 
-    slice& operator=(const slice& rhs)
-    {
-        const int n1 = (p2 - p1) / step;
-        const int n2 = (rhs.p2 - rhs.p1) / rhs.step;
+    const_slice_t(const slice_t<T>& rhs)
+      : _i1{rhs._i1}
+      , _i2{rhs._i2}
+      , _m{rhs._m}
+      , _n{rhs._n}
+      , _base{rhs._base} {
+    }
+
+private:
+    int _i1{0};
+    int _i2{0};
+    int _m{0};
+    int _n{0};
+    const base_array<T>& _base;
+};
+
+template<typename T>
+class slice_t
+{
+public:
+    friend class base_array<T>;
+    friend class const_slice_t<T>;
+
+    slice_t(base_array<T>& arr, int i1, int i2, int m)
+      : _i1{i1}
+      , _i2{i2}
+      , _m{m}
+      , _n{arr.size()}
+      , _base{arr} {
+        if (_m < 1) {
+            throw std::range_error("Step must be greater 1");
+        }
+
+        if (_i2 - _i1 > _n) {
+            throw std::range_error("Slice range is greater vector size");
+        }
+    }
+
+    slice_t(const slice_t& rhs) {
+        *this = rhs;
+    }
+
+    slice_t& operator=(const const_slice_t<T>& rhs) {
+        const int n1 = (_i2 - _i1) / _m;
+        const int n2 = (rhs._i2 - rhs._i1) / rhs._m;
         if (n1 != n2) {
             throw std::out_of_range("Not equal size");
         }
@@ -28,20 +91,26 @@ public:
             return *this;
         }
 
-        int i1 = (p1 + size) % size;
-        int i2 = (rhs.p1 + rhs.size) % rhs.size;
+        int i1 = (_i1 + _n) % _n;
+        int i2 = (rhs._i1 + rhs._n) % rhs._n;
+        T* data = _base.data();
+        const T* rdata = rhs._base.data();
         for (size_t i = 0; i < n2; i++) {
-            data[i1] = rhs.data[i2];
-            i1 = (i1 + step + size) % size;
-            i2 = (i2 + rhs.step + rhs.size) % rhs.size;
+            data[i1] = rdata[i2];
+            i1 = (i1 + _m + _n) % _n;
+            i2 = (i2 + rhs._m + rhs._n) % rhs._n;
         }
 
         return *this;
     }
 
-    slice& operator=(const base_array<T>& rhs)
-    {
-        const int n1 = (p2 - p1) / step;
+    slice_t& operator=(const slice_t<T>& rhs) {
+        *this = const_slice_t<T>(rhs);
+        return *this;
+    }
+
+    slice_t& operator=(const base_array<T>& rhs) {
+        const int n1 = (_i2 - _i1) / _m;
         const int n2 = rhs.size();
         if (n1 != n2) {
             throw std::out_of_range("Not equal size");
@@ -51,30 +120,30 @@ public:
             return *this;
         }
 
-        int i1 = (p1 + size) % size;
+        int i1 = (_i1 + _n) % _n;
+        T* data = _base.data();
         for (size_t i = 0; i < n2; i++) {
             data[i1] = rhs[i];
-            i1 = (i1 + step + size) % size;
+            i1 = (i1 + _m + _n) % _n;
         }
-        
+
         return *this;
     }
 
-    slice& operator=(const T& value)
-    {
-        const int n = (p2 - p1) / step;
-        int i1 = (p1 + size) % size;
+    slice_t& operator=(const T& value) {
+        const int n = (_i2 - _i1) / _m;
+        int i1 = (_i1 + _n) % _n;
+        T* data = _base.data();
         for (size_t i = 0; i < n; i++) {
             data[i1] = value;
-            i1 = (i1 + step + size) % size;
+            i1 = (i1 + _m + _n) % _n;
         }
 
         return *this;
     }
 
-    slice& operator=(const std::initializer_list<T>& list)
-    {
-        const int n1 = (p2 - p1) / step;
+    slice_t& operator=(const std::initializer_list<T>& list) {
+        const int n1 = (_i2 - _i1) / _m;
         const int n2 = list.size();
         if (n1 != n2) {
             throw std::out_of_range("Not equal size");
@@ -84,21 +153,23 @@ public:
             return *this;
         }
 
-        int i1 = (p1 + size) % size;
+        int i1 = (_i1 + _n) % _n;
         const auto* d2 = list.begin();
+        T* data = _base.data();
         for (size_t i = 0; i < n2; i++) {
             data[i1] = d2[i];
-            i1 = (i1 + step + size) % size;
+            i1 = (i1 + _m + _n) % _n;
         }
 
         return *this;
     }
 
-    int p1 = 0;
-    int p2 = 0;
-    int step = 0;
-    int size = 0;
-    T* data = nullptr;
+private:
+    int _i1{0};
+    int _i2{0};
+    int _m{0};
+    int _n{0};
+    base_array<T>& _base;
 };
 
 }   // namespace dsplib
