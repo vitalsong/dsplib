@@ -16,7 +16,7 @@ public:
     int freq() const;
 
 private:
-    using sin_table_t = std::shared_ptr<std::vector<double>>;
+    using sin_table_t = std::shared_ptr<std::vector<real_t>>;
     static sin_table_t get_table(int fs);
 
     int _fs;

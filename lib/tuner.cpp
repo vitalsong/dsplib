@@ -16,11 +16,11 @@ tuner::sin_table_t tuner::get_table(int fs)
 
     std::lock_guard<std::mutex> lk(mutex);
     if (fs_table.count(fs) == 0) {
-        auto tb = std::make_shared<std::vector<double>>();
+        auto tb = std::make_shared<std::vector<real_t>>();
         tb->resize(fs);
-        double* data = tb->data();
+        real_t* data = tb->data();
         for (size_t i = 0; i < fs; i++) {
-            data[i] = sin(2 * pi * i / double(fs));
+            data[i] = sin(2 * pi * i / real_t(fs));
         }
         fs_table[fs] = tb;
     }
@@ -61,7 +61,7 @@ arr_cmplx tuner::process(const arr_cmplx& x)
 
     cmplx_t w;
     arr_cmplx r(x.size());
-    const double* tb = _tb->data();
+    const real_t* tb = _tb->data();
     for (size_t i = 0; i < r.size(); i++) {
         w.re = tb[iphase];
         w.im = tb[qphase];

@@ -19,9 +19,9 @@ static dft_ptr _gen_dft_table(size_t size) {
     auto tb = std::make_shared<std::vector<cmplx_t>>(size);
     auto data = tb->data();
 
-    double p;
+    real_t p;
     for (size_t i = 0; i < size; ++i) {
-        p = i / double(size);
+        p = i / real_t(size);
         data[i].re = ::cos(2 * pi * p);
         data[i].im = -::sin(2 * pi * p);
     }

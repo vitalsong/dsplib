@@ -98,7 +98,7 @@ arr_real fabs(const arr_cmplx &arr)
 //-------------------------------------------------------------------------------------------------
 real_t fabs(cmplx_t v)
 {
-    double min, max;
+    real_t min, max;
     if (abs(v.re) > abs(v.im))
     {
         min = abs(v.im);
@@ -376,9 +376,9 @@ cmplx_t conj(cmplx_t x)
 //-------------------------------------------------------------------------------------------------
 real_t apprx(real_t y0, real_t y1, real_t y2)
 {
-    double a = ((y2 - y1) + (y0 - y1)) / 2;
-    double b = y1 - a - y0;
-    double q = (-b);
+    real_t a = ((y2 - y1) + (y0 - y1)) / 2;
+    real_t b = y1 - a - y0;
+    real_t q = (-b);
     return q / (2 * a) - 1;
 }
 

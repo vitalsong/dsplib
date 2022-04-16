@@ -16,7 +16,7 @@ real_t sinad(const arr_real& x) {
     auto y = zeropad(x * window::gauss(x.size()), n);
     auto rfft = fft(y);
 
-    double re, im;
+    real_t re, im;
     auto spectrum = zeros(n / 2);
     for (int i = 0; i < spectrum.size(); ++i) {
         re = rfft[i].re;

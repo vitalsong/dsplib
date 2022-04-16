@@ -59,8 +59,8 @@ arr_real blackman(int n)
 arr_real gauss(int n)
 {
     arr_real arr(n);
-    double q = 0.3;
-    double a = (n - 1) / 2;
+    real_t q = 0.3;
+    real_t a = (n - 1) / 2;
     for (int i=0; i < n; ++i) {
         arr[i] = exp((-0.5) * pow((i - a) / (q * a), 2));
     }
