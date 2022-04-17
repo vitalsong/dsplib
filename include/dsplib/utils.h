@@ -129,7 +129,7 @@ inline std::vector<T> from_complex(const arr_cmplx& arr) {
 }
 
 template<typename T>
-base_array<T> zeropad(const base_array<T>& x, int n) {
+inline base_array<T> zeropad(const base_array<T>& x, int n) {
     if (x.size() > n) {
         throw std::runtime_error("padding size error");
     }
@@ -140,5 +140,31 @@ base_array<T> zeropad(const base_array<T>& x, int n) {
 
     return x | zeros(n - x.size());
 }
+
+//delays or advances the signal by the number of samples specified in delay
+//TODO: fractional delay support
+template<typename T>
+inline base_array<T> delayseq(const base_array<T>& data, int delay) {
+    if (delay == 0) {
+        return data;
+    }
+
+    const int N = data.size();
+    if (abs(delay) >= N) {
+        return zeros(N);
+    }
+
+    base_array<T> res = zeros(N);
+    if (delay > 0) {
+        res.slice(delay, N) = data.slice(0, N - delay);
+    } else {
+        res.slice(0, N - abs(delay)) = data.slice(abs(delay), N);
+    }
+    return res;
+}
+
+//peak localization
+real_t peakloc(const arr_real& x, int idx, bool cyclic = true);
+real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
 
 }   // namespace dsplib

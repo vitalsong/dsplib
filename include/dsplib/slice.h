@@ -76,8 +76,12 @@ public:
         }
     }
 
-    slice_t(const slice_t& rhs) {
-        *this = rhs;
+    slice_t(const slice_t& rhs)
+      : _i1{rhs._i1}
+      , _i2{rhs._i2}
+      , _m{rhs._m}
+      , _n{rhs._n}
+      , _base{rhs._base} {
     }
 
     slice_t& operator=(const const_slice_t<T>& rhs) {

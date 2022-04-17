@@ -5,8 +5,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, Range)
-{
+TEST(Utils, Range) {
     {
         auto x1 = range(0, 10);
         auto x2 = range(10);
@@ -27,16 +26,14 @@ TEST(UtilsTest, Range)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, Zeros)
-{
+TEST(Utils, Zeros) {
     auto x1 = zeros(5);
     arr_real x2 = {0, 0, 0, 0, 0};
     ASSERT_EQ_ARR_REAL(x1, x2);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, RepelemReal)
-{
+TEST(Utils, RepelemReal) {
     {
         auto x1 = repelem(arr_real{1.0, 2, 3, 4}, 1);
         arr_real x2 = {1, 2, 3, 4};
@@ -55,8 +52,7 @@ TEST(UtilsTest, RepelemReal)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, RepelemCmplx)
-{
+TEST(Utils, RepelemCmplx) {
     {
         auto x1 = repelem(arr_real{1.0, 2, 3, 4} * 1i, 1);
         arr_cmplx x2 = 1i * arr_real{1, 2, 3, 4};
@@ -75,8 +71,7 @@ TEST(UtilsTest, RepelemCmplx)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, Flip)
-{
+TEST(Utils, Flip) {
     {
         arr_real x1 = {1, 2, 3, 4};
         auto x2 = flip(arr_real{4, 3, 2, 1});
@@ -90,8 +85,7 @@ TEST(UtilsTest, Flip)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(UtilsTest, FromFile)
-{
+TEST(Utils, FromFile) {
     {
         int16_t s[] = {1, -1, -100, 100, 200, 300};
 
@@ -127,4 +121,19 @@ TEST(UtilsTest, FromFile)
         arr_real x2 = from_file("test.dat", dtype::int32, endian::little, sizeof(int32_t), 3);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, Peakloc) {
+    auto freq = 440.0;
+    auto fs = 8e3;
+    auto t = range(1024) / fs;
+    auto x = sin(2 * pi * freq * t);
+    x = awgn(x, 20);
+    auto X = fft(x);
+    auto n = argmax(X);
+    auto freq_q = peakloc(X, n) / X.size() * fs;
+    auto freq_r = peakloc(abs(X), n) / X.size() * fs;
+    ASSERT_NEAR(freq, freq_q, 0.1);
+    ASSERT_NEAR(freq, freq_r, 2);
 }

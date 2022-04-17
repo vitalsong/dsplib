@@ -1,4 +1,5 @@
 #include <dsplib/utils.h>
+#include <dsplib/math.h>
 #include <algorithm>
 #include <stdio.h>
 
@@ -166,6 +167,36 @@ arr_real from_file(std::string file, dtype type, endian order, size_t offset, si
     default:
         return arr_real{};
     }
+}
+
+real_t peakloc(const arr_real& x, int idx, bool cyclic) {
+    const int n = x.size();
+    if (!cyclic && (idx == 0 || idx == n - 1)) {
+        return idx;
+    }
+
+    int ml = (idx - 1 + n) % n;
+    int mk = idx;
+    int mr = (idx + 1) % n;
+
+    real_t a = ((x[mr] - x[mk]) + (x[ml] - x[mk])) / 2;
+    real_t b = x[mk] - a - x[ml];
+    real_t q = (-b);
+    return idx + q / (2 * a) - 1;
+}
+
+real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
+    const int n = x.size();
+    if (!cyclic && (idx == 0 || idx == n - 1)) {
+        return idx;
+    }
+
+    int ml = (idx - 1 + n) % n;
+    int mk = idx;
+    int mr = (idx + 1) % n;
+
+    auto d = (x[mr] - x[ml]) / (2 * x[mk] - x[ml] - x[mr]);
+    return mk - real(d);
 }
 
 }   // namespace dsplib
