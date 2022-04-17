@@ -20,8 +20,7 @@ real_t max(const arr_real& arr);
 cmplx_t max(const arr_cmplx& arr);
 
 template<typename T1, typename T2>
-auto max(const T1& v1, const T2& v2) -> decltype(v1 + v2)
-{
+auto max(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
     return (v1 > v2) ? (v1) : (v2);
 }
 
@@ -30,8 +29,7 @@ real_t min(const arr_real& arr);
 cmplx_t min(const arr_cmplx& arr);
 
 template<typename T1, typename T2>
-auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2)
-{
+auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
     return (v1 < v2) ? (v1) : (v2);
 }
 
@@ -117,17 +115,13 @@ arr_real cos(const arr_real& arr);
 real_t randn();
 arr_real randn(int n);
 
-//approximation of the index correction (-1: 1) by a parabola at three points
-real_t apprx(real_t y0, real_t y1, real_t y2);
-
 //decrease sample rate by integer factor
 arr_real downsample(const arr_real& arr, int n, int phase = 0);
 arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
 
 //----------------------------------------------------------------------------------------
 //pow(scalar, vec) -> vec
-inline arr_real operator^(const real_t& v, const arr_real& rhs)
-{
+inline arr_real operator^(const real_t& v, const arr_real& rhs) {
     arr_real res = rhs;
     for (size_t i = 0; i < rhs.size(); i++) {
         res[i] = pow(v, rhs[i]);
@@ -135,8 +129,7 @@ inline arr_real operator^(const real_t& v, const arr_real& rhs)
     return res;
 }
 
-inline arr_cmplx operator^(const cmplx_t& v, const arr_real& rhs)
-{
+inline arr_cmplx operator^(const cmplx_t& v, const arr_real& rhs) {
     arr_cmplx res = rhs;
     for (size_t i = 0; i < rhs.size(); i++) {
         res[i] = pow(v, rhs[i]);
