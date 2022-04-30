@@ -3,6 +3,16 @@
 
 C++ DSP library for MATLAB similar programming.
 
+Note: Only 1-D arrays with element-wise operations are currently supported.
+
+| dsplib      | matlab      |
+| ----------- | ----------- |
+| x * x       | x .* x      |
+| zeros(10)   | zeros(10, 1)|
+| x.slice(0,10) = 1 | x(1:10) = 1 |
+
+Matrix support is planned for the future.
+
 ![dsplib_1](doc/preview_top.png)
 ![dsplib_2](doc/preview_bottom.png)
 
