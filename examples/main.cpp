@@ -213,8 +213,8 @@ void agc_example_impulse() {
     auto [r1, g1] = agc1.process(x);
     auto [r2, g2] = agc2.process(x);
 
-    auto rabs1 = dsp::abs(r1) ^ 2;
-    auto rabs2 = dsp::abs(r2) ^ 2;
+    auto rabs1 = dsp::abs2(r1);
+    auto rabs2 = dsp::abs2(r2);
 
     matplot::title("Agc example");
     matplot::plot({rabs1, rabs2});

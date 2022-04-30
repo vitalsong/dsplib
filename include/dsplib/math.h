@@ -119,6 +119,18 @@ arr_real randn(int n);
 arr_real downsample(const arr_real& arr, int n, int phase = 0);
 arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
 
+//abs(x)^2
+arr_real abs2(const arr_cmplx& x);
+real_t abs2(const cmplx_t& x);
+
+//from degrees to radians
+arr_real deg2rad(const arr_real& x);
+real_t deg2rad(const real_t& x);
+
+//from radians to degrees
+arr_real rad2deg(const arr_real& x);
+real_t rad2deg(const real_t& x);
+
 //----------------------------------------------------------------------------------------
 //pow(scalar, vec) -> vec
 inline arr_real operator^(const real_t& v, const arr_real& rhs) {

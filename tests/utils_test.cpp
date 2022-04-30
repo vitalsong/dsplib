@@ -125,12 +125,14 @@ TEST(Utils, FromFile) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(Utils, Peakloc) {
+    const int N = 2048;
     auto freq = 440.0;
     auto fs = 8e3;
-    auto t = range(1024) / fs;
+    auto t = range(N) / fs;
     auto x = sin(2 * pi * freq * t);
     x = awgn(x, 20);
     auto X = fft(x);
+    X.slice(N / 2, N) = 0;
     auto n = argmax(X);
     auto freq_q = peakloc(X, n) / X.size() * fs;
     auto freq_r = peakloc(abs(X), n) / X.size() * fs;

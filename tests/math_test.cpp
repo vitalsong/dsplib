@@ -4,8 +4,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Max)
-{
+TEST(MathTest, Max) {
     arr_real v1 = {1, 2, 3, 4};
     arr_cmplx v2 = {1 + 5i, 2, 3, 4};
 
@@ -17,8 +16,7 @@ TEST(MathTest, Max)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Min)
-{
+TEST(MathTest, Min) {
     arr_real v1 = {1, 2, 3, 4};
     arr_cmplx v2 = {1 + 5i, 2, 3, 4};
 
@@ -30,8 +28,7 @@ TEST(MathTest, Min)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Median)
-{
+TEST(MathTest, Median) {
     arr_real v1 = {-1, 0, 1, 2, 3, 4, 5, 6, 7};
     ASSERT_FLOAT_EQ(median(v1), 3);
 
@@ -40,8 +37,7 @@ TEST(MathTest, Median)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Std)
-{
+TEST(MathTest, Std) {
     {
         arr_real v1 = {5, 5, 5, 5};
         ASSERT_FLOAT_EQ(stddev(v1), 0);
@@ -66,8 +62,7 @@ TEST(MathTest, Std)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Pow2)
-{
+TEST(MathTest, Pow2) {
     arr_real v1 = {5, 5, 5, 5};
     arr_real r1 = {25, 25, 25, 25};
     ASSERT_EQ_ARR_REAL(pow2(v1), r1);
@@ -82,24 +77,21 @@ TEST(MathTest, Pow2)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Angle)
-{
+TEST(MathTest, Angle) {
     arr_cmplx x1 = {1, 1i, 1 + 1i, -1};
     arr_real y1 = {0, pi / 2, pi / 4, pi};
     ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Randn)
-{
+TEST(MathTest, Randn) {
     auto x = randn(32767);
     auto s = stddev(x);
     EXPECT_NEAR(s, 1, 0.02f);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Exp)
-{
+TEST(MathTest, Exp) {
     auto x1 = dsplib::exp(1);
     EXPECT_NEAR(x1, 2.7182818284590452, EQ_ABS_ERR);
 
@@ -119,32 +111,43 @@ TEST(MathTest, Exp)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Downsample)
-{
+TEST(MathTest, Downsample) {
     {
-        dsplib::arr_real x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        dsplib::arr_real y = {1, 4, 7, 10};
-        auto r = dsplib::downsample(x, 3);
+        arr_real x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        arr_real y = {1, 4, 7, 10};
+        auto r = downsample(x, 3);
         ASSERT_EQ_ARR_REAL(y, r);
     }
 
     {
-        dsplib::arr_cmplx x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        dsplib::arr_cmplx y = {3, 6, 9};
-        auto r = dsplib::downsample(x, 3, 2);
+        arr_cmplx x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        arr_cmplx y = {3, 6, 9};
+        auto r = downsample(x, 3, 2);
         ASSERT_EQ_ARR_CMPLX(y, r);
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Rms)
-{
-    {
-        auto x = dsplib::expj(2 * dsplib::pi * 440 * dsplib::range(10000) / 8000.0);
-        auto y = dsplib::real(x);
-        auto rms_x = dsplib::rms(x);
-        auto rms_y = dsplib::rms(y);
-        ASSERT_NEAR(rms_x, 1, 0.0001);
-        ASSERT_NEAR(rms_y, 0.707142132106764, 0.0001);
-    }
+TEST(MathTest, Rms) {
+    auto x = expj(2 * pi * 440 * range(10000) / 8000.0);
+    auto y = real(x);
+    auto rms_x = rms(x);
+    auto rms_y = rms(y);
+    ASSERT_NEAR(rms_x, 1, 0.0001);
+    ASSERT_NEAR(rms_y, 0.707142132106764, 0.0001);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Abs2) {
+    arr_cmplx x = {10 + 10i, 1 - 2i, 3 + 4i};
+    arr_real r = {200, 5, 25};
+    ASSERT_EQ_ARR_REAL(abs2(x), r);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Deg2Rad) {
+    arr_real deg = {0, 45, 90, 180, -45, -90, -180};
+    arr_real rad = {0, pi / 4, pi / 2, pi, -pi / 4, -pi / 2, -pi};
+    ASSERT_EQ_ARR_REAL(deg2rad(deg), rad);
+    ASSERT_EQ_ARR_REAL(rad2deg(rad), deg);
 }

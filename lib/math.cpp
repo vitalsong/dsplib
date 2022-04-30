@@ -483,4 +483,36 @@ arr_cmplx downsample(const arr_cmplx& arr, int n, int phase) {
     return _downsample(arr, n, phase);
 }
 
+//-------------------------------------------------------------------------------------------------
+arr_real abs2(const arr_cmplx& x) {
+    arr_real r(x.size());
+    for (size_t i = 0; i < x.size(); i++) {
+        r[i] = (x[i].re * x[i].re) + (x[i].im * x[i].im);
+    }
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t abs2(const cmplx_t& x) {
+    return (x.re * x.re) + (x.im * x.im);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real deg2rad(const arr_real& x) {
+    return x / 180.0 * pi;
+}
+
+real_t deg2rad(const real_t& x) {
+    return x / 180.0 * pi;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real rad2deg(const arr_real& x) {
+    return x / pi * 180;
+}
+
+real_t rad2deg(const real_t& x) {
+    return x / pi * 180;
+}
+
 }   // namespace dsplib
