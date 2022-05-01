@@ -127,7 +127,6 @@ public:
     }
 
     //--------------------------------------------------------------------
-    //slice operators (MATLAB style)
     const T& operator()(int i) const {
         return this->operator[](i);
     }
@@ -136,21 +135,13 @@ public:
         return this->operator[](i);
     }
 
-    slice_t<T> operator()(int i1, int i2, int m = 1) {
+    //--------------------------------------------------------------------
+    slice_t<T> slice(int i1, int i2, int m = 1) {
         return slice_t<T>(*this, i1, i2, m);
     }
 
-    const_slice_t<T> operator()(int i1, int i2, int m = 1) const {
-        return const_slice_t<T>(*this, i1, i2, m);
-    }
-
-    //--------------------------------------------------------------------
-    slice_t<T> slice(int i1, int i2, int m = 1) {
-        return this->operator()(i1, i2, m);
-    }
-
     const_slice_t<T> slice(int i1, int i2, int m = 1) const {
-        return this->operator()(i1, i2, m);
+        return const_slice_t<T>(*this, i1, i2, m);
     }
 
     //--------------------------------------------------------------------
