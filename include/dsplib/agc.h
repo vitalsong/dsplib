@@ -31,6 +31,11 @@ public:
     result<real_t> process(const arr_real& x);
     result<cmplx_t> process(const arr_cmplx& x);
 
+    template<typename T>
+    result<T> operator()(const base_array<T>& x) {
+        return this->process(x);
+    }
+
 private:
     std::unique_ptr<agc_impl> _d;
 };

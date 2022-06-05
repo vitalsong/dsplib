@@ -6,6 +6,7 @@ namespace dsplib {
 
 /*!
  * \brief FIR filter class
+ * \todo complex type support
  */
 class fir
 {
@@ -21,6 +22,10 @@ public:
 
     //convolution operation
     static arr_real conv(const arr_real& x, const arr_real& h);
+
+    arr_real operator()(const arr_real& x) {
+        return this->process(x);
+    }
 
 private:
     arr_real _h;   ///< impulse response
@@ -45,6 +50,10 @@ public:
     //convolution operation
     static arr_cmplx conv(const arr_cmplx& x, const arr_cmplx& h);
 
+    arr_cmplx operator()(const arr_cmplx& x) {
+        return this->process(x);
+    }
+
 private:
     arr_cmplx _h;   ///< impulse response
     arr_cmplx _d;   ///< filter delay
@@ -65,9 +74,16 @@ public:
     arr_cmplx process(const arr_cmplx& x);
 
     //optimal input size for y[nx] = process(x[nx])
-    int block_size() const
-    {
+    int block_size() const {
         return _n;
+    }
+
+    arr_real operator()(const arr_real& x) {
+        return this->process(x);
+    }
+
+    arr_cmplx operator()(const arr_cmplx& x) {
+        return this->process(x);
     }
 
 private:

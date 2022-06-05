@@ -4,13 +4,11 @@
 
 namespace dsplib {
 
-//LMS adaptive filter
-//TODO: complex signal implementation
-//TODO: nlms implementation
-class lms
+//RLS adaptive filter
+class rls
 {
 public:
-    explicit lms(int len, double step_size);
+    rls(int filter_len, real_t forget_factor = 0.9, real_t diag_load = 1);
 
     struct result
     {
@@ -37,10 +35,11 @@ public:
     }
 
 private:
+    int _n;
+    real_t _mu;
     arr_real _u;
     arr_real _w;
-    double _m;
-    int _len;
+    arr_real _P;
     bool _locked{false};
 };
 

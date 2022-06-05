@@ -136,6 +136,7 @@ public:
     }
 
     //--------------------------------------------------------------------
+    //TODO: check out of range
     slice_t<T> slice(int i1, int i2, int m = 1) {
         return slice_t<T>(*this, i1, i2, m);
     }

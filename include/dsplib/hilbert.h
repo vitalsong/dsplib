@@ -26,10 +26,14 @@ public:
     //current impulse response
     const arr_real& impz() const;
 
+    arr_cmplx operator()(const arr_real& x) {
+        return this->process(x);
+    }
+
 private:
-    fir _fir;       ///< FIR filter for I channel
-    arr_real _h;    ///< impulse response
-    arr_real _d;    ///< delay for Q channel
+    fir _fir;      ///< FIR filter for I channel
+    arr_real _h;   ///< impulse response
+    arr_real _d;   ///< delay for Q channel
 };
 
-}   ///< dsplib
+}   // namespace dsplib

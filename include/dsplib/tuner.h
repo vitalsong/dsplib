@@ -15,6 +15,10 @@ public:
     void set_freq(int freq);
     int freq() const;
 
+    arr_cmplx operator()(const arr_cmplx& x) {
+        return this->process(x);
+    }
+
 private:
     using sin_table_t = std::shared_ptr<std::vector<real_t>>;
     static sin_table_t get_table(int fs);

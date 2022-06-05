@@ -27,6 +27,10 @@ public:
     //TODO: add bypass mode
     result process(const arr_cmplx& x);
 
+    result operator()(const arr_cmplx& x) {
+        return this->process(x);
+    }
+
     void reset();
 
 private:

@@ -19,3 +19,4 @@
 #include <dsplib/agc.h>
 #include <dsplib/sinad.h>
 #include <dsplib/detector.h>
+#include <dsplib/rls.h>

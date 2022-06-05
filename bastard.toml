@@ -1,6 +1,6 @@
 [package]
 name = "dsplib"
-version = "0.13.0"
+version = "0.14.0"
 
 [lib]
 lang = "c++11"
@@ -18,3 +18,6 @@ matplot = { git = "https://github.com/alandefreitas/matplotplusplus.git" }
 [options.gtest]
 BUILD_GMOCK = false
 gtest_force_shared_crt = true
+
+[options.matplot]
+BUILD_WITH_PEDANTIC_WARNINGS = false
