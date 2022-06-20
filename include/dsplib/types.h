@@ -44,12 +44,22 @@ using real_t = double;
 
 struct cmplx_t;
 
+template<typename T>
+struct is_scalar_ar : std::integral_constant<bool, std::is_arithmetic<T>::value || std::is_same<T, cmplx_t>::value>
+{};
+
+template<typename T>
+using enable_scalar_t = std::enable_if<is_scalar_ar<T>::value>;
+
+template<typename T, typename T2>
+using enable_convertible_t = std::enable_if<std::is_convertible<T, T2>::value>;
+
 template<typename T, class = void>
 struct cmplx_convert_to_t : std::false_type
 {};
 
 template<typename T>
-struct cmplx_convert_to_t<T, typename std::enable_if<std::is_scalar<T>::value>::type>;
+struct cmplx_convert_to_t<T, typename enable_scalar_t<T>::type>;
 
 template<typename T>
 constexpr cmplx_t to_cmplx_cast(const T& v);
@@ -74,12 +84,19 @@ struct cmplx_t
     }
     constexpr cmplx_t(const cmplx_t&) = default;
 
-    template<typename T>
+    //scalar -> cmplx_t
+    template<typename T, class _S = typename enable_scalar_t<T>::type>
     cmplx_t(const T& v) {
         *this = to_cmplx_cast(v);
     }
 
-    template<typename T, typename _ = typename std::enable_if<cmplx_convert_from_t<T>::value>::type>
+    //std::complex -> cmplx_t
+    template<typename T>
+    cmplx_t(const std::complex<T>& v) {
+        *this = to_cmplx_cast(v);
+    }
+
+    template<typename T, typename _C = typename std::enable_if<cmplx_convert_from_t<T>::value>::type>
     operator T() const {
         return from_cmplx_cast<T>(*this);
     }
@@ -187,6 +204,8 @@ struct cmplx_t
     }
 };
 
+// real * cmplx
+
 inline cmplx_t operator+(const real_t& lhs, const cmplx_t& rhs) {
     return rhs + lhs;
 }
@@ -204,11 +223,13 @@ inline cmplx_t operator/(const real_t& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }
 
+//cast rules
+
 template<typename T>
-struct cmplx_convert_to_t<T, typename std::enable_if<std::is_scalar<T>::value>::type> : std::true_type
+struct cmplx_convert_to_t<T, typename enable_scalar_t<T>::type> : std::true_type
 {
     static cmplx_t cast(const T& v) {
-        return cmplx_t{static_cast<double>(v), 0};
+        return cmplx_t{static_cast<real_t>(v), 0};
     }
 };
 
@@ -216,7 +237,7 @@ template<typename T>
 struct cmplx_convert_to_t<std::complex<T>> : std::true_type
 {
     static cmplx_t cast(const std::complex<T>& v) {
-        return cmplx_t{static_cast<double>(v.real()), static_cast<double>(v.imag())};
+        return cmplx_t{static_cast<real_t>(v.real()), static_cast<real_t>(v.imag())};
     }
 };
 

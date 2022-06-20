@@ -154,7 +154,7 @@ static void lms_example() {
     auto mu_max = 2 / ((M + 1) * dsp::mean(x * x));
     auto mu = 0.05 * mu_max;
     auto lms = dsp::lms(M, mu);
-    auto [y, e, w] = lms.process(x, d);
+    auto [y, e] = lms.process(x, d);
 
     matplot::title("LMS");
     matplot::plot({s, e});

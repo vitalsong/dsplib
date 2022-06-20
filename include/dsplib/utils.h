@@ -87,7 +87,7 @@ inline arr_real to_real(const std::vector<T>& arr) {
 template<typename T>
 inline std::vector<T> from_real(const arr_real& arr) {
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
-    static_assert(std::is_scalar<T>::value, "Type is not scalar");
+    static_assert(is_scalar_ar<T>::value, "Type is not scalar");
     std::vector<T> res(arr.size());
     for (size_t i = 0; i < arr.size(); i++) {
         res[i] = arr[i];
@@ -112,13 +112,13 @@ inline arr_cmplx to_complex(const T* x, size_t nx) {
 
 template<typename T>
 inline arr_cmplx to_complex(const std::vector<T>& arr) {
-    static_assert(std::is_scalar<T>::value, "Type is not scalar");
+    static_assert(is_scalar_ar<T>::value, "Type is not scalar");
     return to_complex(arr.data(), arr.size());
 }
 
 template<typename T>
 inline std::vector<T> from_complex(const arr_cmplx& arr) {
-    static_assert(std::is_scalar<T>::value, "Type is not scalar");
+    static_assert(is_scalar_ar<T>::value, "Type is not scalar");
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     std::vector<T> res(arr.size() * 2);
     for (size_t i = 0; i < arr.size(); i++) {
