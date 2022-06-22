@@ -1,0 +1,28 @@
+include_guard(GLOBAL)
+
+function(enable_address_sanitizer)
+
+    set(options NONE)
+    set(oneValueArgs TARGET NAME)
+    set(multiValueArgs BLACKLIST)
+    cmake_parse_arguments(Sanitizer "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR "Sanitizer supported only for gcc/clang")
+    endif()
+    message(STATUS "Address sanitizer enabled for ${Sanitizer_TARGET}")
+    target_compile_options(${Sanitizer_TARGET} PRIVATE -fsanitize=address,undefined)
+    target_compile_options(${Sanitizer_TARGET} PRIVATE -fno-sanitize=signed-integer-overflow)
+    target_compile_options(${Sanitizer_TARGET} PRIVATE -fno-sanitize-recover=all)
+    target_compile_options(${Sanitizer_TARGET} PRIVATE -fno-omit-frame-pointer)
+    target_link_libraries(${Sanitizer_TARGET} -fsanitize=address,undefined)
+
+    if(DEFINED Sanitizer_BLACKLIST)
+        if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+            message(WARNING "gcc does`t support blacklist")
+            return()
+        endif()
+        target_compile_options(${Sanitizer_TARGET} PRIVATE -fsanitize-blacklist=${Sanitizer_BLACKLIST})
+        target_link_libraries(${Sanitizer_TARGET} -fsanitize-blacklist=${Sanitizer_BLACKLIST})
+    endif()
+endfunction()

@@ -18,21 +18,18 @@ struct agc_impl
 };
 
 //------------------------------------------------------------------------------------------
-static inline real_t _power(const real_t& v)
-{
+static inline real_t _power(const real_t& v) {
     return v * v;
 }
 
 //------------------------------------------------------------------------------------------
-static inline real_t _power(const cmplx_t& v)
-{
+static inline real_t _power(const cmplx_t& v) {
     return (v.re * v.re) + (v.im * v.im);
 }
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-static agc::result<T> _process(agc_impl& agc, const base_array<T>& x)
-{
+static agc::result<T> _process(agc_impl& agc, const base_array<T>& x) {
     base_array<T> out(x.size());
     arr_real gain(x.size());
     for (int i = 0; i < x.size(); ++i) {
@@ -45,11 +42,11 @@ static agc::result<T> _process(agc_impl& agc, const base_array<T>& x)
             agc.accum = 0;
         }
 
-        float g = expf(agc.gain);
+        float g = std::exp(agc.gain);
         out[i] = x[i] * g;
         gain[i] = g;
 
-        double e = agc.target - (logf(agc.accum / agc.rms_period) + (2 * agc.gain));
+        double e = agc.target - (std::log(agc.accum / agc.rms_period) + (2 * agc.gain));
         if (e > 1) {
             agc.gain += agc.trise * e;
         } else {
@@ -65,8 +62,7 @@ static agc::result<T> _process(agc_impl& agc, const base_array<T>& x)
 }
 
 //------------------------------------------------------------------------------------------
-agc::agc(double target_level, double max_gain, int average_len, double t_rise, double t_fall)
-{
+agc::agc(double target_level, double max_gain, int average_len, double t_rise, double t_fall) {
     _d = std::unique_ptr<agc_impl>(new agc_impl());
 
     if (average_len == 0) {
@@ -76,8 +72,8 @@ agc::agc(double target_level, double max_gain, int average_len, double t_rise, d
     _d->rms_period = average_len;
     _d->trise = t_rise;
     _d->tfall = t_fall;
-    _d->target = log(target_level);
-    _d->max_gain = log(pow(10, max_gain / 20));
+    _d->target = std::log(target_level);
+    _d->max_gain = std::log(std::pow(10, max_gain / 20));
     _d->delay.resize(_d->rms_period);
     std::fill(_d->delay.begin(), _d->delay.end(), 0);
 }
@@ -86,14 +82,12 @@ agc::agc(double target_level, double max_gain, int average_len, double t_rise, d
 agc::~agc() = default;
 
 //------------------------------------------------------------------------------------------
-agc::result<real_t> agc::process(const arr_real& x)
-{
+agc::result<real_t> agc::process(const arr_real& x) {
     return _process(*_d, x);
 }
 
 //------------------------------------------------------------------------------------------
-agc::result<cmplx_t> agc::process(const arr_cmplx& x)
-{
+agc::result<cmplx_t> agc::process(const arr_cmplx& x) {
     return _process(*_d, x);
 }
 

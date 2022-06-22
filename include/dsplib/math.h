@@ -86,6 +86,13 @@ real_t imag(cmplx_t x);
 arr_cmplx conj(const arr_cmplx& x);
 cmplx_t conj(cmplx_t x);
 
+inline arr_real conj(const arr_real& x) {
+    return x;
+};
+inline real_t conj(real_t x) {
+    return x;
+};
+
 //complex vector formation
 arr_cmplx complex(const arr_real& re, const arr_real& im);
 
@@ -95,6 +102,14 @@ int nextpow2(int m);
 //array pow
 arr_real pow2(const arr_real& arr);
 arr_cmplx pow2(const arr_cmplx& arr);
+
+inline real_t pow2(real_t x) {
+    return x * x;
+}
+inline cmplx_t pow2(cmplx_t x) {
+    return x * x;
+}
+
 real_t pow(real_t x, real_t n);
 cmplx_t pow(cmplx_t x, real_t n);
 
@@ -102,6 +117,10 @@ cmplx_t pow(cmplx_t x, real_t n);
 arr_real log(const arr_real& arr);
 arr_real log2(const arr_real& arr);
 arr_real log10(const arr_real& arr);
+
+real_t log(const real_t& x);
+real_t log2(const real_t& x);
+real_t log10(const real_t& x);
 
 //array rms
 real_t rms(const arr_real& arr);
@@ -123,6 +142,13 @@ arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
 arr_real abs2(const arr_cmplx& x);
 real_t abs2(const cmplx_t& x);
 
+inline arr_real abs2(const arr_real& x) {
+    return pow2(x);
+}
+inline real_t abs2(const real_t& x) {
+    return pow2(x);
+}
+
 //from degrees to radians
 arr_real deg2rad(const arr_real& x);
 real_t deg2rad(const real_t& x);
@@ -130,6 +156,10 @@ real_t deg2rad(const real_t& x);
 //from radians to degrees
 arr_real rad2deg(const arr_real& x);
 real_t rad2deg(const real_t& x);
+
+constexpr real_t eps() {
+    return std::numeric_limits<real_t>::epsilon();
+}
 
 //----------------------------------------------------------------------------------------
 //pow(scalar, vec) -> vec

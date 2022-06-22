@@ -3,7 +3,7 @@
 
 #include <dsplib/math.h>
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <memory>
 
@@ -22,8 +22,8 @@ static dft_ptr _gen_dft_table(size_t size) {
     real_t p;
     for (size_t i = 0; i < size; ++i) {
         p = i / real_t(size);
-        data[i].re = ::cos(2 * pi * p);
-        data[i].im = -::sin(2 * pi * p);
+        data[i].re = std::cos(2 * pi * p);
+        data[i].im = -std::sin(2 * pi * p);
     }
 
     return tb;

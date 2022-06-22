@@ -1,15 +1,12 @@
 #include "tests_common.h"
-#include <math.h>
 
 //-------------------------------------------------------------------------------------------------
-static dsplib::arr_cmplx zadoff_chu(int r, int n)
-{
+static dsplib::arr_cmplx zadoff_chu(int r, int n) {
     return dsplib::expj((-dsplib::pi * r * (dsplib::range(n) ^ 2)) / n);
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(Detector, SingleDetect)
-{
+TEST(Detector, SingleDetect) {
     using namespace dsplib;
     auto zch = zadoff_chu(1, 201) | zadoff_chu(1, 101);
     auto dtc = detector(zch, 0.5);
@@ -22,8 +19,7 @@ TEST(Detector, SingleDetect)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(Detector, FlowDetect)
-{
+TEST(Detector, FlowDetect) {
     using namespace dsplib;
     auto zch = zadoff_chu(1, 201) | zadoff_chu(1, 101);
     auto dtc = detector(zch, 0.5);

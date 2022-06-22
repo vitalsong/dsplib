@@ -28,6 +28,16 @@ auto plot(std::initializer_list<dsp::arr_real> y) {
     return plot(yy);
 }
 
+//---------------------------------------------------------------------------------
+auto stem(std::initializer_list<dsp::arr_real> y) {
+    std::vector<std::vector<double>> yy;
+    for (auto dy : y) {
+        auto xx = dy.to_vec<double>();
+        yy.push_back(xx);
+    }
+    return stem(yy);
+}
+
 }   // namespace matplot
 
 //fs = 2000Hz, start = 200Hz, stop = 300Hz, attenuation = -80dB
@@ -96,7 +106,7 @@ static void fir_example() {
     auto flt = dsp::fir(IR);
     auto t = dsp::range(0, n) * 2 * dsp::pi * 50 / fs;
     auto x_in = dsp::sin(t) * 100 + dsp::randn(n) * 10;
-    auto x_out = flt.process(x_in);
+    auto x_out = flt(x_in);
 
     matplot::title("LP FIR Example");
     matplot::plot({x_in, x_out});
@@ -149,16 +159,47 @@ static void lms_example() {
     auto t = dsp::range(0, L) / 1000;
     auto s = dsp::sin(2 * dsp::pi * 3 * t) + dsp::sin(2 * dsp::pi * 4 * t);
     auto x = 10 * dsp::randn(L);
-    auto d = flt.process(x) + s;
+    auto d = flt(x) + s;
 
     auto mu_max = 2 / ((M + 1) * dsp::mean(x * x));
     auto mu = 0.05 * mu_max;
     auto lms = dsp::lms(M, mu);
-    auto [y, e] = lms.process(x, d);
+    auto [y, e] = lms(x, d);
 
     matplot::title("LMS");
     matplot::plot({s, e});
     matplot::legend({"Desired", "Output"});
+    matplot::show();
+}
+
+//--------------------------------------------------------------------------------
+static void nlms_example() {
+    int M = 13;
+    dsp::arr_real num = {0.0164, 0.1031, -0.0632, -0.0907, 0.0467, 0.3139, 0.4526,
+                         0.3139, 0.0467, -0.0907, -0.0632, 0.1031, 0.0164};
+
+    auto filt = dsp::fir(num);
+    auto x = 0.1 * dsp::randn(1000);
+    auto n = 0.001 * dsp::randn(1000);
+    auto d = filt(x) + n;
+    double mu = 0.2;
+
+    //RLS
+    auto nlms = dsp::lms(M, mu, dsp::lms_type::NLMS);
+    auto [y1, e1] = nlms(x, d);
+
+    //LMS
+    auto lms = dsp::lms(M, mu);
+    auto [y2, e2] = lms(x, d);
+
+    matplot::title("Compare the LMS and NLMS perfomance");
+    matplot::plot({e1, e2});
+    matplot::legend({"NLMS", "LMS"});
+    matplot::show();
+
+    matplot::title("System Identification by NLMS");
+    matplot::stem({num, nlms.coeffs()});
+    matplot::legend({"Actual filter weights", "Estimated filter weights"});
     matplot::show();
 }
 
@@ -173,8 +214,8 @@ static void tuner_example() {
     auto t = dsp::range(n) / fs;
 
     auto y1 = 100 * dsp::expj(2 * dsp::pi * 440 * t);   ///< 440 Hz
-    auto y2 = tuner1.process(y1);                       ///< 1440 Hz
-    auto y3 = tuner2.process(y1);                       ///< -560 Hz
+    auto y2 = tuner1(y1);                               ///< 1440 Hz
+    auto y3 = tuner2(y1);                               ///< -560 Hz
 
     auto z1 = 20 * dsp::log10(dsp::abs(dsp::fft(y1)));
     auto z2 = 20 * dsp::log10(dsp::abs(dsp::fft(y2)));
@@ -192,7 +233,7 @@ void agc_example_sinus() {
     auto agc = dsp::agc(1, 30, 1000, 0.01);
     auto t = dsp::range(10000) / 8000;
     auto x = 10 * expj(2 * dsp::pi * 440 * t);
-    auto [y, g] = agc.process(x);
+    auto [y, g] = agc(x);
 
     matplot::title("Agc example");
     matplot::plot({dsp::real(x), dsp::real(y)});
@@ -210,8 +251,8 @@ void agc_example_impulse() {
     auto z = 1i * dsp::zeros(400);
     auto x = xx1 | z | xx2 | z;
 
-    auto [r1, g1] = agc1.process(x);
-    auto [r2, g2] = agc2.process(x);
+    auto [r1, g1] = agc1(x);
+    auto [r2, g2] = agc2(x);
 
     auto rabs1 = dsp::abs2(r1);
     auto rabs2 = dsp::abs2(r2);
@@ -245,7 +286,7 @@ void detector_example() {
         dsp::arr_cmplx sx = x.slice(t0, t1);
 
         //wait preambula
-        auto dres = dtc.process(sx);
+        auto dres = dtc(sx);
         if (dres.triggered) {
             aligned = dres.delay;
             ready = true;
@@ -268,6 +309,7 @@ int main() {
     agc_example_sinus();
     agc_example_impulse();
     lms_example();
+    nlms_example();
     spectrum_example();
     medfilt_example();
     xcorr_example();

@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <random>
-#include <math.h>
+#include <cmath>
 
 namespace dsplib {
 
@@ -52,7 +52,7 @@ arr_real abs(const arr_real& arr) {
     arr_real r = arr;
     const int N = arr.size();
     for (int i = 0; i < N; ++i) {
-        r[i] = ::fabsl(arr[i]);
+        r[i] = std::fabs(arr[i]);
     }
 
     return r;
@@ -60,7 +60,7 @@ arr_real abs(const arr_real& arr) {
 
 //-------------------------------------------------------------------------------------------------
 real_t abs(real_t v) {
-    return ::fabsl(v);
+    return std::fabs(v);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ arr_real abs(const arr_cmplx& arr) {
     arr_real r(arr.size());
     const int N = arr.size();
     for (int i = 0; i < N; ++i) {
-        r[i] = sqrt(arr[i].re * arr[i].re + arr[i].im * arr[i].im);
+        r[i] = std::sqrt(arr[i].re * arr[i].re + arr[i].im * arr[i].im);
     }
 
     return r;
@@ -76,7 +76,7 @@ arr_real abs(const arr_cmplx& arr) {
 
 //-------------------------------------------------------------------------------------------------
 real_t abs(cmplx_t v) {
-    return sqrt(v.re * v.re + v.im * v.im);
+    return std::sqrt(v.re * v.re + v.im * v.im);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -93,12 +93,12 @@ arr_real fabs(const arr_cmplx& arr) {
 //-------------------------------------------------------------------------------------------------
 real_t fabs(cmplx_t v) {
     real_t min, max;
-    if (abs(v.re) > abs(v.im)) {
-        min = abs(v.im);
-        max = abs(v.re);
+    if (std::fabs(v.re) > std::fabs(v.im)) {
+        min = std::fabs(v.im);
+        max = std::fabs(v.re);
     } else {
-        min = abs(v.re);
-        max = abs(v.im);
+        min = std::fabs(v.re);
+        max = std::fabs(v.im);
     }
 
     return max + (min / 2);
@@ -109,7 +109,7 @@ arr_real round(const arr_real& arr) {
     arr_real r(arr.size());
     const int N = arr.size();
     for (int i = 0; i < N; ++i) {
-        r[i] = ::round(arr[i]);
+        r[i] = std::round(arr[i]);
     }
 
     return r;
@@ -120,8 +120,8 @@ arr_cmplx round(const arr_cmplx& arr) {
     arr_cmplx r(arr.size());
     const int N = arr.size();
     for (int i = 0; i < N; ++i) {
-        r[i].re = ::round(arr[i].re);
-        r[i].im = ::round(arr[i].im);
+        r[i].re = std::round(arr[i].re);
+        r[i].im = std::round(arr[i].im);
     }
 
     return r;
@@ -251,7 +251,7 @@ arr_real log(const arr_real& arr) {
     int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
-        r[i] = ::log(arr[i]);
+        r[i] = std::log(arr[i]);
     }
     return r;
 }
@@ -261,7 +261,7 @@ arr_real log2(const arr_real& arr) {
     int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
-        r[i] = ::log2(arr[i]);
+        r[i] = std::log2(arr[i]);
     }
     return r;
 }
@@ -271,9 +271,22 @@ arr_real log10(const arr_real& arr) {
     int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
-        r[i] = ::log10(arr[i]);
+        r[i] = std::log10(arr[i]);
     }
     return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t log(const real_t& x) {
+    return std::log(x);
+}
+
+real_t log2(const real_t& x) {
+    return std::log2(x);
+}
+
+real_t log10(const real_t& x) {
+    return std::log10(x);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -284,7 +297,7 @@ real_t rms(const arr_real& arr) {
         sum += (arr[i] * arr[i]);
     }
 
-    return sqrt(sum / (N - 1));
+    return std::sqrt(sum / (N - 1));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -296,7 +309,7 @@ real_t rms(const arr_cmplx& arr) {
         sum += (arr[i].im * arr[i].im);
     }
 
-    return sqrt(sum / (N - 1));
+    return std::sqrt(sum / (N - 1));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -304,7 +317,7 @@ arr_real sin(const arr_real& arr) {
     int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
-        r[i] = ::sin(arr[i]);
+        r[i] = std::sin(arr[i]);
     }
     return r;
 }
@@ -314,7 +327,7 @@ arr_real cos(const arr_real& arr) {
     int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
-        r[i] = ::cos(arr[i]);
+        r[i] = std::cos(arr[i]);
     }
     return r;
 }
@@ -386,7 +399,7 @@ real_t angle(cmplx_t v) {
         d = 0;
     }
 
-    return ::atan(v.im / v.re) + d;
+    return std::atan(v.im / v.re) + d;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -414,7 +427,7 @@ real_t randn() {
 arr_real exp(const arr_real& arr) {
     arr_real r(arr);
     for (int i = 0; i < r.size(); ++i) {
-        r[i] = ::exp(r[i]);
+        r[i] = std::exp(r[i]);
     }
 
     return r;
@@ -422,7 +435,7 @@ arr_real exp(const arr_real& arr) {
 
 //-------------------------------------------------------------------------------------------------
 real_t exp(real_t v) {
-    return ::exp(v);
+    return std::exp(v);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -430,9 +443,9 @@ arr_cmplx exp(const arr_cmplx& arr) {
     arr_cmplx r(arr);
     real_t v;
     for (int i = 0; i < r.size(); ++i) {
-        v = ::exp(r[i].re);
-        r[i].re = v * ::cos(r[i].im);
-        r[i].im = v * ::sin(r[i].im);
+        v = std::exp(r[i].re);
+        r[i].re = v * std::cos(r[i].im);
+        r[i].im = v * std::sin(r[i].im);
     }
 
     return r;
@@ -440,15 +453,15 @@ arr_cmplx exp(const arr_cmplx& arr) {
 
 //-------------------------------------------------------------------------------------------------
 cmplx_t exp(cmplx_t v) {
-    return cmplx_t{::exp(v.re) * ::cos(v.im), ::exp(v.re) * ::sin(v.im)};
+    return cmplx_t{std::exp(v.re) * std::cos(v.im), std::exp(v.re) * std::sin(v.im)};
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx expj(const arr_real& im) {
     arr_cmplx r(im.size());
     for (int i = 0; i < r.size(); ++i) {
-        r[i].re = ::cos(im[i]);
-        r[i].im = ::sin(im[i]);
+        r[i].re = std::cos(im[i]);
+        r[i].im = std::sin(im[i]);
     }
 
     return r;
@@ -456,7 +469,7 @@ arr_cmplx expj(const arr_real& im) {
 
 //-------------------------------------------------------------------------------------------------
 cmplx_t expj(real_t im) {
-    return cmplx_t{::cos(im), ::sin(im)};
+    return cmplx_t{std::cos(im), std::sin(im)};
 }
 
 //-------------------------------------------------------------------------------------------------

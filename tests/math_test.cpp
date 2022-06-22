@@ -1,4 +1,3 @@
-#include <math.h>
 #include "tests_common.h"
 
 using namespace dsplib;
