@@ -44,11 +44,10 @@ public:
         }
 
         int nx = x.size();
-        auto y = zeros(nx);
-        auto e = zeros(nx);
-        auto tu = _u | x;
-
-        auto tu2 = (_method == lms_type::NLMS) ? abs2(tu) : tu;
+        base_array<T> y = zeros(nx);
+        base_array<T> e = zeros(nx);
+        base_array<T> tu = _u | x;
+        arr_real tu2 = (_method == lms_type::NLMS) ? abs2(tu) : arr_real{};
 
         //update delay
         _u = tu.slice(nx, nx + _len - 1);
@@ -56,7 +55,7 @@ public:
         for (size_t k = 0; k < nx; k++) {
             //y(n) = w.T(n) * u(n)
             for (size_t i = 0; i < _len; i++) {
-                y[k] += conj(_w[i]) * tu[i + k];
+                y[k] += _w[i] * tu[i + k];
             }
 
             e[k] = d[k] - y[k];
@@ -69,7 +68,7 @@ public:
                 //TODO: dont use cycles
                 //w(n) = w(n-1) * a + mu * e(n) * u(n)
                 for (size_t i = 0; i < _len; i++) {
-                    _w[i] = (_w[i] * _lk) + (_mu * e[k] * tu[i + k]);
+                    _w[i] = (_w[i] * _lk) + (_mu * e[k] * conj(tu[i + k]));
                 }
             } else if (_method == lms_type::NLMS) {
                 //pu = u.T(n) * u(n)
@@ -82,7 +81,7 @@ public:
                 //w(n) = w(n-1) * a + mu * e(n) * u(n) / norm
                 const real_t norm = pu + eps();
                 for (size_t i = 0; i < _len; i++) {
-                    _w[i] = (_w[i] * _lk) + (_mu * e[k] * tu[i + k] / norm);
+                    _w[i] = (_w[i] * _lk) + (_mu * e[k] * conj(tu[i + k]) / norm);
                 }
             }
         }
@@ -99,7 +98,7 @@ public:
     }
 
     base_array<T> coeffs() const {
-        return _w;
+        return flip(_w);
     }
 
     //TODO: reset()

@@ -72,22 +72,33 @@ TEST(FirTest, CmplxFftFir) {
 }
 
 //-------------------------------------------------------------------------------------------------
+static dsplib::arr_cmplx _get_bandpass_fir(int len, double f0, double f1) {
+    dsplib::arr_cmplx H = dsplib::zeros(len);
+    auto t0 = int(f0 * len);
+    auto t1 = int(f1 * len);
+    H.slice(t0, t1) = 1;
+    dsplib::arr_cmplx h = ifft(H);
+    h = dsplib::arr_cmplx(h.slice(len / 2, len)) | dsplib::arr_cmplx(h.slice(0, len / 2));
+    h *= dsplib::window::hamming(len);
+    return h;
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(FirTest, Lms) {
+    using namespace dsplib;
     int M = impulses.size();
     int L = 1000;
-    auto flt = dsplib::fir(impulses);
-    auto x = dsplib::randn(L);
-    auto n = 0.01 * dsplib::randn(L);
+    auto flt = fir(impulses);
+    auto x = randn(L);
+    auto n = 0.01 * randn(L);
     auto d = flt(x) + n;
 
-    auto mu_max = 2 / ((M + 1) * dsplib::mean(x * x));
+    auto mu_max = 2 / ((M + 1) * mean(x * x));
     auto mu = 0.05 * mu_max;
-    auto lms = dsplib::lms(M, mu);
-    auto [y, e] = lms(x, d);
-
-    auto w = lms.coeffs();
-    auto max_err = dsplib::max(dsplib::abs(w - impulses)) / dsplib::max(dsplib::abs(impulses));
-    ASSERT_LE(max_err, 0.1);
+    auto adapt = lms(M, mu);
+    auto [y, e] = adapt(x, d);
+    auto w = adapt.coeffs();
+    ASSERT_LE(nmse(w, impulses), 1e-3);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -100,10 +111,42 @@ TEST(FirTest, Rls) {
     auto d = flt(x) + n;
 
     auto diag_load = 100.0 / dsplib::mean(x * x);
-    auto rls = dsplib::rls(M, 0.99, diag_load);
-    auto [y, e] = rls(x, d);
+    auto adapt = dsplib::rls(M, 0.99, diag_load);
+    auto [y, e] = adapt(x, d);
+    auto w = adapt.coeffs();
+    ASSERT_LE(nmse(w, impulses), 0.01);
+}
 
-    auto w = rls.coeffs();
-    auto max_err = dsplib::max(dsplib::abs(w - impulses)) / dsplib::max(dsplib::abs(impulses));
-    ASSERT_LE(max_err, 0.01);
+//-------------------------------------------------------------------------------------------------
+TEST(FirTest, LmsCmplx) {
+    using namespace dsplib;
+    auto h = _get_bandpass_fir(32, 0.1, 0.2);
+    int M = h.size();
+    int L = 10000;
+    auto flt = fir_cmplx(h);
+    arr_cmplx x = complex(randn(L), randn(L));
+    arr_cmplx n = 0.01 * complex(randn(L), randn(L));
+    arr_cmplx d = flt(x) + n;
+
+    auto adapt = clms(M, 0.5, lms_type::NLMS);
+    auto [y, e] = adapt(x, d);
+    auto w = adapt.coeffs();
+    ASSERT_LE(nmse(w, h), 0.1);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FirTest, RlsCmplx) {
+    using namespace dsplib;
+    auto h = _get_bandpass_fir(32, 0.1, 0.2);
+    int M = h.size();
+    int L = 10000;
+    auto flt = fir_cmplx(h);
+    arr_cmplx x = complex(randn(L), randn(L));
+    arr_cmplx n = 0.01 * complex(randn(L), randn(L));
+    arr_cmplx d = flt(x) + n;
+
+    auto adapt = crls(M, 0.98);
+    auto [y, e] = adapt(x, d);
+    auto w = adapt.coeffs();
+    ASSERT_LE(nmse(w, h), 0.1);
 }

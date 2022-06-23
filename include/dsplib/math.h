@@ -161,6 +161,30 @@ constexpr real_t eps() {
     return std::numeric_limits<real_t>::epsilon();
 }
 
+//Euclidean norm of vector
+inline real_t norm(const arr_real& x) {
+    return sqrt(sum(pow2(x)));
+}
+inline real_t norm(const arr_cmplx& x) {
+    return sqrt(sum(abs2(x)));
+}
+
+//Mean squared error
+inline real_t mse(const arr_real& x, const arr_real& y) {
+    return mean(pow2(x - y));
+}
+inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
+    return mean(abs2(x - y));
+}
+
+//Normalized mean squared error
+inline real_t nmse(const arr_real& x, const arr_real& y) {
+    return mse(x, y) / sum(pow2(x));
+}
+inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
+    return mse(x, y) / sum(abs2(x));
+}
+
 //----------------------------------------------------------------------------------------
 //pow(scalar, vec) -> vec
 inline arr_real operator^(const real_t& v, const arr_real& rhs) {

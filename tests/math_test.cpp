@@ -150,3 +150,34 @@ TEST(MathTest, Deg2Rad) {
     ASSERT_EQ_ARR_REAL(deg2rad(deg), rad);
     ASSERT_EQ_ARR_REAL(rad2deg(rad), deg);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Norm) {
+    {
+        arr_real v = {1, -2, 3};
+        real_t n = norm(v);
+        ASSERT_NEAR(n, 3.7417, 0.0001);
+    }
+
+    {
+        arr_cmplx v = {1 + 2i, -2 - 4i, 3 - 6i};
+        real_t n = norm(v);
+        ASSERT_NEAR(n, 8.3666, 0.0001);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, MSE) {
+    {
+        arr_real x = {1, -2, 3};
+        arr_real y = {1, -2, 3};
+        ASSERT_NEAR(mse(x, y), 0, 0.0001);
+    }
+
+    {
+        arr_real x = {1, -2, 3};
+        arr_real y = {-1, 2, -3};
+        ASSERT_NEAR(mse(x, y), 18.6666, 0.0001);
+        ASSERT_NEAR(nmse(x, y), 1.3333, 0.0001);
+    }
+}
