@@ -1,6 +1,6 @@
 [package]
 name = "dsplib"
-version = "0.17.0"
+version = "0.17.1"
 
 [lib]
 lang = "c++11"
@@ -21,6 +21,3 @@ gtest_force_shared_crt = true
 
 [options.matplot]
 BUILD_WITH_PEDANTIC_WARNINGS = false
-
-[options.dsplib]
-DSPLIB_ASAN_ENABLED = false

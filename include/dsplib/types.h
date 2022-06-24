@@ -204,22 +204,29 @@ struct cmplx_t
     }
 };
 
-// real * cmplx
-
-inline cmplx_t operator+(const real_t& lhs, const cmplx_t& rhs) {
+//left oriented real * cmplx
+template<class T, class _S = typename enable_scalar_t<T>::type,
+         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+inline cmplx_t operator+(const T& lhs, const cmplx_t& rhs) {
     return rhs + lhs;
 }
 
-inline cmplx_t operator-(const real_t& lhs, const cmplx_t& rhs) {
+template<class T, class _S = typename enable_scalar_t<T>::type,
+         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+inline cmplx_t operator-(const T& lhs, const cmplx_t& rhs) {
     cmplx_t r(rhs);
     return -r + lhs;
 }
 
-inline cmplx_t operator*(const real_t& lhs, const cmplx_t& rhs) {
+template<class T, class _S = typename enable_scalar_t<T>::type,
+         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+inline cmplx_t operator*(const T& lhs, const cmplx_t& rhs) {
     return rhs * lhs;
 }
 
-inline cmplx_t operator/(const real_t& lhs, const cmplx_t& rhs) {
+template<class T, class _S = typename enable_scalar_t<T>::type,
+         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+inline cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }
 

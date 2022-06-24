@@ -3,8 +3,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(BaseTest, CmplxStdLiteral)
-{
+TEST(BaseTest, CmplxStdLiteral) {
     dsplib::cmplx_t x1(10i);
     ASSERT_CMPLX_EQ(x1, cmplx_t{0, 10});
 
@@ -23,8 +22,7 @@ TEST(BaseTest, CmplxStdLiteral)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(BaseTest, PushBack)
-{
+TEST(BaseTest, PushBack) {
     dsplib::arr_cmplx x1 = {1i, 2i, 3i, 4i};
     dsplib::arr_real x2 = {1, 2, 3, 4};
 
@@ -36,8 +34,7 @@ TEST(BaseTest, PushBack)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(BaseTest, PushFront)
-{
+TEST(BaseTest, PushFront) {
     dsplib::arr_cmplx x1 = {1i, 2i, 3i, 4i};
     dsplib::arr_real x2 = {1, 2, 3, 4};
 
@@ -49,8 +46,7 @@ TEST(BaseTest, PushFront)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(BaseTest, PopBack)
-{
+TEST(BaseTest, PopBack) {
     dsplib::arr_cmplx x1 = {1i, 2i, 3i, 4i};
     dsplib::arr_real x2 = {1, 2, 3, 4};
 
@@ -65,8 +61,7 @@ TEST(BaseTest, PopBack)
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(BaseTest, PopFront)
-{
+TEST(BaseTest, PopFront) {
     dsplib::arr_cmplx x1 = {1i, 2i, 3i, 4i};
     dsplib::arr_real x2 = {1, 2, 3, 4};
 
@@ -78,4 +73,24 @@ TEST(BaseTest, PopFront)
 
     ASSERT_EQ_ARR_CMPLX(x1, arr_cmplx{2i, 3i, 4i});
     ASSERT_EQ_ARR_REAL(x2, arr_real{2, 3, 4});
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(BaseTest, LeftScalar) {
+    {
+        arr_real x = {1, 2, 3, 4};
+        ASSERT_EQ_ARR_REAL(2 * x, arr_real{2, 4, 6, 8});
+        ASSERT_EQ_ARR_REAL(2 + x, arr_real{3, 4, 5, 6});
+        ASSERT_EQ_ARR_REAL(2 - x, arr_real{1, 0, -1, -2});
+        ASSERT_EQ_ARR_REAL(2 / x, arr_real{2, 1, 0.666666666666, 0.5});
+    }
+
+    {
+        cmplx_t d = 2i;
+        arr_real x = {2, 4, 5, 8};
+        ASSERT_EQ_ARR_CMPLX(d * x, arr_cmplx{4i, 8i, 10i, 16i});
+        ASSERT_EQ_ARR_CMPLX(d + x, arr_cmplx{2 + 2i, 4 + 2i, 5 + 2i, 8 + 2i});
+        ASSERT_EQ_ARR_CMPLX(d - x, arr_cmplx{-2 + 2i, -4 + 2i, -5 + 2i, -8 + 2i});
+        ASSERT_EQ_ARR_CMPLX(d / x, arr_cmplx{1i, 0.5i, 0.4i, 0.25i});
+    }
 }

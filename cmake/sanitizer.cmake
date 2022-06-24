@@ -8,8 +8,10 @@ function(enable_address_sanitizer)
     cmake_parse_arguments(Sanitizer "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        message(FATAL_ERROR "Sanitizer supported only for gcc/clang")
+        message(WARNING "Sanitizer supported only for gcc/clang")
+        return()
     endif()
+    
     message(STATUS "Address sanitizer enabled for ${Sanitizer_TARGET}")
     target_compile_options(${Sanitizer_TARGET} PRIVATE -fsanitize=address,undefined)
     target_compile_options(${Sanitizer_TARGET} PRIVATE -fno-sanitize=signed-integer-overflow)

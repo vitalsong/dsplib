@@ -420,29 +420,36 @@ protected:
 };
 
 //--------------------------------------------------------------------------------
-template<class T>
-inline base_array<T> operator+(const real_t& lhs, const base_array<T>& rhs) {
-    return rhs + lhs;
+//left oriented scalar * array
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
+         class _C = typename enable_convertible_t<Scalar, R>::type>
+inline base_array<R> operator+(const Scalar& lhs, const base_array<T>& rhs) {
+    return rhs + R(lhs);
 }
 
-template<class T>
-inline base_array<T> operator-(const real_t& lhs, const base_array<T>& rhs) {
-    base_array<T> r(rhs);
-    return (-r) + lhs;
-}
-
-template<class T>
-inline base_array<T> operator*(const real_t& lhs, const base_array<T>& rhs) {
-    return rhs * lhs;
-}
-
-template<class T>
-inline base_array<T> operator/(const real_t& lhs, const base_array<T>& rhs) {
-    base_array<T> r(rhs);
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
+         class _C = typename enable_convertible_t<Scalar, R>::type>
+inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
+    base_array<R> r(rhs);
     for (size_t i = 0; i < r.size(); ++i) {
-        r[i] = lhs / rhs[i];
+        r[i] = R(lhs) - rhs[i];
     }
+    return r;
+}
 
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
+         class _C = typename enable_convertible_t<Scalar, R>::type>
+inline base_array<R> operator*(const Scalar& lhs, const base_array<T>& rhs) {
+    return rhs * R(lhs);
+}
+
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
+         class _C = typename enable_convertible_t<Scalar, R>::type>
+inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
+    base_array<R> r(rhs);
+    for (size_t i = 0; i < r.size(); ++i) {
+        r[i] = R(lhs) / rhs[i];
+    }
     return r;
 }
 
