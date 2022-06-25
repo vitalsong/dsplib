@@ -1,19 +1,21 @@
 [package]
 name = "dsplib"
-version = "0.17.1"
+version = "0.18.0"
 
 [lib]
 lang = "c++11"
 
 [[test]]
 lang = "c++17"
+name = "dsplib-test"
+path = "tests"
 
 [[example]]
 lang = "c++17"
 
 [dev-dependencies]
 gtest = { git = "https://github.com/google/googletest.git", rev = "release-1.11.0" }
-matplot = { git = "https://github.com/alandefreitas/matplotplusplus.git" }
+matplot = { git = "https://github.com/alandefreitas/matplotplusplus.git", processor = "x86_64" }
 
 [options.gtest]
 BUILD_GMOCK = false

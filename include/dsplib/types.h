@@ -85,9 +85,10 @@ struct cmplx_t
     constexpr cmplx_t(const cmplx_t&) = default;
 
     //scalar -> cmplx_t
-    template<typename T, class _S = typename enable_scalar_t<T>::type>
-    cmplx_t(const T& v) {
-        *this = to_cmplx_cast(v);
+    template<typename T, class _S = typename std::is_arithmetic<T>::type>
+    constexpr cmplx_t(const T& v)
+      : re{static_cast<real_t>(v)}
+      , im{0} {
     }
 
     //std::complex -> cmplx_t
@@ -101,8 +102,8 @@ struct cmplx_t
         return from_cmplx_cast<T>(*this);
     }
 
-    real_t re;
-    real_t im;
+    real_t re{0};
+    real_t im{0};
 
     cmplx_t& operator=(const cmplx_t&) = default;
 
@@ -231,7 +232,6 @@ inline cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
 }
 
 //cast rules
-
 template<typename T>
 struct cmplx_convert_to_t<T, typename enable_scalar_t<T>::type> : std::true_type
 {

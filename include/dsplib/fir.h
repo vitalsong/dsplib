@@ -18,7 +18,13 @@ public:
     arr_real process(const arr_real& s);
 
     //current impulse response
-    const arr_real& impz() const;
+    const arr_real& coeffs() const {
+        return _h;
+    }
+
+    arr_real& coeffs() {
+        return _h;
+    }
 
     //convolution operation
     static arr_real conv(const arr_real& x, const arr_real& h);
@@ -45,7 +51,13 @@ public:
     arr_cmplx process(const arr_cmplx& s);
 
     //current impulse response
-    const arr_cmplx& impz() const;
+    const arr_cmplx& coeffs() const {
+        return _h;
+    }
+
+    arr_cmplx& coeffs() {
+        return _h;
+    }
 
     //convolution operation
     static arr_cmplx conv(const arr_cmplx& x, const arr_cmplx& h);

@@ -15,7 +15,7 @@ public:
       , _mu{forget_factor} {
         //init filter
         _w = dsplib::zeros(_n);
-        _u = dsplib::zeros(_n - 1);
+        _u = dsplib::zeros(_n);
 
         //identity matrix
         _P = dsplib::zeros(_n * _n);
@@ -44,8 +44,8 @@ public:
         return _locked;
     }
 
-    base_array<T> coeffs() const {
-        return flip(_w);
+    const base_array<T>& coeffs() const {
+        return _w;
     }
 
 private:
@@ -70,25 +70,22 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
     }
 
     const int nx = x.size();
-    base_array<T> y = zeros(nx);
-    base_array<T> e = zeros(nx);
-    base_array<T> tu = _u | x;
-    base_array<T> g = zeros(_n);
-
-    //update delay
-    _u = tu.slice(nx, nx + _n - 1);
+    base_array<T> y(nx);
+    base_array<T> e(nx);
+    base_array<T> g(_n);
 
     //TODO: use matrix syntax
 
-    base_array<T> Pu = zeros(_n);
-    base_array<T> uTP = zeros(_n);
-    base_array<T> gu = zeros(_n * _n);
-    base_array<T> guP = zeros(_n * _n);
-    base_array<T> u = zeros(_n);
+    base_array<T> Pu(_n);
+    base_array<T> uTP(_n);
+    base_array<T> gu(_n * _n);
+    base_array<T> guP(_n * _n);
 
     for (size_t idx = 0; idx < nx; idx++) {
-        u = tu.slice(idx, idx + _n);
-        y[idx] = sum(_w * u);
+        memmove(_u.data() + 1, _u.data(), (_n - 1) * sizeof(T));
+        _u[0] = x[idx];
+
+        y[idx] = sum(_w * _u);
         e[idx] = d[idx] - y[idx];
 
         if (_locked) {
@@ -101,7 +98,7 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             std::fill(Pu.begin(), Pu.end(), 0);
             for (size_t i = 0; i < _n; i++) {
                 for (size_t k = 0; k < _n; k++) {
-                    Pu[i] += _P[i * _n + k] * u[k];
+                    Pu[i] += _P[i * _n + k] * _u[k];
                 }
             }
 
@@ -109,12 +106,12 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             std::fill(uTP.begin(), uTP.end(), 0);
             for (size_t i = 0; i < _n; i++) {
                 for (size_t k = 0; k < _n; k++) {
-                    uTP[i] += conj(u[k]) * _P[k * _n + i];
+                    uTP[i] += conj(_u[k]) * _P[k * _n + i];
                 }
             }
 
             //mu + u.H * P * u
-            g = Pu / (_mu + sum(uTP * u));
+            g = Pu / (_mu + sum(uTP * _u));
         }
 
         //P = (1/mu) * (P - g * u.H * P);
@@ -122,7 +119,7 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             //gu = g * u.H
             std::fill(gu.begin(), gu.end(), 0);
             for (size_t i = 0; i < _n; i++) {
-                gu.slice(i * _n, (i + 1) * _n) = conj(u) * g[i];
+                gu.slice(i * _n, (i + 1) * _n) = conj(_u) * g[i];
             }
 
             //gu * P
