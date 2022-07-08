@@ -1,7 +1,7 @@
 #include <dsplib/awgn.h>
 #include <dsplib/math.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <random>
 

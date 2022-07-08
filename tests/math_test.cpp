@@ -83,10 +83,28 @@ TEST(MathTest, Angle) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Randn) {
-    auto x = randn(32767);
+TEST(MathTest, NormalDist) {
+    auto x = randn(1e6);
     auto s = stddev(x);
-    EXPECT_NEAR(s, 1, 0.02f);
+    EXPECT_NEAR(s, 1, 1e-2);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, UniformDist) {
+    auto x = rand(1e6);
+    auto s = stddev(x);
+    EXPECT_NEAR(s, 0.2887, 1e-2);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, UniformIntDist) {
+    int imax = 1e4;
+    auto x = randi(imax, 1e6);
+    auto xf = arr_real(x);
+    auto s = stddev(xf);
+    EXPECT_GE(min(xf), 1);
+    EXPECT_LE(max(xf), imax);
+    EXPECT_NEAR(s / imax, 0.2887, 1e-2);
 }
 
 //-------------------------------------------------------------------------------------------------

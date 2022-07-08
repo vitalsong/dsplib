@@ -465,5 +465,6 @@ inline base_array<cmplx_t> operator*(const std::complex<double>& lhs, const base
 //----------------------------------------------------------------------------------------
 using arr_real = base_array<real_t>;
 using arr_cmplx = base_array<cmplx_t>;
+using arr_int = base_array<int>;
 
 }   // namespace dsplib

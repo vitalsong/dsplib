@@ -64,7 +64,7 @@ TEST(MathTest, Czt) {
 TEST(MathTest, CztICzt) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
-        int n = rand() % 2000 + 16;
+        int n = randi({16, 2000});
         arr_cmplx x_in = randn(n) + 1i * randn(n);
         auto y = czt(x_in, n, expj(-2 * pi / n));
         auto x_out = czt(y, n, expj(2 * pi / n)) / n;
@@ -76,7 +76,7 @@ TEST(MathTest, CztICzt) {
 TEST(MathTest, CztFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
-        int n = rand() % 2000 + 16;
+        int n = randi({16, 2000});
         n = 1L << nextpow2(n);
         cmplx_t w = expj(-2 * pi / n);
         arr_cmplx x = randn(n) + 1i * randn(n);
@@ -90,7 +90,7 @@ TEST(MathTest, CztFft2) {
 TEST(MathTest, CztIFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
-        int n = rand() % 2000 + 16;
+        int n = randi({16, 2000});
         n = 1L << nextpow2(n);
         cmplx_t w = expj(2 * pi / n);
         arr_cmplx x = randn(n) + 1i * randn(n);
