@@ -1,7 +1,9 @@
 #pragma once
 
 #include <dsplib/array.h>
+
 #include <limits>
+#include <array>
 
 namespace dsplib {
 

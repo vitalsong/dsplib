@@ -152,6 +152,17 @@ TEST(ArrCmplxTest, UnpackCmplx) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, UnpackStdComplex) {
+    arr_cmplx r1 = {1.0i, -2.0i, -3.0i, +4.0i};
+    std::vector<std::complex<float>> r2 = r1.to_vec<std::complex<float>>();
+    ASSERT_EQ(r1.size(), r2.size());
+    for (int i = 0; i < r1.size(); ++i) {
+        EXPECT_NEAR(r1[i].re, r2[i].real(), eps());
+        EXPECT_NEAR(r1[i].im, r2[i].imag(), eps());
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(ArrCmplxTest, VecToArray) {
     {
         std::vector<short> x = {1, 2, -3, -2};

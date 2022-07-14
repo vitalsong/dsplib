@@ -252,7 +252,7 @@ template<typename T>
 struct cmplx_convert_from_t<std::complex<T>> : std::true_type
 {
     static std::complex<T> cast(const cmplx_t& v) {
-        return std::complex<T>{v.re, v.im};
+        return std::complex<T>{static_cast<T>(v.re), static_cast<T>(v.im)};
     }
 };
 
