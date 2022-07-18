@@ -153,6 +153,10 @@ arr_real randn(int n);
 arr_real downsample(const arr_real& arr, int n, int phase = 0);
 arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
 
+//increase sample rate by integer factor
+arr_real upsample(const arr_real& arr, int n, int phase = 0);
+arr_cmplx upsample(const arr_cmplx& arr, int n, int phase = 0);
+
 //abs(x)^2
 arr_real abs2(const arr_cmplx& x);
 real_t abs2(const cmplx_t& x);

@@ -130,17 +130,56 @@ TEST(MathTest, Exp) {
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Downsample) {
     {
-        arr_real x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        arr_real y = {1, 4, 7, 10};
-        auto r = downsample(x, 3);
-        ASSERT_EQ_ARR_REAL(y, r);
+        auto r = downsample(arr_real{1, 2, 3, 4}, 1);
+        ASSERT_EQ_ARR_REAL(arr_real{1, 2, 3, 4}, r);
     }
 
     {
-        arr_cmplx x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        arr_cmplx y = {3, 6, 9};
-        auto r = downsample(x, 3, 2);
-        ASSERT_EQ_ARR_CMPLX(y, r);
+        auto r = downsample(arr_real{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 3);
+        ASSERT_EQ_ARR_REAL(arr_real{1, 4, 7, 10}, r);
+    }
+
+    {
+        auto r = downsample(arr_cmplx{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 3, 2);
+        ASSERT_EQ_ARR_CMPLX(arr_cmplx{3, 6, 9}, r);
+    }
+
+    {
+        auto r = downsample(arr_real{0, 1, 2, 3, 4, 5, 6}, 3, 1);
+        ASSERT_EQ_ARR_REAL(arr_real{1, 4}, r);
+    }
+
+    {
+        auto r = downsample(arr_real{0, 1, 2, 3, 4, 5, 6, 7}, 3, 1);
+        ASSERT_EQ_ARR_REAL(arr_real{1, 4, 7}, r);
+    }
+
+    {
+        auto r = downsample(arr_real{0, 1, 2, 3, 4, 5, 6, 8}, 3, 0);
+        ASSERT_EQ_ARR_REAL(arr_real{0, 3, 6}, r);
+    }
+
+    {
+        auto r = downsample(arr_real{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, 3, 0);
+        ASSERT_EQ_ARR_REAL(arr_real{0, 3, 6, 9}, r);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Upsample) {
+    {
+        auto r = upsample(arr_real{0, 1, 2, 3}, 2);
+        ASSERT_EQ_ARR_REAL(arr_real{0, 0, 1, 0, 2, 0, 3, 0}, r);
+    }
+
+    {
+        auto r = upsample(arr_real{0, 1, 2, 3}, 2, 1);
+        ASSERT_EQ_ARR_REAL(arr_real{0, 0, 0, 1, 0, 2, 0, 3}, r);
+    }
+
+    {
+        auto r = upsample(arr_real{0, 1, 2, 3}, 1, 0);
+        ASSERT_EQ_ARR_REAL(arr_real{0, 1, 2, 3}, r);
     }
 }
 

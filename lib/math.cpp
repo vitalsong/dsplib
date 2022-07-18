@@ -538,14 +538,23 @@ cmplx_t expj(real_t im) {
 
 //-------------------------------------------------------------------------------------------------
 template<class T>
-static T _downsample(const T& arr, int n, int phase = 0) {
-    if (n == 0) {
+static T _downsample(const T& arr, int n, int phase) {
+    if (n <= 0) {
         throw std::invalid_argument("downsample factor must be greater 0");
     }
 
-    T r;
-    for (size_t i = phase; i < arr.size(); i += n) {
-        r.push_back(arr[i]);
+    if (phase >= n || phase < 0) {
+        throw std::invalid_argument("phase must be [0, N-1]");
+    }
+
+    if (n == 1) {
+        return arr;
+    }
+
+    const int nr = (arr.size() - phase - 1) / n + 1;
+    T r(nr);
+    for (size_t i = 0, k = phase; k < arr.size(); ++i, k += n) {
+        r[i] = arr[k];
     }
     return r;
 }
@@ -558,6 +567,38 @@ arr_real downsample(const arr_real& arr, int n, int phase) {
 //-------------------------------------------------------------------------------------------------
 arr_cmplx downsample(const arr_cmplx& arr, int n, int phase) {
     return _downsample(arr, n, phase);
+}
+
+//-------------------------------------------------------------------------------------------------
+template<class T>
+static T _upsample(const T& arr, int n, int phase) {
+    if (n <= 0) {
+        throw std::invalid_argument("upsample factor must be greater 0");
+    }
+
+    if (phase >= n || phase < 0) {
+        throw std::invalid_argument("phase must be [0, N-1]");
+    }
+
+    if (n == 1) {
+        return arr;
+    }
+
+    T r(arr.size() * n);
+    for (size_t i = 0, k = phase; k < r.size(); ++i, k += n) {
+        r[k] = arr[i];
+    }
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real upsample(const arr_real& arr, int n, int phase) {
+    return _upsample(arr, n, phase);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx upsample(const arr_cmplx& arr, int n, int phase) {
+    return _upsample(arr, n, phase);
 }
 
 //-------------------------------------------------------------------------------------------------
