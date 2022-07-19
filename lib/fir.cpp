@@ -69,7 +69,7 @@ static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int n
     for (int i = 0; i < nr; ++i) {
         r[i] = 0;
         for (int k = 0; k < nh; ++k) {
-            r[i] += x[i + k] * h[k];
+            r[i] += x[i + k] * conj(h[nh - k - 1]);
         }
     }
 }
@@ -77,16 +77,14 @@ static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int n
 //-------------------------------------------------------------------------------------------------
 arr_real fir::conv(const arr_real& x, const arr_real& h) {
     arr_real r(x.size() - h.size() + 1);
-    auto hh = flip(h);
-    _conv(x.data(), hh.data(), r.data(), hh.size(), x.size());
+    _conv(x.data(), h.data(), r.data(), h.size(), x.size());
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx fir_cmplx::conv(const arr_cmplx& x, const arr_cmplx& h) {
     arr_cmplx r(x.size() - h.size() + 1);
-    auto hh = conj(flip(h));
-    _conv(x.data(), hh.data(), r.data(), hh.size(), x.size());
+    _conv(x.data(), h.data(), r.data(), h.size(), x.size());
     return r;
 }
 
