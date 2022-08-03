@@ -40,6 +40,9 @@ public:
         rhs._data = nullptr;
     }
 
+    block_t(const block_t& rhs) = delete;
+    block_t& operator=(const block_t& rhs) = delete;
+
     //--------------------------------------------------------------------
     const T& operator[](int i) const {
         return _data[i];

@@ -8,6 +8,8 @@ constexpr int MAX_POOLED_SIZE = (1L << 15);
 constexpr int BLOCK_SIZE = 512;
 constexpr int STORAGE_SIZE = MAX_POOLED_SIZE / BLOCK_SIZE + 1;
 
+constexpr size_t MEMORY_ALLOCATION_LIMIT = 1024 * 1024;   //1 MB
+
 //----------------------------------------------------------------------------------------
 template<class T>
 class storage_t
@@ -44,18 +46,18 @@ static int key_from_size(int size) {
 //---------------------------------------------------------------------------------------
 template<>
 block_t<real_t> vec_pool<real_t>::get(int size) {
-    if (size > MAX_POOLED_SIZE) {
+    if ((size > MAX_POOLED_SIZE) or (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
         return block_t<real_t>(size);
     }
 
     const int key = key_from_size(size);
     const int n = key * BLOCK_SIZE;
     if (_storage[key].size() == 0) {
-        _storage[key].push(std::move(std::vector<real_t>(n)));
+        _storage[key].push(std::vector<real_t>(n));
         _bytes_allocated += n * sizeof(real_t);
     }
 
-    return block_t<real_t>(size, std::move(_storage[key].pop()), true);
+    return block_t<real_t>(size, _storage[key].pop(), true);
 }
 
 //---------------------------------------------------------------------------------------
@@ -72,6 +74,7 @@ template<>
 block_t<real_t>::~block_t() {
     if (_use_pool) {
         const int key = key_from_size(_raw.size());
+        //TODO: perfomance problem
         std::fill(_raw.begin(), _raw.end(), 0);
         _storage[key].push(std::move(_raw));
     }
