@@ -14,7 +14,7 @@ public:
     friend vector_pool_t<real_t>;
     friend vector_pool_t<cmplx_t>;
 
-    vector_pool_t(int size)
+    explicit vector_pool_t(int size = 0)
       : vector_pool_t{instance(size)} {
     }
 
@@ -41,46 +41,53 @@ public:
     vector_pool_t& operator=(const vector_pool_t& rhs) = delete;
 
     //--------------------------------------------------------------------
-    const T& operator[](int i) const {
+    const T& operator[](int i) const noexcept {
         return _data[i];
     }
 
-    T& operator[](int i) {
+    T& operator[](int i) noexcept {
         return _data[i];
     }
 
-    T* data() const {
+    T* data() const noexcept {
         return _data;
     }
 
-    T* data() {
+    T* data() noexcept {
         return _data;
     }
 
-    int size() const {
+    int size() const noexcept {
         return _size;
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return _size == 0;
     }
 
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    void swap(vector_pool_t& other) noexcept {
+        std::swap(_raw, other._raw);
+        std::swap(_use_pool, other._use_pool);
+        std::swap(_data, other._data);
+        std::swap(_size, other._size);
+    }
 
-    iterator begin() {
+    typedef T* iterator;
+    typedef const T* const_iterator;
+
+    iterator begin() noexcept {
         return _data;
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return (_data + _size);
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return _data;
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return (_data + _size);
     }
 
@@ -99,6 +106,8 @@ private:
     std::vector<real_t> _raw;
     T* _data{nullptr};
 };
+
+std::vector<int> vector_pool_state();
 
 template<>
 vector_pool_t<real_t>::~vector_pool_t();

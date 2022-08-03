@@ -46,18 +46,26 @@ static int key_from_size(int size) {
 //---------------------------------------------------------------------------------------
 template<>
 vector_pool_t<real_t> vector_pool_t<real_t>::instance(int size) {
-    if ((size > MAX_POOLED_SIZE) or (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
-        return vector_pool_t<real_t>(size);
+    if (size == 0) {
+        return vector_pool_t<real_t>(std::vector<real_t>(size));
     }
 
     const int key = key_from_size(size);
+    auto& pool = _storage[key];
+    if ((size > MAX_POOLED_SIZE) or (pool.size() == 0 and _bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
+        return vector_pool_t<real_t>(std::vector<real_t>(size));
+    }
+
+    //TODO: get first free object from pool (not equal size)
+    //...
+
     const int n = key * BLOCK_SIZE;
-    if (_storage[key].size() == 0) {
-        _storage[key].push(std::vector<real_t>(n));
+    if (pool.size() == 0) {
+        pool.push(std::vector<real_t>(n));
         _bytes_allocated += n * sizeof(real_t);
     }
 
-    return vector_pool_t<real_t>(size, _storage[key].pop(), true);
+    return vector_pool_t<real_t>(size, pool.pop(), true);
 }
 
 //---------------------------------------------------------------------------------------
@@ -87,6 +95,16 @@ vector_pool_t<cmplx_t>::~vector_pool_t() {
         std::fill(_raw.begin(), _raw.end(), 0);
         _storage[key].push(std::move(_raw));
     }
+}
+
+std::vector<int> vector_pool_state() {
+    std::vector<int> out;
+    for (int k = 0; k < _storage.size(); ++k) {
+        for (int i = 0; i < _storage[k].size(); ++i) {
+            out.push_back(k * BLOCK_SIZE);
+        }
+    }
+    return out;
 }
 
 }   // namespace dsplib
