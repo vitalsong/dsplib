@@ -6,31 +6,28 @@
 
 namespace dsplib {
 
-template<class T>
-class vec_pool;
-
 //-------------------------------------------------------------
 template<typename T>
-class block_t
+class vector_pool_t
 {
 public:
-    friend vec_pool<real_t>;
-    friend vec_pool<cmplx_t>;
+    friend vector_pool_t<real_t>;
+    friend vector_pool_t<cmplx_t>;
 
-    ~block_t();
+    vector_pool_t(int size)
+      : vector_pool_t{instance(size)} {
+    }
 
-    block_t(std::vector<real_t>&& raw)
+    ~vector_pool_t();
+
+    vector_pool_t(std::vector<real_t>&& raw)
       : _size{static_cast<int>(raw.size())}
       , _use_pool{false}
       , _raw{std::move(raw)}
       , _data{reinterpret_cast<T*>(_raw.data())} {
     }
 
-    block_t(int size)
-      : block_t(std::move(std::vector<real_t>(size))) {
-    }
-
-    block_t(block_t&& rhs)
+    vector_pool_t(vector_pool_t&& rhs)
       : _size{rhs._size}
       , _use_pool{rhs._use_pool}
       , _raw{std::move(rhs._raw)}
@@ -40,8 +37,8 @@ public:
         rhs._data = nullptr;
     }
 
-    block_t(const block_t& rhs) = delete;
-    block_t& operator=(const block_t& rhs) = delete;
+    vector_pool_t(const vector_pool_t& rhs) = delete;
+    vector_pool_t& operator=(const vector_pool_t& rhs) = delete;
 
     //--------------------------------------------------------------------
     const T& operator[](int i) const {
@@ -88,12 +85,14 @@ public:
     }
 
 private:
-    block_t(int size, std::vector<real_t>&& raw, bool use_pool = false)
+    vector_pool_t(int size, std::vector<real_t>&& raw, bool use_pool = false)
       : _size{size}
       , _use_pool{use_pool}
       , _raw{std::move(raw)}
       , _data{reinterpret_cast<T*>(_raw.data())} {
     }
+
+    static vector_pool_t<T> instance(int size);
 
     int _size{0};
     bool _use_pool{false};
@@ -102,25 +101,15 @@ private:
 };
 
 template<>
-block_t<real_t>::~block_t();
+vector_pool_t<real_t>::~vector_pool_t();
 
 template<>
-block_t<cmplx_t>::~block_t();
-
-//-------------------------------------------------------------
-template<class T>
-class vec_pool
-{
-public:
-    static block_t<T> get(int size);
-    //TODO: max block size
-    //TODO: max allocate size
-};
+vector_pool_t<cmplx_t>::~vector_pool_t();
 
 template<>
-block_t<real_t> vec_pool<real_t>::get(int size);
+vector_pool_t<real_t> vector_pool_t<real_t>::instance(int size);
 
 template<>
-block_t<cmplx_t> vec_pool<cmplx_t>::get(int size);
+vector_pool_t<cmplx_t> vector_pool_t<cmplx_t>::instance(int size);
 
 }   // namespace dsplib

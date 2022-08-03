@@ -45,9 +45,9 @@ static int key_from_size(int size) {
 
 //---------------------------------------------------------------------------------------
 template<>
-block_t<real_t> vec_pool<real_t>::get(int size) {
+vector_pool_t<real_t> vector_pool_t<real_t>::instance(int size) {
     if ((size > MAX_POOLED_SIZE) or (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
-        return block_t<real_t>(size);
+        return vector_pool_t<real_t>(size);
     }
 
     const int key = key_from_size(size);
@@ -57,21 +57,21 @@ block_t<real_t> vec_pool<real_t>::get(int size) {
         _bytes_allocated += n * sizeof(real_t);
     }
 
-    return block_t<real_t>(size, _storage[key].pop(), true);
+    return vector_pool_t<real_t>(size, _storage[key].pop(), true);
 }
 
 //---------------------------------------------------------------------------------------
 template<>
-block_t<cmplx_t> vec_pool<cmplx_t>::get(int size) {
-    auto block = vec_pool<real_t>::get(size * 2);
-    block_t<cmplx_t> res(size, std::move(block._raw), block._use_pool);
+vector_pool_t<cmplx_t> vector_pool_t<cmplx_t>::instance(int size) {
+    auto block = vector_pool_t<real_t>::instance(size * 2);
+    vector_pool_t<cmplx_t> res(size, std::move(block._raw), block._use_pool);
     block._use_pool = false;
     return res;
 }
 
 //----------------------------------------------------------------------------------------
 template<>
-block_t<real_t>::~block_t() {
+vector_pool_t<real_t>::~vector_pool_t() {
     if (_use_pool) {
         const int key = key_from_size(_raw.size());
         //TODO: perfomance problem
@@ -81,7 +81,7 @@ block_t<real_t>::~block_t() {
 }
 
 template<>
-block_t<cmplx_t>::~block_t() {
+vector_pool_t<cmplx_t>::~vector_pool_t() {
     if (_use_pool) {
         const int key = key_from_size(_raw.size());
         std::fill(_raw.begin(), _raw.end(), 0);
