@@ -1,5 +1,7 @@
 # DSPLIB
-![testing](https://github.com/vitalsong/dsplib/actions/workflows/dsplib-ci.yml/badge.svg)
+![testing](https://github.com/vitalsong/dsplib/actions/workflows/android-ndk.yml/badge.svg)
+![testing](https://github.com/vitalsong/dsplib/actions/workflows/linux.yml/badge.svg)
+![testing](https://github.com/vitalsong/dsplib/actions/workflows/windows.yml/badge.svg)
 
 C++ DSP library for MATLAB similar programming.
 
