@@ -12,6 +12,15 @@
 
 namespace dsplib {
 
+//select of allocator at compile time
+#ifdef DSPLIB_POOL_ALLOCATOR
+template<typename T>
+using vec_alloc = pool_allocator<T>;
+#else
+template<typename T>
+using vec_alloc = std::allocator<T>;
+#endif
+
 template<bool _Cond, typename _Iftrue, typename _Iffalse>
 using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
 
@@ -162,8 +171,8 @@ public:
     }
 
     //--------------------------------------------------------------------
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    typedef typename std::vector<T, vec_alloc<T>>::iterator iterator;
+    typedef typename std::vector<T, vec_alloc<T>>::const_iterator const_iterator;
 
     iterator begin() noexcept {
         return _vec.begin();
@@ -441,7 +450,7 @@ public:
     }
 
 protected:
-    std::vector<T, allocator<T>> _vec;
+    std::vector<T, vec_alloc<T>> _vec;
 };
 
 //--------------------------------------------------------------------------------
