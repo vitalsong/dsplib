@@ -142,14 +142,17 @@ std::vector<pool_info_t> pool_info() {
         auto& pool = _storage[k];
         for (int i = 0; i < pool.size(); ++i) {
             auto pool_size = size_by_key(k);
-            out.push_back({.used = false, .size = pool_size});
+            pool_info_t info = {false, pool_size};
+            out.push_back(info);
         }
     }
 
     //used blocks
-    for (auto [ptr, key] : _alocate_map) {
+    for (auto it : _alocate_map) {
+        auto key = it.second;
         auto pool_size = size_by_key(key);
-        out.push_back({.used = true, .size = pool_size});
+        pool_info_t info = {true, pool_size};
+        out.push_back(info);
     }
 
     return out;

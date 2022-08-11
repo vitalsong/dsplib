@@ -25,6 +25,10 @@ void pool_free(void* ptr);
 //TODO: allocated/free
 struct pool_info_t
 {
+    pool_info_t(bool used, int size)
+      : used(used)
+      , size(size) {
+    }
     bool used{false};
     int size{0};
 };
