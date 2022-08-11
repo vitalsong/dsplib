@@ -6,7 +6,9 @@
 
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
+#include <dsplib/allocator.h>
 #include <dsplib/indexing.h>
+#include <memory.h>
 
 namespace dsplib {
 
@@ -28,9 +30,8 @@ class base_array
 public:
     base_array() = default;
 
-    explicit base_array(int n) {
-        _vec.resize(n);
-        std::fill(_vec.data(), _vec.data() + n, 0);
+    explicit base_array(int n)
+      : _vec(n) {
     }
 
     base_array(const const_slice_t<T>& rhs) {
@@ -54,13 +55,13 @@ public:
 
     //TODO: remove explicit?
     explicit base_array(const std::vector<T>& v)
-      : _vec(v) {
+      : _vec(v.begin(), v.end()) {
     }
 
     template<typename T2>
-    explicit base_array(const std::vector<T2>& v) {
+    explicit base_array(const std::vector<T2>& v)
+      : _vec{v.begin(), v.end()} {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
-        _vec.assign(v.begin(), v.end());
     }
 
     base_array(std::vector<T>&& v)
@@ -72,7 +73,8 @@ public:
     }
 
     template<class T2>
-    base_array(const base_array<T2>& v) {
+    base_array(const base_array<T2>& v)
+      : _vec(v.size()) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
         _vec.assign(v.begin(), v.end());
     }
@@ -81,14 +83,15 @@ public:
       : _vec(std::move(v._vec)) {
     }
 
-    base_array(const std::initializer_list<T>& list) {
-        _vec = std::vector<T>(list);
+    base_array(const std::initializer_list<T>& v)
+      : _vec{v.begin(), v.end()} {
     }
 
     template<typename T2>
-    explicit base_array(const T2* x, size_t nx) {
+    explicit base_array(const T2* x, size_t nx)
+      : _vec(nx) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
-        _vec.insert(_vec.end(), x, x + nx);
+        _vec.assign(x, x + nx);
     }
 
     //--------------------------------------------------------------------
@@ -173,28 +176,7 @@ public:
         return _vec.end();
     }
 
-    void push_back(const T& v) {
-        _vec.push_back(v);
-    }
-
-    void push_front(const T& v) {
-        _vec.insert(_vec.begin(), v);
-    }
-
-    T pop_back() {
-        auto r = _vec.back();
-        _vec.pop_back();
-        return r;
-    }
-
-    T pop_front() {
-        auto r = _vec.front();
-        std::memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
-        _vec.resize(_vec.size() - 1);
-        return r;
-    }
-
-    T* data() noexcept {
+    T* data() {
         return _vec.data();
     }
 
@@ -425,7 +407,7 @@ public:
     }
 
 protected:
-    std::vector<T> _vec;
+    std::vector<T, allocator<T>> _vec;
 };
 
 //--------------------------------------------------------------------------------
