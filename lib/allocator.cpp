@@ -4,26 +4,28 @@
 #include <vector>
 #include <cassert>
 #include <unordered_map>
+#include <stdexcept>
 
 namespace dsplib {
 
 //----------------------------------------------------------------------------------------
 constexpr int MAX_POOLED_SIZE = (1L << 15);
+constexpr int SMALL_BLOCK_SIZE = 64;
 constexpr int BLOCK_SIZE = 512;
 constexpr int STORAGE_COUNT = MAX_POOLED_SIZE / BLOCK_SIZE + 1;
-constexpr size_t MEMORY_ALLOCATION_LIMIT = 1024 * 1024;   //1 MB
+constexpr size_t MEMORY_ALLOCATION_LIMIT = 1024 * 1024;   //1 MB (TODO: set from options)
+constexpr int NOT_POOLED_KEY = -1;
 
 //----------------------------------------------------------------------------------------
-template<class T>
 class storage_t
 {
 public:
-    void push(T&& e) {
-        _pool.push_back(std::move(e));
+    void push(void* e) {
+        _pool.push_back(e);
     }
 
-    T pop() {
-        auto e = std::move(_pool.back());
+    void* pop() {
+        auto e = _pool.back();
         _pool.pop_back();
         return e;
     }
@@ -33,67 +35,123 @@ public:
     }
 
 private:
-    std::vector<T> _pool;
+    std::vector<void*> _pool;
 };
 
 //----------------------------------------------------------------------------------------
-using vec_pool_t = storage_t<void*>;
-static thread_local std::vector<vec_pool_t> _storage(STORAGE_COUNT);
+static thread_local std::vector<storage_t> _storage(STORAGE_COUNT);
 static thread_local size_t _bytes_allocated{0};
 static thread_local std::unordered_map<void*, int> _alocate_map;
 
-constexpr int key_from_size(int size) {
+static int key_by_size(int size) {
+    assert(size <= MAX_POOLED_SIZE);
+    if (size <= SMALL_BLOCK_SIZE) {
+        return 0;
+    }
     return (size % BLOCK_SIZE == 0) ? (size / BLOCK_SIZE) : (size / BLOCK_SIZE + 1);
+}
+
+static int size_by_key(int key) {
+    assert(key >= 0 and key < STORAGE_COUNT);
+    if (key == 0) {
+        return SMALL_BLOCK_SIZE;
+    }
+    return key * BLOCK_SIZE;
+}
+
+//----------------------------------------------------------------------------------------
+void pool_init(std::vector<int> map) {
+    int bytes_needed = 0;
+    for (auto size : map) {
+        int pool_size = size_by_key(key_by_size(size));
+        bytes_needed += pool_size;
+    }
+
+    if ((bytes_needed + _bytes_allocated) > MEMORY_ALLOCATION_LIMIT) {
+        throw std::runtime_error("Limit is exceeded. Memory has not been allocated.");
+    }
+
+    //warm up the memory pool
+    for (auto size : map) {
+        auto ptr = pool_alloc(size);
+        pool_free(ptr);
+    }
+}
+
+//----------------------------------------------------------------------------------------
+void pool_reset() {
+    for (int key = 0; key < _storage.size(); ++key) {
+        auto& pool = _storage[key];
+        while (pool.size() > 0) {
+            auto ptr = pool.pop();
+            free(ptr);
+            _bytes_allocated -= size_by_key(key);
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------------
 void* pool_alloc(size_t size) {
     if (size > MAX_POOLED_SIZE) {
         auto ptr = malloc(size);
-        _alocate_map[ptr] = 0;
+        _alocate_map[ptr] = NOT_POOLED_KEY;
         return ptr;
     }
 
-    const int key = key_from_size(size);
+    const int key = key_by_size(size);
     auto& pool = _storage[key];
-    const int cap = key * BLOCK_SIZE;
+    const int cap = size_by_key(key);
 
     //TODO: get first free object from pool (not equal size)
     if ((pool.size() == 0) and (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
         auto ptr = malloc(size);
-        _alocate_map[ptr] = 0;
+        _alocate_map[ptr] = NOT_POOLED_KEY;
         return ptr;
     }
 
+    //add block to pool
     if (pool.size() == 0) {
         auto ptr = malloc(cap);
-        _alocate_map[ptr] = key;
-        pool.push(std::move(ptr));
+        pool.push(ptr);
         _bytes_allocated += cap;
     }
 
-    return pool.pop();
+    auto ptr = pool.pop();
+    _alocate_map[ptr] = key;
+    return ptr;
 }
 
 //----------------------------------------------------------------------------------------
 void pool_free(void* ptr) {
-    assert(_alocate_map.count(ptr) != 0);
-    auto key = _alocate_map[ptr];
-    if (key == 0) {
+    assert(_alocate_map.count(ptr) == 1);
+    auto key = _alocate_map.at(ptr);
+    _alocate_map.erase(ptr);
+    if (key == NOT_POOLED_KEY) {
         free(ptr);
     } else {
         auto& pool = _storage[key];
-        pool.push(std::move(ptr));
+        pool.push(ptr);
     }
 }
 
-std::vector<int> pool_info() {
-    std::vector<int> out;
+std::vector<pool_info_t> pool_info() {
+    std::vector<pool_info_t> out;
+
+    //free blocks
     for (int k = 0; k < _storage.size(); ++k) {
-        for (int i = 0; i < _storage[k].size(); ++i) {
-            out.push_back(k * BLOCK_SIZE);
+        auto& pool = _storage[k];
+        for (int i = 0; i < pool.size(); ++i) {
+            auto pool_size = size_by_key(k);
+            out.push_back({.used = false, .size = pool_size});
         }
     }
+
+    //used blocks
+    for (auto [ptr, key] : _alocate_map) {
+        auto pool_size = size_by_key(key);
+        out.push_back({.used = true, .size = pool_size});
+    }
+
     return out;
 }
 

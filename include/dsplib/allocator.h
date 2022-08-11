@@ -9,7 +9,11 @@ template<class T>
 inline void unused(T&&) {
 }
 
-//TODO: init pool table
+//init pool table
+void pool_init(std::vector<int> map);
+
+//release all free memory blocks
+void pool_reset();
 
 //allocate memory block from pool
 void* pool_alloc(size_t size);
@@ -19,7 +23,13 @@ void pool_free(void* ptr);
 
 //current pool state
 //TODO: allocated/free
-std::vector<int> pool_info();
+struct pool_info_t
+{
+    bool used{false};
+    int size{0};
+};
+
+std::vector<pool_info_t> pool_info();
 
 template<typename T>
 class pool_allocator : public std::allocator<T>
