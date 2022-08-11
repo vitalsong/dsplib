@@ -1,11 +1,20 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 #include <stdio.h>
 
-#include <dsplib/mempool.h>
-
 namespace dsplib {
+
+//allocate memory block from pool
+void* pool_alloc(size_t size);
+
+//free (return) memory block to pool
+void pool_free(void* ptr);
+
+//current pool state
+//TODO: allocated/free
+std::vector<int> pool_info();
 
 template<typename T>
 class allocator : public std::allocator<T>
@@ -20,7 +29,7 @@ public:
     { typedef allocator<_Tp1> other; };
 
     pointer allocate(size_type n, const void* hint = 0) {
-        return (pointer)pool_alloc(n * sizeof(T));
+        return reinterpret_cast<pointer>(pool_alloc(n * sizeof(T)));
     }
 
     void deallocate(pointer p, size_type n) {

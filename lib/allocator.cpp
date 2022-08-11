@@ -1,4 +1,5 @@
-#include <dsplib/mempool.h>
+#include <dsplib/allocator.h>
+
 #include <memory>
 #include <vector>
 #include <cassert>
@@ -47,7 +48,6 @@ constexpr int key_from_size(int size) {
 
 //----------------------------------------------------------------------------------------
 void* pool_alloc(size_t size) {
-    //TODO: type align
     if (size > MAX_POOLED_SIZE) {
         auto ptr = malloc(size);
         _alocate_map[ptr] = 0;

@@ -64,11 +64,11 @@ public:
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
     }
 
-    base_array(std::vector<T>&& v)
+    base_array(std::vector<T>&& v) noexcept
       : _vec(std::move(v)) {
     }
 
-    base_array(const base_array<T>& v)
+    base_array(const base_array<T>& v) noexcept
       : _vec(v._vec) {
     }
 
@@ -79,7 +79,7 @@ public:
         _vec.assign(v.begin(), v.end());
     }
 
-    base_array(base_array<T>&& v)
+    base_array(base_array<T>&& v) noexcept
       : _vec(std::move(v._vec)) {
     }
 
@@ -108,7 +108,7 @@ public:
         return *this;
     }
 
-    base_array<T>& operator=(base_array<T>&& rhs) {
+    base_array<T>& operator=(base_array<T>&& rhs) noexcept {
         if (this == &rhs) {
             return *this;
         }
@@ -176,7 +176,28 @@ public:
         return _vec.end();
     }
 
-    T* data() {
+    void push_back(const T& v) {
+        _vec.push_back(v);
+    }
+
+    void push_front(const T& v) {
+        _vec.insert(_vec.begin(), v);
+    }
+
+    T pop_back() {
+        auto r = _vec.back();
+        _vec.pop_back();
+        return r;
+    }
+
+    T pop_front() {
+        auto r = _vec.front();
+        std::memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
+        _vec.resize(_vec.size() - 1);
+        return r;
+    }
+
+    T* data() noexcept {
         return _vec.data();
     }
 
@@ -233,7 +254,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator/=(const T2& rhs) {
+    base_array<R>& operator/=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs;
