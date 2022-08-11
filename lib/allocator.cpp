@@ -52,7 +52,7 @@ static int key_by_size(int size) {
 }
 
 static int size_by_key(int key) {
-    assert(key >= 0 and key < STORAGE_COUNT);
+    assert((key >= 0) && (key < STORAGE_COUNT));
     if (key == 0) {
         return SMALL_BLOCK_SIZE;
     }
@@ -103,7 +103,7 @@ void* pool_alloc(size_t size) {
     const int cap = size_by_key(key);
 
     //TODO: get first free object from pool (not equal size)
-    if ((pool.size() == 0) and (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
+    if ((pool.size() == 0) && (_bytes_allocated > MEMORY_ALLOCATION_LIMIT)) {
         auto ptr = malloc(size);
         _alocate_map[ptr] = NOT_POOLED_KEY;
         return ptr;
