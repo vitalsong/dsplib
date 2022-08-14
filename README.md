@@ -50,18 +50,7 @@ arr_cmplx y6 = x1 * 2i;
 ### Slicing
 The behavior of slices is as close as possible to numpy. Except for cases with invalid indexes, in which case numpy does not throw an exception.
 ```cpp
-arr_real x = {0, 1, 2, 3, 4, 5, 6};
-x.slice(0, 2) ///{0, 1}
-x.slice(2, -1) ///{2, 3, 4, 5}
-x.slice(-1, 0, -1) ///{6, 5, 4, 3, 2, 1}
-x.slice(-1, 0) ///OUT_OF_RANGE, but numpy returns []
-x.slice(0, -1, -1) ///OUT_OF_RANGE, but numpy returns []
-x.slice(-8, 7) ///OUT_OF_RANGE, but numpy returns [0 1 2 3 4 5 6]
-```
-
-### Fast Fourier Transform:
-The FFT/IFFT calculation table is cached on first run. To eliminate this behavior, you can use the fft_plan object.
-```cpp
+using namespace dsplib;
 arr_real x = randn(512);
 arr_cmplx y = fft(x);
 ```
@@ -102,7 +91,7 @@ arr_real x2 = awgn(x1, 10);
 arr_real y = xcorr(x1, x2);
 ```
 
-### Spectrum Analyze (16-bit scale):
+Simple Spectrum Analyze (16-bit scale):
 ```cpp
 int nfft = 1024;
 arr_real x = randn(nfft) * 1000;
@@ -112,3 +101,7 @@ arr_cmplx y = fft(x) / (nfft / 2);
 arr_real z = abs(y);
 z = log10(z / 0x7FFF) * 20;
 ```
+
+## Allocation
+
+On some platforms (for example, Android) there may be performance issues due to slow memory allocation for the vector. In this case, try enabling a custom allocator via the DSPLIB_POOL_ALLOCATOR option and estimate its peak consumption using the dsplib::pool_state function.

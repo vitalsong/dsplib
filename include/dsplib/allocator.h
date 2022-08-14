@@ -2,27 +2,38 @@
 
 #include <vector>
 #include <memory>
+#include <cassert>
 
 namespace dsplib {
+
+// Implementation of an allocator as a pool of memory blocks.
+// Used to allocate memory for a vector on platforms where frequent malloc() calls are critical.
+// For each memory request, a free block is checked.
+// If there are no free blocks, then memory is allocated using malloc(), the pointer is placed in the pool
+// and returned as a temporary object.
+// When the memory allocation limit is exceeded, the allocation will be performed in the standard way.
+// Block sizes are multiples of 512 bytes, i.e. 512, 1024, 1536 ... MAX_POOLED_SIZE
+// There is also a separate pool of 64 bytes for small objects.
+// Alignment of the real_t/cmplx_t pointer is guaranteed by the malloc implementation.
 
 template<class T>
 inline void unused(T&&) {
 }
 
-//init pool table
+// Init pool table
+// Prepare a pool of objects if the block sizes are known in advance.
+// For evaluation, you can use function pool_info() after running your algorithm.
 void pool_init(std::vector<int> map);
 
-//release all free memory blocks
+// Release all free memory blocks
 void pool_reset();
 
-//allocate memory block from pool
+// Allocate memory block from pool
 void* pool_alloc(size_t size);
 
-//free (return) memory block to pool
+// Free (return) memory block to pool
 void pool_free(void* ptr);
 
-//current pool state
-//TODO: allocated/free
 struct pool_info_t
 {
     pool_info_t(bool used, int size)
@@ -33,6 +44,7 @@ struct pool_info_t
     int size{0};
 };
 
+// Current pool state
 std::vector<pool_info_t> pool_info();
 
 template<typename T>
@@ -49,7 +61,10 @@ public:
 
     pointer allocate(size_type n, const void* hint = 0) {
         unused(hint);
-        return reinterpret_cast<pointer>(pool_alloc(n * sizeof(T)));
+        auto ptr = pool_alloc(n * sizeof(T));
+        auto r_ptr = reinterpret_cast<pointer>(ptr);
+        assert(uintptr_t(ptr) == uintptr_t(r_ptr));
+        return r_ptr;
     }
 
     void deallocate(pointer p, size_type n) {
