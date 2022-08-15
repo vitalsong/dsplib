@@ -105,6 +105,10 @@ void pool_reset() {
 
 //----------------------------------------------------------------------------------------
 void* pool_alloc(size_t size) {
+    if (size == 0) {
+        return nullptr;
+    }
+
     auto& storage = get_storage();
     auto& allocmap = get_allocmap();
 
@@ -139,6 +143,10 @@ void* pool_alloc(size_t size) {
 
 //----------------------------------------------------------------------------------------
 void pool_free(void* ptr) {
+    if (ptr == nullptr) {
+        return;
+    }
+
     auto& storage = get_storage();
     auto& allocmap = get_allocmap();
 
