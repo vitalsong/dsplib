@@ -3,7 +3,6 @@
 #include <vector>
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
-#include <memory.h>
 
 namespace dsplib {
 
@@ -181,7 +180,7 @@ public:
 
     T pop_front() {
         auto r = _vec.front();
-        memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
+        std::memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
         _vec.resize(_vec.size() - 1);
         return r;
     }

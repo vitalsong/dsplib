@@ -82,7 +82,7 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
     base_array<T> guP(_n * _n);
 
     for (size_t idx = 0; idx < nx; idx++) {
-        memmove(_u.data() + 1, _u.data(), (_n - 1) * sizeof(T));
+        std::memmove(_u.data() + 1, _u.data(), (_n - 1) * sizeof(T));
         _u[0] = x[idx];
 
         y[idx] = sum(_w * _u);

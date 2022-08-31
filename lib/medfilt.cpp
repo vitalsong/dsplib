@@ -1,36 +1,34 @@
 #include <dsplib/medfilt.h>
 #include <dsplib/utils.h>
-#include <string.h>
-#include <assert.h>
+#include <cassert>
 
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
 //insert new value in sorted list
-static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old)
-{
+static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
     int pos;
 
     //search old value
     pos = 0;
-    while ((x[pos] != v_old) && (pos < nx-1)) {
+    while ((x[pos] != v_old) && (pos < nx - 1)) {
         ++pos;
     }
 
     //erase old value
-    if (pos != (nx-1)) {
-        memmove(x+pos, x+pos+1, (nx-pos-1) * sizeof(real_t));
+    if (pos != (nx - 1)) {
+        std::memmove(x + pos, x + pos + 1, (nx - pos - 1) * sizeof(real_t));
     }
 
     //search pos for new value
     pos = 0;
-    while ((x[pos] < v_new) && (pos < nx-1)) {
+    while ((x[pos] < v_new) && (pos < nx - 1)) {
         ++pos;
     }
 
     //prepare buffer for insert
-    if (pos != (nx-1)) {
-        memmove(x+pos+1, x+pos, (nx-pos-1) * sizeof(real_t));
+    if (pos != (nx - 1)) {
+        std::memmove(x + pos + 1, x + pos, (nx - pos - 1) * sizeof(real_t));
     }
 
     //insert new value
@@ -38,8 +36,7 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old)
 }
 
 //------------------------------------------------------------------------------------------
-median_filter::median_filter(int n)
-{
+median_filter::median_filter(int n) {
     assert(n >= 3);
     _i = 0;
     _n = (n / 2) * 2 + 1;
@@ -48,11 +45,9 @@ median_filter::median_filter(int n)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real median_filter::process(const arr_real &x)
-{
+arr_real median_filter::process(const arr_real& x) {
     auto y = zeros(x.size());
-    for (int i=0; i < x.size(); ++i)
-    {
+    for (int i = 0; i < x.size(); ++i) {
         _i = (_i + 1) % _n;
         _update_sort(_s.data(), _n, x[i], _d[_i]);
         _d[_i] = x[i];
@@ -63,11 +58,10 @@ arr_real median_filter::process(const arr_real &x)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real medfilt(arr_real &x, int n)
-{
+arr_real medfilt(arr_real& x, int n) {
     auto flt = median_filter(n);
     auto y = flt.process(x);
     return y;
 }
 
-}   ///< dsplib
+}   // namespace dsplib
