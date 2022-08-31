@@ -11,7 +11,7 @@ TEST(GCCPHAT, OneSignal) {
         auto sig = delayseq(ref, dl);
         ref = awgn(ref, 30);
         sig = awgn(sig, 10);
-        auto tau = gccphat(sig, ref);
+        auto [tau, R] = gccphat(sig, ref);
         ASSERT_NEAR(tau, dl, 0.1);
     }
 }
@@ -26,7 +26,7 @@ TEST(GCCPHAT, TwoSignal) {
         ref = awgn(ref, 30);
         x1 = awgn(x1, 10);
         x2 = awgn(x2, 10);
-        auto tau = gccphat({x1, x2}, ref);
+        auto [tau, R] = gccphat({x1, x2}, ref);
         ASSERT_EQ_ARR_REAL(tau, dls, 0.1);
     }
 }

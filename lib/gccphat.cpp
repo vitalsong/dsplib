@@ -2,7 +2,7 @@
 
 namespace dsplib {
 
-real_t gccphat(const arr_real& sig, const arr_real& refsig, int fs) {
+gccphat_res_t gccphat(const arr_real& sig, const arr_real& refsig, int fs) {
     const real_t ts = 1.0 / fs;
     auto X1 = fft(sig);
     auto X2 = conj(fft(refsig));
@@ -18,16 +18,22 @@ real_t gccphat(const arr_real& sig, const arr_real& refsig, int fs) {
     } else {
         delay = (peak - M) * ts;
     }
-    return delay;
+
+    gccphat_res_t res;
+    res.tau = delay;
+    res.corr = R;
+    return res;
 }
 
-arr_real gccphat(const std::vector<arr_real>& sig, const arr_real& refsig, int fs) {
+gccphat_res_ch_t gccphat(const std::vector<arr_real>& sig, const arr_real& refsig, int fs) {
     const real_t ts = 1.0 / fs;
     const auto X2 = conj(fft(refsig));
     const int M = X2.size();
     const int M2 = M / 2;
-    arr_real delays = zeros(sig.size());
-    for (size_t i = 0; i < sig.size(); i++) {
+    gccphat_res_ch_t res;
+    res.tau = zeros(sig.size());
+    res.corr.resize(sig.size());
+    for (int i = 0; i < sig.size(); i++) {
         auto X1 = fft(sig[i]);
         auto Y = X1 * X2;
         const auto R = ifft(Y / abs(Y));
@@ -39,9 +45,10 @@ arr_real gccphat(const std::vector<arr_real>& sig, const arr_real& refsig, int f
         } else {
             delay = (peak - M) * ts;
         }
-        delays[i] = delay;
+        res.tau[i] = delay;
+        res.corr[i] = R;
     }
-    return delays;
+    return res;
 }
 
 }   // namespace dsplib
