@@ -106,3 +106,42 @@ TEST(SliceTest, ConstSlice) {
     arr_real x2 = x1.slice(1, 3);
     ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2});
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, Overlaped) {
+    {
+        arr_real x = {0, 1, 2, 3};
+        x.slice(0, 2) = x.slice(2, 4);
+        ASSERT_EQ_ARR_REAL(x, arr_real{2, 3, 2, 3});
+    }
+
+    {
+        arr_real x = {3, 2, 1, 0};
+        x.slice(2, 4) = x.slice(0, 2);
+        ASSERT_EQ_ARR_REAL(x, arr_real{3, 2, 3, 2});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3, 4, 5};
+        x.slice(0, 4) = x.slice(2, 6);
+        ASSERT_EQ_ARR_REAL(x, arr_real{2, 3, 4, 5, 4, 5});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3, 4, 5};
+        x.slice(2, 6) = x.slice(0, 4);
+        ASSERT_EQ_ARR_REAL(x, arr_real{0, 1, 0, 1, 2, 3});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3, 4, 5, 6, 7};
+        x.slice(2, 8, 2) = x.slice(0, 6, 2);
+        ASSERT_EQ_ARR_REAL(x, arr_real{0, 1, 0, 3, 2, 5, 4, 7});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3, 4, 5, 6, 7};
+        x.slice(0, 6, 2) = x.slice(1, 7, 2);
+        ASSERT_EQ_ARR_REAL(x, arr_real{1, 1, 3, 3, 5, 5, 6, 7});
+    }
+}
