@@ -4,7 +4,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Slice) {
+TEST(SliceTest, Base) {
     {
         arr_real x1 = {0, 1, 2, 3};
         arr_real x2 = {-100, -100, 2, 3};
@@ -54,7 +54,7 @@ TEST(SliceTest, Cmplx) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, RealNegIndex) {
+TEST(SliceTest, NegIndex) {
     {
         arr_real x = {0, 1, 2, 3};
         ASSERT_FLOAT_EQ(x[-1], 3);
@@ -62,41 +62,53 @@ TEST(ArrRealTest, RealNegIndex) {
         ASSERT_FLOAT_EQ(x[-3], 1);
         ASSERT_FLOAT_EQ(x[-4], 0);
     }
+
     {
-        arr_real x1 = {0, 1, 2, 3};
-        arr_real x2 = x1.slice(-2, 2);
-        ASSERT_EQ_ARR_REAL(x2, arr_real{2, 3, 0, 1});
-        x2 = x1.slice(-1, 1);
-        ASSERT_EQ_ARR_REAL(x2, arr_real{3, 0});
-        x2 = x1.slice(-1, 0);
-        ASSERT_EQ_ARR_REAL(x2, arr_real{
-                                 3,
-                               });
-        //TODO?:
-        // x2 = x1.slice(2, -1);
-        // ASSERT_EQ_ARR_REAL(x2, arr_real{2, 3});
+        arr_real x = {0, 1, 2, 3};
+        arr_real r = x.slice(0, -1);
+        ASSERT_EQ_ARR_REAL(r, arr_real{0, 1, 2});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3};
+        arr_real r = x.slice(0, -2);
+        ASSERT_EQ_ARR_REAL(r, arr_real{0, 1});
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3, 4};
+        arr_real r = x.slice(-3, -1);
+        ASSERT_EQ_ARR_REAL(r, arr_real{2, 3});
     }
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, CmplxNegIndex) {
+TEST(SliceTest, NegStep) {
+    {
+        arr_real x = range(6);
+        arr_real r = x.slice(4, 0, -1);
+        ASSERT_EQ_ARR_REAL(r, arr_real{4, 3, 2, 1});
+    }
+    {
+        arr_real x = range(6);
+        arr_real r = x.slice(4, 0, -2);
+        ASSERT_EQ_ARR_REAL(r, arr_real{4, 2});
+    }
+    {
+        arr_real x = range(5);
+        arr_real r = x.slice(4, 0, -2);
+        ASSERT_EQ_ARR_REAL(r, arr_real{4, 2});
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, CmplxNegIndex) {
     {
         arr_cmplx x = 1i * arr_real{0, 1, 2, 3};
         ASSERT_CMPLX_EQ(x[-1], cmplx_t(3i));
         ASSERT_CMPLX_EQ(x[-2], cmplx_t(2i));
         ASSERT_CMPLX_EQ(x[-3], cmplx_t(1i));
         ASSERT_CMPLX_EQ(x[-4], cmplx_t(0i));
-    }
-    {
-        arr_cmplx x1 = 1i * arr_real{0, 1, 2, 3};
-        arr_cmplx x2 = x1.slice(-2, 2);
-        ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{2, 3, 0, 1});
-        x2 = x1.slice(-1, 1);
-        ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{3, 0});
-        x2 = x1.slice(-1, 0);
-        ASSERT_EQ_ARR_CMPLX(x2, 1i * arr_real{
-                                       3,
-                                     });
     }
 }
 

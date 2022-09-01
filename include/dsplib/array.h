@@ -30,8 +30,8 @@ public:
     }
 
     base_array(const const_slice_t<T>& rhs) {
-        _vec.resize((rhs._i2 - rhs._i1) / rhs._m);
-        this->slice(0, _vec.size()) = rhs;
+        _vec.resize(rhs.size());
+        this->slice(0, indexing::end) = rhs;
     }
 
     base_array<T>& operator=(const const_slice_t<T>& rhs) {
@@ -146,11 +146,11 @@ public:
     }
 
     slice_t<T> slice(int i1, indexing::end_t end, int m = 1) {
-        return slice_t<T>(*this, i1, this->size(), m);
+        return slice_t<T>(*this, i1, size(), m);
     }
 
     const_slice_t<T> slice(int i1, indexing::end_t end, int m = 1) const {
-        return const_slice_t<T>(*this, i1, this->size(), m);
+        return const_slice_t<T>(*this, i1, size(), m);
     }
 
     //--------------------------------------------------------------------
