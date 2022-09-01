@@ -145,3 +145,11 @@ TEST(SliceTest, Overlaped) {
         ASSERT_EQ_ARR_REAL(x, arr_real{1, 1, 3, 3, 5, 5, 6, 7});
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, Placeholders) {
+    using namespace indexing;
+    const arr_real x1 = {0, 1, 2, 3};
+    arr_real x2 = x1.slice(1, end);
+    ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2, 3});
+}

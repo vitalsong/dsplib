@@ -3,6 +3,7 @@
 #include <vector>
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
+#include <dsplib/indexing.h>
 
 namespace dsplib {
 
@@ -142,6 +143,14 @@ public:
 
     const_slice_t<T> slice(int i1, int i2, int m = 1) const {
         return const_slice_t<T>(*this, i1, i2, m);
+    }
+
+    slice_t<T> slice(int i1, indexing::end_t end, int m = 1) {
+        return slice_t<T>(*this, i1, this->size(), m);
+    }
+
+    const_slice_t<T> slice(int i1, indexing::end_t end, int m = 1) const {
+        return const_slice_t<T>(*this, i1, this->size(), m);
     }
 
     //--------------------------------------------------------------------
