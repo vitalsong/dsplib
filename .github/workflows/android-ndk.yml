@@ -1,0 +1,44 @@
+name: android-ndk-ci
+
+on:
+  push:
+    paths-ignore: ["README.md"]
+
+  pull_request:
+    branches: [master]
+
+env:
+  BUILD_TYPE: Release
+  NDK_HOME: ~/sdk/ndk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: NDK Cache
+        id: ndk-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{env.NDK_HOME}}
+          key: android-ndk-r21e-linux-x86_64
+
+      - name: Download NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo mkdir -p ${{env.NDK_HOME}}
+          sudo chmod -R 777 ${{env.NDK_HOME}}
+          sudo chown -R $USER:$USER ${{env.NDK_HOME}}
+          wget -q https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+          unzip -q ./android-ndk-r21e-linux-x86_64.zip -d ${{env.NDK_HOME}}
+          rm android-ndk-r21e-linux-x86_64.zip
+
+      - name: Configure CMake
+        env:
+          NDK_TOOLCHAIN: ${{env.NDK_HOME}}/android-ndk-r21e/build/cmake/android.toolchain.cmake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DANDROID_PLATFORM=21 -DANDROID_ABI=armeabi-v7a -DCMAKE_TOOLCHAIN_FILE=${{env.NDK_TOOLCHAIN}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --target dsplib
