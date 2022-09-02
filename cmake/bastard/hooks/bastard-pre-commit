@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+# autoplace in .git/hooks/bastard-pre-commit
+
+# use clang-format for staged c++ files
+
+import sys, os, subprocess, fnmatch
+
+# --------------------------------------------------------------------
+def subprocess_output(args, input=None):
+    result = subprocess.run(args, input=input, capture_output=True, text=True)
+    if result.stderr:
+        return []
+    files = result.stdout.split('\n')
+    return files
+
+# --------------------------------------------------------------------
+def filter_cxx_sources(files):
+    result = set()
+    rules = ["*.cpp", "*.c", "*.h", "*.hpp", "*.cxx", "*.hxx"]
+    for rule in rules:
+        r = [f for f in files if fnmatch.fnmatch(f, rule)]
+        result.update(r)
+    return list(result)
+
+# --------------------------------------------------------------------
+def ignore_by_rules(rules, files):
+    if not rules:
+        return files
+
+    rules = set([f.strip() for f in rules if f != ''])
+    result = set([f.strip() for f in files])
+    for rule in rules:
+        result = [f for f in result if not fnmatch.fnmatch(f, rule)]
+    return list(result)
+
+# --------------------------------------------------------------------
+try:
+    # check .clang-format file
+    repo_files = subprocess_output(['git', 'ls-files'])
+    repo_files = [f for f in repo_files if f != '']
+    if not repo_files.count('.clang-format'):
+        sys.exit(0)
+
+    # check clang-format
+    result = subprocess.run(['clang-format', '--version'], capture_output=True, text=True)
+    if result.stderr:
+        sys.exit(0)
+
+    # staged files
+    staged_files = subprocess_output(['git', 'diff', '--name-only', '--cached'])
+    staged_files = [f for f in staged_files if f != '']
+    if not staged_files:
+        sys.exit(0)
+
+    # filter c++ source files
+    src_files = filter_cxx_sources(staged_files)
+
+    # filter by .clang-format-ignore
+    if repo_files.count('.clang-format-ignore'):
+        ignore_rules = subprocess_output(['git', 'show', ":.clang-format-ignore"])
+        src_files = ignore_by_rules(ignore_rules, src_files)
+
+    if not src_files:
+        sys.exit(0)
+
+    # check files
+    for file in src_files:
+        src_lines = subprocess_output(['git', 'show', f':{file}'])
+        # TODO: use staged .clang-format file (not local)
+        fmt_lines = subprocess_output(['clang-format', '--style=file'], input='\n'.join(src_lines))
+        for line, pair in enumerate(zip(src_lines, fmt_lines)):
+            src, fmt = pair
+            if fmt != src:
+                print(f"clang-format style error: {os.path.abspath(file)}:{line+1}", file=sys.stderr)
+                print(f"source: '{src}'", file=sys.stderr)
+                print(f"format: '{fmt}'", file=sys.stderr)
+                sys.exit(1)
+except SystemExit as e:
+    sys.exit(e.code)
+except Exception as e:
+    # undefined error
+    print(f"pre-commit error: {e!r}", file=sys.stderr)
+    sys.exit(0)
