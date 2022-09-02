@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# BASTARD_UPDATE_GUARD (remove this line if you dont want to update this file automatically)
+
+# this file is always updated
+.git/hooks/bastard-pre-commit
