@@ -1,0 +1,14 @@
+[package]
+name = "dsplib-examples"
+lang = "c++17"
+
+[bin]
+name = "dsplib-examples"
+path = "main.cpp"
+
+[dependencies]
+dsplib = { git = "https://github.com/vitalsong/dsplib.git" }
+matplot = { git = "https://github.com/alandefreitas/matplotplusplus.git", processor = "x86_64" }
+
+[options.matplot]
+BUILD_WITH_PEDANTIC_WARNINGS = false
