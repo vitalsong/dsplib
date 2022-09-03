@@ -99,6 +99,18 @@ TEST(SliceTest, NegStep) {
         arr_real r = x.slice(4, 0, -2);
         ASSERT_EQ_ARR_REAL(r, arr_real{4, 2});
     }
+    {
+        arr_real x = range(7);
+        arr_real r = x.slice(-6, 0, -1);
+        ASSERT_EQ_ARR_REAL(r, arr_real{
+                                1,
+                              });
+    }
+    {
+        arr_real x = range(7);
+        arr_real r = x.slice(-7, 7);
+        ASSERT_EQ_ARR_REAL(r, arr_real{0, 1, 2, 3, 4, 5, 6});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

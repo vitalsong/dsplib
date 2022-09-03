@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
+#include <cmath>
+
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
 #include <dsplib/indexing.h>
@@ -18,6 +21,7 @@ using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
 template<typename Bt, typename It>
 using ResultType = conditional_t<std::is_same<Bt, cmplx_t>::value || std::is_same<It, cmplx_t>::value, cmplx_t, real_t>;
 
+//TODO: add array_view as parent for array/slice
 template<typename T>
 class base_array
 {
@@ -110,33 +114,28 @@ public:
     }
 
     //--------------------------------------------------------------------
-    const T& operator[](int i) const {
-        if (i >= 0) {
-            return _vec[i];
-        } else {
-            return _vec[_vec.size() + i];
-        }
+    const T& operator[](int i) const noexcept {
+        const int idx = (i >= 0) ? (i) : (_vec.size() + i);
+        assert((idx >= 0) && (idx < _vec.size()));
+        return _vec[idx];
     }
 
-    T& operator[](int i) {
-        if (i >= 0) {
-            return _vec[i];
-        } else {
-            return _vec[_vec.size() + i];
-        }
+    T& operator[](int i) noexcept {
+        const int idx = (i >= 0) ? (i) : (_vec.size() + i);
+        assert((idx >= 0) && (idx < _vec.size()));
+        return _vec[idx];
     }
 
     //--------------------------------------------------------------------
-    const T& operator()(int i) const {
+    const T& operator()(int i) const noexcept {
         return this->operator[](i);
     }
 
-    T& operator()(int i) {
+    T& operator()(int i) noexcept {
         return this->operator[](i);
     }
 
     //--------------------------------------------------------------------
-    //TODO: check out of range
     slice_t<T> slice(int i1, int i2, int m = 1) {
         return slice_t<T>(*this, i1, i2, m);
     }
@@ -157,19 +156,19 @@ public:
     typedef typename std::vector<T>::iterator iterator;
     typedef typename std::vector<T>::const_iterator const_iterator;
 
-    iterator begin() {
+    iterator begin() noexcept {
         return _vec.begin();
     }
 
-    iterator end() {
+    iterator end() noexcept {
         return _vec.end();
     }
 
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return _vec.begin();
     }
 
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return _vec.end();
     }
 
@@ -194,28 +193,28 @@ public:
         return r;
     }
 
-    T* data() {
+    T* data() noexcept {
         return _vec.data();
     }
 
-    const T* data() const {
+    const T* data() const noexcept {
         return _vec.data();
     }
 
-    int size() const {
+    int size() const noexcept {
         return _vec.size();
     }
 
-    bool empty() const {
+    bool empty() const noexcept {
         return _vec.empty();
     }
 
     //--------------------------------------------------------------------
-    base_array<T>& operator+() {
+    base_array<T>& operator+() noexcept {
         return *this;
     }
 
-    base_array<T>& operator-() {
+    base_array<T>& operator-() noexcept {
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] = (-_vec[i]);
         }
@@ -224,7 +223,7 @@ public:
 
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator+=(const T2& rhs) {
+    base_array<R>& operator+=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs;
@@ -233,7 +232,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator-=(const T2& rhs) {
+    base_array<R>& operator-=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs;
@@ -242,7 +241,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator*=(const T2& rhs) {
+    base_array<R>& operator*=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs;
@@ -371,9 +370,10 @@ public:
     }
 
     //--------------------------------------------------------------------
+    //TODO: operation priority can be misleading
     base_array<T>& operator^=(const real_t& rhs) {
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] = pow(_vec[i], rhs);
+            _vec[i] = std::pow(_vec[i], rhs);
         }
         return *this;
     }
@@ -391,7 +391,7 @@ public:
             throw std::invalid_argument("different vector size");
         }
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] = pow(_vec[i], rhs[i]);
+            _vec[i] = std::pow(_vec[i], rhs[i]);
         }
         return *this;
     }

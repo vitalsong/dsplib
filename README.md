@@ -48,14 +48,15 @@ arr_cmplx y6 = x1 * 2i;
 ```
 
 ### Slicing
-The behavior of slices is as close as possible to numpy. Except when numpy returns an empty vector - then the library will throw an exception.
+The behavior of slices is as close as possible to numpy. Except for cases with invalid indexes, in which case numpy does not throw an exception.
 ```cpp
 arr_real x = {0, 1, 2, 3, 4, 5, 6};
 x.slice(0, 2) ///{0, 1}
 x.slice(2, -1) ///{2, 3, 4, 5}
 x.slice(-1, 0, -1) ///{6, 5, 4, 3, 2, 1}
-x.slice(-1, 0) ///!EXCPEPTION, but numpy returns []
-x.slice(0, -1, -1) ///!EXCPEPTION, but numpy returns []
+x.slice(-1, 0) ///OUT_OF_RANGE, but numpy returns []
+x.slice(0, -1, -1) ///OUT_OF_RANGE, but numpy returns []
+x.slice(-8, 7) ///OUT_OF_RANGE, but numpy returns [0 1 2 3 4 5 6]
 ```
 
 ### Fast Fourier Transform:

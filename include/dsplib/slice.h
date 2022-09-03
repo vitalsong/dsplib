@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <stdexcept>
 
 namespace dsplib {
 
@@ -29,9 +30,17 @@ public:
 
         _m = m;
         _n = n;
-        _i1 = (i1 + _n) % _n;
-        _i2 = (i2 > 0) ? ((i2 + _n + 1) % (_n + 1)) : ((i2 + _n) % _n);
+        _i1 = (i1 < 0) ? (_n + i1) : (i1);
+        _i2 = (i2 < 0) ? (_n + i2) : (i2);
         _nc = std::abs((_i2 - _i1) / _m);
+
+        if ((_i1 < 0) || (_i1 >= _n)) {
+            throw std::out_of_range("Left slice index out of range");
+        }
+
+        if ((_i2 < 0) || (_i2 > _n)) {
+            throw std::out_of_range("Right slice index out of range");
+        }
 
         if ((_m < 0) && (_i1 < _i2)) {
             throw std::range_error("First index is smaller for negative step");
