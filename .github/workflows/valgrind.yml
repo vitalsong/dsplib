@@ -1,0 +1,32 @@
+name: valgrind-ci
+
+on:
+  push:
+    paths-ignore: ["README.md"]
+
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install valgrind
+        run: |
+          sudo apt-get update
+          sudo apt-get install valgrind
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        env:
+          CXX: clang++
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --target dsplib-test
+
+      - name: Test (Valgrind)
+        working-directory: ${{github.workspace}}/build
+        run: valgrind --leak-check=yes --error-exitcode=1 -- ./dsplib-test

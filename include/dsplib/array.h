@@ -144,11 +144,11 @@ public:
         return const_slice_t<T>(*this, i1, i2, m);
     }
 
-    slice_t<T> slice(int i1, indexing::end_t end, int m = 1) {
+    slice_t<T> slice(int i1, indexing::end_t, int m = 1) {
         return slice_t<T>(*this, i1, size(), m);
     }
 
-    const_slice_t<T> slice(int i1, indexing::end_t end, int m = 1) const {
+    const_slice_t<T> slice(int i1, indexing::end_t, int m = 1) const {
         return const_slice_t<T>(*this, i1, size(), m);
     }
 
