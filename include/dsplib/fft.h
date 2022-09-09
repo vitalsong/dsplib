@@ -18,6 +18,8 @@ private:
     std::shared_ptr<fft_plan_impl> _d;
 };
 
+//TODO: rfft optimization
+
 /*!
  * \brief Fast Fourier Transform (complex)
  * \details FFT for complex signal

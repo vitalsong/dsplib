@@ -14,32 +14,40 @@
 
 // fix for interger real (because 5+5i is not compiled, but 5.0+5i is OK)
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator+(const int& lhs, const std::complex<double>& rhs) {
-    return std::complex<double>(double(lhs)) + rhs;
+template<typename T>
+inline std::complex<T> operator+(const int& lhs, const std::complex<T>& rhs) {
+    return std::complex<T>(T(lhs)) + rhs;
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator-(const int& lhs, const std::complex<double>& rhs) {
-    return std::complex<double>(double(lhs)) - rhs;
+template<typename T>
+inline std::complex<T> operator-(const int& lhs, const std::complex<T>& rhs) {
+    return std::complex<T>(T(lhs)) - rhs;
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator+(const std::complex<double>& lhs, const int& rhs) {
-    return lhs + std::complex<double>(double(rhs));
+template<typename T>
+inline std::complex<T> operator+(const std::complex<T>& lhs, const int& rhs) {
+    return lhs + std::complex<T>(T(rhs));
 }
 
 //-------------------------------------------------------------------------------------------------
-inline std::complex<double> operator-(const std::complex<double>& lhs, const int& rhs) {
-    return lhs - std::complex<double>(double(rhs));
+template<typename T>
+inline std::complex<T> operator-(const std::complex<T>& lhs, const int& rhs) {
+    return lhs - std::complex<T>(T(rhs));
 }
 
 namespace dsplib {
 
-constexpr double pi = 3.141592653589793238463;
-
 //-------------------------------------------------------------------------------------------------
 //base scalar type
+#ifdef DSPLIB_USE_FLOAT32
+using real_t = float;
+#else
 using real_t = double;
+#endif
+
+constexpr real_t pi = 3.141592653589793238463;
 
 struct cmplx_t;
 
