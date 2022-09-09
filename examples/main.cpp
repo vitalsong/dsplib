@@ -136,10 +136,11 @@ static void interp_example() {
     int n = 30;
     int m = 4;
 
-    auto flt = dsp::interp_filter(IR, m);
+    auto flt = dsp::fir(IR);
     auto t = dsp::range(0, n) * 2 * dsp::pi * 200 / fs;
     auto x_in = dsp::sin(t) * 100;
-    auto x_out = flt.process(x_in);
+    auto interp_in = dsplib::upsample(x_in, m);
+    auto x_out = flt.process(interp_in) * m;
 
     matplot::title("Interp 4x Example");
     dsp::arr_real x1 = dsp::range(0, n * m, m);
