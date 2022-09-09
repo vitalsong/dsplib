@@ -1,4 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
-include(cmake/bastard_setup.cmake)
-bastard_setup()
-project(${BASTARD_PACKAGE_NAME})
+project(dsplib-example LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
+
+CPMAddPackage(NAME matplot
+    GIT_REPOSITORY "https://github.com/alandefreitas/matplotplusplus.git"
+    VERSION 1.1.0 
+    OPTIONS "BUILD_WITH_PEDANTIC_WARNINGS OFF"
+)
+
+file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(${PROJECT_NAME} PUBLIC dsplib matplot)

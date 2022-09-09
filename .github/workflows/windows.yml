@@ -18,11 +18,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}\build
+        run: cmake -B ${{github.workspace}}\build -DDSPLIB_BUILD_TESTS=ON
 
       - name: Build
         run: cmake --build ${{github.workspace}}\build --target dsplib-test --config ${{env.BUILD_TYPE}}
 
       - name: Test
-        working-directory: ${{github.workspace}}/build
+        working-directory: ${{github.workspace}}/build/tests
         run: ctest -C ${{env.BUILD_TYPE}} -R dsplib-test
