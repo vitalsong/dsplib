@@ -4,10 +4,12 @@ project(dsplib LANGUAGES CXX VERSION 0.24.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
+
+option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
+option(DSPLIB_COVERAGE_ENABLED "Enable coverage compiler flags" OFF)
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
     "lib/*.cpp"  
@@ -19,6 +21,10 @@ add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
 target_include_directories(${PROJECT_NAME} 
     PUBLIC include
     PRIVATE lib)
+
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} m)
+endif()
 
 # check root project
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")

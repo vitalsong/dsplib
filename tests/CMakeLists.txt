@@ -17,3 +17,10 @@ file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC dsplib gtest)
+
+# code coverage
+if (DSPLIB_COVERAGE_ENABLED)
+    message(STATUS "dsplib: coverage enabled")
+    target_compile_options(dsplib PRIVATE "-fprofile-arcs" "-ftest-coverage")
+    target_link_libraries(dsplib-test PRIVATE --coverage)
+endif()
