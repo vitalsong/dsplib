@@ -52,6 +52,7 @@ public:
         return *this;
     }
 
+    //TODO: remove explicit?
     explicit base_array(const std::vector<T>& v)
       : _vec(v) {
     }

@@ -66,6 +66,10 @@ arr_cmplx round(const arr_cmplx& arr);
 real_t sum(const arr_real& arr);
 cmplx_t sum(const arr_cmplx& arr);
 
+//array dot
+real_t dot(const arr_real& x1, const arr_real& x2);
+cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2);
+
 //array mean
 real_t mean(const arr_real& arr);
 cmplx_t mean(const arr_cmplx& arr);
@@ -87,12 +91,16 @@ real_t imag(cmplx_t x);
 
 //complex pairing
 arr_cmplx conj(const arr_cmplx& x);
-cmplx_t conj(cmplx_t x);
+
+constexpr cmplx_t conj(cmplx_t x) {
+    return x.conj();
+}
 
 inline arr_real conj(const arr_real& x) {
     return x;
 };
-inline real_t conj(real_t x) {
+
+constexpr real_t conj(real_t x) {
     return x;
 };
 
@@ -106,10 +114,11 @@ int nextpow2(int m);
 arr_real pow2(const arr_real& arr);
 arr_cmplx pow2(const arr_cmplx& arr);
 
-inline real_t pow2(real_t x) {
+constexpr real_t pow2(real_t x) {
     return x * x;
 }
-inline cmplx_t pow2(cmplx_t x) {
+
+constexpr cmplx_t pow2(cmplx_t x) {
     return x * x;
 }
 
@@ -159,12 +168,16 @@ arr_cmplx upsample(const arr_cmplx& arr, int n, int phase = 0);
 
 //abs(x)^2
 arr_real abs2(const arr_cmplx& x);
-real_t abs2(const cmplx_t& x);
+
+constexpr real_t abs2(const cmplx_t& x) {
+    return x.abs2();
+}
 
 inline arr_real abs2(const arr_real& x) {
     return pow2(x);
 }
-inline real_t abs2(const real_t& x) {
+
+constexpr real_t abs2(const real_t& x) {
     return pow2(x);
 }
 
@@ -202,6 +215,18 @@ inline real_t nmse(const arr_real& x, const arr_real& y) {
 }
 inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
     return mse(x, y) / sum(abs2(x));
+}
+
+//signum function
+constexpr int sign(const real_t& x) {
+    return (real_t(0) < x) - (x < real_t(0));
+}
+
+inline cmplx_t sign(const cmplx_t& x) {
+    if (x.re == 0 && x.im == 0) {
+        return 0;
+    }
+    return x / abs(x);
 }
 
 //----------------------------------------------------------------------------------------

@@ -238,3 +238,38 @@ TEST(MathTest, MSE) {
         ASSERT_NEAR(nmse(x, y), 1.3333, 0.0001);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Dot) {
+    arr_real x1 = {-1, 2, -3, 4};
+    arr_real x2 = {2, 3, 4, 5};
+    ASSERT_EQ(dot(x1, x2), sum(x1 * x2));
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Sign) {
+    ASSERT_EQ(sign(-1.0), -1);
+    ASSERT_EQ(sign(2.0), 1);
+    ASSERT_EQ(sign(0), 0);
+
+    {
+        auto x = cmplx_t{1, 1};
+        auto r = cmplx_t{0.7071, 0.7071};
+        ASSERT_NEAR(real(sign(x)), real(r), 1e-4);
+        ASSERT_NEAR(imag(sign(x)), imag(r), 1e-4);
+    }
+
+    {
+        auto x = cmplx_t{0, 0};
+        auto r = cmplx_t{0, 0};
+        ASSERT_NEAR(real(sign(x)), real(r), 1e-4);
+        ASSERT_NEAR(imag(sign(x)), imag(r), 1e-4);
+    }
+
+    {
+        auto x = cmplx_t{2, -3};
+        auto r = cmplx_t{0.5547, -0.8321};
+        ASSERT_NEAR(real(sign(x)), real(r), 1e-4);
+        ASSERT_NEAR(imag(sign(x)), imag(r), 1e-4);
+    }
+}
