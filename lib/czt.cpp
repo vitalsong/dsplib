@@ -12,7 +12,7 @@ public:
     czt_plan_impl(int n, int m, cmplx_t w, cmplx_t a)
       : _n{n}
       , _m{m} {
-        auto t = (range(1 - n, max(m, n)) ^ 2) / 2;
+        auto t = pow2(range(1 - n, max(m, n))) / 2;
         auto chirp = w ^ t;
         const int n2 = pow(2, nextpow2(m + n - 1));
         arr_cmplx cp = chirp.slice(n - 1, n + n - 1);

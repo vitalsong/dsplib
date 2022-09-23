@@ -151,6 +151,29 @@ cmplx_t sum(const arr_cmplx& arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t dot(const arr_real& x1, const arr_real& x2) {
+    if (x1.size() != x2.size()) {
+        throw std::runtime_error("array sizes are different");
+    }
+    real_t acc = 0;
+    for (int i = 0; i < x1.size(); ++i) {
+        acc += x1[i] * x2[i];
+    }
+    return acc;
+}
+
+cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2) {
+    if (x1.size() != x2.size()) {
+        throw std::runtime_error("array sizes are different");
+    }
+    cmplx_t acc = 0;
+    for (int i = 0; i < x1.size(); ++i) {
+        acc += x1[i] * x2[i];
+    }
+    return acc;
+}
+
+//-------------------------------------------------------------------------------------------------
 real_t mean(const arr_real& arr) {
     real_t s = sum(arr);
     return s / arr.size();
@@ -340,12 +363,6 @@ arr_cmplx conj(const arr_cmplx& x) {
         r[i].im = -r[i].im;
     }
     return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-cmplx_t conj(cmplx_t x) {
-    x.im = -x.im;
-    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -608,11 +625,6 @@ arr_real abs2(const arr_cmplx& x) {
         r[i] = (x[i].re * x[i].re) + (x[i].im * x[i].im);
     }
     return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-real_t abs2(const cmplx_t& x) {
-    return (x.re * x.re) + (x.im * x.im);
 }
 
 //-------------------------------------------------------------------------------------------------

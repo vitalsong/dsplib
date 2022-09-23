@@ -11,14 +11,12 @@ class ave_fir
 public:
     ave_fir() = default;
 
-    ave_fir(int n)
-    {
+    ave_fir(int n) {
         _n = n;
         _x = zeros(n);
     }
 
-    arr_real process(const arr_real& x)
-    {
+    arr_real process(const arr_real& x) {
         if (_n == 0) {
             return zeros(x.size());
         }
@@ -59,8 +57,7 @@ struct detector_impl
 };
 
 //---------------------------------------------------------------------------------
-detector::detector(const arr_cmplx& h, real_t threshold, int release)
-{
+detector::detector(const arr_cmplx& h, real_t threshold, int release) {
     const int nh = h.size();
     assert(nh > 0);
     _d = std::unique_ptr<detector_impl>(new detector_impl);
@@ -74,12 +71,11 @@ detector::detector(const arr_cmplx& h, real_t threshold, int release)
 }
 
 //---------------------------------------------------------------------------------
-detector::~detector()
-{}
+detector::~detector() {
+}
 
 //---------------------------------------------------------------------------------
-static detector::result _detecting(detector_impl* _d, const arr_cmplx& x)
-{
+static detector::result _detecting(detector_impl* _d, const arr_cmplx& x) {
     detector::result res;
 
     assert(x.size() == _d->block_size);
@@ -90,10 +86,10 @@ static detector::result _detecting(detector_impl* _d, const arr_cmplx& x)
 
     //match fir line
     auto y_m = _d->fir_match.process(x);
-    auto y_m2 = (real(y_m) ^ 2) + (imag(y_m) ^ 2);
+    auto y_m2 = pow2(real(y_m)) + pow2(imag(y_m));
 
     //power estimate line
-    auto x2 = (real(x) ^ 2) + (imag(x) ^ 2);
+    auto x2 = pow2(real(x)) + pow2(imag(x));
     auto y_p2 = _d->fir_pow.process(x2);
 
     //detecting map [0 : 1]
@@ -129,8 +125,7 @@ static detector::result _detecting(detector_impl* _d, const arr_cmplx& x)
 }
 
 //---------------------------------------------------------------------------------
-detector::result detector::process(const arr_cmplx& x)
-{
+detector::result detector::process(const arr_cmplx& x) {
     detector::result res;
     for (size_t i = 0; i < x.size(); i++) {
         _d->buffer.push_back(x[i]);
@@ -152,8 +147,7 @@ detector::result detector::process(const arr_cmplx& x)
 }
 
 //---------------------------------------------------------------------------------
-void detector::reset()
-{
+void detector::reset() {
     _d->lock_time = 0;
     _d->current_max = 0;
     _d->triggered = false;
