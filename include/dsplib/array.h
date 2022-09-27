@@ -6,9 +6,20 @@
 
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
+#include <dsplib/allocator.h>
 #include <dsplib/indexing.h>
+#include <memory.h>
 
 namespace dsplib {
+
+//select of allocator at compile time
+#ifdef DSPLIB_POOL_ALLOCATOR
+template<typename T>
+using vec_alloc = pool_allocator<T>;
+#else
+template<typename T>
+using vec_alloc = std::allocator<T>;
+#endif
 
 template<bool _Cond, typename _Iftrue, typename _Iffalse>
 using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
@@ -26,11 +37,13 @@ template<typename T>
 class base_array
 {
 public:
+    template<typename>
+    friend class base_array;
+
     base_array() = default;
 
-    explicit base_array(int n) {
-        _vec.resize(n);
-        std::fill(_vec.data(), _vec.data() + n, 0);
+    explicit base_array(int n)
+      : _vec(n) {
     }
 
     base_array(const const_slice_t<T>& rhs) {
@@ -54,41 +67,45 @@ public:
 
     //TODO: remove explicit?
     explicit base_array(const std::vector<T>& v)
-      : _vec(v) {
+      : _vec(v.begin(), v.end()) {
     }
 
     template<typename T2>
-    explicit base_array(const std::vector<T2>& v) {
+    explicit base_array(const std::vector<T2>& v)
+      : _vec(v.size()) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
         _vec.assign(v.begin(), v.end());
     }
 
-    base_array(std::vector<T>&& v)
+    base_array(std::vector<T>&& v) noexcept
       : _vec(std::move(v)) {
     }
 
-    base_array(const base_array<T>& v)
+    base_array(const base_array<T>& v) noexcept
       : _vec(v._vec) {
     }
 
-    template<class T2>
-    base_array(const base_array<T2>& v) {
+    template<typename T2>
+    base_array(const base_array<T2>& v)
+      : _vec(v.size()) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
         _vec.assign(v.begin(), v.end());
     }
 
-    base_array(base_array<T>&& v)
+    base_array(base_array<T>&& v) noexcept
       : _vec(std::move(v._vec)) {
     }
 
-    base_array(const std::initializer_list<T>& list) {
-        _vec = std::vector<T>(list);
+    base_array(const std::initializer_list<T>& v)
+      : _vec(v.size()) {
+        _vec.assign(v.begin(), v.end());
     }
 
     template<typename T2>
-    explicit base_array(const T2* x, size_t nx) {
+    explicit base_array(const T2* x, size_t nx)
+      : _vec(nx) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
-        _vec.insert(_vec.end(), x, x + nx);
+        _vec.assign(x, x + nx);
     }
 
     //--------------------------------------------------------------------
@@ -105,7 +122,7 @@ public:
         return *this;
     }
 
-    base_array<T>& operator=(base_array<T>&& rhs) {
+    base_array<T>& operator=(base_array<T>&& rhs) noexcept {
         if (this == &rhs) {
             return *this;
         }
@@ -154,8 +171,8 @@ public:
     }
 
     //--------------------------------------------------------------------
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    typedef typename std::vector<T, vec_alloc<T>>::iterator iterator;
+    typedef typename std::vector<T, vec_alloc<T>>::const_iterator const_iterator;
 
     iterator begin() noexcept {
         return _vec.begin();
@@ -224,7 +241,7 @@ public:
 
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator+=(const T2& rhs) noexcept {
+    base_array<T>& operator+=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs;
@@ -233,7 +250,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator-=(const T2& rhs) noexcept {
+    base_array<T>& operator-=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs;
@@ -242,7 +259,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator*=(const T2& rhs) noexcept {
+    base_array<T>& operator*=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs;
@@ -251,7 +268,7 @@ public:
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator/=(const T2& rhs) {
+    base_array<T>& operator/=(const T2& rhs) noexcept {
         static_assert(std::is_same<T, R>::value, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs;
@@ -290,52 +307,60 @@ public:
 
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator+=(const base_array<T2>& rhs) {
+    base_array<T>& operator+=(const base_array<T2>& rhs) {
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+
         if (this->size() != rhs.size()) {
             throw std::invalid_argument("array sizes are different");
         }
 
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] += rhs[i];
+            _vec[i] += rhs._vec[i];
         }
 
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator-=(const base_array<T2>& rhs) {
+    base_array<T>& operator-=(const base_array<T2>& rhs) {
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+
         if (this->size() != rhs.size()) {
             throw std::invalid_argument("array sizes are different");
         }
 
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] -= rhs[i];
+            _vec[i] -= rhs._vec[i];
         }
 
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator*=(const base_array<T2>& rhs) {
+    base_array<T>& operator*=(const base_array<T2>& rhs) {
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+
         if (this->size() != rhs.size()) {
             throw std::invalid_argument("array sizes are different");
         }
 
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] *= rhs[i];
+            _vec[i] *= rhs._vec[i];
         }
 
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator/=(const base_array<T2>& rhs) {
+    base_array<T>& operator/=(const base_array<T2>& rhs) {
+        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+
         if (this->size() != rhs.size()) {
             throw std::invalid_argument("array sizes are different");
         }
 
         for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] /= rhs[i];
+            _vec[i] /= rhs._vec[i];
         }
 
         return *this;
@@ -425,7 +450,7 @@ public:
     }
 
 protected:
-    std::vector<T> _vec;
+    std::vector<T, vec_alloc<T>> _vec;
 };
 
 //--------------------------------------------------------------------------------

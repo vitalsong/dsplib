@@ -8,6 +8,7 @@ option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
+option(DSPLIB_POOL_ALLOCATOR "Use pool allocator for vectors" OFF)
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
     "lib/*.cpp"  
@@ -51,6 +52,11 @@ endif()
 
 if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if (DSPLIB_POOL_ALLOCATOR)
+    message(STATUS "dsplib: use pool allocator")
+    target_compile_definitions(dsplib PUBLIC "DSPLIB_POOL_ALLOCATOR")
 endif()
 
 # version header 

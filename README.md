@@ -102,7 +102,7 @@ arr_real x2 = awgn(x1, 10);
 arr_real y = xcorr(x1, x2);
 ```
 
-### Spectrum Analyze (16-bit scale):
+### Simple Spectrum Analyze (16-bit scale):
 ```cpp
 int nfft = 1024;
 arr_real x = randn(nfft) * 1000;
@@ -112,3 +112,7 @@ arr_cmplx y = fft(x) / (nfft / 2);
 arr_real z = abs(y);
 z = log10(z / 0x7FFF) * 20;
 ```
+
+## Allocation
+
+On some platforms (for example, Android) there may be performance issues due to slow memory allocation for the vector. In this case, try enabling a custom allocator via the DSPLIB_POOL_ALLOCATOR option and estimate its peak consumption using the dsplib::pool_state function.
