@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <random>
 #include <cmath>
 
 namespace dsplib {
@@ -417,92 +416,6 @@ real_t angle(cmplx_t v) {
     }
 
     return std::atan(v.im / v.re) + d;
-}
-
-namespace {
-
-template<class Distribution, class T = typename Distribution::result_type>
-class dist_gen_t
-{
-public:
-    dist_gen_t(const T& a, const T& b)
-      : _gen{_rd()}
-      , _d{a, b} {
-    }
-
-    T gen() {
-        return _d(_gen);
-    }
-
-private:
-    std::random_device _rd{};
-    std::mt19937 _gen;
-    Distribution _d;
-};
-
-//distribution generator storage
-thread_local dist_gen_t<std::normal_distribution<real_t>> g_norm_gen{0, 1};
-thread_local dist_gen_t<std::uniform_real_distribution<real_t>> g_unif_gen{0, 1};
-
-}   // namespace
-
-//-------------------------------------------------------------------------------------------------
-int randi(int imax) {
-    return randi({1, imax});
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_int randi(int imax, int n) {
-    return randi({1, imax}, n);
-}
-
-//-------------------------------------------------------------------------------------------------
-int randi(std::array<int, 2> range) {
-    //TODO: can be slow for every call
-    const int imin = range[0];
-    const int imax = range[1];
-    dist_gen_t<std::uniform_int_distribution<int>> dist(imin, imax);
-    return dist.gen();
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_int randi(std::array<int, 2> range, int n) {
-    const int imin = range[0];
-    const int imax = range[1];
-    dist_gen_t<std::uniform_int_distribution<int>> dist(imin, imax);
-    arr_int r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = dist.gen();
-    }
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real rand(int n) {
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = g_unif_gen.gen();
-    }
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-real_t rand() {
-    return g_unif_gen.gen();
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real randn(int n) {
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = g_norm_gen.gen();
-    }
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-real_t randn() {
-    return g_norm_gen.gen();
 }
 
 //-------------------------------------------------------------------------------------------------

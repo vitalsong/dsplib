@@ -3,7 +3,6 @@
 #include <dsplib/array.h>
 
 #include <limits>
-#include <array>
 
 namespace dsplib {
 
@@ -141,22 +140,6 @@ real_t rms(const arr_cmplx& arr);
 //trigonometric functions
 arr_real sin(const arr_real& arr);
 arr_real cos(const arr_real& arr);
-
-//integer uniform [1, imax]
-int randi(int imax);
-arr_int randi(int imax, int n);
-
-//integer uniform [imin, imax]
-int randi(std::array<int, 2> range);
-arr_int randi(std::array<int, 2> range, int n);
-
-//uniformly distributed random numbers
-real_t rand();
-arr_real rand(int n);
-
-//normally distributed random numbers
-real_t randn();
-arr_real randn(int n);
 
 //decrease sample rate by integer factor
 arr_real downsample(const arr_real& arr, int n, int phase = 0);
