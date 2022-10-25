@@ -133,7 +133,7 @@ template<typename T>
 arr_real _from_file(std::string file, size_t count, endian order, size_t offset) {
     FILE* fid = fopen(file.c_str(), "rb");
     if (!fid) {
-        throw std::runtime_error("open file error");
+        DSPLIB_THROW("open file error");
     }
 
     uint8_t bytes[sizeof(T)];

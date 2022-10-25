@@ -66,7 +66,7 @@ agc::agc(double target_level, double max_gain, int average_len, double t_rise, d
     _d = std::unique_ptr<agc_impl>(new agc_impl());
 
     if (average_len == 0) {
-        throw std::runtime_error("average_len must be greater 0");
+        DSPLIB_THROW("average_len must be greater 0");
     }
 
     _d->rms_period = average_len;

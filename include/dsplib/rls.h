@@ -66,7 +66,7 @@ using crls = base_rls<cmplx_t>;
 template<typename T>
 typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, const base_array<T>& d) {
     if (x.size() != d.size()) {
-        throw std::runtime_error("vector size error: len(x) != len(d)");
+        DSPLIB_THROW("vector size error: len(x) != len(d)");
     }
 
     const int nx = x.size();

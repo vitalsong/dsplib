@@ -40,7 +40,7 @@ public:
 
     result_t process(const base_array<T>& x, const base_array<T>& d) {
         if (x.size() != d.size()) {
-            throw std::runtime_error("vector size error: len(x) != len(d)");
+            DSPLIB_THROW("vector size error: len(x) != len(d)");
         }
 
         int nx = x.size();

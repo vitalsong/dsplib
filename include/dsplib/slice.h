@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstring>
-#include <stdexcept>
+
+#include <dsplib/throw.h>
 
 namespace dsplib {
 
@@ -21,11 +22,11 @@ class base_slice_t
 public:
     explicit base_slice_t(int n, int i1, int i2, int m) {
         if (n == 0) {
-            throw std::range_error("Slicing from an empty array");
+            DSPLIB_THROW("Slicing from an empty array");
         }
 
         if (m == 0) {
-            throw std::range_error("Slice stride cannot be zero");
+            DSPLIB_THROW("Slice stride cannot be zero");
         }
 
         _m = m;
@@ -35,23 +36,23 @@ public:
         _nc = std::abs((_i2 - _i1) / _m);
 
         if ((_i1 < 0) || (_i1 >= _n)) {
-            throw std::out_of_range("Left slice index out of range");
+            DSPLIB_THROW("Left slice index out of range");
         }
 
         if ((_i2 < 0) || (_i2 > _n)) {
-            throw std::out_of_range("Right slice index out of range");
+            DSPLIB_THROW("Right slice index out of range");
         }
 
         if ((_m < 0) && (_i1 < _i2)) {
-            throw std::range_error("First index is smaller for negative step");
+            DSPLIB_THROW("First index is smaller for negative step");
         }
 
         if ((_m > 0) && (_i1 > _i2)) {
-            throw std::range_error("First index is greater for positive step");
+            DSPLIB_THROW("First index is greater for positive step");
         }
 
         if (_nc > _n) {
-            throw std::range_error("Slice range is greater vector size");
+            DSPLIB_THROW("Slice range is greater vector size");
         }
     }
 
@@ -125,7 +126,7 @@ public:
 
         const int count = dst_count;
         if (dst_count != src_count) {
-            throw std::out_of_range("Not equal size");
+            DSPLIB_THROW("Not equal size");
         }
 
         if (count == 0) {
@@ -164,7 +165,7 @@ public:
 
     slice_t& operator=(const base_array<T>& rhs) {
         if (&_base == &rhs) {
-            throw std::runtime_error("Assigned array to same slice");
+            DSPLIB_THROW("Assigned array to same slice");
         }
         return (*this = rhs.slice(0, rhs.size()));
     }

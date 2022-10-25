@@ -9,7 +9,7 @@ namespace dsplib {
 //------------------------------------------------------------------------------------
 real_t sinad(const arr_real& x) {
     if (x.size() > 0x7fff) {
-        throw std::runtime_error("The vector size is too large");
+        DSPLIB_THROW("The vector size is too large");
     }
 
     const int n = 1L << nextpow2(x.size());
