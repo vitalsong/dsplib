@@ -4,9 +4,11 @@ project(dsplib LANGUAGES CXX VERSION 0.25.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
+option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
+
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
+option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
@@ -31,6 +33,14 @@ if (DSPLIB_USE_FLOAT32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "DSPLIB_USE_FLOAT32")
 else()
     message(STATUS "dsplib: base type of real_t: float64")
+endif()
+
+if (DSPLIB_NO_EXCEPTIONS)
+    message(STATUS "dsplib: disable exceptions")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "DSPLIB_NO_EXCEPTIONS")
+else()
+    message(STATUS "dsplib: enable exceptions")
 endif()
 
 # check warnings

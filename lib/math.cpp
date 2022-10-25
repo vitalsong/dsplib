@@ -1,6 +1,5 @@
 #include <dsplib/math.h>
 
-#include <stdexcept>
 #include <algorithm>
 #include <cmath>
 
@@ -152,7 +151,7 @@ cmplx_t sum(const arr_cmplx& arr) {
 //-------------------------------------------------------------------------------------------------
 real_t dot(const arr_real& x1, const arr_real& x2) {
     if (x1.size() != x2.size()) {
-        throw std::runtime_error("array sizes are different");
+        DSPLIB_THROW("array sizes are different");
     }
     real_t acc = 0;
     for (int i = 0; i < x1.size(); ++i) {
@@ -163,7 +162,7 @@ real_t dot(const arr_real& x1, const arr_real& x2) {
 
 cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2) {
     if (x1.size() != x2.size()) {
-        throw std::runtime_error("array sizes are different");
+        DSPLIB_THROW("array sizes are different");
     }
     cmplx_t acc = 0;
     for (int i = 0; i < x1.size(); ++i) {
@@ -255,7 +254,7 @@ int nextpow2(int m) {
 //-------------------------------------------------------------------------------------------------
 arr_cmplx complex(const arr_real& re, const arr_real& im) {
     if (re.size() != im.size()) {
-        throw std::invalid_argument("array sizes are different");
+        DSPLIB_THROW("array sizes are different");
     }
 
     int n = re.size();
@@ -470,11 +469,11 @@ cmplx_t expj(real_t im) {
 template<class T>
 static T _downsample(const T& arr, int n, int phase) {
     if (n <= 0) {
-        throw std::invalid_argument("downsample factor must be greater 0");
+        DSPLIB_THROW("downsample factor must be greater 0");
     }
 
     if (phase >= n || phase < 0) {
-        throw std::invalid_argument("phase must be [0, N-1]");
+        DSPLIB_THROW("phase must be [0, N-1]");
     }
 
     if (n == 1) {
@@ -503,11 +502,11 @@ arr_cmplx downsample(const arr_cmplx& arr, int n, int phase) {
 template<class T>
 static T _upsample(const T& arr, int n, int phase) {
     if (n <= 0) {
-        throw std::invalid_argument("upsample factor must be greater 0");
+        DSPLIB_THROW("upsample factor must be greater 0");
     }
 
     if (phase >= n || phase < 0) {
-        throw std::invalid_argument("phase must be [0, N-1]");
+        DSPLIB_THROW("phase must be [0, N-1]");
     }
 
     if (n == 1) {

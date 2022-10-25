@@ -3,6 +3,8 @@
 #include <mutex>
 #include <map>
 
+#include <dsplib/throw.h>
+
 namespace dsplib {
 
 template<typename K, typename T>
@@ -11,29 +13,25 @@ class datacache
 public:
     datacache() = default;
 
-    void update(K key, const T& value)
-    {
+    void update(K key, const T& value) {
         std::lock_guard<std::mutex> lk(_mtx);
         _cache[key] = value;
     }
 
-    T get(K key) const
-    {
+    T get(K key) const {
         std::lock_guard<std::mutex> lk(_mtx);
         if (_cache.count(key) == 0) {
-            throw std::runtime_error("error getting value. the data has not been cached.");
+            DSPLIB_THROW("error getting value. the data has not been cached.");
         }
         return _cache.at(key);
     }
 
-    bool cached(K key) const
-    {
+    bool cached(K key) const {
         std::lock_guard<std::mutex> lk(_mtx);
         return _cache.count(key) != 0;
     }
 
-    void reset(K key)
-    {
+    void reset(K key) {
         std::lock_guard<std::mutex> lk(_mtx);
         if (_cache.count(key) == 0) {
             return;

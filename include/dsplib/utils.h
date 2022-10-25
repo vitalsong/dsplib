@@ -98,7 +98,7 @@ inline std::vector<T> from_real(const arr_real& arr) {
 template<typename T>
 inline arr_cmplx to_complex(const T* x, size_t nx) {
     if (nx % 2 != 0) {
-        throw(std::runtime_error("Array size is not even"));
+        DSPLIB_THROW("Array size is not even");
     }
 
     const T* p = x;
@@ -131,7 +131,7 @@ inline std::vector<T> from_complex(const arr_cmplx& arr) {
 template<typename T>
 inline base_array<T> zeropad(const base_array<T>& x, int n) {
     if (x.size() > n) {
-        throw std::runtime_error("padding size error");
+        DSPLIB_THROW("padding size error");
     }
 
     if (x.size() == n) {
