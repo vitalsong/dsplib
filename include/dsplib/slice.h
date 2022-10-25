@@ -88,11 +88,11 @@ public:
       , _base{rhs._base} {
     }
 
-    int size() const {
+    int size() const noexcept {
         return _nc;
     }
 
-private:
+protected:
     const base_array<T>& _base;
 };
 
@@ -113,7 +113,7 @@ public:
       , _base{rhs._base} {
     }
 
-    int size() const {
+    int size() const noexcept {
         return _nc;
     }
 
@@ -142,6 +142,7 @@ public:
         const bool is_dirrect = (dst_t0 < dst_t1) && (src_t0 < src_t1);
 
         //simple block copy/move
+        //TODO: move to span implementation
         if ((dst_step == src_step) && (dst_step == 1) && is_dirrect) {
             if (!is_same_vec) {
                 std::memcpy((dst_p + dst_t0), (src_p + src_t0), count * sizeof(T));
@@ -189,7 +190,7 @@ public:
         return (*this = base_array<T>(list));
     }
 
-private:
+protected:
     static void _assign(const T* restrict src, T* restrict dst, int src_step, int dst_step, int src_init, int dst_init,
                         int count) {
         int idx_dst = dst_init;

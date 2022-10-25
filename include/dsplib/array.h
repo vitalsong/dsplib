@@ -6,6 +6,7 @@
 
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
+#include <dsplib/span.h>
 #include <dsplib/indexing.h>
 #include <dsplib/throw.h>
 
@@ -138,20 +139,37 @@ public:
     }
 
     //--------------------------------------------------------------------
-    slice_t<T> slice(int i1, int i2, int m = 1) {
+    slice_t<T> slice(int i1, int i2, int m) {
         return slice_t<T>(*this, i1, i2, m);
     }
 
-    const_slice_t<T> slice(int i1, int i2, int m = 1) const {
-        return const_slice_t<T>(*this, i1, i2, m);
-    }
-
-    slice_t<T> slice(int i1, indexing::end_t, int m = 1) {
+    slice_t<T> slice(int i1, indexing::end_t, int m) {
         return slice_t<T>(*this, i1, size(), m);
     }
 
-    const_slice_t<T> slice(int i1, indexing::end_t, int m = 1) const {
+    const_slice_t<T> slice(int i1, int i2, int m) const {
+        return const_slice_t<T>(*this, i1, i2, m);
+    }
+
+    const_slice_t<T> slice(int i1, indexing::end_t, int m) const {
         return const_slice_t<T>(*this, i1, size(), m);
+    }
+
+    //use span for stride=1
+    span_t<T> slice(int i1, int i2) {
+        return span_t<T>(*this, i1, i2);
+    }
+
+    span_t<T> slice(int i1, indexing::end_t) {
+        return span_t<T>(*this, i1, size());
+    }
+
+    const_span_t<T> slice(int i1, int i2) const {
+        return const_span_t<T>(*this, i1, i2);
+    }
+
+    const_span_t<T> slice(int i1, indexing::end_t) const {
+        return const_span_t<T>(*this, i1, size());
     }
 
     //--------------------------------------------------------------------
