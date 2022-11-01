@@ -1,7 +1,9 @@
 #include "tests_common.h"
 
+#include <dft-tables.h>
+
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftReal) {
+TEST(FFT, FftReal) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -15,7 +17,7 @@ TEST(MathTest, FftReal) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftCmplx) {
+TEST(FFT, FftCmplx) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -28,7 +30,7 @@ TEST(MathTest, FftCmplx) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Ifft) {
+TEST(FFT, Ifft) {
     using namespace dsplib;
 
     {
@@ -49,7 +51,7 @@ TEST(MathTest, Ifft) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Czt) {
+TEST(FFT, Czt) {
     using namespace dsplib;
     arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i,
                          -1.50000000000000 - 0.866025403784439i};
@@ -61,7 +63,7 @@ TEST(MathTest, Czt) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztICzt) {
+TEST(FFT, CztICzt) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
@@ -73,7 +75,7 @@ TEST(MathTest, CztICzt) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztFft2) {
+TEST(FFT, CztFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
@@ -87,7 +89,7 @@ TEST(MathTest, CztFft2) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztIFft2) {
+TEST(FFT, CztIFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
@@ -97,5 +99,17 @@ TEST(MathTest, CztIFft2) {
         auto y1 = czt(x, n, w);
         auto y2 = ifft(x) * n;
         ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, Fft2Table) {
+    using namespace dsplib;
+    auto nfft_list = {4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+    for (auto nfft : nfft_list) {
+        auto tb = tables::fft2tb::alloc(nfft);
+        auto x1 = tb->unpack();
+        auto x2 = expj(-2 * dsplib::pi * range(nfft) / nfft);
+        ASSERT_EQ_ARR_CMPLX(x1, x2);
     }
 }

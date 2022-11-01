@@ -76,11 +76,11 @@ public:
         const int n2 = 1L << nextpow2(n);
         if (n == n2) {
             //n == 2^K
-            auto brev = tables::bitrev_table(n);
-            auto coeff = tables::dft_table(n);
+            const auto brev = tables::bitrev_table(n);
+            const auto coeff = tables::fft2tb::alloc(n)->unpack();
             solve = [brev, coeff, n](const arr_cmplx& x) {
                 arr_cmplx r = x;
-                _fft2(r.data(), coeff->data(), brev->data(), n);
+                _fft2(r.data(), coeff.data(), brev->data(), n);
                 return r;
             };
         } else {
