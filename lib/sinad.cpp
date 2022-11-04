@@ -13,7 +13,8 @@ real_t sinad(const arr_real& x) {
     }
 
     const int n = 1L << nextpow2(x.size());
-    auto y = zeropad(x * window::gauss(x.size()), n);
+    const auto w = window::blackmanharris(x.size());
+    auto y = zeropad(x * w, n);
     auto rfft = fft(y);
 
     real_t re, im;
