@@ -10,7 +10,8 @@ arr_real sinus(int n);
 arr_real hann(int n);
 arr_real hamming(int n);
 arr_real blackman(int n);
-arr_real gauss(int n);
+arr_real gauss(int n, real_t alpha = 2.5);
+arr_real blackmanharris(int n, bool periodic = false);
 
-} ///< window
-} ///< dsplib
+}   // namespace window
+}   // namespace dsplib
