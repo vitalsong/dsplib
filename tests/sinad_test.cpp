@@ -8,8 +8,8 @@ TEST(SinadTest, HarmAndNoise) {
     {
         auto baselvl = 1;
         auto harmlvl = 0.025;
-        auto powfund = baselvl * baselvl;
-        auto powharm = harmlvl * harmlvl;
+        auto powfund = dsplib::pow2(baselvl);
+        auto powharm = dsplib::pow2(harmlvl);
         auto thSINAD = 10 * dsplib::log10(powfund / powharm);
         dsplib::arr_real x = baselvl * dsplib::cos(dsplib::pi / 4 * n) + harmlvl * dsplib::sin(dsplib::pi / 2 * n);
         auto rsinad = dsplib::sinad(x);
@@ -20,9 +20,9 @@ TEST(SinadTest, HarmAndNoise) {
         auto baselvl = 1;
         auto harmlvl = 0.025;
         auto noiselvl = 0.01;
-        auto powfund = baselvl * baselvl;
-        auto powharm = harmlvl * harmlvl;
-        auto varnoise = noiselvl * noiselvl;
+        auto powfund = dsplib::pow2(baselvl);
+        auto powharm = dsplib::pow2(harmlvl);
+        auto varnoise = dsplib::pow2(noiselvl);
         auto thSINAD = 10 * dsplib::log10(powfund / (powharm + varnoise));
         dsplib::arr_real x = baselvl * dsplib::cos(dsplib::pi / 4 * n) + harmlvl * dsplib::sin(dsplib::pi / 2 * n) +
                              noiselvl * dsplib::randn(n.size());

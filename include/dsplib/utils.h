@@ -167,4 +167,8 @@ inline base_array<T> delayseq(const base_array<T>& data, int delay) {
 real_t peakloc(const arr_real& x, int idx, bool cyclic = true);
 real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
 
+//Estimate delay between signals
+int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2);
+int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2);
+
 }   // namespace dsplib

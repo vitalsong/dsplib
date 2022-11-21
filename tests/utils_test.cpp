@@ -139,3 +139,43 @@ TEST(Utils, Peakloc) {
     ASSERT_NEAR(freq, freq_q, 0.1);
     ASSERT_NEAR(freq, freq_r, 2);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, Finddelay) {
+    {
+        auto x1 = dsplib::randn(1000);
+        auto x2 = dsplib::awgn(x1, 20);
+        auto d = dsplib::finddelay(x1, x2);
+        ASSERT_EQ(d, 0);
+    }
+
+    {
+        auto x1 = dsplib::randn(1000);
+        auto x2 = dsplib::awgn(x1, 20);
+        x2 = dsplib::delayseq(x2, 5);
+        auto d = dsplib::finddelay(x1, x2);
+        ASSERT_EQ(d, 5);
+    }
+
+    {
+        auto x1 = dsplib::randn(1000);
+        auto x2 = dsplib::awgn(x1, 20);
+        x2 = dsplib::delayseq(x2, -10);
+        auto d = dsplib::finddelay(x1, x2);
+        ASSERT_EQ(d, -10);
+    }
+
+    {
+        dsplib::arr_real x = {1, 2, 3};
+        dsplib::arr_real y = {0, 0, 1, 2, 3};
+        auto d = dsplib::finddelay(x, y);
+        ASSERT_EQ(d, 2);
+    }
+
+    {
+        arr_real x = {0, 0, 0, 1, 2, 3, 0, 0};
+        arr_real y = {1, 2, 3, 0};
+        auto d = dsplib::finddelay(x, y);
+        ASSERT_EQ(d, -3);
+    }
+}

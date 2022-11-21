@@ -1,7 +1,10 @@
 #include <dsplib/utils.h>
 #include <dsplib/math.h>
+#include <dsplib/fft.h>
+#include <dsplib/ifft.h>
+
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 
 namespace dsplib {
 
@@ -197,6 +200,30 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
 
     auto d = (x[mr] - x[ml]) / (2 * x[mk] - x[ml] - x[mr]);
     return mk - real(d);
+}
+
+template<typename T>
+static int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
+    const int max_lag = max(x1.size(), x2.size());
+    const int nfft = 1L << nextpow2(max_lag);
+    const auto s1 = zeropad(x1, nfft);
+    const auto s2 = zeropad(x2, nfft);
+    const auto S1 = fft(s1);
+    const auto S2 = fft(s2);
+    const auto s = ifft(S1 * conj(S2));
+    int delay = argmax(s);
+    if (delay > nfft / 2) {
+        delay = -(nfft - delay);
+    }
+    return -delay;
+}
+
+int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2) {
+    return _finddelay(x1, x2);
+}
+
+int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2) {
+    return _finddelay(x1, x2);
 }
 
 }   // namespace dsplib
