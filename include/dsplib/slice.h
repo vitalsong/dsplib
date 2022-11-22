@@ -76,8 +76,9 @@ public:
       , _base{arr} {
     }
 
-    const_slice_t(const const_slice_t& rhs) {
-        *this = rhs;
+    const_slice_t(const const_slice_t& rhs)
+      : base_slice_t(rhs.size(), rhs._i1, rhs._i2, rhs._m)
+      , _base{rhs._base} {
     }
 
     const_slice_t(const slice_t<T>& rhs)

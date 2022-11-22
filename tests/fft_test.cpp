@@ -1,7 +1,7 @@
 #include "tests_common.h"
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftReal) {
+TEST(FFT, FftReal) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -15,7 +15,7 @@ TEST(MathTest, FftReal) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, FftCmplx) {
+TEST(FFT, FftCmplx) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
@@ -28,7 +28,7 @@ TEST(MathTest, FftCmplx) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Ifft) {
+TEST(FFT, Ifft) {
     using namespace dsplib;
 
     {
@@ -49,7 +49,7 @@ TEST(MathTest, Ifft) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Czt) {
+TEST(FFT, Czt) {
     using namespace dsplib;
     arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i,
                          -1.50000000000000 - 0.866025403784439i};
@@ -61,7 +61,7 @@ TEST(MathTest, Czt) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztICzt) {
+TEST(FFT, CztICzt) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
@@ -73,7 +73,7 @@ TEST(MathTest, CztICzt) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztFft2) {
+TEST(FFT, CztFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
@@ -87,7 +87,7 @@ TEST(MathTest, CztFft2) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, CztIFft2) {
+TEST(FFT, CztIFft2) {
     using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
