@@ -62,8 +62,9 @@ x.slice(-8, 7) ///OUT_OF_RANGE, but numpy returns [0 1 2 3 4 5 6]
 ### Fast Fourier Transform:
 The FFT/IFFT calculation table is cached on first run. To eliminate this behavior, you can use the fft_plan object.
 ```cpp
-arr_real x = randn(512);
-arr_cmplx y = fft(x);
+arr_real x = randn(500);
+arr_cmplx y1 = fft(x);  //500
+arr_cmplx y2 = fft(x, 1024); //1024
 ```
 
 ### Inverse Fast Fourier Transform:
@@ -75,8 +76,7 @@ arr_cmplx y = ifft(x);
 
 ### FIR filter:
 ```cpp
-const double IR[4] = {1, 0, 0, 0};
-arr_real h = arr_real(IR, 4);
+const auto h = fir1(100, 0.1, FilterType::Low);
 auto flt = fir(h);
 arr_real x = randn(10000);
 arr_real y = flt(x);
@@ -87,12 +87,14 @@ arr_real y = flt(x);
 auto flt = hilbert_filter();
 arr_real x = randn(10000);
 arr_cmplx y1 = flt(x);
+//or
+arr_cmplx y2 = hilbert(x);
 ```
 
 ### Add White Gaussian Noise:
 ```cpp
 arr_real x = randn(10000);
-arr_real y = awgn(x, 10);   //10dB
+arr_real y = awgn(x, 10);   //snr=10dB
 ```
 
 ### Cross-correlation:
@@ -102,13 +104,20 @@ arr_real x2 = awgn(x1, 10);
 arr_real y = xcorr(x1, x2);
 ```
 
+### Delay estimation:
+```cpp
+arr_real x1 = randn(500);
+arr_real x2 = delayseq(x1, 100);
+auto d1 = finddelay(x1, x2); ///d1=100
+auto [d2, _] = gccphat(x2, x1);   ///d2=100.0
+```
+
 ### Spectrum Analyze (16-bit scale):
 ```cpp
-int nfft = 1024;
-arr_real x = randn(nfft) * 1000;
-arr_real w = window::hann(nfft);
-x *= w;
-arr_cmplx y = fft(x) / (nfft / 2);
-arr_real z = abs(y);
-z = log10(z / 0x7FFF) * 20;
+const int n = 1024;
+arr_real x = randn(n);
+x *= window::hann(n);
+arr_cmplx y = fft(x) / (n / 2);
+y = y.slice(0, n/2);
+auto z = mag2db(abs(y) / 0x7FFF);   //20*log10(..)
 ```
