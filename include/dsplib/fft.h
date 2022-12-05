@@ -28,4 +28,9 @@ private:
  */
 arr_cmplx fft(const arr_cmplx& x);
 
+//n-point DFT
+// if x.size() is less than n, then X is padded with trailing zeros to length n
+// if x.size() is greater than n, then x is truncated to length n
+arr_cmplx fft(const arr_cmplx& x, int n);
+
 }   // namespace dsplib

@@ -5,9 +5,39 @@
 
 namespace dsplib {
 
-//sequence of numbers (not include stop)
-arr_real range(real_t start, real_t stop, real_t step = 1);
-arr_real range(real_t stop);
+//sequence of numbers (not include "stop")
+template<typename T1, typename T2, typename T3>
+using enable_if_some_float_t = std::enable_if<std::is_floating_point<T1>::value || std::is_floating_point<T2>::value ||
+                                              std::is_floating_point<T3>::value>;
+
+template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
+arr_real range(T1 start, T2 stop, T3 step = 1) {
+    int n = ::round((stop - start) / step);
+    arr_real r(n);
+    real_t v = start;
+    for (int i = 0; i < n; ++i) {
+        r[i] = v;
+        v += step;
+    }
+    return r;
+}
+
+inline arr_real range(real_t stop) {
+    return range(0.0, stop, 1.0);
+}
+
+inline arr_real range(int start, int stop, int step = 1) {
+    std::vector<real_t> x;
+    x.reserve(std::abs((stop - start) / step) + 1);
+    for (int i = start; i < stop; i += step) {
+        x.push_back(i);
+    }
+    return arr_real{std::move(x)};
+}
+
+inline arr_real range(int stop) {
+    return range(0, stop, 1);
+}
 
 //join a sequence of arrays
 //TODO: add impl for slices

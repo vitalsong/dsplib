@@ -35,6 +35,13 @@ TEST(SliceTest, Base) {
         x1 = x2.slice(0, 4);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
+    {
+        arr_real x = range(100);
+        arr_real y1 = x.slice(0, 100, 2);
+        arr_real y2 = x.slice(1, 100, 2);
+        ASSERT_EQ(y1.size(), 50);
+        ASSERT_EQ(y2.size(), 50);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

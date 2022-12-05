@@ -213,6 +213,19 @@ inline cmplx_t sign(const cmplx_t& x) {
 }
 
 //----------------------------------------------------------------------------------------
+//convert power <-> decibels: db = 10 * log10(pow)
+real_t pow2db(real_t v);
+arr_real pow2db(const arr_real& v);
+real_t db2pow(real_t v);
+arr_real db2pow(const arr_real& v);
+
+//convert magnitude <-> decibels: db = 20 * log10(mag)
+real_t mag2db(real_t v);
+arr_real mag2db(const arr_real& v);
+real_t db2mag(real_t v);
+arr_real db2mag(const arr_real& v);
+
+//----------------------------------------------------------------------------------------
 //pow(scalar, vec) -> vec
 inline arr_real operator^(const real_t& v, const arr_real& rhs) {
     arr_real res = rhs;

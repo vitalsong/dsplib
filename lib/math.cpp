@@ -557,4 +557,38 @@ real_t rad2deg(const real_t& x) {
     return x / pi * 180;
 }
 
+//-------------------------------------------------------------------------------------------------
+real_t pow2db(real_t v) {
+    return 10 * std::log10(v);
+}
+
+arr_real pow2db(const arr_real& v) {
+    return 10 * log10(v);
+}
+
+real_t db2pow(real_t v) {
+    return std::pow(real_t(10), (v / 10));
+}
+
+arr_real db2pow(const arr_real& v) {
+    return real_t(10) ^ (v / 10);
+}
+
+//-------------------------------------------------------------------------------------------------
+real_t mag2db(real_t v) {
+    return 20 * std::log10(v);
+}
+
+arr_real mag2db(const arr_real& v) {
+    return 20 * log10(v);
+}
+
+real_t db2mag(real_t v) {
+    return std::pow(real_t(10), (v / 20));
+}
+
+arr_real db2mag(const arr_real& v) {
+    return real_t(10) ^ (v / 20);
+}
+
 }   // namespace dsplib

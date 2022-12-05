@@ -122,4 +122,17 @@ arr_cmplx fft(const arr_cmplx& arr) {
     return plan(arr);
 }
 
+//-------------------------------------------------------------------------------------------------
+arr_cmplx fft(const arr_cmplx& x, int n) {
+    if (n == x.size()) {
+        return fft(x);
+    }
+
+    if (n > x.size()) {
+        return fft(zeropad(x, n));
+    }
+
+    return fft(x.slice(0, n));
+}
+
 }   // namespace dsplib
