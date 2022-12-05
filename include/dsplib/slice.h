@@ -33,7 +33,9 @@ public:
         _n = n;
         _i1 = (i1 < 0) ? (_n + i1) : (i1);
         _i2 = (i2 < 0) ? (_n + i2) : (i2);
-        _nc = std::abs((_i2 - _i1) / _m);
+        const int d = std::abs(_i2 - _i1);
+        const int tm = std::abs(_m);
+        _nc = (d % tm != 0) ? (d / tm + 1) : (d / tm);
 
         if ((_i1 < 0) || (_i1 >= _n)) {
             DSPLIB_THROW("Left slice index out of range");

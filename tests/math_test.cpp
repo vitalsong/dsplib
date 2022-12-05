@@ -273,3 +273,22 @@ TEST(MathTest, Sign) {
         ASSERT_NEAR(imag(sign(x)), imag(r), 1e-4);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Pow2db) {
+    {
+        arr_real db = {-10, 0, 10, 20};
+        arr_real mag = {0.3162, 1.0000, 3.1623, 10.0000};
+        arr_real pow = {0.1000, 1.0000, 10.0000, 100.0000};
+
+        ASSERT_EQ_ARR_REAL(db2pow(db), pow, 1e-3);
+        ASSERT_EQ_ARR_REAL(db2mag(db), mag, 1e-3);
+        ASSERT_EQ_ARR_REAL(mag2db(mag), db, 1e-3);
+        ASSERT_EQ_ARR_REAL(pow2db(pow), db, 1e-3);
+
+        ASSERT_NEAR(db2pow(db(0)), pow(0), 1e-3);
+        ASSERT_NEAR(db2mag(db(0)), mag(0), 1e-3);
+        ASSERT_NEAR(mag2db(mag(0)), db(0), 1e-3);
+        ASSERT_NEAR(pow2db(pow(0)), db(0), 1e-3);
+    }
+}

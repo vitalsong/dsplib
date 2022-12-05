@@ -107,4 +107,33 @@ private:
     int _n{0};
 };
 
+enum class FilterType
+{
+    Low,
+    High,
+    Bandpass,
+    Bandstop
+};
+
+enum class FirType : int
+{
+    NonlinearPhase = 0,   //Nonlinear phase
+    EvenSymm = 1,         //Even-order symmetric coefficients
+    OddSym = 2,           //Odd-order symmetric coefficients
+    EvenAntiSym = 3,      //Even-order antisymmetric coefficients
+    OddAntiSym = 4        //Odd-order antisymmetric coefficients
+};
+
+//Type of linear phase FIR filter
+FirType firtype(const dsplib::arr_real& h);
+
+//Window-based FIR filter design (low or high)
+//n - filter order
+//wn - frequency constraints (0, 1)
+//ftype - fir type
+arr_real fir1(int n, real_t wn, FilterType ftype = FilterType::Low);
+
+//Window-based FIR filter design (bandpass or stop)
+arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype = FilterType::Bandpass);
+
 }   // namespace dsplib

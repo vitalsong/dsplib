@@ -23,6 +23,18 @@ TEST(Utils, Range) {
         arr_real x2 = {-1, -0.5, 0, 0.5};
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
+    {
+        auto x1 = range(0, 100, 2);
+        auto x2 = range(1, 100, 2);
+        ASSERT_EQ(x1.size(), 50);
+        ASSERT_EQ(x2.size(), 50);
+    }
+    {
+        auto x1 = range(0, 100, 2.0);
+        auto x2 = range(1, 100, 2.0);
+        ASSERT_EQ(x1.size(), 50);
+        ASSERT_EQ(x2.size(), 50);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
