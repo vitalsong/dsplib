@@ -5,6 +5,8 @@
 
 #if defined(FFT_BACKEND_FFTW3)
 #include "fft2-impl/fftw3.h"
+#elif defined(FFT_BACKEND_NE10)
+#include "fft2-impl/ne10.h"
 #else
 #include "fft2-impl/default.h"
 #endif
