@@ -13,8 +13,8 @@ namespace dsplib {
 //-------------------------------------------------------------------------------------------------
 //caching czt(n, n, exp(-2pi/n), 1) for nfft != 2^m
 //TODO: optional disable caching
-using czt_plan_ptr = std::shared_ptr<czt_plan>;
-static datacache<size_t, czt_plan_ptr> g_czt_cache;
+using CztPlanPtr = std::shared_ptr<CztPlan>;
+static datacache<size_t, CztPlanPtr> g_czt_cache;
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
@@ -69,10 +69,10 @@ static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t*
 }
 
 //-------------------------------------------------------------------------------------------------
-class fft_plan_impl
+class FftPlanImpl
 {
 public:
-    explicit fft_plan_impl(int n) {
+    explicit FftPlanImpl(int n) {
         const int n2 = 1L << nextpow2(n);
         if (n == n2) {
             //n == 2^K
@@ -87,7 +87,7 @@ public:
             //n != 2^K
             if (!g_czt_cache.cached(n)) {
                 cmplx_t w = expj(-2 * pi / n);
-                auto plan = std::make_shared<czt_plan>(n, n, w);
+                auto plan = std::make_shared<CztPlan>(n, n, w);
                 g_czt_cache.update(n, plan);
             }
 
@@ -102,23 +102,23 @@ public:
 };
 
 //-------------------------------------------------------------------------------------------------
-fft_plan::fft_plan(int n)
-  : _d{std::make_shared<fft_plan_impl>(n)} {
+FftPlan::FftPlan(int n)
+  : _d{std::make_shared<FftPlanImpl>(n)} {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fft_plan::operator()(const arr_cmplx& x) const {
+arr_cmplx FftPlan::operator()(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fft_plan::solve(const arr_cmplx& x) const {
+arr_cmplx FftPlan::solve(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx fft(const arr_cmplx& arr) {
-    fft_plan plan(arr.size());
+    FftPlan plan(arr.size());
     return plan(arr);
 }
 

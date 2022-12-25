@@ -1,7 +1,6 @@
 #pragma once
 
 #include <dsplib.h>
-#include <dsplib/literals.h>
 #include <gtest/gtest.h>
 
 #define EQ_ABS_ERR (1e-7)

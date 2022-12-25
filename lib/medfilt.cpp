@@ -36,7 +36,7 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
 }
 
 //------------------------------------------------------------------------------------------
-median_filter::median_filter(int n) {
+MedianFilter::MedianFilter(int n) {
     assert(n >= 3);
     _i = 0;
     _n = (n / 2) * 2 + 1;
@@ -45,7 +45,7 @@ median_filter::median_filter(int n) {
 }
 
 //------------------------------------------------------------------------------------------
-arr_real median_filter::process(const arr_real& x) {
+arr_real MedianFilter::process(const arr_real& x) {
     auto y = zeros(x.size());
     for (int i = 0; i < x.size(); ++i) {
         _i = (_i + 1) % _n;
@@ -59,7 +59,7 @@ arr_real median_filter::process(const arr_real& x) {
 
 //------------------------------------------------------------------------------------------
 arr_real medfilt(arr_real& x, int n) {
-    auto flt = median_filter(n);
+    auto flt = MedianFilter(n);
     auto y = flt.process(x);
     return y;
 }

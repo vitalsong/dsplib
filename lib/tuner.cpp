@@ -9,7 +9,7 @@ namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
 //TODO: combine tables for multiples freq / fs (example 100/8000 == 5/400)
-tuner::sin_table_t tuner::get_table(int fs) {
+Tuner::sin_table_t Tuner::get_table(int fs) {
     static std::map<int, sin_table_t> fs_table;
     static std::mutex mutex;
 
@@ -28,7 +28,7 @@ tuner::sin_table_t tuner::get_table(int fs) {
 }
 
 //-------------------------------------------------------------------------------------------------
-tuner::tuner(int fs, int freq) {
+Tuner::Tuner(int fs, int freq) {
     if (abs(freq) > fs / 2) {
         DSPLIB_THROW("freq is greater than half of sample rate");
     }
@@ -39,7 +39,7 @@ tuner::tuner(int fs, int freq) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx tuner::process(const arr_cmplx& x) {
+arr_cmplx Tuner::process(const arr_cmplx& x) {
     if (_freq == 0) {
         return x;
     }
@@ -73,7 +73,7 @@ arr_cmplx tuner::process(const arr_cmplx& x) {
 }
 
 //-------------------------------------------------------------------------------------------------
-void tuner::set_freq(int freq) {
+void Tuner::set_freq(int freq) {
     if (abs(freq) > _fs / 2) {
         DSPLIB_THROW("freq is greater than half of sample rate");
     }
@@ -82,7 +82,7 @@ void tuner::set_freq(int freq) {
 }
 
 //-------------------------------------------------------------------------------------------------
-int tuner::freq() const {
+int Tuner::freq() const {
     return _freq;
 }
 

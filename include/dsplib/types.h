@@ -52,14 +52,17 @@ constexpr real_t pi = 3.141592653589793238463;
 struct cmplx_t;
 
 template<typename T>
-struct is_scalar_ar : std::integral_constant<bool, std::is_arithmetic<T>::value || std::is_same<T, cmplx_t>::value>
+struct is_scalar_ar : std::integral_constant<bool, std::is_arithmetic_v<T> || std::is_same_v<T, cmplx_t>>
 {};
 
 template<typename T>
 using enable_scalar_t = std::enable_if<is_scalar_ar<T>::value>;
 
 template<typename T, typename T2>
-using enable_convertible_t = std::enable_if<std::is_convertible<T, T2>::value>;
+using enable_convertible_t = std::enable_if<std::is_convertible_v<T, T2>>;
+
+template<typename T1, typename T2>
+using enable_same_t = std::enable_if<std::is_same_v<T1, T2>>;
 
 template<typename T, class = void>
 struct cmplx_convert_to_t : std::false_type
@@ -85,18 +88,17 @@ struct cmplx_t
     template<typename T>
     using convert_fn_t = std::function<cmplx_t(T)>;
 
-    constexpr cmplx_t(real_t _re = 0, real_t _im = 0)
-      : re(_re)
-      , im(_im) {
+    constexpr cmplx_t(real_t re_ = 0, real_t im_ = 0)
+      : re(re_)
+      , im(im_) {
     }
 
     constexpr cmplx_t(const cmplx_t&) = default;
 
     //scalar -> cmplx_t
-    template<typename T, class _S = typename std::is_arithmetic<T>::type>
+    template<typename T, class S_ = typename std::is_arithmetic<T>::type>
     constexpr cmplx_t(const T& v)
-      : re{static_cast<real_t>(v)}
-      , im{0} {
+      : re{static_cast<real_t>(v)} {
     }
 
     //std::complex -> cmplx_t
@@ -105,7 +107,7 @@ struct cmplx_t
         *this = to_cmplx_cast(v);
     }
 
-    template<typename T, typename _C = typename std::enable_if<cmplx_convert_from_t<T>::value>::type>
+    template<typename T, typename C_ = typename std::enable_if<cmplx_convert_from_t<T>::value>::type>
     operator T() const {
         return from_cmplx_cast<T>(*this);
     }
@@ -208,36 +210,36 @@ struct cmplx_t
         return abs2() < rhs.abs2();
     }
 
-    constexpr cmplx_t conj() const noexcept {
+    [[nodiscard]] constexpr cmplx_t conj() const noexcept {
         return {re, -im};
     }
 
-    constexpr real_t abs2() const noexcept {
+    [[nodiscard]] constexpr real_t abs2() const noexcept {
         return re * re + im * im;
     }
 };
 
 //left oriented real * cmplx
-template<class T, class _S = typename enable_scalar_t<T>::type,
-         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = typename enable_scalar_t<T>::type,
+         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
 constexpr cmplx_t operator+(const T& lhs, const cmplx_t& rhs) {
     return rhs + lhs;
 }
 
-template<class T, class _S = typename enable_scalar_t<T>::type,
-         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = typename enable_scalar_t<T>::type,
+         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
 constexpr cmplx_t operator-(const T& lhs, const cmplx_t& rhs) {
     return {lhs - rhs.re, -rhs.im};
 }
 
-template<class T, class _S = typename enable_scalar_t<T>::type,
-         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = typename enable_scalar_t<T>::type,
+         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
 constexpr cmplx_t operator*(const T& lhs, const cmplx_t& rhs) {
     return rhs * lhs;
 }
 
-template<class T, class _S = typename enable_scalar_t<T>::type,
-         class _C = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = typename enable_scalar_t<T>::type,
+         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
 constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }

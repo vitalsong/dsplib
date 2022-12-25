@@ -14,26 +14,30 @@ arr_cmplx hilbert(const arr_real& s);
 /*!
  * \brief Hilbert filter class
  */
-class hilbert_filter
+class HilbertFilter
 {
 public:
-    hilbert_filter();
-    explicit hilbert_filter(const arr_real& h);
+    //default bandpass filter IR
+    //TODO: generate optimal IR
+    HilbertFilter();
+
+    explicit HilbertFilter(const arr_real& h);
 
     //main processing
     arr_cmplx process(const arr_real& s);
 
     //current impulse response
-    const arr_real& impz() const;
+    [[nodiscard]] const arr_real& impz() const;
 
     arr_cmplx operator()(const arr_real& x) {
         return this->process(x);
     }
 
 private:
-    fir _fir;      ///< FIR filter for I channel
-    arr_real _h;   ///< impulse response
-    arr_real _d;   ///< delay for Q channel
+    FirFilter<real_t> _fir;   ///< FIR filter for I channel
+    arr_real _d;              ///< delay for Q channel
 };
+
+using hilbert_filter [[deprecated]] = HilbertFilter;
 
 }   // namespace dsplib

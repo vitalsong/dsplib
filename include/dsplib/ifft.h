@@ -6,18 +6,20 @@
 
 namespace dsplib {
 
-class ifft_plan_impl;
+class IfftPlanImpl;
 
-class ifft_plan
+class IfftPlan
 {
 public:
-    ifft_plan(int n);
+    IfftPlan(int n);
     arr_cmplx operator()(const arr_cmplx& x) const;
     arr_cmplx solve(const arr_cmplx& x) const;
 
 private:
-    std::shared_ptr<ifft_plan_impl> _d;
+    std::shared_ptr<IfftPlanImpl> _d;
 };
+
+using ifft_plan [[deprecated]] = IfftPlan;
 
 /*!
  * \brief Inverse fourier transform

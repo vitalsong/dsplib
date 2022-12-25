@@ -77,14 +77,14 @@ arr_cmplx y = ifft(x);
 ### FIR filter:
 ```cpp
 const auto h = fir1(100, 0.1, FilterType::Low);
-auto flt = fir(h);
+auto flt = FftFilter(h);
 arr_real x = randn(10000);
 arr_real y = flt(x);
 ```
 
 ### Hilbert filter:
 ```cpp
-auto flt = hilbert_filter();
+auto flt = HilbertFilter();
 arr_real x = randn(10000);
 arr_cmplx y1 = flt(x);
 //or

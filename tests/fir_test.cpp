@@ -12,7 +12,7 @@ const dsplib::arr_real impulses = {
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FirAndOne) {
     using namespace dsplib;
-    auto flt = fir(impulses);
+    auto flt = FirFilter(impulses);
     auto x = zeros(impulses.size());
     x[0] = 1;
     auto y = flt(x);
@@ -22,7 +22,7 @@ TEST(FirTest, FirAndOne) {
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftFirAndOne) {
     using namespace dsplib;
-    auto flt = fir_fft(impulses);
+    auto flt = FftFilter(impulses);
     auto x = zeros(2 * impulses.size());
     x[0] = 1;
     arr_real y = flt(x).slice(0, impulses.size());
@@ -32,8 +32,8 @@ TEST(FirTest, FftFirAndOne) {
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftEqFir) {
     using namespace dsplib;
-    auto flt1 = fir_fft(impulses);
-    auto flt2 = fir(impulses);
+    auto flt1 = FftFilter(impulses);
+    auto flt2 = FirFilter(impulses);
     auto in = randn(10000);
     auto x1 = flt1(in);
     auto x2 = flt2(in);
@@ -48,7 +48,7 @@ TEST(FirTest, FftEqFir) {
 TEST(FirTest, NonSymIR) {
     using namespace dsplib;
     auto h = randn(103);
-    auto flt = fir(h);
+    auto flt = FirFilter(h);
     auto x = zeros(h.size());
     x[0] = 1;
     auto y = flt(x);
@@ -59,8 +59,8 @@ TEST(FirTest, NonSymIR) {
 TEST(FirTest, CmplxFftFir) {
     using namespace dsplib;
     auto h = randn(100) + randn(100) * 1i;
-    auto flt1 = fir_fft(h);
-    auto flt2 = fir_cmplx(h);
+    auto flt1 = FftFilter(h);
+    auto flt2 = FirFilter(h);
     auto in = randn(10000) + randn(10000) * 1i;
     auto x1 = flt1(in);
     auto x2 = flt2(in);
@@ -88,14 +88,14 @@ TEST(FirTest, Lms) {
     using namespace dsplib;
     int M = impulses.size();
     int L = 1000;
-    auto flt = fir(impulses);
+    auto flt = FirFilter(impulses);
     auto x = randn(L);
     auto n = 0.01 * randn(L);
     auto d = flt(x) + n;
 
     auto mu_max = 2 / ((M + 1) * mean(x * x));
     auto mu = 0.05 * mu_max;
-    auto adapt = lms(M, mu);
+    auto adapt = LmsFilterR(M, mu);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
     ASSERT_LE(nmse(w, impulses), 1e-3);
@@ -105,13 +105,13 @@ TEST(FirTest, Lms) {
 TEST(FirTest, Rls) {
     int M = impulses.size();
     int L = 1000;
-    auto flt = dsplib::fir(impulses);
+    auto flt = dsplib::FirFilter(impulses);
     auto x = dsplib::randn(L);
     auto n = 0.01 * dsplib::randn(L);
     auto d = flt(x) + n;
 
     auto diag_load = 100.0 / dsplib::mean(x * x);
-    auto adapt = dsplib::rls(M, 0.99, diag_load);
+    auto adapt = dsplib::RlsFilterR(M, 0.99, diag_load);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
     ASSERT_LE(nmse(w, impulses), 0.01);
@@ -123,12 +123,12 @@ TEST(FirTest, LmsCmplx) {
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
-    auto flt = fir_cmplx(h);
+    auto flt = FirFilterC(h);
     arr_cmplx x = complex(randn(L), randn(L));
     arr_cmplx n = 0.01 * complex(randn(L), randn(L));
     arr_cmplx d = flt(x) + n;
 
-    auto adapt = clms(M, 0.5, lms_type::NLMS);
+    auto adapt = LmsFilterC(M, 0.5, LmsType::NLMS);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
     ASSERT_LE(nmse(w, h), 0.1);
@@ -140,12 +140,12 @@ TEST(FirTest, RlsCmplx) {
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
-    auto flt = fir_cmplx(h);
+    auto flt = FirFilterC(h);
     arr_cmplx x = complex(randn(L), randn(L));
     arr_cmplx n = 0.01 * complex(randn(L), randn(L));
     arr_cmplx d = flt(x) + n;
 
-    auto adapt = crls(M, 0.98);
+    auto adapt = RlsFilterC(M, 0.98);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
     ASSERT_LE(nmse(w, h), 0.1);
@@ -161,7 +161,7 @@ TEST(FirTest, Fir1) {
         ASSERT_EQ(N, 101);
         ASSERT_EQ(firtype(h), FirType::EvenSymm);
         auto x = sin(2 * pi * 0.2 * tt / 2);
-        auto flt = fir(h);
+        auto flt = FirFilter(h);
         auto y = flt(x);
 
         const arr_real in = x.slice(N, indexing::end);
@@ -177,7 +177,7 @@ TEST(FirTest, Fir1) {
         ASSERT_EQ(N, 101);
         ASSERT_EQ(firtype(h), FirType::EvenSymm);
         auto x = sin(2 * pi * 0.05 * tt / 2);
-        auto flt = fir(h);
+        auto flt = FirFilter(h);
         auto y = flt(x);
 
         const arr_real in = x.slice(N, indexing::end);
@@ -193,7 +193,7 @@ TEST(FirTest, Fir1) {
         ASSERT_EQ(N, 100);
         ASSERT_EQ(firtype(h), FirType::OddSym);
         auto x = sin(2 * pi * 0.15 * tt / 2);
-        auto flt = fir(h);
+        auto flt = FirFilter(h);
         auto y = flt(x);
 
         const arr_real in = x.slice(N, indexing::end);
@@ -209,7 +209,7 @@ TEST(FirTest, Fir1) {
         ASSERT_EQ(N, 101);
         ASSERT_EQ(firtype(h), FirType::EvenSymm);
         auto x = sin(2 * pi * 0.15 * tt / 2);
-        auto flt = fir(h);
+        auto flt = FirFilter(h);
         auto y = flt(x);
 
         const arr_real in = x.slice(N, indexing::end);

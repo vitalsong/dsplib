@@ -1,10 +1,12 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <dsplib/utils.h>
+#include <dsplib/math.h>
 
 namespace dsplib {
 
-enum class lms_type
+enum class LmsType
 {
     LMS,
     NLMS
@@ -12,33 +14,33 @@ enum class lms_type
 
 //LMS adaptive filter
 template<typename T>
-class base_lms
+class LmsFilter
 {
 public:
     //len: length of FIR filter weights
     //step_size: adaptation step size
     //method: method to calculate filter weights
     //leak: leakage factor
-    explicit base_lms(int len, real_t step_size, lms_type method = lms_type::LMS, real_t leak = 1)
-      : _len{len}
+    explicit LmsFilter(int len, real_t step_size, LmsType method = LmsType::LMS, real_t leak = 1)
+      : _u(len - 1)
+      , _w(len)
+      , _mu{step_size}
+      , _len{len}
       , _method{method}
       , _lk{leak} {
-        _u = zeros(len - 1);
-        _w = zeros(len);
-        _mu = step_size;
     }
 
-    struct result_t
+    struct Result
     {
         base_array<T> y;   //output
         base_array<T> e;   //error
     };
 
-    result_t operator()(const base_array<T>& x, const base_array<T>& d) {
+    Result operator()(const base_array<T>& x, const base_array<T>& d) {
         return this->process(x, d);
     }
 
-    result_t process(const base_array<T>& x, const base_array<T>& d) {
+    Result process(const base_array<T>& x, const base_array<T>& d) {
         if (x.size() != d.size()) {
             DSPLIB_THROW("vector size error: len(x) != len(d)");
         }
@@ -47,7 +49,7 @@ public:
         base_array<T> y = zeros(nx);
         base_array<T> e = zeros(nx);
         base_array<T> tu = _u | x;
-        arr_real tu2 = (_method == lms_type::NLMS) ? abs2(tu) : arr_real{};
+        arr_real tu2 = (_method == LmsType::NLMS) ? abs2(tu) : arr_real{};
 
         //update delay
         _u = tu.slice(nx, nx + _len - 1);
@@ -64,13 +66,13 @@ public:
                 continue;
             }
 
-            if (_method == lms_type::LMS) {
+            if (_method == LmsType::LMS) {
                 //TODO: dont use cycles
                 //w(n) = w(n-1) * a + mu * e(n) * u(n)
                 for (size_t i = 0; i < _len; i++) {
                     _w[i] = (_w[i] * _lk) + (_mu * e[k] * conj(tu[i + k]));
                 }
-            } else if (_method == lms_type::NLMS) {
+            } else if (_method == LmsType::NLMS) {
                 //pu = u.T(n) * u(n)
                 //TODO: use recurrent sum
                 real_t pu = 0;
@@ -93,7 +95,7 @@ public:
         _locked = locked;
     }
 
-    bool coeffs_locked() const {
+    [[nodiscard]] bool coeffs_locked() const {
         return _locked;
     }
 
@@ -110,14 +112,15 @@ private:
     real_t _mu;
     int _len;
     bool _locked{false};
-    lms_type _method;
+    LmsType _method;
     real_t _lk;
 };
 
-//real implementation
-using lms = base_lms<real_t>;
+using lms [[deprecated]] = LmsFilter<real_t>;
+using clms [[deprecated]] = LmsFilter<cmplx_t>;
+using lms_type [[deprecated]] = LmsType;
 
-//complex implementation
-using clms = base_lms<cmplx_t>;
+using LmsFilterR = LmsFilter<real_t>;
+using LmsFilterC = LmsFilter<cmplx_t>;
 
 }   // namespace dsplib

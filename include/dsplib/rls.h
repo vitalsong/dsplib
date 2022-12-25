@@ -6,41 +6,37 @@ namespace dsplib {
 
 //RLS adaptive filter
 template<typename T>
-class base_rls
+class RlsFilter
 {
 public:
-    base_rls(int filter_len, real_t forget_factor = 0.9, real_t diag_load = 1)
-
+    RlsFilter(int filter_len, real_t forget_factor = 0.9, real_t diag_load = 1.0)
       : _n{filter_len}
-      , _mu{forget_factor} {
-        //init filter
-        _w = dsplib::zeros(_n);
-        _u = dsplib::zeros(_n);
-
-        //identity matrix
-        _P = dsplib::zeros(_n * _n);
+      , _mu{forget_factor}
+      , _u(_n)
+      , _w(_n)
+      , _p(_n * _n) {
         for (size_t i = 0; i < _n; i++) {
-            _P[i * _n + i] = diag_load;
+            _p[i * _n + i] = diag_load;
         }
     }
 
-    struct result_t
+    struct Result
     {
         base_array<T> y;   //output
         base_array<T> e;   //error
     };
 
-    result_t operator()(const base_array<T>& x, const base_array<T>& d) {
+    Result operator()(const base_array<T>& x, const base_array<T>& d) {
         return this->process(x, d);
     }
 
-    result_t process(const base_array<T>& x, const base_array<T>& d);
+    Result process(const base_array<T>& x, const base_array<T>& d);
 
     void set_lock_coeffs(bool locked) {
         _locked = locked;
     }
 
-    bool coeffs_locked() const {
+    [[nodiscard]] bool coeffs_locked() const {
         return _locked;
     }
 
@@ -53,18 +49,21 @@ private:
     real_t _mu;
     base_array<T> _u;
     base_array<T> _w;
-    base_array<T> _P;
+    base_array<T> _p;
     bool _locked{false};
 };
 
 //-----------------------------------------------------------------------------------------------
 
-using rls = base_rls<real_t>;
-using crls = base_rls<cmplx_t>;
+using rls [[deprecated]] = RlsFilter<real_t>;
+using crls [[deprecated]] = RlsFilter<cmplx_t>;
+
+using RlsFilterR = RlsFilter<real_t>;
+using RlsFilterC = RlsFilter<cmplx_t>;
 
 //-----------------------------------------------------------------------------------------------
 template<typename T>
-typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, const base_array<T>& d) {
+typename RlsFilter<T>::Result RlsFilter<T>::process(const base_array<T>& x, const base_array<T>& d) {
     if (x.size() != d.size()) {
         DSPLIB_THROW("vector size error: len(x) != len(d)");
     }
@@ -98,7 +97,7 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             std::fill(Pu.begin(), Pu.end(), 0);
             for (size_t i = 0; i < _n; i++) {
                 for (size_t k = 0; k < _n; k++) {
-                    Pu[i] += _P[i * _n + k] * _u[k];
+                    Pu[i] += _p[i * _n + k] * _u[k];
                 }
             }
 
@@ -106,7 +105,7 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             std::fill(uTP.begin(), uTP.end(), 0);
             for (size_t i = 0; i < _n; i++) {
                 for (size_t k = 0; k < _n; k++) {
-                    uTP[i] += conj(_u[k]) * _P[k * _n + i];
+                    uTP[i] += conj(_u[k]) * _p[k * _n + i];
                 }
             }
 
@@ -127,13 +126,13 @@ typename base_rls<T>::result_t base_rls<T>::process(const base_array<T>& x, cons
             for (int i = 0; i < _n; i++) {
                 for (int j = 0; j < _n; j++) {
                     for (int k = 0; k < _n; k++) {
-                        guP[i * _n + j] += gu[i * _n + k] * _P[k * _n + j];
+                        guP[i * _n + j] += gu[i * _n + k] * _p[k * _n + j];
                     }
                 }
             }
 
             for (size_t i = 0; i < (_n * _n); i++) {
-                _P[i] = (1 / _mu) * (_P[i] - guP[i]);
+                _p[i] = (1 / _mu) * (_p[i] - guP[i]);
             }
         }
 
