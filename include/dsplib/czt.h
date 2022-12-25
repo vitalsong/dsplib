@@ -5,18 +5,20 @@
 
 namespace dsplib {
 
-class czt_plan_impl;
+class CztPlanImpl;
 
-class czt_plan
+class CztPlan
 {
 public:
-    explicit czt_plan(int n, int m, cmplx_t w, cmplx_t a = 1);
+    explicit CztPlan(int n, int m, cmplx_t w, cmplx_t a = 1);
     arr_cmplx operator()(const arr_cmplx& x) const;
     arr_cmplx solve(const arr_cmplx& x) const;
 
 private:
-    std::shared_ptr<czt_plan_impl> _d;
+    std::shared_ptr<CztPlanImpl> _d;
 };
+
+using czt_plan [[deprecated]] = CztPlan;
 
 /*!
 * \brief One-shot Chirp Z-transform

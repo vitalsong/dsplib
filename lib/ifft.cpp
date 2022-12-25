@@ -5,10 +5,10 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-class ifft_plan_impl
+class IfftPlanImpl
 {
 public:
-    explicit ifft_plan_impl(int n)
+    explicit IfftPlanImpl(int n)
       : _fft{n} {
     }
 
@@ -17,27 +17,27 @@ public:
         return conj(_fft(conj(x)) / n);
     }
 
-    fft_plan _fft;
+    FftPlan _fft;
 };
 
 //-------------------------------------------------------------------------------------------------
-ifft_plan::ifft_plan(int n)
-  : _d{std::make_shared<ifft_plan_impl>(n)} {
+IfftPlan::IfftPlan(int n)
+  : _d{std::make_shared<IfftPlanImpl>(n)} {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx ifft_plan::operator()(const arr_cmplx& x) const {
+arr_cmplx IfftPlan::operator()(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx ifft_plan::solve(const arr_cmplx& x) const {
+arr_cmplx IfftPlan::solve(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx ifft(const arr_cmplx& x) {
-    ifft_plan plan(x.size());
+    IfftPlan plan(x.size());
     return plan(x);
 }
 

@@ -5,18 +5,20 @@
 
 namespace dsplib {
 
-class fft_plan_impl;
+class FftPlanImpl;
 
-class fft_plan
+class FftPlan
 {
 public:
-    fft_plan(int n);
+    FftPlan(int n);
     arr_cmplx operator()(const arr_cmplx& x) const;
     arr_cmplx solve(const arr_cmplx& x) const;
 
 private:
-    std::shared_ptr<fft_plan_impl> _d;
+    std::shared_ptr<FftPlanImpl> _d;
 };
+
+using fft_plan [[deprecated]] = FftPlan;
 
 //TODO: rfft optimization
 

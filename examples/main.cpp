@@ -65,7 +65,7 @@ static void spectrum_example() {
     x *= dsp::window::hamming(nfft);
     auto y = dsp::fft(x) / nfft;
     y = y.slice(0, nfft / 2);
-    auto z = 20 * dsp::log10(dsp::abs(y) / 0x7FFF);
+    auto z = dsplib::mag2db(dsp::abs(y) / 0x7FFF);
     auto freqs = dsp::range(nfft / 2) * fs / nfft;
     matplot::title("Spectrum Example");
     matplot::plot(freqs, z);
@@ -103,7 +103,7 @@ static void fir_example() {
     int fs = 2000;
     int n = 200;
 
-    auto flt = dsp::fir(IR);
+    auto flt = dsp::FirFilter(IR);
     auto t = dsp::range(0, n) * 2 * dsp::pi * 50 / fs;
     auto x_in = dsp::sin(t) * 100 + dsp::randn(n) * 10;
     auto x_out = flt(x_in);
@@ -136,7 +136,7 @@ static void interp_example() {
     int n = 30;
     int m = 4;
 
-    auto flt = dsp::fir(IR);
+    auto flt = dsp::FirFilter(IR);
     auto t = dsp::range(0, n) * 2 * dsp::pi * 200 / fs;
     auto x_in = dsp::sin(t) * 100;
     auto interp_in = dsplib::upsample(x_in, m);
@@ -156,7 +156,7 @@ static void interp_example() {
 static void lms_example() {
     int M = 100;
     int L = 10000;
-    auto flt = dsp::fir(IR);
+    auto flt = dsp::FirFilter(IR);
     auto t = dsp::range(0, L) / 1000;
     auto s = dsp::sin(2 * dsp::pi * 3 * t) + dsp::sin(2 * dsp::pi * 4 * t);
     auto x = 10 * dsp::randn(L);
@@ -164,7 +164,7 @@ static void lms_example() {
 
     auto mu_max = 2 / ((M + 1) * dsp::mean(x * x));
     auto mu = 0.05 * mu_max;
-    auto lms = dsp::lms(M, mu);
+    auto lms = dsp::LmsFilterR(M, mu);
     auto [y, e] = lms(x, d);
 
     matplot::title("LMS");
@@ -179,18 +179,18 @@ static void nlms_example() {
     dsp::arr_real num = {0.0164, 0.1031, -0.0632, -0.0907, 0.0467, 0.3139, 0.4526,
                          0.3139, 0.0467, -0.0907, -0.0632, 0.1031, 0.0164};
 
-    auto filt = dsp::fir(num);
+    auto filt = dsp::FirFilter(num);
     auto x = 0.1 * dsp::randn(1000);
     auto n = 0.001 * dsp::randn(1000);
     auto d = filt(x) + n;
     double mu = 0.2;
 
     //RLS
-    auto nlms = dsp::lms(M, mu, dsp::lms_type::NLMS);
+    auto nlms = dsp::LmsFilterR(M, mu, dsp::LmsType::NLMS);
     auto [y1, e1] = nlms(x, d);
 
     //LMS
-    auto lms = dsp::lms(M, mu);
+    auto lms = dsp::LmsFilterR(M, mu);
     auto [y2, e2] = lms(x, d);
 
     matplot::title("Compare the LMS and NLMS perfomance");
@@ -209,8 +209,8 @@ static void tuner_example() {
     int fs = 8000;
     int n = 2048;
 
-    dsplib::tuner tuner1(fs, 1000);
-    dsplib::tuner tuner2(fs, -1000);
+    dsplib::Tuner tuner1(fs, 1000);
+    dsplib::Tuner tuner2(fs, -1000);
 
     auto t = dsp::range(n) / fs;
 
@@ -231,7 +231,7 @@ static void tuner_example() {
 
 //--------------------------------------------------------------------------------
 void agc_example_sinus() {
-    auto agc = dsp::agc(1, 30, 1000, 0.01);
+    auto agc = dsp::Agc(1, 30, 1000, 0.01);
     auto t = dsp::range(10000) / 8000;
     auto x = 10 * expj(2 * dsp::pi * 440 * t);
     auto [y, g] = agc(x);
@@ -243,8 +243,8 @@ void agc_example_sinus() {
 
 //--------------------------------------------------------------------------------
 void agc_example_impulse() {
-    auto agc1 = dsp::agc(1, 30, 100, 0.02, 0.02);
-    auto agc2 = dsp::agc(1, 24, 100, 0.02, 0.02);
+    auto agc1 = dsp::Agc(1, 30, 100, 0.02, 0.02);
+    auto agc2 = dsp::Agc(1, 24, 100, 0.02, 0.02);
 
     auto xx1 = 0.1 * dsp::expj(dsp::pi / 4 * dsp::range(200));
     auto xx2 = 0.1 * dsp::expj(dsp::pi / 8 * dsp::range(200));
@@ -269,7 +269,7 @@ void detector_example() {
     const int n = 100;
     auto zch_p = (-1) * (dsp::pi * r * (dsp::range(n) ^ 2)) / n;
     auto zch = dsp::expj(zch_p);
-    auto dtc = dsp::detector(zch);
+    auto dtc = dsp::Detector(zch);
     auto t = dsp::range(1000) / 8000.0;
     auto ns = dsp::expj(2 * dsp::pi * 440 * t);
     auto x = ns | zch | ns;

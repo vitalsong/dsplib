@@ -1,39 +1,30 @@
 #include <dsplib/agc.h>
+#include <dsplib/math.h>
 #include <cmath>
 
 namespace dsplib {
 
 //------------------------------------------------------------------------------------------
-struct agc_impl
+struct AgcImpl
 {
     int rms_period{100};   ///< rms calculation period
-    std::vector<double> delay;
+    std::vector<real_t> delay;
     int delay_idx{0};
-    double trise{0.01};        ///< step size for gain updates (rise)
-    double tfall{0.01};        ///< step size for gain updates (fall)
-    double max_gain{4.6052};   ///< max gain coeff
-    double target{0};          ///< target level (db)
-    double accum{0};           ///< rms accum
-    double gain{0};            ///< current gain
+    real_t trise{0.01};        ///< step size for gain updates (rise)
+    real_t tfall{0.01};        ///< step size for gain updates (fall)
+    real_t max_gain{4.6052};   ///< max gain coeff
+    real_t target{0};          ///< target level (db)
+    real_t accum{0};           ///< rms accum
+    real_t gain{0};            ///< current gain
 };
 
 //------------------------------------------------------------------------------------------
-static inline real_t _power(const real_t& v) {
-    return v * v;
-}
-
-//------------------------------------------------------------------------------------------
-static inline real_t _power(const cmplx_t& v) {
-    return (v.re * v.re) + (v.im * v.im);
-}
-
-//------------------------------------------------------------------------------------------
 template<typename T>
-static agc::result<T> _process(agc_impl& agc, const base_array<T>& x) {
+static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
     base_array<T> out(x.size());
     arr_real gain(x.size());
     for (int i = 0; i < x.size(); ++i) {
-        double d = _power(x[i]);
+        real_t d = abs2(x[i]);
         agc.accum += d;
         agc.delay[agc.delay_idx] = d;
         agc.delay_idx = (agc.delay_idx + 1) % agc.rms_period;
@@ -42,11 +33,11 @@ static agc::result<T> _process(agc_impl& agc, const base_array<T>& x) {
             agc.accum = 0;
         }
 
-        float g = std::exp(agc.gain);
+        real_t g = std::exp(agc.gain);
         out[i] = x[i] * g;
         gain[i] = g;
 
-        double e = agc.target - (std::log(agc.accum / agc.rms_period) + (2 * agc.gain));
+        real_t e = agc.target - (std::log(agc.accum / agc.rms_period) + (2 * agc.gain));
         if (e > 1) {
             agc.gain += agc.trise * e;
         } else {
@@ -62,8 +53,8 @@ static agc::result<T> _process(agc_impl& agc, const base_array<T>& x) {
 }
 
 //------------------------------------------------------------------------------------------
-agc::agc(double target_level, double max_gain, int average_len, double t_rise, double t_fall) {
-    _d = std::unique_ptr<agc_impl>(new agc_impl());
+Agc::Agc(real_t target_level, real_t max_gain, int average_len, real_t t_rise, real_t t_fall) {
+    _d = std::make_shared<AgcImpl>();
 
     if (average_len == 0) {
         DSPLIB_THROW("average_len must be greater 0");
@@ -79,15 +70,12 @@ agc::agc(double target_level, double max_gain, int average_len, double t_rise, d
 }
 
 //------------------------------------------------------------------------------------------
-agc::~agc() = default;
-
-//------------------------------------------------------------------------------------------
-agc::result<real_t> agc::process(const arr_real& x) {
+Agc::Result<real_t> Agc::process(const arr_real& x) {
     return _process(*_d, x);
 }
 
 //------------------------------------------------------------------------------------------
-agc::result<cmplx_t> agc::process(const arr_cmplx& x) {
+Agc::Result<cmplx_t> Agc::process(const arr_cmplx& x) {
     return _process(*_d, x);
 }
 

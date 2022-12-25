@@ -5,19 +5,18 @@
 
 namespace dsplib {
 
-struct detector_impl;
+struct DetectorImpl;
 
 //reference search correlator
-class detector
+class Detector
 {
 public:
     //h - reference signal
     //threshold - triggered level [0:1]
     //release - time after detection (for signals with wide acorr)
-    explicit detector(const arr_cmplx& h, real_t threshold = 0.5, int release = 100);
-    ~detector();
+    explicit Detector(const arr_cmplx& h, real_t threshold = 0.5, int release = 100);
 
-    struct result
+    struct Result
     {
         bool triggered{false};   ///< detector status
         real_t level{0};         ///< trigger level [0-1] and >= threshold
@@ -25,16 +24,18 @@ public:
     };
 
     //TODO: add bypass mode
-    result process(const arr_cmplx& x);
+    Result process(const arr_cmplx& x);
 
-    result operator()(const arr_cmplx& x) {
+    Result operator()(const arr_cmplx& x) {
         return this->process(x);
     }
 
     void reset();
 
 private:
-    std::unique_ptr<detector_impl> _d;
+    std::shared_ptr<DetectorImpl> _d;
 };
+
+using detector [[deprecated]] = Detector;
 
 }   // namespace dsplib

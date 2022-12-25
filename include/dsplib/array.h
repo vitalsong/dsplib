@@ -11,8 +11,8 @@
 
 namespace dsplib {
 
-template<bool _Cond, typename _Iftrue, typename _Iffalse>
-using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
+template<bool Cond_, typename Iftrue_, typename Iffalse_>
+using conditional_t = typename std::conditional_t<Cond_, Iftrue_, Iffalse_>;
 
 //Detect out type for operations:
 //real + real -> real
@@ -20,7 +20,7 @@ using conditional_t = typename std::conditional<_Cond, _Iftrue, _Iffalse>::type;
 //real + cmplx -> cmplx
 //cmplx + real -> cmplx
 template<typename Bt, typename It>
-using ResultType = conditional_t<std::is_same<Bt, cmplx_t>::value || std::is_same<It, cmplx_t>::value, cmplx_t, real_t>;
+using ResultType = conditional_t<std::is_same_v<Bt, cmplx_t> || std::is_same_v<It, cmplx_t>, cmplx_t, real_t>;
 
 //TODO: add array_view as parent for array/slice
 template<typename T>
@@ -78,12 +78,12 @@ public:
         _vec.assign(v.begin(), v.end());
     }
 
-    base_array(base_array<T>&& v)
+    base_array(base_array<T>&& v) noexcept
       : _vec(std::move(v._vec)) {
     }
 
-    base_array(const std::initializer_list<T>& list) {
-        _vec = std::vector<T>(list);
+    base_array(const std::initializer_list<T>& list)
+      : _vec(list) {
     }
 
     template<typename T2>
@@ -106,7 +106,7 @@ public:
         return *this;
     }
 
-    base_array<T>& operator=(base_array<T>&& rhs) {
+    base_array<T>& operator=(base_array<T>&& rhs) noexcept {
         if (this == &rhs) {
             return *this;
         }
@@ -155,8 +155,8 @@ public:
     }
 
     //--------------------------------------------------------------------
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    using iterator = typename std::vector<T>::iterator;
+    using const_iterator = typename std::vector<T>::const_iterator;
 
     iterator begin() noexcept {
         return _vec.begin();
@@ -203,11 +203,11 @@ public:
         return _vec.data();
     }
 
-    int size() const noexcept {
+    [[nodiscard]] int size() const noexcept {
         return _vec.size();
     }
 
-    bool empty() const noexcept {
+    [[nodiscard]] bool empty() const noexcept {
         return _vec.empty();
     }
 
@@ -226,7 +226,7 @@ public:
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator+=(const T2& rhs) noexcept {
-        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs;
         }
@@ -235,7 +235,7 @@ public:
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator-=(const T2& rhs) noexcept {
-        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs;
         }
@@ -244,7 +244,7 @@ public:
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator*=(const T2& rhs) noexcept {
-        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs;
         }
@@ -253,7 +253,7 @@ public:
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator/=(const T2& rhs) {
-        static_assert(std::is_same<T, R>::value, "The operation changes the type");
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs;
         }
@@ -392,7 +392,7 @@ public:
         if (rhs.size() != _vec.size()) {
             DSPLIB_THROW("different vector size");
         }
-        for (size_t i = 0; i < _vec.size(); ++i) {
+        for (int i = 0; i < _vec.size(); ++i) {
             _vec[i] = std::pow(_vec[i], rhs[i]);
         }
         return *this;
@@ -421,8 +421,16 @@ public:
 
     template<typename R>
     std::vector<R> to_vec() const {
-        static_assert(std::is_convertible<T, R>::value, "Type is not convertible");
-        return std::vector<R>(_vec.begin(), _vec.end());
+        if constexpr (std::is_same_v<T, R>) {
+            return _vec;
+        } else {
+            static_assert(std::is_convertible<T, R>::value, "Type is not convertible");
+            return std::vector<R>(_vec.begin(), _vec.end());
+        }
+    }
+
+    const std::vector<T>& to_vec() const noexcept {
+        return _vec;
     }
 
 protected:
@@ -431,14 +439,14 @@ protected:
 
 //--------------------------------------------------------------------------------
 //left oriented scalar * array
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
-         class _C = typename enable_convertible_t<Scalar, R>::type>
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
+         class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator+(const Scalar& lhs, const base_array<T>& rhs) {
     return rhs + R(lhs);
 }
 
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
-         class _C = typename enable_convertible_t<Scalar, R>::type>
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
+         class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
     base_array<R> r(rhs);
     for (size_t i = 0; i < r.size(); ++i) {
@@ -447,14 +455,14 @@ inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
     return r;
 }
 
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
-         class _C = typename enable_convertible_t<Scalar, R>::type>
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
+         class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator*(const Scalar& lhs, const base_array<T>& rhs) {
     return rhs * R(lhs);
 }
 
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class _S = typename enable_scalar_t<Scalar>::type,
-         class _C = typename enable_convertible_t<Scalar, R>::type>
+template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
+         class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
     base_array<R> r(rhs);
     for (size_t i = 0; i < r.size(); ++i) {

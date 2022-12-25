@@ -9,10 +9,10 @@ arr_real medfilt(arr_real& x, int n);
 /*!
  * \brief Nth-order one-dimensional median filter
  */
-class median_filter
+class MedianFilter
 {
 public:
-    explicit median_filter(int n = 3);
+    explicit MedianFilter(int n = 3);
     arr_real process(const arr_real& x);
 
     arr_real operator()(const arr_real& x) {
@@ -25,5 +25,7 @@ private:
     int _i;        ///< delay cycle index
     int _n;        ///< delay size
 };
+
+using median_filter [[deprecated]] = MedianFilter;
 
 }   // namespace dsplib

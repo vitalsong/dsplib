@@ -1,19 +1,19 @@
+#include "dsplib/fir.h"
 #include <dsplib/detector.h>
 #include <dsplib.h>
 #include <cassert>
+#include <memory>
 
 namespace dsplib {
 
 //---------------------------------------------------------------------------------
 //fir with impulse = [1, 1, 1, 1, 1, 1 ...] / n
-class ave_fir
+class AveFir
 {
 public:
-    ave_fir() = default;
-
-    ave_fir(int n) {
-        _n = n;
-        _x = zeros(n);
+    explicit AveFir(int n)
+      : _n{n}
+      , _x(n) {
     }
 
     arr_real process(const arr_real& x) {
@@ -21,6 +21,7 @@ public:
             return zeros(x.size());
         }
 
+        //TODO: potential error accumulation problem
         arr_real r(x.size());
         for (size_t i = 0; i < x.size(); i++) {
             _s -= _x[_idx];
@@ -34,49 +35,45 @@ public:
     }
 
 private:
+    int _n{0};
     arr_real _x;
     real_t _s{0};
     int _idx{0};
-    int _n{0};
 };
 
 //---------------------------------------------------------------------------------
-struct detector_impl
+struct DetectorImpl
 {
     arr_cmplx delay;
     int lock_time{0};
     real_t current_max{0};
     int release_time{0};
     real_t threshold{1};
-    fir_fft fir_match;
-    ave_fir fir_pow;
-    int detect_size;
+    FftFilter fir_match;
+    AveFir fir_pow{1};
+    int detect_size{0};
     bool triggered{false};
     std::vector<cmplx_t> buffer;
     int block_size{0};
 };
 
 //---------------------------------------------------------------------------------
-detector::detector(const arr_cmplx& h, real_t threshold, int release) {
+Detector::Detector(const arr_cmplx& h, real_t threshold, int release) {
     const int nh = h.size();
     assert(nh > 0);
-    _d = std::unique_ptr<detector_impl>(new detector_impl);
+    _d = std::make_shared<DetectorImpl>();
     _d->delay = zeros(nh + release);
-    _d->fir_match = fir_fft(flip(h) / (nh * rms(h)));
+    _d->fir_match = FftFilter(flip(h) / (nh * rms(h)));
     _d->block_size = _d->fir_match.block_size();
-    _d->fir_pow = ave_fir(nh);
+    _d->fir_pow = AveFir(nh);
     _d->release_time = release;
     _d->threshold = threshold * threshold;
     _d->detect_size = nh;
 }
 
 //---------------------------------------------------------------------------------
-detector::~detector() {
-}
-
-//---------------------------------------------------------------------------------
-static detector::result _detecting(detector_impl* _d, const arr_cmplx& x) {
-    detector::result res;
+static Detector::Result _detecting(DetectorImpl* _d, const arr_cmplx& x) {
+    Detector::Result res;
 
     assert(x.size() == _d->block_size);
 
@@ -125,8 +122,8 @@ static detector::result _detecting(detector_impl* _d, const arr_cmplx& x) {
 }
 
 //---------------------------------------------------------------------------------
-detector::result detector::process(const arr_cmplx& x) {
-    detector::result res;
+Detector::Result Detector::process(const arr_cmplx& x) {
+    Detector::Result res;
     for (size_t i = 0; i < x.size(); i++) {
         _d->buffer.push_back(x[i]);
 
@@ -147,7 +144,7 @@ detector::result detector::process(const arr_cmplx& x) {
 }
 
 //---------------------------------------------------------------------------------
-void detector::reset() {
+void Detector::reset() {
     _d->lock_time = 0;
     _d->current_max = 0;
     _d->triggered = false;

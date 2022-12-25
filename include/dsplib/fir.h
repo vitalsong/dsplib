@@ -8,85 +8,69 @@ namespace dsplib {
  * \brief FIR filter class
  * \todo complex type support
  */
-class fir
+template<typename T>
+class FirFilter
 {
 public:
-    fir();
-    explicit fir(const arr_real& h);
+    explicit FirFilter(const base_array<T>& h)
+      : _h(h)
+      , _d(h.size() - 1) {
+    }
 
     //main processing
-    arr_real process(const arr_real& s);
+    base_array<T> process(const base_array<T>& s) {
+        auto x = _d | s;
+        auto r = FirFilter::conv(x, _h);
+        int nd = _h.size() - 1;
+        int nx = x.size();
+        _d = x.slice((nx - nd), nx);
+        return r;
+    }
 
     //current impulse response
-    const arr_real& coeffs() const {
+    [[nodiscard]] const base_array<T>& coeffs() const {
         return _h;
     }
 
-    arr_real& coeffs() {
+    base_array<T>& coeffs() {
         return _h;
     }
 
     //convolution operation
-    static arr_real conv(const arr_real& x, const arr_real& h);
+    static base_array<T> conv(const base_array<T>& x, const base_array<T>& h);
 
-    arr_real operator()(const arr_real& x) {
+    base_array<T> operator()(const base_array<T>& x) {
         return this->process(x);
     }
 
 private:
-    arr_real _h;   ///< impulse response
-    arr_real _d;   ///< filter delay
+    base_array<T> _h;   ///< impulse response
+    base_array<T> _d;   ///< filter delay
 };
 
-/*!
- * \brief FIR complex filter class
- */
-class fir_cmplx
-{
-public:
-    fir_cmplx();
-    explicit fir_cmplx(const arr_cmplx& h);
+using fir [[deprecated]] = FirFilter<real_t>;
+using fir_cmplx [[deprecated]] = FirFilter<cmplx_t>;
 
-    //main processing
-    arr_cmplx process(const arr_cmplx& s);
-
-    //current impulse response
-    const arr_cmplx& coeffs() const {
-        return _h;
-    }
-
-    arr_cmplx& coeffs() {
-        return _h;
-    }
-
-    //convolution operation
-    static arr_cmplx conv(const arr_cmplx& x, const arr_cmplx& h);
-
-    arr_cmplx operator()(const arr_cmplx& x) {
-        return this->process(x);
-    }
-
-private:
-    arr_cmplx _h;   ///< impulse response
-    arr_cmplx _d;   ///< filter delay
-};
+using FirFilterR = FirFilter<real_t>;
+using FirFilterC = FirFilter<cmplx_t>;
 
 /*!
- * \brief Fast fir implementation for IR len > 200
+ * \brief FFT-based FIR filtering using overlap-add method
+ * \details Fast fir implementation for IR len > 200
  */
-class fir_fft
+class FftFilter
 {
 public:
-    fir_fft() = default;
-    explicit fir_fft(const arr_real& h);
-    explicit fir_fft(const arr_cmplx& h);
+    FftFilter() = default;
+    explicit FftFilter(const arr_real& h);
+    explicit FftFilter(const arr_cmplx& h);
 
     //usually in.size() != out.size()
     arr_real process(const arr_real& x);
     arr_cmplx process(const arr_cmplx& x);
 
     //optimal input size for y[nx] = process(x[nx])
-    int block_size() const {
+    [[nodiscard]] int block_size() const {
         return _n;
     }
 
@@ -106,6 +90,8 @@ private:
     int _m{0};
     int _n{0};
 };
+
+using fir_fft [[deprecated]] = FftFilter;
 
 enum class FilterType
 {

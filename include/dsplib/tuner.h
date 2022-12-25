@@ -7,13 +7,13 @@
 namespace dsplib {
 
 //tune signal to freq (-fs/2 : +fs/2)
-class tuner
+class Tuner
 {
 public:
-    tuner(int fs, int freq);
+    Tuner(int fs, int freq);
     arr_cmplx process(const arr_cmplx& x);
     void set_freq(int freq);
-    int freq() const;
+    [[nodiscard]] int freq() const;
 
     arr_cmplx operator()(const arr_cmplx& x) {
         return this->process(x);
@@ -28,5 +28,7 @@ private:
     int _phase;
     sin_table_t _tb;
 };
+
+using tuner [[deprecated]] = Tuner;
 
 }   // namespace dsplib
