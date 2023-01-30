@@ -1,7 +1,7 @@
+#include <dsplib/array.h>
 #include <dsplib/utils.h>
 #include <dsplib/math.h>
 #include <dsplib/fft.h>
-#include <dsplib/ifft.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -40,17 +40,15 @@ arr_cmplx repelem(const arr_cmplx& x, int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real flip(const arr_real& x) {
-    arr_real r(x);
-    std::reverse(r.begin(), r.end());
-    return r;
+arr_real flip(arr_real x) {
+    std::reverse(x.begin(), x.end());
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx flip(const arr_cmplx& x) {
-    arr_cmplx r(x);
-    std::reverse(r.begin(), r.end());
-    return r;
+arr_cmplx flip(arr_cmplx x) {
+    std::reverse(x.begin(), x.end());
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -206,6 +204,33 @@ int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2) {
 
 int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2) {
     return _finddelay(x1, x2);
+}
+
+//-------------------------------------------------------------------------------------------------
+template<class T>
+static base_array<T> _circshift(const base_array<T>& x, int shift) {
+    if (shift == 0) {
+        return x;
+    }
+    const int n = x.size();
+    base_array<T> r(n);
+    if (shift > 0) {
+        r.slice(0, shift) = x.slice(n - shift, n);
+        r.slice(shift, n) = x.slice(0, n - shift);
+    } else {
+        shift = std::abs(shift);
+        r.slice(0, n - shift) = x.slice(shift, n);
+        r.slice(n - shift, n) = x.slice(0, shift);
+    }
+    return r;
+}
+
+arr_real circshift(const arr_real& x, int shift) {
+    return _circshift(x, shift);
+}
+
+arr_cmplx circshift(const arr_cmplx& x, int shift) {
+    return _circshift(x, shift);
 }
 
 }   // namespace dsplib

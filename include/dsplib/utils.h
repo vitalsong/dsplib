@@ -81,8 +81,8 @@ arr_real repelem(const arr_real& x, int n);
 arr_cmplx repelem(const arr_cmplx& x, int n);
 
 //flip order of elements
-arr_real flip(const arr_real& x);
-arr_cmplx flip(const arr_cmplx& x);
+arr_real flip(arr_real x);
+arr_cmplx flip(arr_cmplx x);
 
 enum class dtype
 {
@@ -200,5 +200,9 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
 //Estimate delay between signals
 int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2);
 int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2);
+
+//Shift array circularly
+arr_real circshift(const arr_real& x, int shift);
+arr_cmplx circshift(const arr_cmplx& x, int shift);
 
 }   // namespace dsplib

@@ -1,6 +1,5 @@
 #include <dsplib/czt.h>
 #include <dsplib/fft.h>
-#include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
 
@@ -23,7 +22,7 @@ public:
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    arr_cmplx solve(const arr_cmplx& x) const {
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
         auto xp = (x * _cp) | zeros(_ich.size() - x.size());
         auto r = ifft(fft(xp) * _ich);
         arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);

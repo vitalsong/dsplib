@@ -1,40 +1,20 @@
 #pragma once
 
-#include <dsplib/types.h>
+#include <dsplib/array.h>
+
 #include <vector>
-#include <memory>
 #include <stdint.h>
 
 namespace dsplib {
 namespace tables {
 
-using dft_ptr = std::shared_ptr<std::vector<cmplx_t>>;
+constexpr int DEFAULT_MIN_NFFT = 512;
 
-/*!
- * \brief Get (or generate) a table for calculating DFT
- * \param n DFT base
- * \return Table pointer
- */
-const dft_ptr dft_table(size_t n);
+// table for calculating DFT
+dsplib::arr_cmplx dft_table(size_t n);
 
-/*!
- * \brief Clear table from cache
- * \param n DFT base
- */
-void dft_clear(size_t n);
-
-/*!
- * \brief Check if table cached
- * \param n DFT base
- * \return Cached
- */
-bool dft_cached(size_t n);
-
-//bit-reverse table
-using bitrev_ptr = std::shared_ptr<std::vector<int32_t>>;
-const bitrev_ptr bitrev_table(size_t n);
-bool bitrev_cached(size_t n);
-void bitrev_clear(size_t n);
+// bit-reverse table
+std::vector<int32_t> bitrev_table(size_t n);
 
 }   // namespace tables
 }   // namespace dsplib

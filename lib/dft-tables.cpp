@@ -1,6 +1,5 @@
-#include "dft-tables.h"
-#include "datacache.h"
-
+#include <dft-tables.h>
+#include <dsplib/throw.h>
 #include <dsplib/math.h>
 
 #include <cmath>
@@ -10,102 +9,84 @@
 namespace dsplib {
 namespace tables {
 
-//TODO: optional disable caching
-static datacache<size_t, dft_ptr> g_dft_cache;
-static datacache<size_t, bitrev_ptr> g_bitrev_cache;
-
 //-------------------------------------------------------------------------------------------------
-static dft_ptr _gen_dft_table(size_t size) {
-    auto tb = std::make_shared<std::vector<cmplx_t>>(size);
-    auto data = tb->data();
-
-    real_t p;
-    for (size_t i = 0; i < size; ++i) {
-        p = i / real_t(size);
-        data[i].re = std::cos(2 * pi * p);
-        data[i].im = -std::sin(2 * pi * p);
-    }
-
-    return tb;
-}
-
-//-------------------------------------------------------------------------------------------------
-const dft_ptr dft_table(size_t size) {
-    if (g_dft_cache.cached(size)) {
-        return g_dft_cache.get(size);
-    }
-
-    g_dft_cache.update(size, _gen_dft_table(size));
-    return g_dft_cache.get(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-void dft_clear(size_t size) {
-    g_dft_cache.reset(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-bool dft_cached(size_t size) {
-    return g_dft_cache.cached(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-static inline int _get_bit(int a, int pos) {
-    return (a >> pos) & 0x1;
-}
-
-//-------------------------------------------------------------------------------------------------
-static inline void _set_bit(int& a, int pos, int bit) {
-    a &= ~(1 << pos);
-    a |= (bit << pos);
-}
-
-//-------------------------------------------------------------------------------------------------
-static inline int _bitrev(int a, int s) {
-    int r = 0;
-    for (int i = 0; i < ((s + 1) / 2); ++i) {
-        _set_bit(r, (s - i - 1), _get_bit(a, i));
-        _set_bit(r, i, _get_bit(a, (s - i - 1)));
-    }
-
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-static bitrev_ptr _gen_bitrev_table(size_t size) {
-    auto tb = std::make_shared<std::vector<int32_t>>(size);
-    auto data = tb->data();
-    const int s = nextpow2(size);
-    for (int i = 0; i < size; ++i) {
-        int k = _bitrev(i, s);
-        if (k > i) {
-            data[i] = k;
-        } else {
-            data[i] = i;
+class ExpTable
+{
+public:
+    explicit ExpTable(int n) noexcept
+      : _base(n)
+      , _n{n} {
+        real_t p;
+        for (size_t i = 0; i < _n; ++i) {
+            p = i / real_t(_n);
+            //TODO: only sin operation required (N/8 optimization)
+            _base[i].re = std::cos(2 * pi * p);
+            _base[i].im = -std::sin(2 * pi * p);
         }
     }
 
-    return tb;
-}
+    explicit ExpTable(const ExpTable& rhs) = default;
 
-//-------------------------------------------------------------------------------------------------
-const bitrev_ptr bitrev_table(size_t size) {
-    if (g_bitrev_cache.cached(size)) {
-        return g_bitrev_cache.get(size);
+    ExpTable(ExpTable&& rhs) noexcept
+      : _n{rhs._n} {
+        std::swap(rhs._base, _base);
     }
 
-    g_bitrev_cache.update(size, _gen_bitrev_table(size));
-    return g_bitrev_cache.get(size);
-}
+    ExpTable& operator=(const ExpTable& rhs) noexcept {
+        if (this == &rhs) {
+            return *this;
+        }
+        this->_base = rhs._base;
+        this->_n = rhs._n;
+        return *this;
+    }
+
+    [[nodiscard]] arr_cmplx gen(int to_n) const noexcept {
+        if (!convertable(to_n)) {
+            return {};
+        }
+
+        if (to_n == _n) {
+            return arr_cmplx(_base);
+        }
+
+        const int d = _n / to_n;
+        arr_cmplx r(to_n);
+        assert(d > 0);
+        for (int i = 0; i < to_n; ++i) {
+            r[i] = _base[i * d];
+        }
+
+        return r;
+    }
+
+    [[nodiscard]] bool convertable(int to_n) const noexcept {
+        return ((to_n > 0) && (_n % to_n == 0));
+    }
+
+    [[nodiscard]] int size() const noexcept {
+        return _n;
+    }
+
+private:
+    std::vector<cmplx_t> _base;
+    int _n{0};
+};
 
 //-------------------------------------------------------------------------------------------------
-bool bitrev_cached(size_t n) {
-    return g_bitrev_cache.cached(n);
-}
+//TODO: optional disable caching
+thread_local static ExpTable g_base_dft(DEFAULT_MIN_NFFT);
 
 //-------------------------------------------------------------------------------------------------
-void bitrev_clear(size_t n) {
-    g_bitrev_cache.reset(n);
+dsplib::arr_cmplx dft_table(size_t size) {
+    if (g_base_dft.size() < size) {
+        const int nfft = 1L << nextpow2(size);
+        if (nfft != size) {
+            DSPLIB_THROW("Table len is not power of 2");
+        }
+        g_base_dft = ExpTable(size);
+    }
+    return g_base_dft.gen(size);
 }
 
 }   // namespace tables

@@ -354,33 +354,28 @@ arr_real cos(const arr_real& arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx conj(const arr_cmplx& x) {
+arr_cmplx conj(arr_cmplx x) {
     int n = x.size();
-    arr_cmplx r = x;
     for (int i = 0; i < n; ++i) {
-        r[i].im = -r[i].im;
+        x[i].im = -x[i].im;
     }
-    return r;
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real pow2(const arr_real& arr) {
-    arr_real r(arr);
-    for (int i = 0; i < arr.size(); ++i) {
-        r[i] *= r[i];
+arr_real pow2(arr_real x) {
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] *= x[i];
     }
-
-    return r;
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx pow2(const arr_cmplx& arr) {
-    arr_cmplx r(arr);
-    for (int i = 0; i < arr.size(); ++i) {
-        r[i] *= r[i];
+arr_cmplx pow2(arr_cmplx x) {
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] *= x[i];
     }
-
-    return r;
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
