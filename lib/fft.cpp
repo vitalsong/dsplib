@@ -175,6 +175,7 @@ arr_cmplx fft(const arr_real& x) {
     using namespace std::complex_literals;
 
     const int n = x.size();
+    const int n2 = n / 2;
     auto nfft = 1L << nextpow2(n);
     if (nfft != n) {
         return fft(arr_cmplx(x));
@@ -182,23 +183,33 @@ arr_cmplx fft(const arr_real& x) {
 
     //TODO: bad optimization
 
-    arr_cmplx z(n / 2);
-    //TODO: slice(0, n, 2),  slice(1, n, 2)
+    arr_cmplx z(n2);
     for (int i = 0; i < (n / 2); ++i) {
         z[i].re = x[2 * i];
         z[i].im = x[2 * i + 1];
     }
 
     const auto Z = fft(z);
-
-    // auto Zc = circshift(flip(conj(Z)), 1);
     auto Zc = conj(Z);
     std::reverse(Zc.begin() + 1, Zc.end());
 
-    const arr_cmplx w = tables::dft_table(n).slice(0, n / 2);
-    const auto Xe = (Z + Zc) * 0.5;
-    const auto Xo = (Zc - Z) * 0.5i * w;
-    return (Xe + Xo) | (Xe - Xo);
+    arr_cmplx res(n);
+    const arr_cmplx w = tables::dft_table(n);
+    for (int i = 0; i < n2; ++i) {
+        const auto Xe = Z[i] + Zc[i];
+        const auto Xo = (Zc[i] - Z[i]) * w[i];
+        res[i].re = (Xe.re - Xo.im) / 2;
+        res[i].im = (Xe.im + Xo.re) / 2;
+    }
+
+    const auto Xe = Z[0] + Zc[0];
+    const auto Xo = Zc[0] - Z[0];
+    res[n2] = (Xe.re + Xo.im) / 2;
+
+    for (int i = 1; i < n2; ++i) {
+        res[n - i] = conj(res[i]);
+    }
+    return res;
 }
 
 //-------------------------------------------------------------------------------------------------
