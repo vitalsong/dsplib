@@ -22,11 +22,16 @@ public:
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
-        auto xp = (x * _cp) | zeros(_ich.size() - x.size());
-        auto r = ifft(fft(xp) * _ich);
-        arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);
-        return tr * _rp;
+    [[nodiscard]] arr_cmplx solve(arr_cmplx x) const noexcept {
+        assert(x.size() == _m);
+        x *= _cp;
+        auto z = fft(x, _ich.size());
+        z *= _ich;
+        const auto r = ifft(z);
+        for (int i = 0; i < _m; ++i) {
+            x[i] = r[_n - 1 + i] * _rp[i];
+        }
+        return x;
     }
 
     int _n;

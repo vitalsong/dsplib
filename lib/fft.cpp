@@ -19,7 +19,7 @@ using CztPlanPtr = std::shared_ptr<CztPlan>;
 static datacache<size_t, CztPlanPtr> g_czt_cache;
 
 //-------------------------------------------------------------------------------------------------
-static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) {
+static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) noexcept {
     w *= x2;
     x2 = x1 - w;
     x1 = x1 + w;
@@ -27,7 +27,7 @@ static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) {
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
-static arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bitrev) {
+static arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bitrev) noexcept {
     const int n = x.size();
     arr_cmplx r(n);
     for (int i = 0; i < n; ++i) {
@@ -38,13 +38,14 @@ static arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bit
 }
 
 //-------------------------------------------------------------------------------------------------
-static arr_cmplx _fft2(const arr_cmplx& x_f, const arr_cmplx& coeffs, const std::vector<int32_t>& bitrev, int n) {
+static arr_cmplx _fft2(const arr_cmplx& xx, const arr_cmplx& coeffs, const std::vector<int32_t>& bitrev,
+                       int n) noexcept {
     assert(n % 2 == 0);
-    assert(x_f.size() == n);
+    assert(xx.size() == n);
     assert(coeffs.size() == n);
     assert(bitrev.size() == n);
 
-    auto x = _bitreverse(x_f, bitrev);
+    auto x = _bitreverse(xx, bitrev);
 
     int h = 1;       ///< number of butterflies in clusters (and step between elements)
     int m = n / 2;   ///< number of clusters (and step for the butterfly table)
@@ -91,7 +92,7 @@ public:
         _bitrev = tables::bitrev_table(_n);
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const noexcept {
         assert(x.size() == _n);
         return _fft2(x, _coeff, _bitrev, _n);
     }
@@ -121,6 +122,7 @@ public:
             };
         } else {
             //n != 2^K
+            //TODO: warning logging
             if (!g_czt_cache.cached(n)) {
                 cmplx_t w = expj(-2 * pi / n);
                 auto plan = std::make_shared<CztPlan>(n, n, w);
