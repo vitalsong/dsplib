@@ -12,7 +12,9 @@ class FftPlan
 {
 public:
     explicit FftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
+    [[nodiscard]] arr_cmplx operator()(const arr_cmplx& x) const {
+        return this->solve(x);
+    }
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
     [[nodiscard]] int size() const noexcept;
 
@@ -28,7 +30,9 @@ public:
       : FftPlan(n) {
     }
 
-    arr_cmplx operator()(const arr_cmplx& x) const;
+    [[nodiscard]] arr_cmplx operator()(const arr_cmplx& x) const {
+        return this->solve(x);
+    }
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
     [[nodiscard]] int size() const noexcept;
 };
