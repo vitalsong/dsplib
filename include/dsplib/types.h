@@ -3,6 +3,7 @@
 #include <complex>
 #include <functional>
 #include <type_traits>
+#include <iosfwd>
 
 #ifndef restrict
 #ifdef _MSC_VER
@@ -217,6 +218,8 @@ struct cmplx_t
     [[nodiscard]] constexpr real_t abs2() const noexcept {
         return re * re + im * im;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const cmplx_t& x);
 };
 
 //left oriented real * cmplx
