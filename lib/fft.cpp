@@ -72,7 +72,8 @@ static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t*
 class FftPlanImpl
 {
 public:
-    explicit FftPlanImpl(int n) {
+    explicit FftPlanImpl(int n)
+      : n_{n} {
         const int n2 = 1L << nextpow2(n);
         if (n == n2) {
             //n == 2^K
@@ -99,6 +100,7 @@ public:
     }
 
     std::function<arr_cmplx(const arr_cmplx&)> solve;
+    int n_;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -114,6 +116,11 @@ arr_cmplx FftPlan::operator()(const arr_cmplx& x) const {
 //-------------------------------------------------------------------------------------------------
 arr_cmplx FftPlan::solve(const arr_cmplx& x) const {
     return _d->solve(x);
+}
+
+//-------------------------------------------------------------------------------------------------
+int FftPlan::size() const noexcept {
+    return _d->n_;
 }
 
 //-------------------------------------------------------------------------------------------------

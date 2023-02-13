@@ -12,7 +12,8 @@ class FftPlan
 public:
     FftPlan(int n);
     arr_cmplx operator()(const arr_cmplx& x) const;
-    arr_cmplx solve(const arr_cmplx& x) const;
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
+    [[nodiscard]] int size() const noexcept;
 
 private:
     std::shared_ptr<FftPlanImpl> _d;
