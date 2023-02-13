@@ -53,13 +53,12 @@ public:
         return *this;
     }
 
-    //TODO: remove explicit?
-    explicit base_array(const std::vector<T>& v)
+    base_array(const std::vector<T>& v)
       : _vec(v) {
     }
 
     template<typename T2>
-    explicit base_array(const std::vector<T2>& v) {
+    base_array(const std::vector<T2>& v) {
         static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
         _vec.assign(v.begin(), v.end());
     }
@@ -432,6 +431,8 @@ public:
     const std::vector<T>& to_vec() const noexcept {
         return _vec;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const base_array<T>& x);
 
 protected:
     std::vector<T> _vec;
