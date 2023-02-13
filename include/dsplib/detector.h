@@ -1,39 +1,43 @@
 #pragma once
 
-#include <dsplib/array.h>
-#include <memory>
+#include <dsplib/fft.h>
 
 namespace dsplib {
 
-struct DetectorImpl;
-
-//reference search correlator
+//reference signal detector
 class Detector
 {
 public:
-    //h - reference signal
+    //ref - reference signal
     //threshold - triggered level [0:1]
-    //release - time after detection (for signals with wide acorr)
-    explicit Detector(const arr_cmplx& h, real_t threshold = 0.5, int release = 100);
+    explicit Detector(const arr_cmplx& ref, real_t threshold = 0.5);
 
-    struct Result
+    struct State
     {
-        bool triggered{false};   ///< detector status
-        real_t level{0};         ///< trigger level [0-1] and >= threshold
-        arr_cmplx delay;         ///< aligned delay [reference + residual]
+        bool triggered{false};
+        real_t level{0};   ///< detected peak level (>=threshold)
+        int position{0};   ///< start reference position for out signal
+        arr_cmplx out;     ///< delayed input signal
     };
 
     //TODO: add bypass mode
-    Result process(const arr_cmplx& x);
+    State process(const arr_cmplx& sig);
 
-    Result operator()(const arr_cmplx& x) {
-        return this->process(x);
+    State operator()(const arr_cmplx& sig) {
+        return this->process(sig);
     }
 
-    void reset();
+    [[nodiscard]] int delay_len() const noexcept {
+        return fft_.size() / 2;
+    }
 
 private:
-    std::shared_ptr<DetectorImpl> _d;
+    int nh_;
+    FftPlan fft_;
+    arr_cmplx buf_;
+    arr_cmplx ref_;
+    real_t threshold_;
+    int wpos_{0};
 };
 
 using detector [[deprecated]] = Detector;

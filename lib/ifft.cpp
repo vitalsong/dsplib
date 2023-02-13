@@ -36,6 +36,11 @@ arr_cmplx IfftPlan::solve(const arr_cmplx& x) const {
 }
 
 //-------------------------------------------------------------------------------------------------
+int IfftPlan::size() const noexcept {
+    return _d->_fft.size();
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_cmplx ifft(const arr_cmplx& x) {
     IfftPlan plan(x.size());
     return plan(x);
