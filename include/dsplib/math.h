@@ -54,8 +54,8 @@ arr_real angle(const arr_cmplx& arr);
 real_t angle(cmplx_t v);
 
 //fast absolute complex magnitude
-arr_real fabs(const arr_cmplx& arr);
-real_t fabs(cmplx_t v);
+arr_real fast_abs(const arr_cmplx& arr);
+real_t fast_abs(cmplx_t v);
 
 //round
 arr_real round(const arr_real& arr);

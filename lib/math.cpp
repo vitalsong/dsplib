@@ -78,25 +78,25 @@ real_t abs(cmplx_t v) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real fabs(const arr_cmplx& arr) {
+arr_real fast_abs(const arr_cmplx& arr) {
     arr_real r(arr.size());
     const int N = arr.size();
     for (int i = 0; i < N; ++i) {
-        r[i] = fabs(arr[i]);
+        r[i] = fast_abs(arr[i]);
     }
 
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t fabs(cmplx_t v) {
+real_t fast_abs(cmplx_t v) {
     real_t min, max;
-    if (std::fabs(v.re) > std::fabs(v.im)) {
-        min = std::fabs(v.im);
-        max = std::fabs(v.re);
+    if (std::abs(v.re) > std::abs(v.im)) {
+        min = std::abs(v.im);
+        max = std::abs(v.re);
     } else {
-        min = std::fabs(v.re);
-        max = std::fabs(v.im);
+        min = std::abs(v.re);
+        max = std::abs(v.im);
     }
 
     return max + (min / 2);

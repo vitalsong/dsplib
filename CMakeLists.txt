@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.31.0)
+project(dsplib LANGUAGES CXX VERSION 0.32.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
