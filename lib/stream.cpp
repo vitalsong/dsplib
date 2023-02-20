@@ -1,14 +1,23 @@
+#include "dsplib/indexing.h"
 #include <dsplib/array.h>
-#include <iostream>
+#include <ostream>
 
 namespace dsplib {
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const base_array<T>& x) {
-    std::for_each(x.begin(), x.end() - 1, [&](auto v) {
-        os << v << ", ";
-    });
-    return os << *(x.end() - 1);
+static std::ostream& format(std::ostream& os, const base_array<T>& x) {
+    for (int i = 0; i < (x.size() - 1); ++i) {
+        os << x[i] << ", ";
+    }
+    return os << x[x.size() - 1];
+}
+
+std::ostream& operator<<(std::ostream& os, const base_array<real_t>& x) {
+    return format(os, x);
+}
+
+std::ostream& operator<<(std::ostream& os, const base_array<cmplx_t>& x) {
+    return format(os, x);
 }
 
 std::ostream& operator<<(std::ostream& os, const cmplx_t& x) {
