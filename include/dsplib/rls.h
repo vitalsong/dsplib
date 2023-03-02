@@ -77,66 +77,59 @@ typename RlsFilter<T>::Result RlsFilter<T>::process(const base_array<T>& x, cons
 
     base_array<T> Pu(_n);
     base_array<T> uTP(_n);
-    base_array<T> gu(_n * _n);
     base_array<T> guP(_n * _n);
 
-    for (size_t idx = 0; idx < nx; idx++) {
+    for (int idx = 0; idx < nx; idx++) {
         std::memmove(_u.data() + 1, _u.data(), (_n - 1) * sizeof(T));
         _u[0] = x[idx];
 
-        y[idx] = sum(_w * _u);
+        y[idx] = dot(_w, _u);
         e[idx] = d[idx] - y[idx];
 
         if (_locked) {
             continue;
         }
 
-        //g = (P * u) / (mu + u.H * P * u);
+        //g = (P * u) / (mu + u' * P * u);
         {
             //Pu = P * u
             std::fill(Pu.begin(), Pu.end(), 0);
-            for (size_t i = 0; i < _n; i++) {
-                for (size_t k = 0; k < _n; k++) {
+            for (int i = 0; i < _n; i++) {
+                for (int k = 0; k < _n; k++) {
                     Pu[i] += _p[i * _n + k] * _u[k];
                 }
             }
 
-            //u.H * P
+            //u' * P
             std::fill(uTP.begin(), uTP.end(), 0);
-            for (size_t i = 0; i < _n; i++) {
-                for (size_t k = 0; k < _n; k++) {
+            for (int i = 0; i < _n; i++) {
+                for (int k = 0; k < _n; k++) {
                     uTP[i] += conj(_u[k]) * _p[k * _n + i];
                 }
             }
 
-            //mu + u.H * P * u
-            g = Pu / (_mu + sum(uTP * _u));
+            //mu + u' * P * u
+            g = Pu / (_mu + dot(uTP, _u));
         }
 
-        //P = (1/mu) * (P - g * u.H * P);
+        //P = (1/mu) * (P - g * u' * P);
         {
-            //gu = g * u.H
-            std::fill(gu.begin(), gu.end(), 0);
-            for (size_t i = 0; i < _n; i++) {
-                gu.slice(i * _n, (i + 1) * _n) = conj(_u) * g[i];
-            }
-
-            //gu * P
-            std::fill(guP.begin(), guP.end(), 0);
+            //guP = g * u' * P
             for (int i = 0; i < _n; i++) {
-                for (int j = 0; j < _n; j++) {
-                    for (int k = 0; k < _n; k++) {
-                        guP[i * _n + j] += gu[i * _n + k] * _p[k * _n + j];
-                    }
+                for (int k = 0; k < _n; k++) {
+                    guP[i * _n + k] = g[i] * uTP[k];
                 }
             }
 
-            for (size_t i = 0; i < (_n * _n); i++) {
+            //P - g * u' * P
+            for (int i = 0; i < (_n * _n); i++) {
                 _p[i] = (1 / _mu) * (_p[i] - guP[i]);
             }
         }
 
-        _w = _w + conj(g) * e[idx];
+        for (int i = 0; i < _n; i++) {
+            _w[i] += conj(g[i]) * e[idx];
+        }
     }
 
     return {y, e};
