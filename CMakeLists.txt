@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.32.0)
+project(dsplib LANGUAGES CXX VERSION 0.33.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,7 @@ option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
+option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
     "lib/*.cpp"  
@@ -62,6 +63,10 @@ endif()
 
 if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_BENCHS)
+    add_subdirectory(benchs)
 endif()
 
 # version header 
