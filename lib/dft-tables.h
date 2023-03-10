@@ -1,20 +1,17 @@
 #pragma once
 
 #include <dsplib/array.h>
-
 #include <vector>
 #include <stdint.h>
 
 namespace dsplib {
-namespace tables {
 
-constexpr int DEFAULT_MIN_NFFT = 512;
+struct FFTParam
+{
+    arr_cmplx coeffs;
+    std::vector<int32_t> bitrev;
+};
 
-// table for calculating DFT
-dsplib::arr_cmplx dft_table(size_t n);
+FFTParam fft_tables(size_t size);
 
-// bit-reverse table
-std::vector<int32_t> bitrev_table(size_t n);
-
-}   // namespace tables
 }   // namespace dsplib

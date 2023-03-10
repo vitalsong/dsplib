@@ -16,7 +16,7 @@ namespace dsplib {
 //caching czt(n, n, exp(-2pi/n), 1) for nfft != 2^m
 //TODO: optional disable caching
 using CztPlanPtr = std::shared_ptr<CztPlan>;
-static datacache<size_t, CztPlanPtr> g_czt_cache;
+thread_local datacache<size_t, CztPlanPtr> g_czt_cache;
 
 //-------------------------------------------------------------------------------------------------
 static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) noexcept {
@@ -38,14 +38,14 @@ static arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bit
 }
 
 //-------------------------------------------------------------------------------------------------
-static arr_cmplx _fft2(const arr_cmplx& xx, const arr_cmplx& coeffs, const std::vector<int32_t>& bitrev,
+static arr_cmplx _fft2(const arr_cmplx& in, const arr_cmplx& coeffs, const std::vector<int32_t>& bitrev,
                        int n) noexcept {
     assert(n % 2 == 0);
-    assert(xx.size() == n);
+    assert(in.size() == n);
     assert(coeffs.size() == n);
     assert(bitrev.size() == n);
 
-    auto x = _bitreverse(xx, bitrev);
+    auto x = _bitreverse(in, bitrev);
 
     int h = 1;       ///< number of butterflies in clusters (and step between elements)
     int m = n / 2;   ///< number of clusters (and step for the butterfly table)
@@ -88,12 +88,14 @@ public:
         if (n != n2) {
             DSPLIB_THROW("Vector len is not power of 2");
         }
-        _coeff = tables::dft_table(_n);
-        _bitrev = tables::bitrev_table(_n);
+        const auto prm = fft_tables(_n);
+        _coeff = prm.coeffs;
+        _bitrev = prm.bitrev;
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const noexcept {
         assert(x.size() == _n);
+        // const auto [coeff, bitrev] = fft_tables(_n);
         return _fft2(x, _coeff, _bitrev, _n);
     }
 
@@ -154,9 +156,13 @@ int FftPlan::size() const noexcept {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx fft(const arr_cmplx& arr) {
-    FftPlan plan(arr.size());
-    return plan(arr);
+arr_cmplx fft(const arr_cmplx& x) {
+    //caching last used fft plan
+    thread_local FftPlan plan = FftPlan(x.size());
+    if (plan.size() != x.size()) {
+        plan = FftPlan(x.size());
+    }
+    return plan(x);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -196,7 +202,7 @@ arr_cmplx fft(const arr_real& x) {
     std::reverse(Zc.begin() + 1, Zc.end());
 
     arr_cmplx res(n);
-    const arr_cmplx w = tables::dft_table(n);
+    const auto [w, _] = fft_tables(n);
     for (int i = 0; i < n2; ++i) {
         const auto Xe = Z[i] + Zc[i];
         const auto Xo = (Zc[i] - Z[i]) * w[i];

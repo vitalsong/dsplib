@@ -7,87 +7,79 @@
 #include <memory>
 
 namespace dsplib {
-namespace tables {
 
-//-------------------------------------------------------------------------------------------------
-class ExpTable
-{
-public:
-    explicit ExpTable(int n) noexcept
-      : _base(n)
-      , _n{n} {
-        real_t p;
-        for (size_t i = 0; i < _n; ++i) {
-            p = i / real_t(_n);
-            //TODO: only sin operation required (N/8 optimization)
-            _base[i].re = std::cos(2 * pi * p);
-            _base[i].im = -std::sin(2 * pi * p);
-        }
-    }
+namespace {
 
-    explicit ExpTable(const ExpTable& rhs) = default;
-
-    ExpTable(ExpTable&& rhs) noexcept
-      : _n{rhs._n} {
-        std::swap(rhs._base, _base);
-    }
-
-    ExpTable& operator=(const ExpTable& rhs) noexcept {
-        if (this == &rhs) {
-            return *this;
-        }
-        this->_base = rhs._base;
-        this->_n = rhs._n;
-        return *this;
-    }
-
-    [[nodiscard]] arr_cmplx gen(int to_n) const noexcept {
-        if (!convertable(to_n)) {
-            return {};
-        }
-
-        if (to_n == _n) {
-            return arr_cmplx(_base);
-        }
-
-        const int d = _n / to_n;
-        arr_cmplx r(to_n);
-        assert(d > 0);
-        for (int i = 0; i < to_n; ++i) {
-            r[i] = _base[i * d];
-        }
-
-        return r;
-    }
-
-    [[nodiscard]] bool convertable(int to_n) const noexcept {
-        return ((to_n > 0) && (_n % to_n == 0));
-    }
-
-    [[nodiscard]] int size() const noexcept {
-        return _n;
-    }
-
-private:
-    std::vector<cmplx_t> _base;
-    int _n{0};
-};
-
-//-------------------------------------------------------------------------------------------------
-//TODO: optional disable caching
-thread_local static ExpTable g_base_dft(DEFAULT_MIN_NFFT);
-
-//-------------------------------------------------------------------------------------------------
-dsplib::arr_cmplx dft_table(size_t size) {
-    if (g_base_dft.size() < size) {
-        const int nfft = 1L << nextpow2(size);
-        if (nfft != size) {
-            DSPLIB_THROW("Table len is not power of 2");
-        }
-        g_base_dft = ExpTable(size);
-    }
-    return g_base_dft.gen(size);
+inline int _get_bit(int a, int pos) {
+    return (a >> pos) & 0x1;
 }
 
-}   // namespace tables
+inline void _set_bit(int& a, int pos, int bit) {
+    a &= ~(1 << pos);
+    a |= (bit << pos);
+}
+
+inline int _bitrev(int a, int s) {
+    int r = 0;
+    for (int i = 0; i < ((s + 1) / 2); ++i) {
+        _set_bit(r, (s - i - 1), _get_bit(a, i));
+        _set_bit(r, i, _get_bit(a, (s - i - 1)));
+    }
+    return r;
+}
+
+std::vector<int32_t> gen_bitrev(int n) {
+    std::vector<int32_t> res(n);
+    //TODO: table is symmetry, table(n/2, end) == table(0, n/2)+1
+    const int s = nextpow2(n);
+    for (int i = 0; i < n; ++i) {
+        int k = _bitrev(i, s);
+        res[i] = k;
+    }
+    return res;
+}
+
+arr_cmplx gen_coeffs(int n) {
+    arr_cmplx res(n);
+    for (int i = 0; i < n; ++i) {
+        real_t p = i / real_t(n);
+        //TODO: only sin operation required (N/8 optimization)
+        res[i].re = std::cos(2 * pi * p);
+        res[i].im = -std::sin(2 * pi * p);
+    }
+    return res;
+}
+
+}   // namespace
+
+FFTParam fft_tables(size_t size) {
+    thread_local static FFTParam param;
+
+    if (param.coeffs.size() < size) {
+        const int nfft = int(1) << nextpow2(size);
+        if (nfft != size) {
+            DSPLIB_THROW("FFT table len is not power of 2");
+        }
+        param.coeffs = gen_coeffs(size);
+        param.bitrev = gen_bitrev(size);
+    }
+
+    const int base_size = param.coeffs.size();
+    if (base_size == size) {
+        return param;
+    }
+
+    //decimate table
+    FFTParam result = {arr_cmplx(size), std::vector<int32_t>(size)};
+    if (base_size % size != 0) {
+        DSPLIB_THROW("FFT table len is not multiple");
+    }
+    const int d = (base_size / size);
+    for (int i = 0; i < size; ++i) {
+        result.coeffs[i] = param.coeffs[i * d];
+        result.bitrev[i] = param.bitrev[i * d];
+    }
+    return result;
+}
+
 }   // namespace dsplib
