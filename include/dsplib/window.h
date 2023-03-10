@@ -12,6 +12,7 @@ arr_real hamming(int n);
 arr_real blackman(int n);
 arr_real gauss(int n, real_t alpha = 2.5);
 arr_real blackmanharris(int n, bool periodic = false);
+arr_real kaiser(int n, real_t beta = 0.5);
 
 }   // namespace window
 }   // namespace dsplib
