@@ -117,9 +117,12 @@ FirType firtype(const dsplib::arr_real& h);
 //n - filter order
 //wn - frequency constraints (0, 1)
 //ftype - fir type
+//win - custom window (must be n+1 or n+1+rem(n,2) for high/stop)
 arr_real fir1(int n, real_t wn, FilterType ftype = FilterType::Low);
+arr_real fir1(int n, real_t wn, FilterType ftype, const arr_real& win);
 
 //Window-based FIR filter design (bandpass or stop)
 arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype = FilterType::Bandpass);
+arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype, const arr_real& win);
 
 }   // namespace dsplib

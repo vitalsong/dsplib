@@ -1,8 +1,10 @@
 #include "tests_common.h"
 #include <cmath>
 
+using namespace dsplib;
+
 //-------------------------------------------------------------------------------------------------
-const dsplib::arr_real impulses = {
+const arr_real impulses = {
   0.0009696959912217, 0.002337889165401, -5.132250197644e-05, -0.01078532572765, -0.02511021325159,  -0.02605521284747,
   -0.001729717261329, 0.03055533348918,  0.02997831233377,    -0.02035756228145, -0.07197861086446,  -0.03952554411153,
   0.1086584225047,    0.2928228574697,   0.3766576194224,     0.2928228574697,   0.1086584225047,    -0.03952554411153,
@@ -11,7 +13,6 @@ const dsplib::arr_real impulses = {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FirAndOne) {
-    using namespace dsplib;
     auto flt = FirFilter(impulses);
     auto x = zeros(impulses.size());
     x[0] = 1;
@@ -21,7 +22,6 @@ TEST(FirTest, FirAndOne) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftFirAndOne) {
-    using namespace dsplib;
     auto flt = FftFilter(impulses);
     auto x = zeros(2 * impulses.size());
     x[0] = 1;
@@ -31,7 +31,6 @@ TEST(FirTest, FftFirAndOne) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftEqFir) {
-    using namespace dsplib;
     auto flt1 = FftFilter(impulses);
     auto flt2 = FirFilter(impulses);
     auto in = randn(10000);
@@ -46,7 +45,6 @@ TEST(FirTest, FftEqFir) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, NonSymIR) {
-    using namespace dsplib;
     auto h = randn(103);
     auto flt = FirFilter(h);
     auto x = zeros(h.size());
@@ -57,7 +55,6 @@ TEST(FirTest, NonSymIR) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, CmplxFftFir) {
-    using namespace dsplib;
     auto h = randn(100) + randn(100) * 1i;
     auto flt1 = FftFilter(h);
     auto flt2 = FirFilter(h);
@@ -72,20 +69,19 @@ TEST(FirTest, CmplxFftFir) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static dsplib::arr_cmplx _get_bandpass_fir(int len, double f0, double f1) {
-    dsplib::arr_cmplx H = dsplib::zeros(len);
+static arr_cmplx _get_bandpass_fir(int len, double f0, double f1) {
+    arr_cmplx H = zeros(len);
     auto t0 = int(f0 * len);
     auto t1 = int(f1 * len);
     H.slice(t0, t1) = 1;
-    dsplib::arr_cmplx h = ifft(H);
-    h = dsplib::arr_cmplx(h.slice(len / 2, len)) | dsplib::arr_cmplx(h.slice(0, len / 2));
-    h *= dsplib::window::hamming(len);
+    arr_cmplx h = ifft(H);
+    h = arr_cmplx(h.slice(len / 2, len)) | arr_cmplx(h.slice(0, len / 2));
+    h *= window::hamming(len);
     return h;
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, Lms) {
-    using namespace dsplib;
     int M = impulses.size();
     int L = 1000;
     auto flt = FirFilter(impulses);
@@ -105,13 +101,13 @@ TEST(FirTest, Lms) {
 TEST(FirTest, Rls) {
     int M = impulses.size();
     int L = 1000;
-    auto flt = dsplib::FirFilter(impulses);
-    auto x = dsplib::randn(L);
-    auto n = 0.01 * dsplib::randn(L);
+    auto flt = FirFilter(impulses);
+    auto x = randn(L);
+    auto n = 0.01 * randn(L);
     auto d = flt(x) + n;
 
-    auto diag_load = 100.0 / dsplib::mean(x * x);
-    auto adapt = dsplib::RlsFilterR(M, 0.99, diag_load);
+    auto diag_load = 100.0 / mean(x * x);
+    auto adapt = RlsFilterR(M, 0.99, diag_load);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
     ASSERT_LE(nmse(w, impulses), 0.01);
@@ -119,7 +115,6 @@ TEST(FirTest, Rls) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, LmsCmplx) {
-    using namespace dsplib;
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
@@ -136,7 +131,6 @@ TEST(FirTest, LmsCmplx) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, RlsCmplx) {
-    using namespace dsplib;
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
@@ -152,76 +146,72 @@ TEST(FirTest, RlsCmplx) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(FirTest, Fir1) {
-    using namespace dsplib;
-    {
-        auto tt = range(8000);
-        auto h = fir1(100, 0.1, FilterType::Low);
-        const int N = h.size();
-        ASSERT_EQ(N, 101);
-        ASSERT_EQ(firtype(h), FirType::EvenSymm);
-        auto x = sin(2 * pi * 0.2 * tt / 2);
-        auto flt = FirFilter(h);
-        auto y = flt(x);
+TEST(Fir1, Low) {
+    auto tt = range(8000);
+    auto h = fir1(100, 0.1, FilterType::Low);
+    const int N = h.size();
+    ASSERT_EQ(N, 101);
+    ASSERT_EQ(firtype(h), FirType::EvenSymm);
+    auto x = sin(2 * pi * 0.2 * tt / 2);
+    auto flt = FirFilter(h);
+    auto y = flt(x);
 
-        const arr_real in = x.slice(N, indexing::end);
-        const arr_real out = y.slice(N, indexing::end);
-        auto suppress = mag2db(rms(in) / rms(out));
-        ASSERT_GE(suppress, 50);
-    }
+    const arr_real in = x.slice(N, indexing::end);
+    const arr_real out = y.slice(N, indexing::end);
+    auto suppress = mag2db(rms(in) / rms(out));
+    ASSERT_GE(suppress, 50);
+}
 
-    {
-        auto tt = range(8000);
-        auto h = fir1(99, 0.1, FilterType::High);
-        const int N = h.size();
-        ASSERT_EQ(N, 101);
-        ASSERT_EQ(firtype(h), FirType::EvenSymm);
-        auto x = sin(2 * pi * 0.05 * tt / 2);
-        auto flt = FirFilter(h);
-        auto y = flt(x);
+TEST(Fir1, High) {
+    auto tt = range(8000);
+    auto h = fir1(99, 0.1, FilterType::High);
+    const int N = h.size();
+    ASSERT_EQ(N, 101);
+    ASSERT_EQ(firtype(h), FirType::EvenSymm);
+    auto x = sin(2 * pi * 0.05 * tt / 2);
+    auto flt = FirFilter(h);
+    auto y = flt(x);
 
-        const arr_real in = x.slice(N, indexing::end);
-        const arr_real out = y.slice(N, indexing::end);
-        auto suppress = mag2db(rms(in) / rms(out));
-        ASSERT_GE(suppress, 50);
-    }
+    const arr_real in = x.slice(N, indexing::end);
+    const arr_real out = y.slice(N, indexing::end);
+    auto suppress = mag2db(rms(in) / rms(out));
+    ASSERT_GE(suppress, 50);
+}
 
-    {
-        auto tt = range(8000);
-        auto h = fir1(99, 0.1, 0.2, FilterType::Bandpass);
-        const int N = h.size();
-        ASSERT_EQ(N, 100);
-        ASSERT_EQ(firtype(h), FirType::OddSym);
-        auto x = sin(2 * pi * 0.15 * tt / 2);
-        auto flt = FirFilter(h);
-        auto y = flt(x);
+TEST(Fir1, Bandpass) {
+    auto tt = range(8000);
+    auto h = fir1(99, 0.1, 0.2, FilterType::Bandpass);
+    const int N = h.size();
+    ASSERT_EQ(N, 100);
+    ASSERT_EQ(firtype(h), FirType::OddSym);
+    auto x = sin(2 * pi * 0.15 * tt / 2);
+    auto flt = FirFilter(h);
+    auto y = flt(x);
 
-        const arr_real in = x.slice(N, indexing::end);
-        const arr_real out = y.slice(N, indexing::end);
-        auto suppress = mag2db(rms(in) / rms(out));
-        ASSERT_NEAR(suppress, 0, 0.1);
-    }
+    const arr_real in = x.slice(N, indexing::end);
+    const arr_real out = y.slice(N, indexing::end);
+    auto suppress = mag2db(rms(in) / rms(out));
+    ASSERT_NEAR(suppress, 0, 0.1);
+}
 
-    {
-        auto tt = range(8000);
-        auto h = fir1(99, 0.1, 0.2, FilterType::Bandstop);
-        const int N = h.size();
-        ASSERT_EQ(N, 101);
-        ASSERT_EQ(firtype(h), FirType::EvenSymm);
-        auto x = sin(2 * pi * 0.15 * tt / 2);
-        auto flt = FirFilter(h);
-        auto y = flt(x);
+TEST(Fir1, Bandstop) {
+    auto tt = range(8000);
+    auto h = fir1(99, 0.1, 0.2, FilterType::Bandstop);
+    const int N = h.size();
+    ASSERT_EQ(N, 101);
+    ASSERT_EQ(firtype(h), FirType::EvenSymm);
+    auto x = sin(2 * pi * 0.15 * tt / 2);
+    auto flt = FirFilter(h);
+    auto y = flt(x);
 
-        const arr_real in = x.slice(N, indexing::end);
-        const arr_real out = y.slice(N, indexing::end);
-        auto suppress = mag2db(rms(in) / rms(out));
-        ASSERT_GE(suppress, 50);
-    }
+    const arr_real in = x.slice(N, indexing::end);
+    const arr_real out = y.slice(N, indexing::end);
+    auto suppress = mag2db(rms(in) / rms(out));
+    ASSERT_GE(suppress, 50);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, Firtype) {
-    using namespace dsplib;
     ASSERT_EQ(firtype({0, 1, 2, 3}), FirType::NonlinearPhase);
     ASSERT_EQ(firtype({0, 1, 2, 1, 0}), FirType::EvenSymm);
     ASSERT_EQ(firtype({0, 1, 2, 2, 1, 0}), FirType::OddSym);
