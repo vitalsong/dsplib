@@ -1,4 +1,3 @@
-#include "dsplib/indexing.h"
 #include <dsplib/array.h>
 #include <ostream>
 
@@ -12,12 +11,14 @@ static std::ostream& format(std::ostream& os, const base_array<T>& x) {
     return os << x[x.size() - 1];
 }
 
-std::ostream& operator<<(std::ostream& os, const base_array<real_t>& x) {
-    return format(os, x);
+template<>
+std::ostream& base_array<real_t>::_print(std::ostream& os) const {
+    return format(os, *this);
 }
 
-std::ostream& operator<<(std::ostream& os, const base_array<cmplx_t>& x) {
-    return format(os, x);
+template<>
+std::ostream& base_array<cmplx_t>::_print(std::ostream& os) const {
+    return format(os, *this);
 }
 
 std::ostream& operator<<(std::ostream& os, const cmplx_t& x) {
