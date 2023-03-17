@@ -108,7 +108,7 @@ arr_real y = xcorr(x1, x2);
 ```cpp
 arr_real x1 = randn(500);
 arr_real x2 = delayseq(x1, 100);
-auto d1 = finddelay(x1, x2); ///d1=100
+auto d1 = finddelay(x1, x2);    ///d1=100
 auto [d2, _] = gccphat(x2, x1);   ///d2=100.0
 ```
 
@@ -120,4 +120,30 @@ x *= window::hann(n);
 arr_cmplx y = fft(x) / (n / 2);
 y = y.slice(0, n/2);
 auto z = mag2db(abs(y) / 0x7FFF);   //20*log10(..)
+```
+
+### FIR filter design:
+```cpp
+auto x = randn(10000);
+auto h = fir1(99, 0.1, 0.2, FilterType::Bandstop);
+auto flt = FirFilter(h);
+auto y = flt(x);
+```
+
+### Adaptive filters:
+```cpp
+//simulate room impulse response
+int M = 50;
+auto rir = fir1(M-1, 0.1);
+auto flt = FirFilter(rir);
+
+int L = 100000;
+auto x = randn(L);      //ref signal
+auto n = 0.01 * randn(L);
+auto d = flt(x) + n;    //mic signal
+
+auto rls = RlsFilterR(M, 0.98, 1000);
+auto [y, e] = rls(x, d);
+
+ASSERT_LE(nmse(flt.coeffs(), rir), 0.01);
 ```
