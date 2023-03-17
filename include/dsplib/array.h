@@ -432,9 +432,12 @@ public:
         return _vec;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const base_array<T>& x);
+    friend std::ostream& operator<<(std::ostream& os, const base_array& x) {
+        return x._print(os);
+    }
 
 protected:
+    std::ostream& _print(std::ostream& os) const;
     std::vector<T> _vec;
 };
 
