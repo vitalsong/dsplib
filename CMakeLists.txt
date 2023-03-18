@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.35.2)
+project(dsplib LANGUAGES CXX VERSION 0.36.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
+set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -19,6 +20,9 @@ file(GLOB_RECURSE DSPLIB_SOURCES
     "include/*.h")
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC include

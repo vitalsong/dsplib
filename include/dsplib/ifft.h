@@ -2,11 +2,10 @@
 
 #include <dsplib/types.h>
 #include <dsplib/array.h>
+#include <dsplib/fft.h>
 #include <memory>
 
 namespace dsplib {
-
-class IfftPlanImpl;
 
 class IfftPlan
 {
@@ -17,10 +16,8 @@ public:
     [[nodiscard]] int size() const noexcept;
 
 private:
-    std::shared_ptr<IfftPlanImpl> _d;
+    std::shared_ptr<BaseFftPlanC> _d;
 };
-
-using ifft_plan [[deprecated]] = IfftPlan;
 
 /*!
  * \brief Inverse fourier transform

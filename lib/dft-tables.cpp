@@ -1,6 +1,5 @@
-#include "dft-tables.h"
-#include "datacache.h"
-
+#include <dft-tables.h>
+#include <dsplib/throw.h>
 #include <dsplib/math.h>
 
 #include <cmath>
@@ -8,105 +7,79 @@
 #include <memory>
 
 namespace dsplib {
-namespace tables {
 
-//TODO: optional disable caching
-static datacache<size_t, dft_ptr> g_dft_cache;
-static datacache<size_t, bitrev_ptr> g_bitrev_cache;
+namespace {
 
-//-------------------------------------------------------------------------------------------------
-static dft_ptr _gen_dft_table(size_t size) {
-    auto tb = std::make_shared<std::vector<cmplx_t>>(size);
-    auto data = tb->data();
-
-    real_t p;
-    for (size_t i = 0; i < size; ++i) {
-        p = i / real_t(size);
-        data[i].re = std::cos(2 * pi * p);
-        data[i].im = -std::sin(2 * pi * p);
-    }
-
-    return tb;
-}
-
-//-------------------------------------------------------------------------------------------------
-const dft_ptr dft_table(size_t size) {
-    if (g_dft_cache.cached(size)) {
-        return g_dft_cache.get(size);
-    }
-
-    g_dft_cache.update(size, _gen_dft_table(size));
-    return g_dft_cache.get(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-void dft_clear(size_t size) {
-    g_dft_cache.reset(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-bool dft_cached(size_t size) {
-    return g_dft_cache.cached(size);
-}
-
-//-------------------------------------------------------------------------------------------------
-static inline int _get_bit(int a, int pos) {
+inline int _get_bit(int a, int pos) {
     return (a >> pos) & 0x1;
 }
 
-//-------------------------------------------------------------------------------------------------
-static inline void _set_bit(int& a, int pos, int bit) {
+inline void _set_bit(int& a, int pos, int bit) {
     a &= ~(1 << pos);
     a |= (bit << pos);
 }
 
-//-------------------------------------------------------------------------------------------------
-static inline int _bitrev(int a, int s) {
+inline int _bitrev(int a, int s) {
     int r = 0;
     for (int i = 0; i < ((s + 1) / 2); ++i) {
         _set_bit(r, (s - i - 1), _get_bit(a, i));
         _set_bit(r, i, _get_bit(a, (s - i - 1)));
     }
-
     return r;
 }
 
-//-------------------------------------------------------------------------------------------------
-static bitrev_ptr _gen_bitrev_table(size_t size) {
-    auto tb = std::make_shared<std::vector<int32_t>>(size);
-    auto data = tb->data();
-    const int s = nextpow2(size);
-    for (int i = 0; i < size; ++i) {
+std::vector<int32_t> gen_bitrev(int n) {
+    std::vector<int32_t> res(n);
+    //TODO: table is symmetry, table(n/2, end) == table(0, n/2)+1
+    const int s = nextpow2(n);
+    for (int i = 0; i < n; ++i) {
         int k = _bitrev(i, s);
-        if (k > i) {
-            data[i] = k;
-        } else {
-            data[i] = i;
+        res[i] = k;
+    }
+    return res;
+}
+
+arr_cmplx gen_coeffs(int n) {
+    arr_cmplx res(n);
+    for (int i = 0; i < n; ++i) {
+        real_t p = i / real_t(n);
+        //TODO: only sin operation required (N/8 optimization)
+        res[i].re = std::cos(2 * pi * p);
+        res[i].im = -std::sin(2 * pi * p);
+    }
+    return res;
+}
+
+}   // namespace
+
+FftParam fft_tables(size_t size) {
+    thread_local static FftParam param;
+
+    if (param.coeffs.size() < size) {
+        const int nfft = int(1) << nextpow2(size);
+        if (nfft != size) {
+            DSPLIB_THROW("FFT table len is not power of 2");
         }
+        param.coeffs = gen_coeffs(size);
+        param.bitrev = gen_bitrev(size);
     }
 
-    return tb;
-}
-
-//-------------------------------------------------------------------------------------------------
-const bitrev_ptr bitrev_table(size_t size) {
-    if (g_bitrev_cache.cached(size)) {
-        return g_bitrev_cache.get(size);
+    const int base_size = param.coeffs.size();
+    if (base_size == size) {
+        return param;
     }
 
-    g_bitrev_cache.update(size, _gen_bitrev_table(size));
-    return g_bitrev_cache.get(size);
+    //decimate table
+    FftParam result = {arr_cmplx(size), std::vector<int32_t>(size)};
+    if (base_size % size != 0) {
+        DSPLIB_THROW("FFT table len is not multiple");
+    }
+    const int d = (base_size / size);
+    for (int i = 0; i < size; ++i) {
+        result.coeffs[i] = param.coeffs[i * d];
+        result.bitrev[i] = param.bitrev[i * d];
+    }
+    return result;
 }
 
-//-------------------------------------------------------------------------------------------------
-bool bitrev_cached(size_t n) {
-    return g_bitrev_cache.cached(n);
-}
-
-//-------------------------------------------------------------------------------------------------
-void bitrev_clear(size_t n) {
-    g_bitrev_cache.reset(n);
-}
-
-}   // namespace tables
 }   // namespace dsplib

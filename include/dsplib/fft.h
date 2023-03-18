@@ -5,23 +5,45 @@
 
 namespace dsplib {
 
-class FftPlanImpl;
-
-class FftPlan
+//base complex value FFT plan
+class BaseFftPlanR
 {
 public:
-    FftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
-    [[nodiscard]] int size() const noexcept;
-
-private:
-    std::shared_ptr<FftPlanImpl> _d;
+    virtual ~BaseFftPlanR() = default;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_real& x) const = 0;
+    [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
-using fft_plan [[deprecated]] = FftPlan;
+//base real value FFT plan
+class BaseFftPlanC
+{
+public:
+    virtual ~BaseFftPlanC() = default;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
+    [[nodiscard]] virtual int size() const noexcept = 0;
+};
 
-//TODO: rfft optimization
+//complex value FFT plan
+class FftPlan : public BaseFftPlanC
+{
+public:
+    explicit FftPlan(int n);
+
+    arr_cmplx operator()(const arr_cmplx& x) const {
+        return _d->solve(x);
+    }
+
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
+        return _d->solve(x);
+    }
+
+    [[nodiscard]] int size() const noexcept final {
+        return _d->size();
+    }
+
+private:
+    std::shared_ptr<BaseFftPlanC> _d;
+};
 
 /*!
  * \brief Fast Fourier Transform (complex)
@@ -30,6 +52,8 @@ using fft_plan [[deprecated]] = FftPlan;
  * \return Result array [N]
  */
 arr_cmplx fft(const arr_cmplx& x);
+
+//TODO: arr_cmplx fft(const arr_real& x);
 
 //n-point DFT
 // if x.size() is less than n, then X is padded with trailing zeros to length n
