@@ -4,17 +4,13 @@
 #include <dsplib/czt.h>
 
 #include "dft-tables.h"
-#include "datacache.h"
+#include "lru-cache.h"
 
 #include <cassert>
 
 namespace dsplib {
 
-//-------------------------------------------------------------------------------------------------
-//caching czt(n, n, exp(-2pi/n), 1) for nfft != 2^m
-//TODO: optional disable caching
-using CztPlanPtr = std::shared_ptr<CztPlan>;
-static datacache<size_t, CztPlanPtr> g_czt_cache;
+constexpr int FFT_CACHE_SIZE = DSPLIB_FFT_CACHE_SIZE;
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
@@ -69,64 +65,56 @@ static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t*
 }
 
 //-------------------------------------------------------------------------------------------------
-class FftPlanImpl
+class Fft2Plan : public BaseFftPlan
 {
 public:
-    explicit FftPlanImpl(int n)
+    explicit Fft2Plan(int n)
       : n_{n} {
-        const int n2 = 1L << nextpow2(n);
-        if (n == n2) {
-            //n == 2^K
-            auto brev = tables::bitrev_table(n);
-            auto coeff = tables::dft_table(n);
-            solve = [brev, coeff, n](const arr_cmplx& x) {
-                arr_cmplx r = x;
-                _fft2(r.data(), coeff->data(), brev->data(), n);
-                return r;
-            };
-        } else {
-            //n != 2^K
-            if (!g_czt_cache.cached(n)) {
-                cmplx_t w = expj(-2 * pi / n);
-                auto plan = std::make_shared<CztPlan>(n, n, w);
-                g_czt_cache.update(n, plan);
-            }
-
-            auto plan = g_czt_cache.get(n);
-            solve = [plan](const arr_cmplx& x) {
-                return plan->solve(x);
-            };
-        }
+        assert(n == (1UL << nextpow2(n)));
+        brev_ = tables::bitrev_table(n);
+        coeff_ = tables::dft_table(n);
     }
 
-    std::function<arr_cmplx(const arr_cmplx&)> solve;
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
+        arr_cmplx r(x);
+        _fft2(r.data(), coeff_->data(), brev_->data(), n_);
+        return r;
+    }
+
+    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+        return this->solve(arr_cmplx(x));
+    }
+
+    [[nodiscard]] int size() const noexcept final {
+        return n_;
+    }
+
+private:
+    tables::bitrev_ptr brev_;
+    tables::dft_ptr coeff_;
     int n_;
 };
 
 //-------------------------------------------------------------------------------------------------
-FftPlan::FftPlan(int n)
-  : _d{std::make_shared<FftPlanImpl>(n)} {
+FftPlan::FftPlan(int n) {
+    if (n == (1L << nextpow2(n))) {
+        //n=2^K
+        _d = std::make_shared<Fft2Plan>(n);
+    } else {
+        //n!=2^K
+        const cmplx_t w = expj(-2 * pi / n);
+        _d = std::make_shared<CztPlan>(n, n, w);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx FftPlan::operator()(const arr_cmplx& x) const {
-    return _d->solve(x);
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_cmplx FftPlan::solve(const arr_cmplx& x) const {
-    return _d->solve(x);
-}
-
-//-------------------------------------------------------------------------------------------------
-int FftPlan::size() const noexcept {
-    return _d->n_;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_cmplx fft(const arr_cmplx& arr) {
-    FftPlan plan(arr.size());
-    return plan(arr);
+arr_cmplx fft(const arr_cmplx& x) {
+    thread_local LRUCache<int, FftPlan> cache{FFT_CACHE_SIZE};
+    if (!cache.exist(x.size())) {
+        cache.put(x.size(), FftPlan(x.size()));
+    }
+    auto plan = cache.get(x.size());
+    return plan(x);
 }
 
 //-------------------------------------------------------------------------------------------------

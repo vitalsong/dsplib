@@ -7,11 +7,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
+option(DSPLIB_FFT_BACKEND "Detect optimal FFT on system" OFF)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
+
+set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
+set(DSPLIB_FFT_MAX_CACHED_LEN "32768" CACHE STRING "Max FFT length for caching")
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
     "lib/*.cpp"  
@@ -19,6 +23,14 @@ file(GLOB_RECURSE DSPLIB_SOURCES
     "include/*.h")
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
+
+if (DSPLIB_FFT_BACKEND)
+    include(cmake/ConfigFFT.cmake)
+    ConfigFFTBackend(${PROJECT_NAME} ${DSPLIB_USE_FLOAT32})
+endif()
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC include

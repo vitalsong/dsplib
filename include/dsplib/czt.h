@@ -1,18 +1,27 @@
 #pragma once
 
-#include <dsplib/array.h>
+#include <dsplib/fft.h>
 #include <memory>
 
 namespace dsplib {
 
 class CztPlanImpl;
 
-class CztPlan
+class CztPlan : public BaseFftPlan
 {
 public:
     explicit CztPlan(int n, int m, cmplx_t w, cmplx_t a = 1);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    arr_cmplx solve(const arr_cmplx& x) const;
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final;
+    [[nodiscard]] int size() const noexcept final;
+
+    arr_cmplx operator()(const arr_cmplx& x) const {
+        return this->solve(x);
+    }
+
+    arr_cmplx operator()(const arr_real& x) const {
+        return this->solve(arr_cmplx(x));
+    }
 
 private:
     std::shared_ptr<CztPlanImpl> _d;

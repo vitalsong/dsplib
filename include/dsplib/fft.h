@@ -5,18 +5,42 @@
 
 namespace dsplib {
 
-class FftPlanImpl;
-
-class FftPlan
+class BaseFftPlan
 {
 public:
-    FftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
-    [[nodiscard]] int size() const noexcept;
+    virtual ~BaseFftPlan() = default;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_real& x) const = 0;
+    [[nodiscard]] virtual int size() const noexcept = 0;
+};
+
+class FftPlan : public BaseFftPlan
+{
+public:
+    explicit FftPlan(int n);
+
+    arr_cmplx operator()(const arr_cmplx& x) const {
+        return _d->solve(x);
+    }
+
+    arr_cmplx operator()(const arr_real& x) const {
+        return _d->solve(arr_cmplx(x));
+    }
+
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
+        return _d->solve(x);
+    }
+
+    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+        return _d->solve(arr_cmplx(x));
+    }
+
+    [[nodiscard]] int size() const noexcept final {
+        return _d->size();
+    }
 
 private:
-    std::shared_ptr<FftPlanImpl> _d;
+    std::shared_ptr<BaseFftPlan> _d;
 };
 
 using fft_plan [[deprecated]] = FftPlan;
