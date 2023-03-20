@@ -8,6 +8,11 @@
 
 #include <cassert>
 
+#if defined(FFTW_FLOAT) || defined(FFTW_DOUBLE)
+#define FFTW_SUPPORTED
+#include "specific/fftw-plan.h"
+#endif
+
 namespace dsplib {
 
 constexpr int FFT_CACHE_SIZE = DSPLIB_FFT_CACHE_SIZE;
@@ -99,18 +104,27 @@ private:
     int n_;
 };
 
+//TODO: dont use macro, build and select all implementations
+#ifndef FFTW_SUPPORTED
+static std::shared_ptr<BaseFftPlan> get_fft_plan(int n) {
+    //n!=2^K
+    if (n != (1L << nextpow2(n))) {
+        const cmplx_t w = expj(-2 * pi / n);
+        return std::make_shared<CztPlan>(n, n, w);
+    }
+    return std::make_shared<Fft2Plan>(n);
+}
+#else
+static std::shared_ptr<BaseFftPlan> get_fft_plan(int n) {
+    return std::make_shared<FFTWPlan>(n);
+}
+#endif
+
 //-------------------------------------------------------------------------------------------------
 FftPlan::FftPlan(int n) {
     thread_local LRUCache<int, std::shared_ptr<BaseFftPlan>> cache{FFT_CACHE_SIZE};
     if (!cache.exist(n)) {
-        if (n == (1L << nextpow2(n))) {
-            //n=2^K
-            cache.put(n, std::make_shared<Fft2Plan>(n));
-        } else {
-            //n!=2^K
-            const cmplx_t w = expj(-2 * pi / n);
-            cache.put(n, std::make_shared<CztPlan>(n, n, w));
-        }
+        cache.put(n, get_fft_plan(n));
     }
     _d = cache.get(n);
 }
