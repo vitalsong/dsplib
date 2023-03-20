@@ -14,11 +14,14 @@ constexpr int FFT_CACHE_SIZE = DSPLIB_FFT_CACHE_SIZE;
 
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
-static void _reversal(cmplx_t* restrict w, const int32_t* restrict bitrev, int n) {
+static arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bitrev) noexcept {
+    const int n = x.size();
+    arr_cmplx r(n);
     for (int i = 0; i < n; ++i) {
-        const int k = bitrev[i];
-        std::swap(w[i], w[k]);
+        const auto k = bitrev[i];
+        r[i] = x[k];
     }
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -29,11 +32,14 @@ static inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t* restrict bitrev, int n) {
+static arr_cmplx _fft_radix2(const arr_cmplx& in, const arr_cmplx& w, const std::vector<int32_t>& bitrev, int n) {
     assert(n % 2 == 0);
+    assert(x.size() == n);
+    assert(w.size() == n);
+    assert(bitrev.size() == n);
 
     //reverse sampling
-    _reversal(x, bitrev, n);
+    auto x = _bitreverse(in, bitrev);
 
     int h = 1;       ///< number of butterflies in clusters (and step between elements)
     int m = n / 2;   ///< number of clusters (and step for the butterfly table)
@@ -45,10 +51,10 @@ static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t*
 
     //cascades
     for (int i = 0; i < L; ++i) {
-        px = x;
+        px = x.data();
         //clusters
         for (int j = 0; j < m; ++j) {
-            pw = w;
+            pw = w.data();
             //butterflies
             for (int k = 0; k < h; ++k) {
                 _btrf(px[k], px[k + h], *pw);
@@ -62,6 +68,8 @@ static void _fft2(cmplx_t* restrict x, const cmplx_t* restrict w, const int32_t*
         h *= 2;
         r *= 2;
     }
+
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -71,14 +79,11 @@ public:
     explicit Fft2Plan(int n)
       : n_{n} {
         assert(n == (1UL << nextpow2(n)));
-        brev_ = tables::bitrev_table(n);
-        coeff_ = tables::dft_table(n);
+        param_ = fft_tables(n);
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
-        arr_cmplx r(x);
-        _fft2(r.data(), coeff_->data(), brev_->data(), n_);
-        return r;
+        return _fft_radix2(x, param_.coeffs, param_.bitrev, n_);
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
@@ -90,30 +95,29 @@ public:
     }
 
 private:
-    tables::bitrev_ptr brev_;
-    tables::dft_ptr coeff_;
+    FftParam param_;
     int n_;
 };
 
 //-------------------------------------------------------------------------------------------------
 FftPlan::FftPlan(int n) {
-    if (n == (1L << nextpow2(n))) {
-        //n=2^K
-        _d = std::make_shared<Fft2Plan>(n);
-    } else {
-        //n!=2^K
-        const cmplx_t w = expj(-2 * pi / n);
-        _d = std::make_shared<CztPlan>(n, n, w);
+    thread_local LRUCache<int, std::shared_ptr<BaseFftPlan>> cache{FFT_CACHE_SIZE};
+    if (!cache.exist(n)) {
+        if (n == (1L << nextpow2(n))) {
+            //n=2^K
+            cache.put(n, std::make_shared<Fft2Plan>(n));
+        } else {
+            //n!=2^K
+            const cmplx_t w = expj(-2 * pi / n);
+            cache.put(n, std::make_shared<CztPlan>(n, n, w));
+        }
     }
+    _d = cache.get(n);
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx fft(const arr_cmplx& x) {
-    thread_local LRUCache<int, FftPlan> cache{FFT_CACHE_SIZE};
-    if (!cache.exist(x.size())) {
-        cache.put(x.size(), FftPlan(x.size()));
-    }
-    auto plan = cache.get(x.size());
+    auto plan = FftPlan(x.size());
     return plan(x);
 }
 
