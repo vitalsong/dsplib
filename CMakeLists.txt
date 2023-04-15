@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.35.1)
+project(dsplib LANGUAGES CXX VERSION 0.35.2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -69,7 +69,24 @@ if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_BENCHS)
     add_subdirectory(benchs)
 endif()
 
-# version header 
-set(DSPLIB_VERSION_DIR "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
-configure_file(cmake/version.h.in ${DSPLIB_VERSION_DIR}/version.h @ONLY)
-target_include_directories(${PROJECT_NAME} PUBLIC ${DSPLIB_VERSION_DIR})
+# version header
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    DSPLIB_VERSION="${CMAKE_PROJECT_VERSION}"
+    DSPLIB_MAJOR_VERSION=${CMAKE_PROJECT_VERSION_MAJOR}
+    DSPLIB_MINOR_VERSION=${CMAKE_PROJECT_VERSION_MINOR}
+    DSPLIB_PATCH_VERSION=${CMAKE_PROJECT_VERSION_PATCH}
+)
+
+# install
+file(GLOB_RECURSE INCLUDE_FILES "include/${PROJECT_NAME}/*.h")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+    PUBLIC_HEADER "${INCLUDE_FILES}"
+)
+
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+    PUBLIC_HEADER 
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}"
+)
+install(FILES "include/${PROJECT_NAME}.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
