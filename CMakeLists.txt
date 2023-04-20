@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
+option(DSPLIB_FFT_BACKEND "Find optimal fft on system" OFF)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -49,6 +50,11 @@ endif()
 if (DSPLIB_IS_ROOT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     message(STATUS "dsplib: warnings guard enabled")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-sign-compare)
+endif()
+
+if (DSPLIB_FFT_BACKEND)
+    include(cmake/config_fft.cmake)
+    ConfigFFTBackend(${PROJECT_NAME} ${DSPLIB_USE_FLOAT32})
 endif()
 
 # adress sanitizer
