@@ -2,6 +2,7 @@
 #include "datacache.h"
 
 #include <dsplib/math.h>
+#include <dsplib/throw.h>
 
 #include <cmath>
 #include <vector>
@@ -11,42 +12,71 @@ namespace dsplib {
 namespace tables {
 
 //TODO: optional disable caching
-static datacache<size_t, dft_ptr> g_dft_cache;
+static datacache<size_t, fft2tb_ptr> g_dft_cache;
 static datacache<size_t, bitrev_ptr> g_bitrev_cache;
 
 //-------------------------------------------------------------------------------------------------
-static dft_ptr _gen_dft_table(size_t size) {
-    auto tb = std::make_shared<std::vector<cmplx_t>>(size);
-    auto data = tb->data();
-
-    real_t p;
-    for (size_t i = 0; i < size; ++i) {
-        p = i / real_t(size);
-        data[i].re = std::cos(2 * pi * p);
-        data[i].im = -std::sin(2 * pi * p);
+fft2tb_ptr fft2tb::alloc(size_t n) {
+    if (n != (1L << nextpow2(n))) {
+        DSPLIB_THROW("fft size is not power of 2");
     }
 
-    return tb;
-}
-
-//-------------------------------------------------------------------------------------------------
-const dft_ptr dft_table(size_t size) {
-    if (g_dft_cache.cached(size)) {
-        return g_dft_cache.get(size);
+    if (g_dft_cache.cached(n)) {
+        return g_dft_cache.get(n);
     }
 
-    g_dft_cache.update(size, _gen_dft_table(size));
-    return g_dft_cache.get(size);
+    auto ptr = fft2tb_ptr(new fft2tb(n));
+    g_dft_cache.update(n, ptr);
+    return ptr;
 }
 
 //-------------------------------------------------------------------------------------------------
-void dft_clear(size_t size) {
-    g_dft_cache.reset(size);
+void fft2tb::reset(size_t n) {
+    g_dft_cache.reset(n);
 }
 
 //-------------------------------------------------------------------------------------------------
-bool dft_cached(size_t size) {
-    return g_dft_cache.cached(size);
+bool fft2tb::is_cached(size_t n) {
+    return g_dft_cache.cached(n);
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx fft2tb::unpack() const noexcept {
+    arr_cmplx r(_n);
+
+    //real
+    for (size_t i = 0; i < _n4; i++) {
+        r[i].re = _cos_tb[i];
+    }
+    r[_n4].re = 0;
+    for (size_t i = 0; i < _n4; i++) {
+        r[_n4 + 1 + i].re = -_cos_tb[_n4 - i - 1];
+    }
+    for (size_t i = 0; i < _n2 - 1; i++) {
+        r[_n2 + 1 + i].re = r[_n2 - i - 1].re;
+    }
+
+    //imag
+    const uint32_t ns = (_n - 1);
+    for (size_t i = 0; i < _n; i++) {
+        r[i].im = r[(i + _n4) & ns].re;
+    }
+
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+fft2tb::fft2tb(uint32_t n) noexcept
+  : _n{n}
+  , _n2{n / 2}
+  , _n4{n / 4}
+  , _cos_tb(_n4) {
+    assert(n >= 4);
+    assert(n == (1L << nextpow2(n)));
+    const real_t dt = 1 / real_t(_n);
+    for (size_t i = 0; i < _n4; ++i) {
+        _cos_tb[i] = std::cos(2 * pi * i * dt);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -89,7 +119,7 @@ static bitrev_ptr _gen_bitrev_table(size_t size) {
 }
 
 //-------------------------------------------------------------------------------------------------
-const bitrev_ptr bitrev_table(size_t size) {
+bitrev_ptr bitrev_table(size_t size) {
     if (g_bitrev_cache.cached(size)) {
         return g_bitrev_cache.get(size);
     }

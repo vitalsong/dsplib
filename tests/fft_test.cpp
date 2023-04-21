@@ -1,5 +1,7 @@
 #include "tests_common.h"
 
+#include <dft-tables.h>
+
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
     using namespace dsplib;
@@ -97,5 +99,17 @@ TEST(FFT, CztIFft2) {
         auto y1 = czt(x, n, w);
         auto y2 = ifft(x) * n;
         ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, Fft2Table) {
+    using namespace dsplib;
+    auto nfft_list = {4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+    for (auto nfft : nfft_list) {
+        auto tb = tables::fft2tb::alloc(nfft);
+        auto x1 = tb->unpack();
+        auto x2 = expj(-2 * dsplib::pi * range(nfft) / nfft);
+        ASSERT_EQ_ARR_CMPLX(x1, x2);
     }
 }
