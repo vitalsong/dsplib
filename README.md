@@ -67,6 +67,15 @@ arr_cmplx y1 = fft(x);  //500
 arr_cmplx y2 = fft(x, 1024); //1024
 ```
 
+### FFT performance (double complex)
+`Intel Core i7 (2.6 GHz)`
+
+| N    | dsplib   | fftw3    | kissfft  |
+| ---- | -------- | -------- | -------  |
+| 2048 | 15651 ns | 4357 ns  | 19846 ns |
+| 4096 | 34818 ns | 11726 ns | 36083 ns |
+| 8192 | 81687 ns | 29223 ns | 100624 ns |
+
 ### Inverse Fast Fourier Transform:
 ```cpp
 arr_cmplx x = 1i * zeros(512);

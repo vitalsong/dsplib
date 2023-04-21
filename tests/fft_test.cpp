@@ -1,17 +1,27 @@
+#include "dsplib/array.h"
 #include "tests_common.h"
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
     using namespace dsplib;
-    int idx = 10;
-    int nfft = 512;
-    auto x = sin(range(nfft) * 2 * pi * idx / nfft);
-    auto y = fft(x) / nfft;
-    auto z = abs(y);
-    auto r = zeros(nfft);
-    r[idx] = 0.5;
-    r[nfft - idx] = 0.5;
-    ASSERT_EQ_ARR_REAL(r, z);
+    {
+        int idx = 10;
+        int nfft = 512;
+        auto x = sin(range(nfft) * 2 * pi * idx / nfft);
+        auto y = fft(x) / nfft;
+        auto z = abs(y);
+        auto r = zeros(nfft);
+        r[idx] = 0.5;
+        r[nfft - idx] = 0.5;
+        ASSERT_EQ_ARR_REAL(r, z);
+    }
+
+    {
+        auto x = randn(1024);
+        auto r1 = fft(x);
+        auto r2 = fft(arr_cmplx(x));
+        ASSERT_EQ_ARR_CMPLX(r1, r2);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

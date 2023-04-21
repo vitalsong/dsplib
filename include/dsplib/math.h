@@ -89,7 +89,7 @@ arr_real imag(const arr_cmplx& x);
 real_t imag(cmplx_t x);
 
 //complex pairing
-arr_cmplx conj(const arr_cmplx& x);
+arr_cmplx conj(arr_cmplx x);
 
 constexpr cmplx_t conj(cmplx_t x) {
     return x.conj();
@@ -110,8 +110,8 @@ arr_cmplx complex(const arr_real& re, const arr_real& im);
 int nextpow2(int m);
 
 //array pow
-arr_real pow2(const arr_real& arr);
-arr_cmplx pow2(const arr_cmplx& arr);
+arr_real pow2(arr_real arr);
+arr_cmplx pow2(arr_cmplx arr);
 
 constexpr real_t pow2(real_t x) {
     return x * x;
