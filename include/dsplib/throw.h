@@ -13,6 +13,6 @@
 
 #include <stdexcept>
 
-#define DSPLIB_THROW(MSG) throw std::runtime_error(std::string("dsplib: ") + MSG);
+#define DSPLIB_THROW(MSG) throw std::runtime_error(std::string("dsplib: ") + std::string(MSG));
 
 #endif

@@ -9,7 +9,7 @@ namespace dsplib {
 class CztPlanImpl
 {
 public:
-    CztPlanImpl(int n, int m, cmplx_t w, cmplx_t a)
+    explicit CztPlanImpl(int n, int m, cmplx_t w, cmplx_t a)
       : _n{n}
       , _m{m} {
         auto t = pow2(range(1 - n, max(m, n))) / 2;
@@ -23,7 +23,7 @@ public:
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    arr_cmplx solve(const arr_cmplx& x) const {
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
         auto xp = (x * _cp) | zeros(_ich.size() - x.size());
         auto r = ifft(fft(xp) * _ich);
         arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);
@@ -41,12 +41,12 @@ CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
   : _d{std::make_shared<CztPlanImpl>(n, m, w, a)} {
 }
 
-arr_cmplx CztPlan::operator()(const arr_cmplx& x) const {
+arr_cmplx CztPlan::solve(const arr_cmplx& x) const {
     return _d->solve(x);
 }
 
-arr_cmplx CztPlan::solve(const arr_cmplx& x) const {
-    return _d->solve(x);
+int CztPlan::size() const noexcept {
+    return _d->_n;
 }
 
 arr_cmplx czt(arr_cmplx x, int m, cmplx_t w, cmplx_t a) {

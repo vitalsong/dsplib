@@ -264,49 +264,7 @@ void agc_example_impulse() {
 }
 
 //--------------------------------------------------------------------------------
-void detector_example() {
-    const int r = 1;
-    const int n = 100;
-    auto zch_p = (-1) * (dsp::pi * r * (dsp::range(n) ^ 2)) / n;
-    auto zch = dsp::expj(zch_p);
-    auto dtc = dsp::Detector(zch);
-    auto t = dsp::range(1000) / 8000.0;
-    auto ns = dsp::expj(2 * dsp::pi * 440 * t);
-    auto x = ns | zch | ns;
-
-    //gauss channel
-    x = dsp::awgn(x, 10);
-
-    const int M = 16;
-    const int L = x.size() / M;
-    bool ready = false;
-    dsp::arr_cmplx aligned;
-    for (size_t i = 0; i < L; i++) {
-        int t0 = i * M;
-        int t1 = (i + 1) * M;
-        dsp::arr_cmplx sx = x.slice(t0, t1);
-
-        //wait preambula
-        auto dres = dtc(sx);
-        if (dres.triggered) {
-            aligned = dres.delay;
-            ready = true;
-            continue;
-        }
-
-        if (ready) {
-            aligned |= sx;
-        }
-    }
-
-    matplot::title("Aligned preambula + signal");
-    matplot::plot(dsp::real(aligned));
-    matplot::show();
-}
-
-//--------------------------------------------------------------------------------
 int main() {
-    detector_example();
     agc_example_sinus();
     agc_example_impulse();
     lms_example();
