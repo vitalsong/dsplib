@@ -53,11 +53,20 @@ TEST(MathTest, PeakToPeak) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Median) {
-    arr_real v1 = {-1, 0, 1, 2, 3, 4, 5, 6, 7};
-    ASSERT_FLOAT_EQ(median(v1), 3);
+    {
+        arr_real x = {-1, 0, 1, 2, 3, 4, 5, 6, 7};
+        ASSERT_FLOAT_EQ(median(x), 3);
+    }
 
-    arr_real v2 = {0, 0, 0, 1};
-    ASSERT_FLOAT_EQ(median(v2), 0);
+    {
+        arr_real x = {0, 0, 0, 1};
+        ASSERT_FLOAT_EQ(median(x), 0);
+    }
+
+    {
+        arr_real x = {0, 1, 2, 3};
+        ASSERT_FLOAT_EQ(median(x), 1.5);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
