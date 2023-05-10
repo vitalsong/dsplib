@@ -7,31 +7,31 @@ using namespace dsplib;
 //-------------------------------------------------------------------------------------------------
 TEST(Utils, Range) {
     {
-        auto x1 = range(0, 10);
-        auto x2 = range(10);
+        auto x1 = arange(0, 10);
+        auto x2 = arange(10);
         arr_real x3 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         ASSERT_EQ_ARR_REAL(x1, x3);
         ASSERT_EQ_ARR_REAL(x2, x3);
     }
     {
-        auto x1 = range(-1, 0, 0.1);
+        auto x1 = arange(-1, 0, 0.1);
         arr_real x2 = {-1, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1};
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
     {
-        auto x1 = range(-1, 1, 0.5);
+        auto x1 = arange(-1, 1, 0.5);
         arr_real x2 = {-1, -0.5, 0, 0.5};
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
     {
-        auto x1 = range(0, 100, 2);
-        auto x2 = range(1, 100, 2);
+        auto x1 = arange(0, 100, 2);
+        auto x2 = arange(1, 100, 2);
         ASSERT_EQ(x1.size(), 50);
         ASSERT_EQ(x2.size(), 50);
     }
     {
-        auto x1 = range(0, 100, 2.0);
-        auto x2 = range(1, 100, 2.0);
+        auto x1 = arange(0, 100, 2.0);
+        auto x2 = arange(1, 100, 2.0);
         ASSERT_EQ(x1.size(), 50);
         ASSERT_EQ(x2.size(), 50);
     }
@@ -140,7 +140,7 @@ TEST(Utils, Peakloc) {
     const int N = 2048;
     auto freq = 440.0;
     auto fs = 8e3;
-    auto t = range(N) / fs;
+    auto t = arange(N) / fs;
     auto x = sin(2 * pi * freq * t);
     x = awgn(x, 20);
     auto X = fft(x);

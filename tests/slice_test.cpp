@@ -36,7 +36,7 @@ TEST(SliceTest, Base) {
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
     {
-        arr_real x = range(100);
+        arr_real x = arange(100);
         arr_real y1 = x.slice(0, 100, 2);
         arr_real y2 = x.slice(1, 100, 2);
         ASSERT_EQ(y1.size(), 50);
@@ -92,29 +92,29 @@ TEST(SliceTest, NegIndex) {
 //-------------------------------------------------------------------------------------------------
 TEST(SliceTest, NegStep) {
     {
-        arr_real x = range(6);
+        arr_real x = arange(6);
         arr_real r = x.slice(4, 0, -1);
         ASSERT_EQ_ARR_REAL(r, arr_real{4, 3, 2, 1});
     }
     {
-        arr_real x = range(6);
+        arr_real x = arange(6);
         arr_real r = x.slice(4, 0, -2);
         ASSERT_EQ_ARR_REAL(r, arr_real{4, 2});
     }
     {
-        arr_real x = range(5);
+        arr_real x = arange(5);
         arr_real r = x.slice(4, 0, -2);
         ASSERT_EQ_ARR_REAL(r, arr_real{4, 2});
     }
     {
-        arr_real x = range(7);
+        arr_real x = arange(7);
         arr_real r = x.slice(-6, 0, -1);
         ASSERT_EQ_ARR_REAL(r, arr_real{
                                 1,
                               });
     }
     {
-        arr_real x = range(7);
+        arr_real x = arange(7);
         arr_real r = x.slice(-7, 7);
         ASSERT_EQ_ARR_REAL(r, arr_real{0, 1, 2, 3, 4, 5, 6});
     }

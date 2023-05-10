@@ -4,7 +4,7 @@
 TEST(Awgn, Sinad) {
     {
         const int fs = 8000;
-        auto tt = dsplib::range(fs) / fs;
+        auto tt = dsplib::arange(fs) / fs;
         auto x = 0.1 * dsplib::sin(2 * dsplib::pi * 1200 * tt);
         x = dsplib::awgn(x, 10);
         auto sinad = dsplib::sinad(x);
@@ -13,7 +13,7 @@ TEST(Awgn, Sinad) {
 
     {
         const int fs = 8000;
-        auto tt = dsplib::range(fs) / fs;
+        auto tt = dsplib::arange(fs) / fs;
         auto x = 0.1 * dsplib::sin(2 * dsplib::pi * 1200 * tt);
         x = dsplib::awgn(x, 25);
         auto sinad = dsplib::sinad(x);
