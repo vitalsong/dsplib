@@ -59,14 +59,14 @@ static dsp::arr_real IR = {
 static void spectrum_example() {
     const int fs = 8000;
     const int nfft = 512;
-    auto v = dsp::range(0, nfft) * 2 * dsp::pi * 440 / fs;
+    auto v = dsp::arange(0, nfft) * 2 * dsp::pi * 440 / fs;
     auto x = dsp::expj(v) * 1000;
     x = dsp::awgn(x, 10);
     x *= dsp::window::hamming(nfft);
     auto y = dsp::fft(x) / nfft;
     y = y.slice(0, nfft / 2);
     auto z = dsplib::mag2db(dsp::abs(y) / 0x7FFF);
-    auto freqs = dsp::range(nfft / 2) * fs / nfft;
+    auto freqs = dsp::arange(nfft / 2) * fs / nfft;
     matplot::title("Spectrum Example");
     matplot::plot(freqs, z);
     matplot::show();
@@ -75,7 +75,7 @@ static void spectrum_example() {
 //--------------------------------------------------------------------------------
 static void medfilt_example() {
     int fs = 100;
-    auto t = dsp::range(0, 1, 1.0 / fs);
+    auto t = dsp::arange(0, 1, 1.0 / fs);
     auto x = dsp::sin(t * 2 * dsp::pi * 3) + dsp::sin(t * 2 * dsp::pi * 40) * 0.25;
     auto y = dsp::medfilt(x, 10);
 
@@ -104,7 +104,7 @@ static void fir_example() {
     int n = 200;
 
     auto flt = dsp::FirFilter(IR);
-    auto t = dsp::range(0, n) * 2 * dsp::pi * 50 / fs;
+    auto t = dsp::arange(0, n) * 2 * dsp::pi * 50 / fs;
     auto x_in = dsp::sin(t) * 100 + dsp::randn(n) * 10;
     auto x_out = flt(x_in);
 
@@ -118,7 +118,7 @@ static void fir_example() {
 static void hilbert_example() {
     int fs = 8000;
     int n = 1000;
-    auto t = dsp::range(0, n) * 2 * dsp::pi * 40 / fs;
+    auto t = dsp::arange(0, n) * 2 * dsp::pi * 40 / fs;
     auto x = dsp::sin(t) * 100;
     auto y = dsp::hilbert(x);
 
@@ -137,14 +137,14 @@ static void interp_example() {
     int m = 4;
 
     auto flt = dsp::FirFilter(IR);
-    auto t = dsp::range(0, n) * 2 * dsp::pi * 200 / fs;
+    auto t = dsp::arange(0, n) * 2 * dsp::pi * 200 / fs;
     auto x_in = dsp::sin(t) * 100;
     auto interp_in = dsplib::upsample(x_in, m);
     auto x_out = flt.process(interp_in) * m;
 
     matplot::title("Interp 4x Example");
-    dsp::arr_real x1 = dsp::range(0, n * m, m);
-    dsp::arr_real x2 = dsp::range(0, n * m);
+    dsp::arr_real x1 = dsp::arange(0, n * m, m);
+    dsp::arr_real x2 = dsp::arange(0, n * m);
     dsp::arr_real y1 = x_in.slice(0, n);
     dsp::arr_real y2 = x_out.slice(0, n * m);
     matplot::plot(x1, y1, x2, y2);
@@ -157,7 +157,7 @@ static void lms_example() {
     int M = 100;
     int L = 10000;
     auto flt = dsp::FirFilter(IR);
-    auto t = dsp::range(0, L) / 1000;
+    auto t = dsp::arange(0, L) / 1000;
     auto s = dsp::sin(2 * dsp::pi * 3 * t) + dsp::sin(2 * dsp::pi * 4 * t);
     auto x = 10 * dsp::randn(L);
     auto d = flt(x) + s;
@@ -212,7 +212,7 @@ static void tuner_example() {
     dsplib::Tuner tuner1(fs, 1000);
     dsplib::Tuner tuner2(fs, -1000);
 
-    auto t = dsp::range(n) / fs;
+    auto t = dsp::arange(n) / fs;
 
     auto y1 = 100 * dsp::expj(2 * dsp::pi * 440 * t);   ///< 440 Hz
     auto y2 = tuner1(y1);                               ///< 1440 Hz
@@ -222,7 +222,7 @@ static void tuner_example() {
     auto z2 = 20 * dsp::log10(dsp::abs(dsp::fft(y2)));
     auto z3 = 20 * dsp::log10(dsp::abs(dsp::fft(y3)));
 
-    auto freqs = dsp::range(n) * fs / n;
+    auto freqs = dsp::arange(n) * fs / n;
     matplot::title("Tuner Example");
     matplot::plot(freqs, {z1, z2, z3});
     matplot::legend({"Original", "+1000Hz", "-1000Hz"});
@@ -232,7 +232,7 @@ static void tuner_example() {
 //--------------------------------------------------------------------------------
 void agc_example_sinus() {
     auto agc = dsp::Agc(1, 30, 1000, 0.01);
-    auto t = dsp::range(10000) / 8000;
+    auto t = dsp::arange(10000) / 8000;
     auto x = 10 * expj(2 * dsp::pi * 440 * t);
     auto [y, g] = agc(x);
 
@@ -246,8 +246,8 @@ void agc_example_impulse() {
     auto agc1 = dsp::Agc(1, 30, 100, 0.02, 0.02);
     auto agc2 = dsp::Agc(1, 24, 100, 0.02, 0.02);
 
-    auto xx1 = 0.1 * dsp::expj(dsp::pi / 4 * dsp::range(200));
-    auto xx2 = 0.1 * dsp::expj(dsp::pi / 8 * dsp::range(200));
+    auto xx1 = 0.1 * dsp::expj(dsp::pi / 4 * dsp::arange(200));
+    auto xx2 = 0.1 * dsp::expj(dsp::pi / 8 * dsp::arange(200));
 
     auto z = 1i * dsp::zeros(400);
     auto x = xx1 | z | xx2 | z;

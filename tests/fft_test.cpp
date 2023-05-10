@@ -5,7 +5,7 @@ TEST(FFT, FftReal) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
-    auto x = sin(range(nfft) * 2 * pi * idx / nfft);
+    auto x = sin(arange(nfft) * 2 * pi * idx / nfft);
     auto y = fft(x) / nfft;
     auto z = abs(y);
     auto r = zeros(nfft);
@@ -19,7 +19,7 @@ TEST(FFT, FftCmplx) {
     using namespace dsplib;
     int idx = 10;
     int nfft = 512;
-    auto x = expj(range(nfft) * 2 * pi * idx / nfft);
+    auto x = expj(arange(nfft) * 2 * pi * idx / nfft);
     auto y = fft(x) / nfft;
     auto z = abs(y);
     auto r = zeros(nfft);

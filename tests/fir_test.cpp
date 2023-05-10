@@ -147,7 +147,7 @@ TEST(FirTest, RlsCmplx) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(Fir1, Low) {
-    auto tt = range(8000);
+    auto tt = arange(8000);
     auto h = fir1(100, 0.1, FilterType::Low);
     const int N = h.size();
     ASSERT_EQ(N, 101);
@@ -163,7 +163,7 @@ TEST(Fir1, Low) {
 }
 
 TEST(Fir1, High) {
-    auto tt = range(8000);
+    auto tt = arange(8000);
     auto h = fir1(99, 0.1, FilterType::High);
     const int N = h.size();
     ASSERT_EQ(N, 101);
@@ -179,7 +179,7 @@ TEST(Fir1, High) {
 }
 
 TEST(Fir1, Bandpass) {
-    auto tt = range(8000);
+    auto tt = arange(8000);
     auto h = fir1(99, 0.1, 0.2, FilterType::Bandpass);
     const int N = h.size();
     ASSERT_EQ(N, 100);
@@ -195,7 +195,7 @@ TEST(Fir1, Bandpass) {
 }
 
 TEST(Fir1, Bandstop) {
-    auto tt = range(8000);
+    auto tt = arange(8000);
     auto h = fir1(99, 0.1, 0.2, FilterType::Bandstop);
     const int N = h.size();
     ASSERT_EQ(N, 101);

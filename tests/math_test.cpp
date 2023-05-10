@@ -4,26 +4,51 @@ using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Max) {
-    arr_real v1 = {1, 2, 3, 4};
-    arr_cmplx v2 = {1 + 5i, 2, 3, 4};
+    {
+        arr_real x = {1, 2, 3, 4};
+        ASSERT_EQ(argmax(x), 3);
+        ASSERT_FLOAT_EQ(max(x), x[3]);
+    }
 
-    ASSERT_EQ(argmax(v1), 3);
-    ASSERT_FLOAT_EQ(max(v1), v1[3]);
-
-    ASSERT_EQ(argmax(v2), 0);
-    ASSERT_CMPLX_EQ(max(v2), v2[0]);
+    {
+        arr_cmplx x = {1 + 5i, 2, 3, 4};
+        ASSERT_EQ(argmax(x), 0);
+        ASSERT_CMPLX_EQ(max(x), x[0]);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Min) {
-    arr_real v1 = {1, 2, 3, 4};
-    arr_cmplx v2 = {1 + 5i, 2, 3, 4};
+    {
+        arr_real x = {1, 2, 3, 4};
+        ASSERT_EQ(argmin(x), 0);
+        ASSERT_FLOAT_EQ(min(x), x[0]);
+    }
 
-    ASSERT_EQ(argmin(v1), 0);
-    ASSERT_FLOAT_EQ(min(v1), v1[0]);
+    {
+        arr_cmplx x = {1 + 5i, 2, 3, 4};
+        ASSERT_EQ(argmin(x), 1);
+        ASSERT_CMPLX_EQ(min(x), x[1]);
+    }
+}
 
-    ASSERT_EQ(argmin(v2), 1);
-    ASSERT_CMPLX_EQ(min(v2), v2[1]);
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, PeakToPeak) {
+    {
+        arr_real x = {-1, -2, 3, 10};
+        ASSERT_EQ(peak2peak(x), 12);
+    }
+
+    {
+        auto t = arange(0, 1, 0.001);
+        auto x = cos(2 * pi * 100 * t);
+        ASSERT_EQ(peak2peak(x), 2);
+    }
+
+    {
+        arr_cmplx x = {1 + 1i, 2 + 2i, 3, -4};
+        ASSERT_CMPLX_EQ(peak2peak(x), cmplx_t{-5 - 1i});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -120,7 +145,7 @@ TEST(MathTest, Exp) {
     EXPECT_NEAR(x3.re, -1, EQ_ABS_ERR);
     EXPECT_NEAR(x3.im, 0, EQ_ABS_ERR);
 
-    auto t = range(0, 512) / 8000;
+    auto t = arange(0, 512) / 8000;
     auto v = t * 2 * pi * 440;
     auto x4 = dsplib::expj(v);
     auto y4 = dsplib::complex(dsplib::cos(v), dsplib::sin(v));
@@ -185,7 +210,7 @@ TEST(MathTest, Upsample) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Rms) {
-    auto x = expj(2 * pi * 440 * range(10000) / 8000.0);
+    auto x = expj(2 * pi * 440 * arange(10000) / 8000.0);
     auto y = real(x);
     auto rms_x = rms(x);
     auto rms_y = rms(y);

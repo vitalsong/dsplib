@@ -35,6 +35,10 @@ auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
     return (v1 < v2) ? (v1) : (v2);
 }
 
+// range of values (maximum - minimum)
+real_t peak2peak(const arr_real& arr);
+cmplx_t peak2peak(const arr_cmplx& arr);
+
 //max element index
 int argmax(const arr_real& arr);
 int argmax(const arr_cmplx& arr);

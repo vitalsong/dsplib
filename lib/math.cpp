@@ -36,6 +36,18 @@ cmplx_t min(const arr_cmplx& arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t peak2peak(const arr_real& arr) {
+    auto p = std::minmax_element(arr.begin(), arr.end());
+    return (*p.second - *p.first);
+}
+
+//-------------------------------------------------------------------------------------------------
+cmplx_t peak2peak(const arr_cmplx& arr) {
+    auto p = std::minmax_element(arr.begin(), arr.end());
+    return (*p.second - *p.first);
+}
+
+//-------------------------------------------------------------------------------------------------
 int argmin(const arr_real& arr) {
     return std::distance(arr.begin(), std::min_element(arr.begin(), arr.end()));
 }

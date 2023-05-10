@@ -11,7 +11,7 @@ using enable_if_some_float_t = std::enable_if<std::is_floating_point<T1>::value 
                                               std::is_floating_point<T3>::value>;
 
 template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
-arr_real range(T1 start, T2 stop, T3 step = 1) {
+arr_real arange(T1 start, T2 stop, T3 step = 1) {
     int n = ::round((stop - start) / step);
     arr_real r(n);
     real_t v = start;
@@ -22,11 +22,11 @@ arr_real range(T1 start, T2 stop, T3 step = 1) {
     return r;
 }
 
-inline arr_real range(real_t stop) {
-    return range(0.0, stop, 1.0);
+inline arr_real arange(real_t stop) {
+    return arange(0.0, stop, 1.0);
 }
 
-inline arr_real range(int start, int stop, int step = 1) {
+inline arr_real arange(int start, int stop, int step = 1) {
     std::vector<real_t> x;
     x.reserve(std::abs((stop - start) / step) + 1);
     for (int i = start; i < stop; i += step) {
@@ -35,8 +35,26 @@ inline arr_real range(int start, int stop, int step = 1) {
     return arr_real{std::move(x)};
 }
 
-inline arr_real range(int stop) {
-    return range(0, stop, 1);
+inline arr_real arange(int stop) {
+    return arange(0, stop, 1);
+}
+
+//-----------------------------------------------------------------------------------------------------------
+template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
+[[deprecated("Use arange() instead.")]] arr_real range(T1 start, T2 stop, T3 step = 1) {
+    return arange(start, stop, step);
+}
+
+[[deprecated("Use arange() instead.")]] inline arr_real range(real_t stop) {
+    return arange(0.0, stop, 1.0);
+}
+
+[[deprecated("Use arange() instead.")]] inline arr_real range(int start, int stop, int step = 1) {
+    return arange(start, stop, step);
+}
+
+[[deprecated("Use arange() instead.")]] inline arr_real range(int stop) {
+    return arange(stop);
 }
 
 //join a sequence of arrays

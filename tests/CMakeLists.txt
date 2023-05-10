@@ -8,12 +8,17 @@ include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(NAME googletest
     GIT_REPOSITORY "https://github.com/google/googletest.git"
-    GIT_TAG release-1.12.1
-    OPTIONS "BUILD_GMOCK OFF"
-    "gtest_force_shared_crt ON"
+        VERSION 1.13.0
+    OPTIONS 
+        "BUILD_GMOCK OFF"
+        "gtest_force_shared_crt ON"
+    EXCLUDE_FROM_ALL ON
 )
 
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC dsplib gtest)
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})

@@ -12,11 +12,11 @@ public:
     explicit CztPlanImpl(int n, int m, cmplx_t w, cmplx_t a)
       : _n{n}
       , _m{m} {
-        auto t = pow2(range(1 - n, max(m, n))) / 2;
+        auto t = pow2(arange(1 - n, max(m, n))) / 2;
         auto chirp = w ^ t;
         const int n2 = pow(2, nextpow2(m + n - 1));
         arr_cmplx cp = chirp.slice(n - 1, n + n - 1);
-        auto pw = a ^ (-range(n));
+        auto pw = a ^ (-arange(n));
         _cp = pw * cp;
         arr_cmplx dp = chirp.slice(0, m + n - 1);
         _ich = fft((1.0 / dp) | zeros(n2 - m - n + 1));

@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------------------------
 TEST(SinadTest, HarmAndNoise) {
-    dsplib::arr_real n = dsplib::range(0, 1000);
+    dsplib::arr_real n = dsplib::arange(0, 1000);
 
     {
         auto baselvl = 1;

@@ -101,7 +101,7 @@ static arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
     const real_t fc = wn / 2;
     const arr_real w = win.slice(0, L);
 
-    auto tt = range(L) - real_t(n) / 2;
+    auto tt = arange(L) - real_t(n) / 2;
     auto h = zeros(M);
     h.slice(0, L) = sin(2 * pi * fc * tt) / tt * w;
     if (!is_odd) {
@@ -137,7 +137,7 @@ static arr_real _bandpass_fir(int n, real_t wn1, real_t wn2, const arr_real& win
     auto wp = (wn2 - wn1) / 2;
     auto wc = wn1 + wp;
     auto h = _lowpass_fir(n, 2 * wp, win);
-    auto t = range(h.size()) - real_t(n) / 2;
+    auto t = arange(h.size()) - real_t(n) / 2;
     h = 2 * h * cos(2 * pi * wc * t);
     return h;
 }
