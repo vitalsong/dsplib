@@ -211,7 +211,8 @@ real_t stddev(const arr_cmplx& arr) {
 real_t median(const arr_real& arr) {
     arr_real r(arr);
     std::sort(r.begin(), r.end());
-    return r[r.size() / 2];
+    const int n = r.size();
+    return (n % 2 == 1) ? (r[n / 2]) : ((r[n / 2] + r[n / 2 - 1]) / 2);
 }
 
 //-------------------------------------------------------------------------------------------------
