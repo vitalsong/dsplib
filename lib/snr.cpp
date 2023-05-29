@@ -1,0 +1,162 @@
+#include <dsplib/snr.h>
+#include <dsplib/fft.h>
+#include <dsplib/window.h>
+#include <dsplib/math.h>
+#include <dsplib/utils.h>
+
+#include <utility>
+#include <vector>
+
+namespace dsplib {
+
+namespace {
+
+//TODO: disable limits
+constexpr int FRAME_LEN_LIMIT = 192000;
+
+struct ToneInfo
+{
+    int lpos{0};
+    int rpos{0};
+    int size{0};
+    real_t freq{0};
+    real_t power{0};
+};
+
+ToneInfo _get_psd_tone(const dsplib::arr_real& spec, real_t tone_freq) {
+    const int n = spec.size();
+    const int freq_num = std::round(tone_freq * n);
+
+    int lpos = max(freq_num - 1, 0);
+    while ((lpos > 0) && (spec[lpos] > spec[lpos - 1])) {
+        --lpos;
+    }
+
+    int rpos = min(freq_num + 1, n - 1);
+    while ((rpos < n - 1) && (spec[rpos] > spec[rpos + 1])) {
+        ++rpos;
+    }
+
+    const arr_real f_fund = arange(lpos, rpos + 1) / n;
+    const arr_real s_fund = spec.slice(lpos, rpos + 1);
+    const auto freq = dot(f_fund, s_fund) / sum(s_fund);
+
+    ToneInfo info;
+    info.size = n;
+    info.lpos = lpos;
+    info.rpos = rpos;
+    info.freq = freq;
+    info.power = sum(s_fund);
+
+    return info;
+}
+
+ToneInfo _get_psd_tone(const dsplib::arr_real& spec) {
+    const int n = spec.size();
+    const real_t tone_freq = argmax(spec) / real_t(n);
+    return _get_psd_tone(spec, tone_freq);
+}
+
+real_t _alias_to_nyquist(real_t f, real_t fs) {
+    auto tone_f = std::fmod(f, fs);
+    if (tone_f > (fs / 2)) {
+        return fs - tone_f;
+    }
+    return tone_f;
+}
+
+struct HarmInfo
+{
+    arr_real harmpow;
+    arr_real harmfreq;
+    real_t noisepow;
+};
+
+HarmInfo _harm_analyze(const arr_real& sig, int nharm, bool aliased = false) {
+    if (sig.size() > FRAME_LEN_LIMIT) {
+        DSPLIB_THROW("The vector size is too large");
+    }
+
+    //remove DC
+    auto x = sig - mean(sig);
+
+    //use kaiser window
+    auto w = window::kaiser(x.size(), 38);
+
+    //compensates for the power of the window
+    w /= rms(w);
+
+    //calculate spectrum
+    const int n = 1 << nextpow2(sig.size());
+    const auto y = zeropad(x * w, n);
+    const real_t u = real_t(sig.size()) * n / 2;
+    const arr_cmplx rfft = fft(y).slice(0, n / 2);
+    arr_real spectrum = abs2(rfft) / u;
+
+    auto harm_pow = zeros(nharm);
+    auto harm_freq = zeros(nharm);
+
+    std::vector<ToneInfo> tones;
+
+    //detect fundamental harmonic
+    const auto tn = _get_psd_tone(spectrum);
+    harm_pow[0] = tn.power;
+    harm_freq[0] = tn.freq;
+    spectrum.slice(tn.lpos, tn.rpos + 1) = 0;
+    tones.push_back(tn);
+
+    //detect other harmonics
+    for (int i = 1; i < nharm; ++i) {
+        auto freq = (i + 1) * harm_freq[0];
+        if (aliased) {
+            freq = _alias_to_nyquist(freq, 2.0);
+        }
+        if (freq > 1.0) {
+            break;
+        }
+        const auto tn = _get_psd_tone(spectrum, freq);
+        harm_pow[i] = tn.power;
+        harm_freq[i] = tn.freq;
+        spectrum.slice(tn.lpos, tn.rpos + 1) = 0;
+        tones.push_back(tn);
+    }
+
+    //filling voids after removing harmonics (for noise)
+    const auto noise_floor = median(spectrum[spectrum > 0]);
+    for (const auto& tn : tones) {
+        spectrum.slice(tn.lpos, tn.rpos + 1) = noise_floor;
+    }
+
+    HarmInfo res;
+    res.harmpow = harm_pow;
+    res.harmfreq = (harm_freq / 2);
+    res.noisepow = sum(spectrum);
+    return res;
+}
+
+}   // namespace
+
+//------------------------------------------------------------------------------------
+real_t sinad(const arr_real& sig) {
+    auto info = _harm_analyze(sig, 1);
+    return pow2db(info.harmpow[0] / info.noisepow);
+}
+
+//------------------------------------------------------------------------------------
+ThdRes thd(const arr_real& sig, int nharm, bool aliased) {
+    auto info = _harm_analyze(sig, nharm, aliased);
+    ThdRes res;
+    const auto harm_sum = sum(info.harmpow.slice(1, nharm));
+    res.value = pow2db(harm_sum / info.harmpow[0]);
+    res.harmpow = pow2db(info.harmpow);
+    res.harmfreq = info.harmfreq;
+    return res;
+}
+
+//------------------------------------------------------------------------------------
+real_t snr(const arr_real& sig, int nharm, bool aliased) {
+    auto info = _harm_analyze(sig, nharm, aliased);
+    return pow2db(info.harmpow[0] / info.noisepow);
+}
+
+}   // namespace dsplib

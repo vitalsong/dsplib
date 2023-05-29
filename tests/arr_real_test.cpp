@@ -86,3 +86,41 @@ TEST(ArrRealTest, Pow) {
         ASSERT_EQ_ARR_REAL(r1, y1);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, CheckEqual) {
+    const arr_real x = {1.0, -1.0, 200, -1e-5, 0.0};
+    {
+        std::vector<bool> r = (x == (x[0] + 1e-17));
+        ASSERT_TRUE(bool(r == std::vector<bool>{true, false, false, false, false}));
+    }
+    {
+        std::vector<bool> r = (x == (x[1] + 1e-17));
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, true, false, false, false}));
+    }
+    {
+        std::vector<bool> r = (x == (x[2] + 1e-17));
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, false, false}));
+    }
+    {
+        std::vector<bool> r = (x == (x[3] + 1e-23));
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, false, true, false}));
+    }
+    {
+        std::vector<bool> r = (x == (x[4] + 1e-30));
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, false, false, false}));
+    }
+    {
+        std::vector<bool> r = (x == -0.0);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, false, false, true}));
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, CheckGreater) {
+    arr_real x = {1.0, -1.0, 200, -1e-5, 10000.0};
+    std::vector<bool> r = (x > 1.0);
+    ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, false, true}));
+    auto y = x[r];
+    ASSERT_EQ_ARR_REAL(y, arr_real{200, 10000.0});
+}

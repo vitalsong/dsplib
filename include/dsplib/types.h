@@ -52,12 +52,20 @@ constexpr real_t pi = 3.141592653589793238463;
 
 struct cmplx_t;
 
+//Floating-point relative accuracy
+double eps(float v);
+double eps(double v);
+real_t eps();
+
 template<typename T>
-struct is_scalar_ar : std::integral_constant<bool, std::is_arithmetic_v<T> || std::is_same_v<T, cmplx_t>>
+struct is_scalar : std::integral_constant<bool, std::is_arithmetic_v<T> || std::is_same_v<T, cmplx_t>>
 {};
 
 template<typename T>
-using enable_scalar_t = std::enable_if<is_scalar_ar<T>::value>;
+constexpr bool is_scalar_v = is_scalar<T>::value;
+
+template<typename T>
+using enable_scalar_t = std::enable_if<is_scalar_v<T>>;
 
 template<typename T, typename T2>
 using enable_convertible_t = std::enable_if<std::is_convertible_v<T, T2>>;

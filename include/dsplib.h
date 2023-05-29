@@ -16,7 +16,7 @@
 #include <dsplib/lms.h>
 #include <dsplib/tuner.h>
 #include <dsplib/agc.h>
-#include <dsplib/sinad.h>
+#include <dsplib/snr.h>
 #include <dsplib/detector.h>
 #include <dsplib/rls.h>
 #include <dsplib/random.h>

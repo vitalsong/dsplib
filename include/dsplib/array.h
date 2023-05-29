@@ -22,7 +22,9 @@ using conditional_t = typename std::conditional_t<Cond_, Iftrue_, Iffalse_>;
 template<typename Bt, typename It>
 using ResultType = conditional_t<std::is_same_v<Bt, cmplx_t> || std::is_same_v<It, cmplx_t>, cmplx_t, real_t>;
 
+//base dsplib array type
 //TODO: add array_view as parent for array/slice
+//TODO: add slice(vector<bool>)
 template<typename T>
 class base_array
 {
@@ -125,6 +127,53 @@ public:
         const int idx = (i >= 0) ? (i) : (_vec.size() + i);
         assert((idx >= 0) && (idx < _vec.size()));
         return _vec[idx];
+    }
+
+    //--------------------------------------------------------------------
+    base_array<T> operator[](const std::vector<bool>& idxs) const {
+        if (idxs.size() != _vec.size()) {
+            DSPLIB_THROW("array sizes are different");
+        }
+        std::vector<T> res;
+        res.reserve(_vec.size());
+        for (int i = 0; i < idxs.size(); ++i) {
+            if (idxs[i]) {
+                res.push_back(_vec[i]);
+            }
+        }
+        return res;
+    }
+
+    //--------------------------------------------------------------------
+    template<typename T2>
+    std::vector<bool> operator>(T2 val) const noexcept {
+        static_assert(is_scalar_v<T2>, "Type is not scalar");
+        std::vector<bool> res(_vec.size());
+        for (int i = 0; i < _vec.size(); ++i) {
+            res[i] = (_vec[i] > val);
+        }
+        return res;
+    }
+
+    template<typename T2>
+    std::vector<bool> operator<(T2 val) const noexcept {
+        auto r = (*this == val);
+        r.flip();
+        return r;
+    }
+
+    std::vector<bool> operator==(T val) const noexcept {
+        std::vector<bool> res(_vec.size());
+        for (int i = 0; i < _vec.size(); ++i) {
+            res[i] = std::fabs(_vec[i] - val) < eps(val);
+        }
+        return res;
+    }
+
+    std::vector<bool> operator!=(T val) const noexcept {
+        auto r = (*this == val);
+        r.flip();
+        return r;
     }
 
     //--------------------------------------------------------------------
