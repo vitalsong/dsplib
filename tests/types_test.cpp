@@ -30,6 +30,6 @@ TEST(Template, CmplxConvert) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(Template, IsScalar) {
-    ASSERT_TRUE(bool(is_scalar_ar<cmplx_t>::value));
-    ASSERT_TRUE(bool(is_scalar_ar<real_t>::value));
+    ASSERT_TRUE(bool(is_scalar_v<cmplx_t>));
+    ASSERT_TRUE(bool(is_scalar_v<real_t>));
 }

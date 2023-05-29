@@ -326,3 +326,22 @@ TEST(MathTest, Pow2db) {
         ASSERT_NEAR(pow2db(pow(0)), db(0), 1e-3);
     }
 }
+
+TEST(MathTest, Eps) {
+    ///double precision
+    ASSERT_NEAR(eps(0.5), std::pow(2.0, -53), 1e-15);
+    ASSERT_NEAR(eps(1.0), std::pow(2.0, -52), 1e-15);
+    ASSERT_NEAR(eps(-1.0), std::pow(2.0, -52), 1e-15);
+    ASSERT_NEAR(eps(2.0), std::pow(2.0, -51), 1e-15);
+    ASSERT_NEAR(eps(-2.0), std::pow(2.0, -51), 1e-15);
+    ASSERT_NEAR(eps(1000.0), std::pow(2.0, -43), 1e-15);
+    ASSERT_NEAR(eps(-1000.0), std::pow(2.0, -43), 1e-15);
+    ASSERT_NEAR(eps(0.0), std::pow(2.0, -1074), 1e-15);
+
+    //single precision
+    ASSERT_NEAR(eps(0.5f), std::pow(2.0, -24), 1e-15);
+    ASSERT_NEAR(eps(1.0f), std::pow(2.0, -23), 1e-15);
+    ASSERT_NEAR(eps(2.0f), std::pow(2.0, -22), 1e-15);
+    ASSERT_NEAR(eps(1000.0f), std::pow(2.0, -14), 1e-15);
+    ASSERT_NEAR(eps(0.0f), std::pow(2.0, -149), 1e-15);
+}

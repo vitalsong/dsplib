@@ -2,8 +2,6 @@
 
 #include <dsplib/array.h>
 
-#include <limits>
-
 namespace dsplib {
 
 //exponential
@@ -16,6 +14,10 @@ cmplx_t exp(cmplx_t v);
 //faster then exp()
 arr_cmplx expj(const arr_real& im);
 cmplx_t expj(real_t im);
+
+//hyperbolic tangent
+arr_real tanh(arr_real x);
+arr_cmplx tanh(arr_cmplx x);
 
 //max element
 real_t max(const arr_real& arr);
@@ -175,10 +177,6 @@ real_t deg2rad(const real_t& x);
 //from radians to degrees
 arr_real rad2deg(const arr_real& x);
 real_t rad2deg(const real_t& x);
-
-constexpr real_t eps() {
-    return std::numeric_limits<real_t>::epsilon();
-}
 
 //Euclidean norm of vector
 inline real_t norm(const arr_real& x) {

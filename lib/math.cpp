@@ -1,7 +1,9 @@
+#include "dsplib/array.h"
 #include <dsplib/math.h>
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 
 namespace dsplib {
 
@@ -476,6 +478,22 @@ arr_cmplx expj(const arr_real& im) {
 //-------------------------------------------------------------------------------------------------
 cmplx_t expj(real_t im) {
     return cmplx_t{std::cos(im), std::sin(im)};
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_real tanh(arr_real x) {
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = std::tanh(x[i]);
+    }
+    return x;
+}
+
+//-------------------------------------------------------------------------------------------------
+arr_cmplx tanh(arr_cmplx x) {
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = std::tanh(std::complex<real_t>(x[i]));
+    }
+    return x;
 }
 
 //-------------------------------------------------------------------------------------------------
