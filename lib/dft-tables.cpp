@@ -28,24 +28,22 @@ inline int _bitrev(int a, int s) {
     return r;
 }
 
-std::vector<int32_t> gen_bitrev(int n) {
-    std::vector<int32_t> res(n);
-    //TODO: table is symmetry, table(n/2, end) == table(0, n/2)+1
+//generate a half of bitrev table
+//table is symmetry, table(n/2, n) == table(0, n/2)+1
+std::vector<int32_t> _gen_bitrev(const int n) {
+    std::vector<int32_t> res(n / 2);
     const int s = nextpow2(n);
-    for (int i = 0; i < n; ++i) {
-        int k = _bitrev(i, s);
-        res[i] = k;
+    for (int i = 0; i < n / 2; ++i) {
+        res[i] = _bitrev(i, s);
     }
     return res;
 }
 
-arr_cmplx gen_coeffs(int n) {
-    arr_cmplx res(n);
+std::vector<real_t> _gen_coeffs(const int n) {
+    std::vector<real_t> res(n);
+    //TODO: N/4 optimization
     for (int i = 0; i < n; ++i) {
-        real_t p = i / real_t(n);
-        //TODO: only sin operation required (N/8 optimization)
-        res[i].re = std::cos(2 * pi * p);
-        res[i].im = -std::sin(2 * pi * p);
+        res[i] = std::cos(2 * pi * i / n);
     }
     return res;
 }
@@ -53,31 +51,38 @@ arr_cmplx gen_coeffs(int n) {
 }   // namespace
 
 FftParam fft_tables(size_t size) {
-    thread_local static FftParam param;
+    thread_local static FftParam base_prm;
 
-    if (param.coeffs.size() < size) {
+    if (base_prm.size < size) {
         const int nfft = int(1) << nextpow2(size);
         if (nfft != size) {
             DSPLIB_THROW("FFT table len is not power of 2");
         }
-        param.coeffs = gen_coeffs(size);
-        param.bitrev = gen_bitrev(size);
+        base_prm.coeffs = _gen_coeffs(size);
+        base_prm.bitrev = _gen_bitrev(size);
+        base_prm.size = size;
     }
 
-    const int base_size = param.coeffs.size();
-    if (base_size == size) {
-        return param;
+    if (base_prm.size == size) {
+        return base_prm;
+    }
+
+    if (base_prm.size % size != 0) {
+        DSPLIB_THROW("FFT table len is not multiple");
     }
 
     //decimate table
-    FftParam result = {arr_cmplx(size), std::vector<int32_t>(size)};
-    if (base_size % size != 0) {
-        DSPLIB_THROW("FFT table len is not multiple");
+    FftParam result;
+    result.coeffs.resize(size);
+    result.bitrev.resize(size / 2);
+    result.size = size;
+
+    const int d = (base_prm.size / size);
+    for (int i = 0, k = 0; i < size; ++i, k += d) {
+        result.coeffs[i] = base_prm.coeffs[k];
     }
-    const int d = (base_size / size);
-    for (int i = 0; i < size; ++i) {
-        result.coeffs[i] = param.coeffs[i * d];
-        result.bitrev[i] = param.bitrev[i * d];
+    for (int i = 0, k = 0; i < size / 2; ++i, k += d) {
+        result.bitrev[i] = base_prm.bitrev[k];
     }
     return result;
 }

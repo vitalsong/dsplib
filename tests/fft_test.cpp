@@ -3,15 +3,34 @@
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
     using namespace dsplib;
-    int idx = 10;
-    int nfft = 512;
-    auto x = sin(arange(nfft) * 2 * pi * idx / nfft);
-    auto y = fft(x) / nfft;
-    auto z = abs(y);
-    auto r = zeros(nfft);
-    r[idx] = 0.5;
-    r[nfft - idx] = 0.5;
-    ASSERT_EQ_ARR_REAL(r, z);
+
+    {
+        int idx = 10;
+        int nfft = 512;
+        arr_real x = sin(arange(nfft) * 2 * pi * idx / nfft);
+        auto y = fft(x) / nfft;
+        auto z = abs(y);
+        auto r = zeros(nfft);
+        r[idx] = 0.5;
+        r[nfft - idx] = 0.5;
+        ASSERT_EQ_ARR_REAL(r, z);
+    }
+
+    {
+        const arr_real x = randn(1024);
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+    }
+
+    {
+        const arr_real x = randn(500);
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+    }
+
+    {
+        const auto tt = arange(500) * 0.01;
+        const arr_real x = sin(2 * pi * tt);
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

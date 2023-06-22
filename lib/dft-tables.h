@@ -1,14 +1,16 @@
 #pragma once
 
-#include <dsplib/array.h>
+#include <dsplib/types.h>
 #include <cstdint>
+#include <vector>
 
 namespace dsplib {
 
 struct FftParam
 {
-    dsplib::arr_cmplx coeffs;
-    std::vector<int32_t> bitrev;
+    std::vector<real_t> coeffs;    ///[n] table of cos(2 * pi * i / n)
+    std::vector<int32_t> bitrev;   ///[n/2] bitreverse index table
+    uint32_t size;
 };
 
 //generate tables for radix 2 FFT
