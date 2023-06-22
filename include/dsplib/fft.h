@@ -30,7 +30,7 @@ public:
     explicit FftPlan(int n);
 
     arr_cmplx operator()(const arr_cmplx& x) const {
-        return _d->solve(x);
+        return this->solve(x);
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
@@ -45,6 +45,28 @@ private:
     std::shared_ptr<BaseFftPlanC> _d;
 };
 
+//real value FFT plan
+class FftPlanR : public BaseFftPlanR
+{
+public:
+    explicit FftPlanR(int n);
+
+    arr_cmplx operator()(const arr_real& x) const {
+        return this->solve(x);
+    }
+
+    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+        return _d->solve(x);
+    }
+
+    [[nodiscard]] int size() const noexcept final {
+        return _d->size();
+    }
+
+private:
+    std::shared_ptr<BaseFftPlanR> _d;
+};
+
 /*!
  * \brief Fast Fourier Transform (complex)
  * \details FFT for complex signal
@@ -53,11 +75,13 @@ private:
  */
 arr_cmplx fft(const arr_cmplx& x);
 
-//TODO: arr_cmplx fft(const arr_real& x);
-
 //n-point DFT
 // if x.size() is less than n, then X is padded with trailing zeros to length n
 // if x.size() is greater than n, then x is truncated to length n
 arr_cmplx fft(const arr_cmplx& x, int n);
+
+//Fast Fourier Transform (real)
+arr_cmplx fft(const arr_real& x);
+arr_cmplx fft(const arr_real& x, int n);
 
 }   // namespace dsplib
