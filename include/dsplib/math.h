@@ -127,8 +127,23 @@ constexpr cmplx_t pow2(cmplx_t x) {
     return x * x;
 }
 
+//scalar^scalar->scalar
 real_t pow(real_t x, real_t n);
 cmplx_t pow(cmplx_t x, real_t n);
+
+//scalar^vec->vec
+arr_cmplx pow(cmplx_t x, const arr_real& n);
+
+//scalar^vec->vec
+arr_real pow(real_t x, const arr_real& n);
+
+//vec.^vec->vec
+arr_real pow(const arr_real& x, const arr_real& n);
+arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
+
+//vec.^scalar->vec
+arr_real pow(const arr_real& x, real_t n);
+arr_cmplx pow(const arr_cmplx& x, real_t n);
 
 //array log
 arr_real log(const arr_real& arr);
@@ -226,23 +241,5 @@ real_t mag2db(real_t v);
 arr_real mag2db(const arr_real& v);
 real_t db2mag(real_t v);
 arr_real db2mag(const arr_real& v);
-
-//----------------------------------------------------------------------------------------
-//pow(scalar, vec) -> vec
-inline arr_real operator^(const real_t& v, const arr_real& rhs) {
-    arr_real res = rhs;
-    for (size_t i = 0; i < rhs.size(); i++) {
-        res[i] = pow(v, rhs[i]);
-    }
-    return res;
-}
-
-inline arr_cmplx operator^(const cmplx_t& v, const arr_real& rhs) {
-    arr_cmplx res = rhs;
-    for (size_t i = 0; i < rhs.size(); i++) {
-        res[i] = pow(v, rhs[i]);
-    }
-    return res;
-}
 
 }   // namespace dsplib
