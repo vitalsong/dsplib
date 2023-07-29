@@ -13,12 +13,21 @@ public:
       : _n{n}
       , _m{m} {
         auto t = pow2(arange(1 - n, max(m, n))) / 2;
-        auto chirp = w ^ t;
-        const int n2 = pow(2, nextpow2(m + n - 1));
-        arr_cmplx cp = chirp.slice(n - 1, n + n - 1);
-        auto pw = a ^ (-arange(n));
-        _cp = pw * cp;
-        arr_cmplx dp = chirp.slice(0, m + n - 1);
+        arr_cmplx chirp(t.size());
+        const auto w_a = angle(w);
+        for (int i = 0; i < t.size(); ++i) {
+            chirp[i] = expj(w_a * t[i]);
+        }
+
+        const int n2 = std::pow(2, nextpow2(m + n - 1));
+        _cp = chirp.slice(n - 1, n + n - 1);
+
+        if (abs(a - 1) > eps(a.re)) {
+            const auto pw = pow(a, -arange(n));
+            _cp *= pw;
+        }
+
+        const arr_cmplx dp = chirp.slice(0, m + n - 1);
         _ich = fft((1.0 / dp) | zeros(n2 - m - n + 1));
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }

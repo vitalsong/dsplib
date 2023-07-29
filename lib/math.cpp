@@ -403,11 +403,65 @@ real_t pow(real_t x, real_t n) {
     return std::pow(x, n);
 }
 
-//-------------------------------------------------------------------------------------------------
 cmplx_t pow(cmplx_t x, real_t n) {
     real_t x_p = angle(x);
     real_t x_a = abs(x);
-    return std::pow(x_a, n) * expj(x_p * n);
+    return pow(x_a, n) * expj(x_p * n);
+}
+
+arr_cmplx pow(cmplx_t x, const arr_real& n) {
+    arr_cmplx r(n.size());
+    const real_t x_p = angle(x);
+    const real_t x_a = abs(x);
+    for (int i = 0; i < n.size(); ++i) {
+        r[i] = pow(x_a, n[i]) * expj(x_p * n[i]);
+    }
+    return r;
+}
+
+arr_real pow(real_t x, const arr_real& n) {
+    arr_real r(n.size());
+    for (int i = 0; i < n.size(); ++i) {
+        r[i] = pow(x, n[i]);
+    }
+    return r;
+}
+
+template<typename T1, typename T2, typename R>
+static base_array<R> _pow(const base_array<T1>& x, const base_array<T2>& n) {
+    if (x.size() != n.size()) {
+        DSPLIB_THROW("array sizes are different");
+    }
+    base_array<R> r(n.size());
+    for (int i = 0; i < n.size(); ++i) {
+        r[i] = pow(x[i], n[i]);
+    }
+    return r;
+}
+
+arr_real pow(const arr_real& x, const arr_real& n) {
+    return _pow<real_t, real_t, real_t>(x, n);
+}
+
+arr_cmplx pow(const arr_cmplx& x, const arr_real& n) {
+    return _pow<cmplx_t, real_t, cmplx_t>(x, n);
+}
+
+template<typename T>
+static base_array<T> _pow(const base_array<T>& x, real_t n) {
+    base_array<T> r(x.size());
+    for (int i = 0; i < x.size(); ++i) {
+        r[i] = pow(x[i], n);
+    }
+    return r;
+}
+
+arr_real pow(const arr_real& x, real_t n) {
+    return _pow(x, n);
+}
+
+arr_cmplx pow(const arr_cmplx& x, real_t n) {
+    return _pow(x, n);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -602,7 +656,7 @@ real_t db2pow(real_t v) {
 }
 
 arr_real db2pow(const arr_real& v) {
-    return real_t(10) ^ (v / 10);
+    return pow(10, (v / 10));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -619,7 +673,7 @@ real_t db2mag(real_t v) {
 }
 
 arr_real db2mag(const arr_real& v) {
-    return real_t(10) ^ (v / 20);
+    return pow(10, (v / 20));
 }
 
 }   // namespace dsplib

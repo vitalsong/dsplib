@@ -420,39 +420,6 @@ public:
     }
 
     //--------------------------------------------------------------------
-    //TODO: operation priority can be misleading
-    base_array<T>& operator^=(const real_t& rhs) {
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] = std::pow(_vec[i], rhs);
-        }
-        return *this;
-    }
-
-    base_array<T> operator^(const real_t& rhs) const {
-        base_array<T> temp(*this);
-        temp ^= rhs;
-        return temp;
-    }
-
-    //--------------------------------------------------------------------
-    //TODO: implement pow(cmplx_t, cmplx_t)
-    base_array<T>& operator^=(const base_array<real_t>& rhs) {
-        if (rhs.size() != _vec.size()) {
-            DSPLIB_THROW("different vector size");
-        }
-        for (int i = 0; i < _vec.size(); ++i) {
-            _vec[i] = std::pow(_vec[i], rhs[i]);
-        }
-        return *this;
-    }
-
-    base_array<T> operator^(const base_array<real_t>& rhs) const {
-        base_array<T> temp(*this);
-        temp ^= rhs;
-        return temp;
-    }
-
-    //--------------------------------------------------------------------
     //concatenate syntax
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator|=(const base_array<T2>& rhs) {
