@@ -16,3 +16,8 @@
 #define DSPLIB_THROW(MSG) throw std::runtime_error(std::string("dsplib: ") + std::string(MSG));
 
 #endif
+
+#define DSPLIB_ASSERT(condition, message)                                                                              \
+    if (!(condition)) {                                                                                                \
+        DSPLIB_THROW(message);                                                                                         \
+    }

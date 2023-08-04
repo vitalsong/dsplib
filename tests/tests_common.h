@@ -14,6 +14,11 @@ static void ASSERT_CMPLX_EQ(const T1& val1, const T2& val2) {
     ASSERT_EQ(val1.im, val2.im);
 }
 
+static void ASSERT_CMPLX_NEAR(dsplib::cmplx_t x1, dsplib::cmplx_t x2, dsplib::real_t v = EQ_ABS_ERR) {
+    ASSERT_NEAR(x1.re, x2.re, v);
+    ASSERT_NEAR(x1.im, x2.im, v);
+}
+
 //-------------------------------------------------------------------------------------------------
 template<typename T1, typename T2>
 static void ASSERT_EQ_ARR_REAL(const T1& r1, const T2& r2, double max_err = EQ_ABS_ERR) {
