@@ -14,10 +14,8 @@ template<typename T1, typename T2, typename T3, class R = typename enable_if_som
 arr_real arange(T1 start, T2 stop, T3 step = 1) {
     int n = ::round((stop - start) / step);
     arr_real r(n);
-    real_t v = start;
     for (int i = 0; i < n; ++i) {
-        r[i] = v;
-        v += step;
+        r[i] = start + (i * step);
     }
     return r;
 }
