@@ -3,6 +3,7 @@
 #include "dsplib/array.h"
 #include "dsplib/fir.h"
 #include "dsplib/window.h"
+#include "dsplib/utils.h"
 
 #include <numeric>
 
@@ -44,7 +45,7 @@ arr_real design_multirate_fir(int interp, int decim, int hlen, real_t astop) {
     return num;
 }
 
-std::vector<arr_real> IResampler::polyphase(arr_real h, int m, real_t gain) {
+std::vector<arr_real> IResampler::polyphase(arr_real h, int m, real_t gain, bool flip_coeffs) {
     const int nh = (h.size() % m == 0) ? (h.size()) : ((h.size() / m + 1) * m);
     h = zeropad(h, nh);
     h /= sum(h);
@@ -58,6 +59,13 @@ std::vector<arr_real> IResampler::polyphase(arr_real h, int m, real_t gain) {
             ih += m;
         }
     }
+
+    if (flip_coeffs) {
+        for (int i = 0; i < m; ++i) {
+            r[i] = flip(r[i]);
+        }
+    }
+
     return r;
 }
 

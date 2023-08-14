@@ -43,7 +43,7 @@ public:
     }
 
     //polyphase decomposition of multirate filter
-    static std::vector<arr_real> polyphase(arr_real h, int m, real_t gain = 1.0);
+    static std::vector<arr_real> polyphase(arr_real h, int m, real_t gain = 1.0, bool flip_coeffs = false);
 
     //nearest multiple of frame size to process
     static int next_size(int size, int p, int q);
@@ -122,6 +122,7 @@ private:
     int interp_;
     int decim_;
     int sublen_;
+    std::vector<uint16_t> xidxs_;
 };
 
 //------------------------------------------------------------------------------

@@ -1,6 +1,8 @@
 #include "dsplib/resample.h"
 #include "dsplib/throw.h"
 
+#include <cassert>
+
 namespace dsplib {
 
 FIRRateConverter::FIRRateConverter(int interp, int decim)
@@ -10,9 +12,27 @@ FIRRateConverter::FIRRateConverter(int interp, int decim)
 FIRRateConverter::FIRRateConverter(int interp, int decim, const arr_real& h)
   : interp_{interp}
   , decim_{decim} {
-    h_ = polyphase(h, interp_, interp_);
-    sublen_ = h_[0].size();
+    const auto th = polyphase(h, interp_, real_t(interp_), true);
+    sublen_ = th[0].size();
     d_ = zeros(sublen_ - 1);
+
+    //polyphase table access optimization
+    //example, for interp=3, decim=5 the processed brunches are (1 0 2)
+    int st = 0;
+    xidxs_.reserve(interp_);
+    for (int i = 0; i < decim_; ++i) {
+        for (int k = 0; k < interp_; ++k) {
+            st = st + 1;
+            if (st == decim_) {
+                h_.emplace_back(th[k]);
+                xidxs_.push_back(i);   //offset of input signal for each brunch
+                st = 0;
+            }
+        }
+    }
+
+    assert(h_.size() == interp_);
+    assert(xidxs_.size() == interp_);
 }
 
 arr_real FIRRateConverter::process(const arr_real& in) {
@@ -27,23 +47,20 @@ arr_real FIRRateConverter::process(const arr_real& in) {
     std::memcpy(x.data() + nd, in.data(), nx * sizeof(real_t));
     std::memcpy(d_.data(), x.data() + nx, nd * sizeof(real_t));
 
-    auto y = zeros(nx * interp_ / decim_);
+    const int np = nx / decim_;
+    auto y = zeros(np * interp_);
     auto* py = y.data();
-    int st = 0;
-    for (int i = 0; i < nx; ++i) {
+    for (int i = 0; i < np; ++i) {
         for (int k = 0; k < interp_; ++k) {
-            ++st;
-            if (st == decim_) {
-                const auto& h = h_[k];
-                for (int j = 0; j < nh; ++j) {
-                    //TODO: check for non-symmetry IR
-                    *py += x[i + j] * h[nh - j - 1];
-                }
-                ++py;
-                st = 0;
+            const auto& h = h_[k];
+            const auto* px = x.data() + (i * decim_) + xidxs_[k];
+            for (int j = 0; j < nh; ++j) {
+                *py += px[j] * h[j];
             }
+            ++py;
         }
     }
+
     return y;
 }
 

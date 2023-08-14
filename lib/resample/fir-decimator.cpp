@@ -9,7 +9,7 @@ FIRDecimator::FIRDecimator(int decim)
 
 FIRDecimator::FIRDecimator(int decim, const arr_real& h)
   : decim_{decim} {
-    h_ = polyphase(h, decim_, 1.0);
+    h_ = polyphase(h, decim_, 1.0, false);
     sublen_ = h_[0].size();
     d_ = zeros(decim_ * (sublen_ - 1));
 }

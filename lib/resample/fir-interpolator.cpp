@@ -9,7 +9,7 @@ FIRInterpolator::FIRInterpolator(int interp)
 
 FIRInterpolator::FIRInterpolator(int interp, const arr_real& h)
   : interp_{interp} {
-    h_ = polyphase(h, interp_, interp_);
+    h_ = polyphase(h, interp_, real_t(interp_), true);
     sublen_ = h_[0].size();
     d_ = zeros(sublen_ - 1);
 }
@@ -29,7 +29,7 @@ arr_real FIRInterpolator::process(const arr_real& in) {
     for (int i = 0; i < nx; ++i) {
         for (int k = 0; k < interp_; ++k, ++py) {
             for (int j = 0; j < nh; ++j) {
-                *py += px[i + j] * h_[k][nh - j - 1];
+                *py += px[i + j] * h_[k][j];
             }
         }
     }
