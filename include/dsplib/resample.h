@@ -11,7 +11,7 @@ namespace dsplib {
 //TODO: complex type implementation
 
 //multirate FIR filter design (similar to implementation in MATLAB)
-arr_real design_multirate_fir(int interp, int decim, int hlen = 12, real_t astop = 80);
+arr_real design_multirate_fir(int interp, int decim, int hlen = 12, real_t astop = 90);
 
 //------------------------------------------------------------------------------
 //base resample class
@@ -48,6 +48,9 @@ public:
     //nearest multiple of frame size to process
     static int next_size(int size, int p, int q);
     static int prev_size(int size, int p, int q);
+
+    //simplify the p/q ratio
+    static std::pair<int, int> simplify(int p, int q);
 };
 
 //------------------------------------------------------------------------------
@@ -136,6 +139,8 @@ public:
     //in_fs - input sample rate (Hz)
     explicit FIRResampler(int out_fs, int in_fs);
 
+    explicit FIRResampler(int out_fs, int in_fs, const arr_real& h);
+
     enum class Mode
     {
         Bypass,
@@ -158,6 +163,12 @@ private:
 //------------------------------------------------------------------------------
 //resamples the input sequence, x, at p/q times the original sample rate
 //as p/q coefficients, you can use out_fs/in_fs
-arr_real resample(const arr_real& x, int p, int q);
+
+//n - filter len, uses an antialiasing filter of order 2 × n × max(p,q)
+//beta - shape parameter of Kaiser window
+arr_real resample(const arr_real& x, int p, int q, int n = 10, real_t beta = 5.0);
+
+//h - resample FIR filter coefficients
+arr_real resample(const arr_real& x, int p, int q, const arr_real& h);
 
 }   // namespace dsplib
