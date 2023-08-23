@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <dsplib/span.h>
 
 namespace dsplib {
 
