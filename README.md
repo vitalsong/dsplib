@@ -135,14 +135,14 @@ auto d1 = finddelay(x1, x2);    ///d1=100
 auto [d2, _] = gccphat(x2, x1);   ///d2=100.0
 ```
 
-### Spectrum Analyze (16-bit scale):
+### Spectrum Analyze:
 ```cpp
 const int n = 1024;
 arr_real x = randn(n);
 x *= window::hann(n);
-arr_cmplx y = fft(x) / (n / 2);
-y = y.slice(0, n/2);
-auto z = mag2db(abs(y) / 0x7FFF);   //20*log10(..)
+arr_cmplx y = fft(x) / (n/2);
+y = y.slice(0, n/2+1);
+auto z = pow2db(abs2(y));   //20*log10(..)
 ```
 
 ### FIR filter design:
@@ -169,6 +169,45 @@ auto rls = RlsFilterR(M, 0.98, 1000);
 auto [y, e] = rls(x, d);
 
 ASSERT_LE(nmse(flt.coeffs(), rir), 0.01);
+```
+
+### Resampling:
+
+To process signal in batches (for example, in real time), use modules `FIRDecimator`, `FIRInterpolator`, `FIRRateConverter` or `FIRResampler`. The output signal will be delayed, but there will be no gap between frames.
+
+To process the entire signal (for example, from a file), use function `resample(x, p, q)`. The processing result will be aligned.
+
+```cpp
+//44100 -> 16000
+auto rsmp = dsplib::FIRResampler(16000, 44100);
+auto out = rsmp.process(in);
+//or
+auto rsmp = dsplib::FIRRateConverter(160, 441);
+auto out = rsmp.process(in);
+//or
+auto out = dsplib::resample(in, 16000, 44100);
+//or
+auto out = dsplib::resample(in, 160, 441);
+```
+
+```cpp
+//32000 -> 16000
+auto decim = dsplib::FIRDecimator(2);
+auto out = decim.process(in);
+//or
+auto out = dsplib::resample(in, 1, 2);
+//or
+auto out = dsplib::resample(in, 16000, 32000);
+```
+
+```cpp
+//16000 -> 32000
+auto interp = dsplib::FIRInterpolator(2);
+auto out = interp.process(in);
+//or
+auto out = dsplib::resample(in, 2, 1);
+//or
+auto out = dsplib::resample(in, 32000, 16000);
 ```
 
 ## Building

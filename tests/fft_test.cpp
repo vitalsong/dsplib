@@ -13,7 +13,14 @@ TEST(FFT, FftReal) {
         auto r = zeros(nfft);
         r[idx] = 0.5;
         r[nfft - idx] = 0.5;
-        ASSERT_EQ_ARR_REAL(r, z);
+        ASSERT_EQ_ARR_REAL(r, z, db2mag(-150));
+    }
+
+    {
+        const arr_real x = {0, 1, 2, 3, 4, 5, 6, 7};
+        const arr_cmplx y = {28.0 + 0.0i, -4.0 + 9.65685424949238i, -4.0 + 4.0i, -4.0 + 1.65685424949238i,
+                             -4.0 + 0.0i, -4.0 - 1.65685424949238i, -4.0 - 4.0i, -4.0 - 9.65685424949238i};
+        ASSERT_EQ_ARR_CMPLX(fft(x), y);
     }
 
     {
@@ -27,8 +34,7 @@ TEST(FFT, FftReal) {
     }
 
     {
-        const auto tt = arange(500) * 0.01;
-        const arr_real x = sin(2 * pi * tt);
+        const arr_real x = sin(2 * pi * arange(500) * 0.01);
         ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
     }
 }
@@ -36,14 +42,33 @@ TEST(FFT, FftReal) {
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftCmplx) {
     using namespace dsplib;
-    int idx = 10;
-    int nfft = 512;
-    auto x = expj(arange(nfft) * 2 * pi * idx / nfft);
-    auto y = fft(x) / nfft;
-    auto z = abs(y);
-    auto r = zeros(nfft);
-    r[idx] = 1;
-    ASSERT_EQ_ARR_REAL(r, z);
+
+    {
+        int idx = 10;
+        int nfft = 512;
+        auto x = expj(arange(nfft) * 2 * pi * idx / nfft);
+        auto y = fft(x) / nfft;
+        auto z = abs(y);
+        auto r = zeros(nfft);
+        r[idx] = 1;
+        ASSERT_EQ_ARR_REAL(r, z);
+    }
+
+    {
+        const arr_cmplx x = {0 + 0i, 1 + 1i, 2 - 2i, 3 + 3i, 4 - 4i, 5 + 5i, 6 - 6i, 7 + 7i};
+        const arr_cmplx y = {
+          28.0 + 4.0i,  -5.65685424949238 + 13.6568542494924i, -8.0 + 8.0i, -13.6568542494924 + 5.65685424949238i,
+          -4.0 - 28.0i, 5.65685424949238 + 2.34314575050762i,  0.0 + 0.0i,  -2.34314575050762 - 5.65685424949238i};
+        ASSERT_EQ_ARR_CMPLX(fft(x), y);
+    }
+
+    {
+        const int n = 128;
+        const arr_cmplx x = sin(2 * pi * arange(n) * 0.1);
+        const arr_cmplx y = fft(x).slice(0, n / 2 + 1);
+        ASSERT_EQ(argmax(y), 13);
+        ASSERT_CMPLX_NEAR(max(y), cmplx_t{-34.4803383753629 - 48.7604203346960i});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -70,8 +95,7 @@ TEST(FFT, Ifft) {
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, Czt) {
     using namespace dsplib;
-    arr_cmplx dft_ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i,
-                         -1.50000000000000 - 0.866025403784439i};
+    arr_cmplx dft_ref = {6.0 + 0.0i, -1.5 + 0.866025403784439i, -1.5 - 0.866025403784439i};
     arr_real x = {1.0, 2.0, 3.0};
     const int m = x.size();
     cmplx_t w = expj(-2 * pi / m);
