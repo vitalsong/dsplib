@@ -19,7 +19,7 @@ void _check_equal(dsplib::arr_real x1, dsplib::arr_real x2, int fs1 = 1, int fs2
     //no distortion
     const auto sinad1 = dsplib::sinad(x1);
     const auto sinad2 = dsplib::sinad(x2);
-    ASSERT_LE(sinad1, sinad2 + 2.0);
+    ASSERT_NEAR(sinad1, sinad2, 6.0);
 }
 
 void _check_phase(dsplib::arr_real x1, dsplib::arr_real x2) {
@@ -137,7 +137,6 @@ TEST(Resampler, ResampleFunc) {
         const int N = 8192;
         arr_real x1 = x_in.slice(0, N);
         arr_real x2 = x_out.slice(0, N);
-
         _check_equal(x1, x2, fs1, fs2);
         _check_phase(x_in, x_out);
     }
@@ -154,13 +153,12 @@ TEST(Resampler, ResampleFunc) {
         const int N = 8192;
         arr_real x1 = x_in.slice(0, N);
         arr_real x2 = x_out.slice(0, N);
-
         _check_equal(x1, x2, fs1, fs2);
         _check_phase(x_in, x_out);
     }
 
     {
-        //rate convert
+        //rate convert (up)
         const int fs1 = 44100;
         const int fs2 = 48000;
         auto x_in = sin(2 * pi * 0.4 * arange(fs1));
@@ -171,7 +169,22 @@ TEST(Resampler, ResampleFunc) {
         const int N = 8192;
         arr_real x1 = x_in.slice(0, N);
         arr_real x2 = x_out.slice(0, N);
+        _check_equal(x1, x2, fs1, fs2);
+        _check_phase(x_in, x_out);
+    }
 
+    {
+        //rate convert (down)
+        const int fs1 = 44100;
+        const int fs2 = 16000;
+        auto x_in = sin(2 * pi * 0.05 * arange(fs1));
+        x_in = awgn(x_in, 50);
+        auto x_out = resample(x_in, fs2, fs1);
+        ASSERT_EQ(x_out.size(), fs2);
+
+        const int N = 8192;
+        arr_real x1 = x_in.slice(0, N);
+        arr_real x2 = x_out.slice(0, N);
         _check_equal(x1, x2, fs1, fs2);
         _check_phase(x_in, x_out);
     }

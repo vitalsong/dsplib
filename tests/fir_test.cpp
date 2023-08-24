@@ -211,6 +211,62 @@ TEST(Fir1, Bandstop) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(Fir1Type, Low) {
+    {
+        auto h = fir1(100, 0.1, FilterType::Low);
+        ASSERT_EQ(h.size(), 101);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+    {
+        auto h = fir1(101, 0.1, FilterType::Low);
+        ASSERT_EQ(h.size(), 102);
+        ASSERT_EQ(int(firtype(h)), 2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Fir1Type, High) {
+    {
+        auto h = fir1(100, 0.1, FilterType::High);
+        ASSERT_EQ(h.size(), 101);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+    {
+        auto h = fir1(101, 0.1, FilterType::High);
+        ASSERT_EQ(h.size(), 103);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Fir1Type, Bandpass) {
+    {
+        auto h = fir1(100, 0.1, 0.2, FilterType::Bandpass);
+        ASSERT_EQ(h.size(), 101);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+    {
+        auto h = fir1(101, 0.1, 0.2, FilterType::Bandpass);
+        ASSERT_EQ(h.size(), 102);
+        ASSERT_EQ(int(firtype(h)), 2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Fir1Type, Bandstop) {
+    {
+        auto h = fir1(100, 0.1, 0.2, FilterType::Bandstop);
+        ASSERT_EQ(h.size(), 101);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+    {
+        auto h = fir1(101, 0.1, 0.2, FilterType::Bandstop);
+        ASSERT_EQ(h.size(), 103);
+        ASSERT_EQ(int(firtype(h)), 1);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(FirTest, Firtype) {
     ASSERT_EQ(firtype({0, 1, 2, 3}), FirType::NonlinearPhase);
     ASSERT_EQ(firtype({0, 1, 2, 1, 0}), FirType::EvenSymm);
