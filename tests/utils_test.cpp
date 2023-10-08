@@ -41,6 +41,17 @@ TEST(Utils, Range) {
         auto last_tgt = 16000.0 - 16000.0 / 200000;
         ASSERT_NEAR(x1[-1], last_tgt, 1e-3);
     }
+    {
+        ASSERT_EQ_ARR_REAL(arange(-10, 0, 2), arr_real{-10, -8, -6, -4, -2});
+        ASSERT_EQ_ARR_REAL(arange(-10, -1, 2), arr_real{-10, -8, -6, -4, -2});
+        ASSERT_EQ_ARR_REAL(arange(-10, 1, 2), arr_real{-10, -8, -6, -4, -2, 0});
+    }
+    {
+        ASSERT_EQ_ARR_REAL(arange(0, -10, -2), arr_real{0, -2, -4, -6, -8});
+        ASSERT_EQ_ARR_REAL(arange(-1, -10, -2), arr_real{-1, -3, -5, -7, -9});
+        ASSERT_EQ_ARR_REAL(arange(-2, -10, -2), arr_real{-2, -4, -6, -8});
+        ASSERT_EQ_ARR_REAL(arange(-2, -11, -2), arr_real{-2, -4, -6, -8, -10});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

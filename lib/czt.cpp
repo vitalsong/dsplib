@@ -12,6 +12,7 @@ public:
     explicit CztPlanImpl(int n, int m, cmplx_t w, cmplx_t a)
       : _n{n}
       , _m{m} {
+        assert(abs(abs(w) - 1.0) < 2 * eps());
         auto t = pow2(arange(1 - n, max(m, n))) / 2;
         arr_cmplx chirp(t.size());
         const auto w_a = angle(w);

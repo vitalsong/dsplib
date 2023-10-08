@@ -194,6 +194,7 @@ public:
         return const_slice_t<T>(*this, i1, i2, m);
     }
 
+    //TODO: add slice(end, first, -1) like x[::-1] numpy
     slice_t<T> slice(int i1, indexing::end_t, int m = 1) {
         return slice_t<T>(*this, i1, size(), m);
     }
@@ -222,21 +223,21 @@ public:
         return _vec.end();
     }
 
-    void push_back(const T& v) {
+    [[deprecated("will be removed")]] void push_back(const T& v) {
         _vec.push_back(v);
     }
 
-    void push_front(const T& v) {
+    [[deprecated("will be removed")]] void push_front(const T& v) {
         _vec.insert(_vec.begin(), v);
     }
 
-    T pop_back() {
+    [[deprecated("will be removed")]] T pop_back() {
         auto r = _vec.back();
         _vec.pop_back();
         return r;
     }
 
-    T pop_front() {
+    [[deprecated("will be removed")]] T pop_front() {
         auto r = _vec.front();
         std::memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
         _vec.resize(_vec.size() - 1);
