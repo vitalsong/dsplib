@@ -23,19 +23,45 @@ struct ToneInfo
     real_t power{0};
 };
 
-ToneInfo _get_psd_tone(const dsplib::arr_real& spec, real_t tone_freq) {
+int _locate_peak(const dsplib::arr_real& spec, int idx) {
+    assert(idx < spec.size());
+    int peak = idx;
     const int n = spec.size();
-    const int freq_num = std::round(tone_freq * n);
+    while ((peak > 0) && (spec[peak - 1] > spec[peak])) {
+        --peak;
+    }
+    while ((peak < n - 1) && (spec[peak] < spec[peak + 1])) {
+        ++peak;
+    }
+    return peak;
+}
 
-    int lpos = max(freq_num - 1, 0);
-    while ((lpos > 0) && (spec[lpos] > spec[lpos - 1])) {
+int _left_descent(const dsplib::arr_real& spec, int idx) {
+    int lpos = max(idx, 0);
+    while ((lpos > 0) && (spec[lpos - 1] < spec[lpos])) {
         --lpos;
     }
+    return lpos;
+}
 
-    int rpos = min(freq_num + 1, n - 1);
+int _right_descent(const dsplib::arr_real& spec, int idx) {
+    const int n = spec.size();
+    int rpos = min(idx, n - 1);
     while ((rpos < n - 1) && (spec[rpos] > spec[rpos + 1])) {
         ++rpos;
     }
+    return rpos;
+}
+
+ToneInfo _get_psd_tone(const dsplib::arr_real& spec, real_t tone_freq) {
+    const int n = spec.size();
+    int freq_num = std::round(tone_freq * n);
+    freq_num = min(freq_num, spec.size() - 1);
+    freq_num = max(freq_num, 0);
+
+    const int ipeak = _locate_peak(spec, freq_num);
+    const int lpos = _left_descent(spec, ipeak);
+    const int rpos = _right_descent(spec, ipeak);
 
     const arr_real f_fund = arange(lpos, rpos + 1) / n;
     const arr_real s_fund = spec.slice(lpos, rpos + 1);
@@ -88,9 +114,8 @@ HarmInfo _harm_analyze(const arr_real& sig, int nharm, bool aliased = false) {
 
     //calculate spectrum
     const int n = 1 << nextpow2(sig.size());
-    const auto y = zeropad(x * w, n);
     const real_t u = real_t(sig.size()) * n / 2;
-    const arr_cmplx rfft = fft(y).slice(0, n / 2);
+    const arr_cmplx rfft = fft(x * w, n).slice(0, n / 2);
     arr_real spectrum = abs2(rfft) / u;
 
     auto harm_pow = zeros(nharm);

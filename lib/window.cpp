@@ -55,9 +55,8 @@ arr_real blackman(int n) {
 //-------------------------------------------------------------------------------------------------
 arr_real gauss(int n, real_t alpha) {
     const real_t m = n - 1;
-    arr_real t = arange(n) - (m / 2);
-    auto r = exp(-0.5 * pow2(alpha * t / (m / 2)));
-    return r;
+    const arr_real t = arange(n) - (m / 2);
+    return exp(-0.5 * pow2(alpha * t / (m / 2)));
 }
 
 //-------------------------------------------------------------------------------------------------

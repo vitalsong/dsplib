@@ -36,6 +36,7 @@ set(SOURCES
     fft.cpp
     adaptive.cpp
     resample.cpp
+    slice.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

@@ -625,6 +625,27 @@ arr_real abs2(const arr_cmplx& x) {
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t norm(const arr_real& x, int p) {
+    if (p == 1) {
+        return sum(abs(x));
+    }
+    if (p == 2) {
+        return sqrt(sum(pow2(x)));
+    }
+    return pow(sum(pow(abs(x), p)), 1.0 / p);
+}
+
+real_t norm(const arr_cmplx& x, int p) {
+    if (p == 1) {
+        return sum(abs(x));
+    }
+    if (p == 2) {
+        return sqrt(sum(abs2(x)));
+    }
+    return pow(sum(pow(abs(x), p)), 1.0 / p);
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real deg2rad(const arr_real& x) {
     return x / 180.0 * pi;
 }

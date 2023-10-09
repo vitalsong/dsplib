@@ -12,7 +12,7 @@ using enable_if_some_float_t = std::enable_if<std::is_floating_point<T1>::value 
 
 template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
 arr_real arange(T1 start, T2 stop, T3 step = 1) {
-    int n = ::round((stop - start) / step);
+    const int n = std::round((stop - start) / double(step));
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
         r[i] = start + (i * step);
@@ -25,12 +25,13 @@ inline arr_real arange(real_t stop) {
 }
 
 inline arr_real arange(int start, int stop, int step = 1) {
-    std::vector<real_t> x;
-    x.reserve(std::abs((stop - start) / step) + 1);
-    for (int i = start; i < stop; i += step) {
-        x.push_back(i);
+    const int n = std::round((stop - start) / double(step));
+    arr_real r(n);
+    for (int i = 0; i < n; ++i) {
+        r[i] = start;
+        start += step;
     }
-    return arr_real{std::move(x)};
+    return r;
 }
 
 inline arr_real arange(int stop) {
@@ -216,5 +217,15 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
 //Estimate delay between signals
 int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2);
 int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2);
+
+struct PeakList
+{
+    std::vector<real_t> pks;    ///< local maxima
+    std::vector<real_t> locs;   ///< peak locations
+    std::vector<real_t> wds;    ///< peak widths
+};
+
+// find local maxima
+PeakList findpeaks(arr_real data, int npeaks);
 
 }   // namespace dsplib

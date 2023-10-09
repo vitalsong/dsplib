@@ -1,3 +1,5 @@
+#include <dsplib/throw.h>
+#include <dsplib/window.h>
 #include <dsplib/hilbert.h>
 #include <dsplib/fft.h>
 #include <dsplib/ifft.h>
@@ -7,104 +9,81 @@
 namespace dsplib {
 
 namespace {
-const int DEFAULT_FIR_SIZE = 51;
-const real_t DEFAULT_FIR[DEFAULT_FIR_SIZE] = {-0.005900976502228, 9.074824364018e-16,
-                                              -0.005928613232103, -2.904033962442e-16,
-                                              -0.008823550945517, -4.908871159007e-17,
-                                              -0.01259673359506,  -9.303461664714e-16,
-                                              -0.01746192064263,  1.430779835769e-15,
-                                              -0.02373102765157,  -6.200648271172e-16,
-                                              -0.03188772211027,  2.716442846268e-16,
-                                              -0.04275831095352,  -2.21125846066e-17,
-                                              -0.05789285319933,  3.157020382665e-16,
-                                              -0.08065433225117,  -5.117701525235e-16,
-                                              -0.1198013399727,   1.661661288062e-16,
-                                              -0.2076267680754,   -1.314802786419e-16,
-                                              -0.6350838033949,   0,
-                                              0.6350838033949,    1.314802786419e-16,
-                                              0.2076267680754,    -1.661661288062e-16,
-                                              0.1198013399727,    5.117701525235e-16,
-                                              0.08065433225117,   -3.157020382665e-16,
-                                              0.05789285319933,   2.21125846066e-17,
-                                              0.04275831095352,   -2.716442846268e-16,
-                                              0.03188772211027,   6.200648271172e-16,
-                                              0.02373102765157,   -1.430779835769e-15,
-                                              0.01746192064263,   9.303461664714e-16,
-                                              0.01259673359506,   4.908871159007e-17,
-                                              0.008823550945517,  2.904033962442e-16,
-                                              0.005928613232103,  -9.074824364018e-16,
-                                              0.005900976502228};
+
+arr_real real_hilbert(const arr_cmplx& h) {
+    return imag(h) * 2;
+}
+
 }   // namespace
 
-//-------------------------------------------------------------------------------------------------
-HilbertFilter::HilbertFilter()
-  : HilbertFilter(arr_real(DEFAULT_FIR, DEFAULT_FIR_SIZE)) {
-    //nothing to do
+HilbertFilter::HilbertFilter(int flen, real_t tw)
+  : HilbertFilter(real_hilbert(HilbertFilter::design_fir(flen, 1.0, tw))) {
 }
 
-//-------------------------------------------------------------------------------------------------
+arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
+    const int M = (flen % 2 == 0) ? (flen + 1) : flen;
+    const int N = std::pow(2, nextpow2(8 * M));
+    int k1 = std::round(N * f1 / fs);
+    k1 = (k1 < 2) ? 2 : k1;       // cannot have dc or fn response
+    const int kn = N / 2 + 1;     // bin index at Nyquist limit (1-based)
+    const int k2 = kn - k1 + 1;   // high-frequency band edge
+
+    const auto lm = pow(arange(k1 - 1) / (k1 - 1), 8);
+    const auto rm = flip(lm);
+    const arr_cmplx H = lm | ones(k2 - k1 + 1) | rm | zeros(N / 2 - 1);
+    const arr_cmplx h = ifft(H);   // desired impulse response
+
+    const auto w = window::kaiser(M, 8);
+    const auto wzp = *w.slice(M / 2, M) | zeros(N - M) | *w.slice(0, M / 2);
+    const auto hw = wzp * h;   // single-sideband FIR filter, zero-centered
+    const auto hh = *hw.slice(N - (M / 2), N) | *hw.slice(0, (M + 1) / 2);   // casual FIR
+    return hh;
+}
+
 HilbertFilter::HilbertFilter(const arr_real& h)
-  : _fir(h) {
-    _d = zeros((h.size() - 1) / 2);
+  : _fir(h)
+  , _d{h.size() / 2} {
+    DSPLIB_ASSERT(firtype(h) == FirType::EvenAntiSym, "Only firtype 3 supported");
 }
 
-//-------------------------------------------------------------------------------------------------
 arr_cmplx HilbertFilter::process(const arr_real& s) {
-    int nd = _d.size();
-    int ns = s.size();
-    int n = ns + nd;
+    const int n = s.size();
 
-    //update delay
-    //PS: ugly, replace the function delay (_d, s)
-    arr_real t = _d | s;
-    _d = t.slice(n - nd, n);
+    arr_cmplx r(n);
 
-    //vector for storing the result
-    arr_cmplx r(ns);
-
-    //save the I channel
-    for (int i = 0; i < ns; ++i) {
-        r[i].re = t[i];
+    const auto re = _d.process(s);
+    for (int i = 0; i < n; ++i) {
+        r[i].re = re[i];
     }
 
-    //pass the Q channel through the FIR filter
-    t = _fir.process(s);
-
-    //save the Q channel
-    for (int i = 0; i < ns; ++i) {
-        r[i].im = t[i];
+    const auto im = _fir.process(s);
+    for (int i = 0; i < n; ++i) {
+        r[i].im = im[i];
     }
 
     return r;
 }
 
-//-------------------------------------------------------------------------------------------------
 const arr_real& HilbertFilter::impz() const {
     return _fir.coeffs();
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_cmplx hilbert(const arr_real& s) {
-    int n = int(1) << nextpow2(s.size());
-    arr_real in = s | zeros(n - s.size());
-
-    //direct DFT
-    arr_cmplx r = fft(in);
-
-    //zeroing the second half
-    for (int i = n / 2 + 1; i < n; ++i) {
-        r[i] = 0;
-    }
-
-    //coefficient calibration
-    for (int i = 1; i < n - 1; ++i) {
-        r[i] *= 2;
-    }
-
-    //inverse DFT
+arr_cmplx hilbert(const arr_real& x) {
+    const int n = x.size();
+    arr_cmplx r = fft(x) * 2;
+    r.slice(n / 2 + 1, n) = 0;
     r = ifft(r);
-
     return r;
+}
+
+arr_cmplx hilbert(const arr_real& x, int n) {
+    if (n > x.size()) {
+        return hilbert(zeropad(x, n));
+    }
+    if (n < x.size()) {
+        return hilbert(x.slice(0, n));
+    }
+    return hilbert(x);
 }
 
 }   // namespace dsplib

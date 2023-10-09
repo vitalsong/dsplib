@@ -123,7 +123,7 @@ arr_real _from_file(std::string file, size_t count, endian order, size_t offset)
 
     uint8_t bytes[sizeof(T)];
     fseek(fid, offset, SEEK_CUR);
-    arr_real res;
+    std::vector<real_t> res;
     while (!feof(fid) && count) {
         auto rcount = fread(bytes, sizeof(T), 1, fid);
         if (rcount) {

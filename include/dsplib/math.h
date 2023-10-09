@@ -193,13 +193,12 @@ real_t deg2rad(const real_t& x);
 arr_real rad2deg(const arr_real& x);
 real_t rad2deg(const real_t& x);
 
-//Euclidean norm of vector
-inline real_t norm(const arr_real& x) {
-    return sqrt(sum(pow2(x)));
-}
-inline real_t norm(const arr_cmplx& x) {
-    return sqrt(sum(abs2(x)));
-}
+//vector norms
+//p=1, sum(abs(x))
+//p=2, euclidean norm of vector, sum(abs(x).^2)^(1/2)
+//p>0, sum(abs(x).^p)^(1/p)
+real_t norm(const arr_real& x, int p = 2);
+real_t norm(const arr_cmplx& x, int p = 2);
 
 //Mean squared error
 inline real_t mse(const arr_real& x, const arr_real& y) {
