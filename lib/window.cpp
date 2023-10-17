@@ -108,7 +108,7 @@ arr_real kaiser(int nw, real_t beta) {
         const auto xi = 4 * pow2(i + 0.5 * (1 - odd));
         w[i] = std::abs(_besseli0(beta * std::sqrt(1 - (xi / xind))) / bes);
     }
-    const arr_real wl = flip(w.slice(odd, n));
+    const arr_real wl = flip(*w.slice(odd, n));
     return (wl | w);
 }
 
