@@ -41,3 +41,49 @@ static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2, double max_err = EQ_
         ASSERT_NEAR(x1[i].im, x2[i].im, max_err);
     }
 }
+
+namespace dsplib {
+
+static arr_real calc_psd(const arr_real& x) {
+    const int n = 1L << nextpow2(x.size());
+    auto w = window::kaiser(x.size(), 38);
+    w /= rms(w);
+    const real_t u = real_t(x.size()) * n / 2;
+    auto X = fft(x * w, n);
+    X.slice(n / 2 + 1, n) = 0;
+    const arr_real spec = abs2(X) / u;
+    return spec;
+}
+
+static arr_real calc_psd(const arr_cmplx& x) {
+    const int n = 1L << nextpow2(x.size());
+    auto w = window::kaiser(x.size(), 38);
+    w /= rms(w);
+    const real_t u = real_t(x.size()) * n;
+    const auto X = fft(x * w, n);
+    const arr_real spec = abs2(X) / u;
+    return spec;
+}
+
+struct Harm
+{
+    real_t freq{0};
+    real_t amp{0};
+    real_t snr{0};
+};
+
+template<typename T>
+static Harm harm_analyze(const base_array<T>& x) {
+    auto spec = calc_psd(x);
+    const auto [pks, locs, wds] = findpeaks(spec, 1);
+    Harm res;
+    res.amp = pow2db(pks[0]);
+    res.freq = locs[0] / spec.size();
+    const int lp = std::round(locs[0] - wds[0] / 2);
+    const int rp = std::round(locs[0] + wds[0] / 2);
+    auto fund_pow = sum(*spec.slice(lp, rp));
+    res.snr = pow2db(fund_pow / (sum(spec) - fund_pow + eps()));
+    return res;
+}
+
+}   // namespace dsplib
