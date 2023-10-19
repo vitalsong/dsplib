@@ -31,13 +31,12 @@ class base_array
 public:
     base_array() = default;
 
-    explicit base_array(int n) {
-        _vec.resize(n);
-        std::fill(_vec.data(), _vec.data() + n, 0);
+    explicit base_array(int n)
+      : _vec(n, 0) {
     }
 
-    base_array(const const_slice_t<T>& rhs) {
-        _vec.resize(rhs.size());
+    base_array(const const_slice_t<T>& rhs)
+      : base_array(rhs.size()) {
         this->slice(0, indexing::end) = rhs;
     }
 
@@ -98,12 +97,7 @@ public:
         if (this == &rhs) {
             return *this;
         }
-
-        if (this->size() != rhs.size()) {
-            _vec.resize(rhs.size());
-        }
-
-        std::copy(rhs.data(), (rhs.data() + rhs.size()), _vec.data());
+        _vec = rhs._vec;
         return *this;
     }
 
@@ -111,7 +105,6 @@ public:
         if (this == &rhs) {
             return *this;
         }
-
         _vec.swap(rhs._vec);
         return *this;
     }

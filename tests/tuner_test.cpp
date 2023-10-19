@@ -15,7 +15,8 @@ TEST(Tuner, Up) {
         auto tuner = Tuner(fs, df);
         auto y = tuner.process(x);
         auto harm = harm_analyze(y);
-        ASSERT_NEAR(harm.freq, (f0 + df) / fs, (1.0 / fs));
+        const auto target_freq = (f0 + df) / fs;
+        ASSERT_NEAR(harm.freq, target_freq, (1.0 / fs));
         ASSERT_GE(harm.snr, 90);
     }
 }
@@ -30,7 +31,8 @@ TEST(Tuner, Down) {
         auto tuner = Tuner(fs, df);
         auto y = tuner.process(x);
         auto harm = harm_analyze(y);
-        ASSERT_NEAR(harm.freq, 1 + (f0 + df) / fs, (1.0 / fs));
+        const auto target_freq = 1 + (f0 + df) / fs;
+        ASSERT_NEAR(harm.freq, target_freq, (1.0 / fs));
         ASSERT_GE(harm.snr, 90);
     }
 }

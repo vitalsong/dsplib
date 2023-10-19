@@ -81,7 +81,7 @@ static Harm harm_analyze(const base_array<T>& x) {
     res.freq = locs[0] / spec.size();
     const int lp = std::round(locs[0] - wds[0] / 2);
     const int rp = std::round(locs[0] + wds[0] / 2);
-    auto fund_pow = sum(*spec.slice(lp, rp));
+    auto fund_pow = sum(*spec.slice(lp, rp + 1));
     res.snr = pow2db(fund_pow / (sum(spec) - fund_pow + eps()));
     return res;
 }
