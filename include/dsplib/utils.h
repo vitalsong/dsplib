@@ -114,8 +114,8 @@ enum class endian
     big
 };
 
-arr_real from_file(std::string file, dtype type = dtype::int16, endian order = endian::little, size_t offset = 0,
-                   size_t count = SIZE_MAX);
+arr_real from_file(const std::string& file, dtype type = dtype::int16, endian order = endian::little, long offset = 0,
+                   long count = std::numeric_limits<long>::max());
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>

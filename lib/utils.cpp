@@ -115,19 +115,19 @@ uint32_t _from_bytes(const uint8_t* bytes, endian order) {
 
 //-------------------------------------------------------------------------------------------------
 template<typename T>
-arr_real _from_file(std::string file, size_t count, endian order, size_t offset) {
+arr_real _from_file(const std::string& file, long count, endian order, long offset) {
     FILE* fid = fopen(file.c_str(), "rb");
     if (!fid) {
         DSPLIB_THROW("open file error");
     }
 
-    uint8_t bytes[sizeof(T)];
+    std::array<uint8_t, sizeof(T)> bytes{0};
     fseek(fid, offset, SEEK_CUR);
     std::vector<real_t> res;
     while (!feof(fid) && count) {
-        auto rcount = fread(bytes, sizeof(T), 1, fid);
+        auto rcount = fread(bytes.data(), bytes.size(), 1, fid);
         if (rcount) {
-            auto v = _from_bytes<T>(bytes, order);
+            auto v = _from_bytes<T>(bytes.data(), order);
             res.push_back(v);
             --count;
         }
@@ -139,7 +139,7 @@ arr_real _from_file(std::string file, size_t count, endian order, size_t offset)
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real from_file(std::string file, dtype type, endian order, size_t offset, size_t count) {
+arr_real from_file(const std::string& file, dtype type, endian order, long offset, long count) {
     switch (type) {
     case dtype::int16:
         return _from_file<int16_t>(file, count, order, offset);
