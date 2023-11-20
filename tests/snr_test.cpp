@@ -1,5 +1,4 @@
 #include "tests_common.h"
-#include <dsplib/snr.h>
 
 using namespace dsplib;
 
@@ -30,6 +29,15 @@ TEST(Sinad, HarmNoise) {
     auto tg_sinad = pow2db(pow2(1.0) / (pow2(0.025) + pow2(0.001)));
     auto rs_sinad = sinad(x);
     ASSERT_NEAR(tg_sinad, rs_sinad, 0.1);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Sinad, HarmNoisePxx) {
+    auto x = _gen_test_signal(160000, 1.0, {0.125, 0}, {1.0, 0}, 0);
+    x = awgn(x, -10);
+    auto [pxx, f] = welch(x, 1024, (1024 - 128), 1024, SpectrumType::Power);
+    auto rs_sinad = sinad(pxx, SinadType::Power);
+    ASSERT_NEAR(-10, rs_sinad, 1.0);
 }
 
 //-------------------------------------------------------------------------------------------------

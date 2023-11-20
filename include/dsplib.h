@@ -22,3 +22,4 @@
 #include <dsplib/random.h>
 #include <dsplib/gccphat.h>
 #include <dsplib/resample.h>
+#include <dsplib/spectrum.h>

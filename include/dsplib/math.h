@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <dsplib/keywords.h>
 
 namespace dsplib {
 
@@ -71,6 +72,11 @@ arr_cmplx round(const arr_cmplx& arr);
 real_t sum(const arr_real& arr);
 cmplx_t sum(const arr_cmplx& arr);
 
+// cumulative sum
+// example: cumsum([1, 2, 3, 4, 5]) -> [1, 3, 6, 10, 15]
+arr_real cumsum(const arr_real& x, Direction dir = Direction::Forward);
+arr_cmplx cumsum(const arr_cmplx& x, Direction dir = Direction::Forward);
+
 //array dot
 real_t dot(const arr_real& x1, const arr_real& x2);
 cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2);
@@ -85,6 +91,17 @@ real_t stddev(const arr_cmplx& arr);
 
 //median
 real_t median(const arr_real& arr);
+
+//linear or rank correlation
+//TODO: add p-value result
+real_t corr(const arr_real& x, const arr_real& y, Correlation type = Correlation::Pearson);
+
+//sort array elements
+//result: [sorted array, sort index]
+std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir = Direction::Ascend);
+
+//determine if array is sorted
+bool issorted(const arr_real& x, Direction dir = Direction::Ascend);
 
 //real part
 arr_real real(const arr_cmplx& x);
@@ -114,6 +131,9 @@ arr_cmplx complex(const arr_real& re, const arr_real& im);
 
 //the nearest power of two numbers (with rounding up)
 int nextpow2(int m);
+
+//checks if m is an integral power of two
+bool ispow2(int m);
 
 //array pow
 arr_real pow2(const arr_real& arr);

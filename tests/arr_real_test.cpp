@@ -1,3 +1,4 @@
+#include "dsplib/utils.h"
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -137,4 +138,24 @@ TEST(ArrRealTest, CheckGreater) {
     ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, false, true}));
     auto y = x[r];
     ASSERT_EQ_ARR_REAL(y, arr_real{200, 10000.0});
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, UnaryOperators) {
+    {
+        const auto x1 = dsplib::arange(32);
+        auto x2 = -x1;
+        auto x3 = +x1;
+        ASSERT_EQ_ARR_REAL(x1, dsplib::arange(32));
+        ASSERT_EQ_ARR_REAL(x2, -dsplib::arange(32));
+        ASSERT_EQ_ARR_REAL(x3, dsplib::arange(32));
+    }
+    {
+        auto x1 = dsplib::arange(32);
+        auto x2 = -x1;
+        auto x3 = +x1;
+        ASSERT_EQ_ARR_REAL(x1, dsplib::arange(32));
+        ASSERT_EQ_ARR_REAL(x2, -dsplib::arange(32));
+        ASSERT_EQ_ARR_REAL(x3, dsplib::arange(32));
+    }
 }

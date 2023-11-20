@@ -17,7 +17,7 @@ constexpr int FFT_CACHE_SIZE = DSPLIB_FFT_CACHE_SIZE;
 //-------------------------------------------------------------------------------------------------
 //cast cos table to complex for n==2^K
 arr_cmplx _cos_to_cmplx(const real_t* w, int n) {
-    assert(n == (1L << nextpow2(n)));
+    assert(ispow2(n));
     const int n4 = (n / 4);
     const int ms = (n - 1);
     arr_cmplx r(n);
@@ -120,7 +120,7 @@ private:
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanC> _get_fft_plan(int n) {
     //n!=2^K
-    if (n != (1L << nextpow2(n))) {
+    if (!ispow2(n)) {
         const cmplx_t w = expj(-2 * pi / n);
         return std::make_shared<CztPlan>(n, n, w);
     }
@@ -154,7 +154,7 @@ public:
     explicit Fft2PlanR(int n)
       : n_{n}
       , fft_{n / 2} {
-        assert(n == (1UL << nextpow2(n)));
+        assert(ispow2(n));
         w_ = _cos_to_cmplx(fft_tables(n).coeffs.data(), n).slice(0, n / 2);
     }
 
@@ -207,7 +207,7 @@ private:
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
     //n!=2^K
-    if (n != (1L << nextpow2(n))) {
+    if (!ispow2(n)) {
         return std::make_shared<CztPlanR>(n);
     }
     return std::make_shared<Fft2PlanR>(n);

@@ -1,4 +1,8 @@
+#include "dsplib/keywords.h"
+#include "dsplib/math.h"
+#include "dsplib/utils.h"
 #include "tests_common.h"
+#include <gtest/gtest.h>
 
 using namespace dsplib;
 
@@ -344,4 +348,75 @@ TEST(MathTest, Eps) {
     ASSERT_NEAR(eps(2.0f), std::pow(2.0, -22), 1e-15);
     ASSERT_NEAR(eps(1000.0f), std::pow(2.0, -14), 1e-15);
     ASSERT_NEAR(eps(0.0f), std::pow(2.0, -149), 1e-15);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CumSum) {
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        const arr_real x2 = {1, 3, 6, 10, 15};
+        ASSERT_EQ_ARR_REAL(cumsum(x1), x2);
+    }
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        const arr_real x2 = {15, 14, 12, 9, 5};
+        ASSERT_EQ_ARR_REAL(cumsum(x1, Direction::Reverse), x2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Corr) {
+    {
+        const arr_real x = randn(100);
+        ASSERT_EQ(corr(x, x), 1.0);
+        ASSERT_EQ(corr(x, -x), -1.0);
+    }
+    {
+        const arr_real x = {0, 1, 5, 6, 9, 11, 3, 2};
+        ASSERT_EQ(corr(x, x, Correlation::Spearman), 1.0);
+        ASSERT_EQ(corr(x, -x, Correlation::Spearman), -1.0);
+    }
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5, 6};
+        const arr_real x2 = {3, 1, 4, 2, 6, 5};
+        ASSERT_NEAR(corr(x1, x2, Correlation::Kendall), 0.466, 1e-3);
+        ASSERT_NEAR(corr(x1, -x2, Correlation::Kendall), -0.466, 1e-3);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Sort) {
+    {
+        const arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        auto [sorted, index] = sort(x1);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{1, 2, 3, 3, 4, 5, 6, 7});
+        ASSERT_EQ_ARR_REAL(index, arr_real{1, 2, 6, 7, 0, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted));
+    }
+    {
+        const arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        auto [sorted, index] = sort(x1, Direction::Descend);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{7, 6, 5, 4, 3, 3, 2, 1});
+        ASSERT_EQ_ARR_REAL(index, arr_real{5, 4, 3, 0, 6, 7, 2, 1});
+        ASSERT_TRUE(issorted(sorted, Direction::Descend));
+        ASSERT_FALSE(issorted(sorted, Direction::Ascend));
+    }
+    {
+        //sorted
+        const arr_real x1 = {0, 1, 2, 3, 4, 5};
+        auto [sorted, index] = sort(x1);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_EQ_ARR_REAL(index, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted));
+        ASSERT_FALSE(issorted(sorted, Direction::Descend));
+    }
+    {
+        //sorted
+        const arr_real x1 = {5, 4, 3, 2, 1, 0};
+        auto [sorted, index] = sort(x1, Direction::Descend);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{5, 4, 3, 2, 1, 0});
+        ASSERT_EQ_ARR_REAL(index, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted, Direction::Descend));
+        ASSERT_FALSE(issorted(sorted, Direction::Ascend));
+    }
 }

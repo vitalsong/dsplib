@@ -3,6 +3,7 @@
 #include <dsplib/window.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <dsplib/throw.h>
 
 #include <utility>
 #include <vector>
@@ -12,7 +13,7 @@ namespace dsplib {
 namespace {
 
 //TODO: disable limits
-constexpr int FRAME_LEN_LIMIT = 192000;
+constexpr int PERIODOGRAM_SIZE_LIMIT = (int(1) << 18);
 
 struct ToneInfo
 {
@@ -98,26 +99,7 @@ struct HarmInfo
     real_t noisepow;
 };
 
-HarmInfo _harm_analyze(const arr_real& sig, int nharm, bool aliased = false) {
-    if (sig.size() > FRAME_LEN_LIMIT) {
-        DSPLIB_THROW("The vector size is too large");
-    }
-
-    //remove DC
-    auto x = sig - mean(sig);
-
-    //use kaiser window
-    auto w = window::kaiser(x.size(), 38);
-
-    //compensates for the power of the window
-    w /= rms(w);
-
-    //calculate spectrum
-    const int n = 1 << nextpow2(sig.size());
-    const real_t u = real_t(sig.size()) * n / 2;
-    const arr_cmplx rfft = fft(x * w, n).slice(0, n / 2);
-    arr_real spectrum = abs2(rfft) / u;
-
+HarmInfo _harm_analyze(arr_real spectrum, int nharm, bool aliased = false) {
     auto harm_pow = zeros(nharm);
     auto harm_freq = zeros(nharm);
 
@@ -159,17 +141,40 @@ HarmInfo _harm_analyze(const arr_real& sig, int nharm, bool aliased = false) {
     return res;
 }
 
+//TODO: add standard periodogram function
+arr_real _periodogram(const arr_real& sig) {
+    DSPLIB_ASSERT(sig.size() <= PERIODOGRAM_SIZE_LIMIT,
+                  "The input vector is too large. Use welch() to calculate spectrum.")
+
+    //remove DC
+    auto x = sig - mean(sig);
+
+    //use kaiser window
+    auto w = window::kaiser(x.size(), 38);
+
+    //compensates for the power of the window
+    w /= rms(w);
+
+    //calculate spectrum
+    const int n = 1 << nextpow2(sig.size());
+    const real_t u = real_t(sig.size()) * n / 2;
+    const arr_cmplx rfft = fft(x * w, n).slice(0, n / 2);
+    const arr_real spec = abs2(rfft) / u;
+    return spec;
+}
+
 }   // namespace
 
 //------------------------------------------------------------------------------------
-real_t sinad(const arr_real& sig) {
-    auto info = _harm_analyze(sig, 1);
+real_t sinad(const arr_real& sig, SinadType type) {
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+    auto info = _harm_analyze(pxx, 1);
     return pow2db(info.harmpow[0] / info.noisepow);
 }
 
-//------------------------------------------------------------------------------------
-ThdRes thd(const arr_real& sig, int nharm, bool aliased) {
-    auto info = _harm_analyze(sig, nharm, aliased);
+ThdRes thd(const arr_real& sig, int nharm, bool aliased, SinadType type) {
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+    const auto info = _harm_analyze(pxx, nharm, aliased);
     ThdRes res;
     const auto harm_sum = sum(info.harmpow.slice(1, nharm));
     res.value = pow2db(harm_sum / info.harmpow[0]);
@@ -178,9 +183,9 @@ ThdRes thd(const arr_real& sig, int nharm, bool aliased) {
     return res;
 }
 
-//------------------------------------------------------------------------------------
-real_t snr(const arr_real& sig, int nharm, bool aliased) {
-    auto info = _harm_analyze(sig, nharm, aliased);
+real_t snr(const arr_real& sig, int nharm, bool aliased, SinadType type) {
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+    auto info = _harm_analyze(pxx, nharm, aliased);
     return pow2db(info.harmpow[0] / info.noisepow);
 }
 

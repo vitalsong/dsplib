@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <dsplib/keywords.h>
 
 namespace dsplib {
 
@@ -92,23 +93,6 @@ private:
 };
 
 using fir_fft [[deprecated]] = FftFilter;
-
-enum class FilterType
-{
-    Low,
-    High,
-    Bandpass,
-    Bandstop
-};
-
-enum class FirType : int
-{
-    NonlinearPhase = 0,   //Nonlinear phase
-    EvenSymm = 1,         //Even-order symmetric coefficients
-    OddSym = 2,           //Odd-order symmetric coefficients
-    EvenAntiSym = 3,      //Even-order antisymmetric coefficients
-    OddAntiSym = 4        //Odd-order antisymmetric coefficients
-};
 
 //Type of linear phase FIR filter
 FirType firtype(const dsplib::arr_real& h);
