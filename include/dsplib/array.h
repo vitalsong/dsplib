@@ -135,13 +135,17 @@ public:
         return res;
     }
 
-    base_array<T> operator[](const base_array<int>& idxs) const {
+    base_array<T> operator[](const std::vector<int>& idxs) const {
         DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
         std::vector<T> res(_vec.size());
         for (int i = 0; i < idxs.size(); ++i) {
             res[i] = _vec[idxs[i]];
         }
         return res;
+    }
+
+    base_array<T> operator[](const base_array<int>& idxs) const {
+        return (*this)[idxs.to_vec()];
     }
 
     //--------------------------------------------------------------------

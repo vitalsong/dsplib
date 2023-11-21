@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <numeric>
 #include <utility>
 
 namespace dsplib {
@@ -181,7 +182,8 @@ arr_cmplx cumsum(const arr_cmplx& x, Direction dir) {
 //-------------------------------------------------------------------------------------------------
 std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir) {
     const int n = x.size();
-    arr_int index{arange(n)};   //TODO: remove arr_real -> arr_int cast
+    arr_int index(n);
+    std::iota(index.begin(), index.end(), 0);
 
     if (issorted(x, dir)) {
         return std::make_pair(x, index);
