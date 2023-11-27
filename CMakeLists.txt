@@ -7,6 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
+
+set(DSPLIB_FFT_BACKEND "default" CACHE STRING "Select fft backend: [ne10, default]")
 set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
@@ -14,12 +16,45 @@ option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
 
-file(GLOB_RECURSE DSPLIB_SOURCES 
+# check root project
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")
+    set(DSPLIB_IS_ROOT ON)
+endif()
+
+# check ne10 support
+if (DSPLIB_FFT_BACKEND STREQUAL "ne10" AND NOT DSPLIB_USE_FLOAT32)
+    message(WARNING "NE10 backend only supported for float32 base type. Select `default`.")
+    set(DSPLIB_FFT_BACKEND "default")
+endif()
+
+if (DSPLIB_FFT_BACKEND STREQUAL "ne10" AND NOT "${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm|aarch")
+    message(WARNING "NE10 backend only supported for ARM processors. Select `default`.")
+    set(DSPLIB_FFT_BACKEND "default")
+endif()
+
+if (DSPLIB_FFT_BACKEND STREQUAL "ne10")
+    add_subdirectory(external/ne10-dsp)
+endif()
+
+file(GLOB DSPLIB_SOURCES 
     "lib/*.cpp"  
-    "lib/*.h" 
-    "include/*.h")
+    "lib/resample/*.cpp"
+)
+
+if (DSPLIB_FFT_BACKEND STREQUAL "ne10")
+    file(GLOB DSPLIB_FFT_SOURCES "lib/specific/ne10-fft/*.cpp")
+else()
+    file(GLOB DSPLIB_FFT_SOURCES "lib/specific/dsplib-fft/*.cpp")
+endif()
+list(APPEND DSPLIB_SOURCES ${DSPLIB_FFT_SOURCES})
+
+message(STATUS "FFT backend: ${DSPLIB_FFT_BACKEND}")
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
+
+if (DSPLIB_FFT_BACKEND STREQUAL "ne10")
+    target_link_libraries(${PROJECT_NAME} PRIVATE ne10dsp) #TODO: NE10:DSP alias
+endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
     "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
@@ -30,11 +65,6 @@ target_include_directories(${PROJECT_NAME}
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE lib
 )
-
-# check root project
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")
-    set(DSPLIB_IS_ROOT ON)
-endif()
 
 # base type select
 if (DSPLIB_USE_FLOAT32)
@@ -84,15 +114,18 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 )
 
 # install package
-include(cmake/InstallTools.cmake)
+# FIXME: install problem with ne10dsp dependency
+if (DSPLIB_FFT_BACKEND STREQUAL "default")
+    include(cmake/InstallTools.cmake)
 
-ConfigInstallTarget(${PROJECT_NAME})
+    ConfigInstallTarget(${PROJECT_NAME})
 
-install(FILES "include/dsplib.h" 
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(FILES "include/dsplib.h" 
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
-    PATTERN "*.h"
-)
+    install(DIRECTORY include/${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING
+        PATTERN "*.h"
+    )
+endif()

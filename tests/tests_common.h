@@ -22,24 +22,28 @@ static void ASSERT_CMPLX_NEAR(dsplib::cmplx_t x1, dsplib::cmplx_t x2, dsplib::re
 //-------------------------------------------------------------------------------------------------
 template<typename T1, typename T2>
 static void ASSERT_EQ_ARR_REAL(const T1& r1, const T2& r2, double max_err = EQ_ABS_ERR) {
-    dsplib::arr_real x1(r1);
-    dsplib::arr_real x2(r2);
+    const dsplib::arr_real x1(r1);
+    const dsplib::arr_real x2(r2);
     ASSERT_EQ(x1.size(), x2.size());
-    for (int i = 0; i < x1.size(); ++i) {
-        ASSERT_NEAR(x1[i], x2[i], max_err);
+    if (x1.empty()) {
+        return;
     }
+    const auto err = dsplib::abs(x1 - x2);
+    const auto err_v = dsplib::max(err);
+    ASSERT_LE(err_v, max_err);
 }
 
 //-------------------------------------------------------------------------------------------------
 template<typename T1, typename T2>
 static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2, double max_err = EQ_ABS_ERR) {
-    dsplib::arr_cmplx x1(r1);
-    dsplib::arr_cmplx x2(r2);
+    const dsplib::arr_cmplx x1(r1);
+    const dsplib::arr_cmplx x2(r2);
     ASSERT_EQ(x1.size(), x2.size());
-    for (int i = 0; i < x1.size(); ++i) {
-        ASSERT_NEAR(x1[i].re, x2[i].re, max_err);
-        ASSERT_NEAR(x1[i].im, x2[i].im, max_err);
+    if (x1.empty()) {
+        return;
     }
+    ASSERT_EQ_ARR_REAL(dsplib::real(x1), dsplib::real(x2), max_err);
+    ASSERT_EQ_ARR_REAL(dsplib::imag(x1), dsplib::imag(x2), max_err);
 }
 
 namespace dsplib {
