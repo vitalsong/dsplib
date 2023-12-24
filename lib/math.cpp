@@ -157,7 +157,7 @@ cmplx_t sum(const arr_cmplx& arr) {
 //-------------------------------------------------------------------------------------------------
 template<typename T>
 static base_array<T> _cumsum(const base_array<T>& x, bool reverse) {
-    base_array<T> r{x};
+    base_array<T> r(x);
     const int n = x.size();
     if (!reverse) {
         for (int i = 1; i < n; ++i) {

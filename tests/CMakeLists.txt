@@ -19,6 +19,3 @@ file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC dsplib gtest)
-
-include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME})
