@@ -234,10 +234,11 @@ CPMAddPackage(NAME dsplib
     GIT_REPOSITORY 
         "https://github.com/vitalsong/dsplib.git"
     VERSION 
-        0.35.2
+        0.45.0
     OPTIONS
         "DSPLIB_USE_FLOAT32 OFF"
         "DSPLIB_NO_EXCEPTIONS OFF"
+    EXCLUDE_FROM_ALL ON
 )
 target_link_libraries(${PROJECT_NAME} dsplib)
 ```

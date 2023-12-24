@@ -135,35 +135,50 @@ int nextpow2(int m);
 //checks if m is an integral power of two
 bool ispow2(int m);
 
-//array pow
-arr_real pow2(const arr_real& arr);
-arr_cmplx pow2(const arr_cmplx& arr);
+//element-wise power
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_real pow2(const arr_real& arr);
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_cmplx pow2(const arr_cmplx& arr);
 
-constexpr real_t pow2(real_t x) {
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr real_t pow2(real_t x) {
     return x * x;
 }
 
-constexpr cmplx_t pow2(cmplx_t x) {
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr cmplx_t pow2(cmplx_t x) {
     return x * x;
 }
+
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] real_t pow(real_t x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] cmplx_t pow(cmplx_t x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(cmplx_t x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(real_t x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, real_t n);
 
 //scalar^scalar->scalar
-real_t pow(real_t x, real_t n);
-cmplx_t pow(cmplx_t x, real_t n);
+real_t power(real_t x, real_t n);
+cmplx_t power(cmplx_t x, real_t n);
 
 //scalar^vec->vec
-arr_cmplx pow(cmplx_t x, const arr_real& n);
+arr_cmplx power(cmplx_t x, const arr_real& n);
 
 //scalar^vec->vec
-arr_real pow(real_t x, const arr_real& n);
+arr_real power(real_t x, const arr_real& n);
 
 //vec.^vec->vec
-arr_real pow(const arr_real& x, const arr_real& n);
-arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
+arr_real power(const arr_real& x, const arr_real& n);
+arr_cmplx power(const arr_cmplx& x, const arr_real& n);
 
 //vec.^scalar->vec
-arr_real pow(const arr_real& x, real_t n);
-arr_cmplx pow(const arr_cmplx& x, real_t n);
+arr_real power(const arr_real& x, real_t n);
+arr_cmplx power(const arr_cmplx& x, real_t n);
+
+//integer power
+real_t power(real_t x, int n);
+cmplx_t power(cmplx_t x, int n);
+arr_real power(const arr_real& x, int n);
+arr_cmplx power(const arr_cmplx& x, int n);
 
 //array log
 arr_real log(const arr_real& arr);
@@ -198,11 +213,11 @@ constexpr real_t abs2(const cmplx_t& x) {
 }
 
 inline arr_real abs2(const arr_real& x) {
-    return pow2(x);
+    return power(x, 2);
 }
 
 constexpr real_t abs2(const real_t& x) {
-    return pow2(x);
+    return (x * x);
 }
 
 //from degrees to radians
@@ -222,7 +237,7 @@ real_t norm(const arr_cmplx& x, int p = 2);
 
 //Mean squared error
 inline real_t mse(const arr_real& x, const arr_real& y) {
-    return mean(pow2(x - y));
+    return mean(abs2(x - y));
 }
 inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
     return mean(abs2(x - y));
@@ -230,7 +245,7 @@ inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
 
 //Normalized mean squared error
 inline real_t nmse(const arr_real& x, const arr_real& y) {
-    return mse(x, y) / sum(pow2(x));
+    return mse(x, y) / sum(abs2(x));
 }
 inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
     return mse(x, y) / sum(abs2(x));

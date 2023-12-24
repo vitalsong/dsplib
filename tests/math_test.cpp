@@ -99,18 +99,18 @@ TEST(MathTest, Std) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Pow2) {
+TEST(MathTest, Power2) {
     arr_real v1 = {5, 5, 5, 5};
     arr_real r1 = {25, 25, 25, 25};
-    ASSERT_EQ_ARR_REAL(pow2(v1), r1);
+    ASSERT_EQ_ARR_REAL(power(v1, 2), r1);
 
     arr_real v2 = {-1, 1, -1, 1};
     arr_real r2 = {1, 1, 1, 1};
-    ASSERT_EQ_ARR_REAL(pow2(v2), r2);
+    ASSERT_EQ_ARR_REAL(power(v2, 2), r2);
 
     arr_cmplx v3 = {1 + 1i, 1, 1i, 0};
     arr_cmplx r3 = {2i, 1, -1, 0};
-    ASSERT_EQ_ARR_CMPLX(pow2(v3), r3);
+    ASSERT_EQ_ARR_CMPLX(power(v3, 2), r3);
 }
 
 //-------------------------------------------------------------------------------------------------

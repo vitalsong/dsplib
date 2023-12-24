@@ -28,7 +28,7 @@ arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
     const int kn = N / 2 + 1;     // bin index at Nyquist limit (1-based)
     const int k2 = kn - k1 + 1;   // high-frequency band edge
 
-    const auto lm = pow(arange(k1 - 1) / (k1 - 1), 8);
+    const auto lm = power(arange(k1 - 1) / (k1 - 1), 8);
     const auto rm = flip(lm);
     const arr_cmplx H = lm | ones(k2 - k1 + 1) | rm | zeros(N / 2 - 1);
     const arr_cmplx h = ifft(H);   // desired impulse response

@@ -22,7 +22,7 @@ arr_real _calcspec(const base_array<T>& x, const arr_real& win, int noverlap, in
     const int num_segments = (N - winlen) / stride + 1;
 
     //compensates window power
-    const auto winpow = (type == SpectrumType::Psd) ? dot(win, win) : pow2(sum(win));
+    const auto winpow = (type == SpectrumType::Psd) ? dot(win, win) : abs2(sum(win));
 
     arr_real pxx(nfft);
     base_array<T> seg(winlen);

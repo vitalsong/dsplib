@@ -72,18 +72,18 @@ TEST(ArrRealTest, Zeros) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, Pow) {
+TEST(ArrRealTest, Power) {
     {
         arr_real x1 = {1, -1, 2, -2};
         arr_real r1 = {1, 1, 4, 4};
-        auto y1 = pow(x1, 2);
+        auto y1 = power(x1, 2);
         ASSERT_EQ_ARR_REAL(r1, y1);
     }
 
     {
         arr_real x1 = {1, -2.0, 3, -4.0};
         arr_real r1 = {1, 1, 1, 1};
-        auto y1 = pow(x1, 0);
+        auto y1 = power(x1, 0);
         ASSERT_EQ_ARR_REAL(r1, y1);
     }
 
@@ -91,14 +91,14 @@ TEST(ArrRealTest, Pow) {
         arr_real x1 = {1, 2, 3, 4};
         arr_real x2 = {2, 2, 2, 2};
         arr_real r = {1, 4, 9, 16};
-        ASSERT_EQ_ARR_REAL(pow(x1, x2), r);
+        ASSERT_EQ_ARR_REAL(power(x1, x2), r);
     }
 
     {
         real_t x1 = 2;
         arr_real x2 = {1, 2, 3, 4};
         arr_real r = {2, 4, 8, 16};
-        ASSERT_EQ_ARR_REAL(pow(x1, x2), r);
+        ASSERT_EQ_ARR_REAL(power(x1, x2), r);
     }
 }
 

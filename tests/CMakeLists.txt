@@ -8,10 +8,11 @@ include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(NAME googletest
     GIT_REPOSITORY "https://github.com/google/googletest.git"
-        VERSION 1.13.0
+        VERSION 1.14.0
     OPTIONS 
         "BUILD_GMOCK OFF"
-        "gtest_force_shared_crt ON"
+        "INSTALL_GTEST OFF"
+        "gtest_force_shared_crt ON"  # fix msvc build
     EXCLUDE_FROM_ALL ON
 )
 
