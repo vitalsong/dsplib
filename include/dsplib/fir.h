@@ -49,9 +49,6 @@ private:
     base_array<T> _d;   ///< filter delay
 };
 
-using fir [[deprecated]] = FirFilter<real_t>;
-using fir_cmplx [[deprecated]] = FirFilter<cmplx_t>;
-
 using FirFilterR = FirFilter<real_t>;
 using FirFilterC = FirFilter<cmplx_t>;
 
@@ -91,8 +88,6 @@ private:
     int _m{0};
     int _n{0};
 };
-
-using fir_fft [[deprecated]] = FftFilter;
 
 //Type of linear phase FIR filter
 FirType firtype(const dsplib::arr_real& h);

@@ -40,6 +40,4 @@ private:
     int wpos_{0};
 };
 
-using detector [[deprecated]] = Detector;
-
 }   // namespace dsplib

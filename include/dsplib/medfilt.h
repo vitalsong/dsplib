@@ -34,6 +34,4 @@ private:
     const int _n;   ///< delay size
 };
 
-using median_filter [[deprecated]] = MedianFilter;
-
 }   // namespace dsplib

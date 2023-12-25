@@ -48,6 +48,4 @@ private:
     DelayReal _d;             ///< delay for Q channel
 };
 
-using hilbert_filter [[deprecated]] = HilbertFilter;
-
 }   // namespace dsplib
