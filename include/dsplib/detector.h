@@ -1,43 +1,51 @@
 #pragma once
 
-#include <dsplib/fft.h>
+#include <optional>
+#include <stdexcept>
+#include <memory>
+
+#include <dsplib/array.h>
 
 namespace dsplib {
 
-//reference signal detector
-class Detector
+class PreambleDetectorImpl;
+
+// Preamble signal detector (only complex signal)
+//
+// Equivalent Matlab formula:
+// function [res] = detector(x, h)
+// nh = length(h);
+// corr = filter(conj(h) / (nh * rms(h)), 1, x);
+// pagg = filter(ones(1, nh) / nh, 1, abs(x).^2);
+// res = sqrt((abs(corr) .^ 2) ./ pagg);
+class PreambleDetector
 {
 public:
-    //ref - reference signal
-    //threshold - triggered level [0:1]
-    explicit Detector(const arr_cmplx& ref, real_t threshold = 0.5);
+    explicit PreambleDetector(const arr_cmplx& h, real_t threshold = 0.5);
 
-    struct State
+    PreambleDetector(const PreambleDetector&) = delete;
+
+    struct Result
     {
-        bool triggered{false};
-        real_t level{0};   ///< detected peak level (>=threshold)
-        int position{0};   ///< start reference position for out signal
-        arr_cmplx out;     ///< delayed input signal
+        int offset{0};        ///< index of preamble end + 1 (relative to the input signal)
+        arr_cmplx preamble;   ///< aligned preamble signal (todo: left/right pad)
+        real_t score{0};      ///< detected peak level (>=threshold)
     };
 
     //TODO: add bypass mode
-    State process(const arr_cmplx& sig);
+    //length of the 'sig' must be a multiple of 'frame_len()'
+    std::optional<Result> process(const arr_cmplx& sig);
 
-    State operator()(const arr_cmplx& sig) {
+    std::optional<Result> operator()(const arr_cmplx& sig) {
         return this->process(sig);
     }
 
-    [[nodiscard]] int delay_len() const noexcept {
-        return fft_.size() / 2;
-    }
+    [[nodiscard]] int frame_len() const noexcept;
+
+    void reset();
 
 private:
-    int nh_;
-    FftPlan fft_;
-    arr_cmplx buf_;
-    arr_cmplx ref_;
-    real_t threshold_;
-    int wpos_{0};
+    std::shared_ptr<PreambleDetectorImpl> _d;
 };
 
 }   // namespace dsplib
