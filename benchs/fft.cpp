@@ -21,6 +21,7 @@ static void BM_KISSFFT(benchmark::State& state) {
 
 BENCHMARK(BM_KISSFFT)
   ->Arg(1024)
+  ->Arg(1331)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)
@@ -72,6 +73,7 @@ static void BM_FFTW3_DOUBLE(benchmark::State& state) {
 
 BENCHMARK(BM_FFTW3_DOUBLE)
   ->Arg(1024)
+  ->Arg(1331)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)
@@ -95,6 +97,7 @@ static void BM_FFT_DSPLIB(benchmark::State& state) {
 
 BENCHMARK(BM_FFT_DSPLIB)
   ->Arg(1024)
+  ->Arg(1331)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)

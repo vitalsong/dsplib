@@ -121,8 +121,11 @@ private:
 std::shared_ptr<BaseFftPlanC> _get_fft_plan(int n) {
     //n!=2^K
     if (!ispow2(n)) {
-        const cmplx_t w = expj(-2 * pi / n);
-        return std::make_shared<CztPlan>(n, n, w);
+        if (isprime(n)) {
+            const cmplx_t w = expj(-2 * pi / n);
+            return std::make_shared<CztPlan>(n, n, w);
+        }
+        return std::make_shared<FactorFFTPlan>(n);
     }
     return std::make_shared<Fft2Plan>(n);
 }
@@ -207,6 +210,7 @@ private:
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
     //n!=2^K
+    //TODO: add FactFFTPlanR
     if (!ispow2(n)) {
         return std::make_shared<CztPlanR>(n);
     }

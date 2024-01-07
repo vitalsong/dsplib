@@ -276,4 +276,8 @@ arr_real mag2db(const arr_real& v);
 real_t db2mag(real_t v);
 arr_real db2mag(const arr_real& v);
 
+//----------------------------------------------------------------------------------------
+bool isprime(uint16_t n) noexcept;
+arr_int factor(uint16_t n) noexcept;
+
 }   // namespace dsplib
