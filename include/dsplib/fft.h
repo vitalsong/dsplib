@@ -67,27 +67,6 @@ private:
     std::shared_ptr<BaseFftPlanR> _d;
 };
 
-//fft factorization to (2, 3, 5)
-class FactorFFTPlan : public BaseFftPlanC
-{
-public:
-    explicit FactorFFTPlan(int n);
-    ~FactorFFTPlan() = default;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
-    [[nodiscard]] int size() const noexcept final;
-
-private:
-    void _dft(cmplx_t* x, int n) const noexcept;
-    void _fft(cmplx_t* x, int n, int dp) const noexcept;
-    void _update_table(int p, int q) const noexcept;
-
-    int _n;
-    arr_int _factors;
-    arr_cmplx _twiddle;
-    mutable std::vector<cmplx_t> _tw;   ///< cached twiddle table
-    mutable arr_cmplx _px;              ///< tmp matrix for transpose
-};
-
 /*!
  * \brief Fast Fourier Transform (complex)
  * \details FFT for complex signal

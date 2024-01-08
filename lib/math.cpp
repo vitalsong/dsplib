@@ -821,10 +821,12 @@ const arr_int PRIMES = {2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  3
 }
 
 bool isprime(uint16_t n) noexcept {
+    //TODO: check by table for small values
     return (n >= 2) && (factor(n).size() == 1);
 }
 
 arr_int factor(uint16_t n) noexcept {
+    //TODO: cache factors for last n
     std::vector<int> res;
 
     if (n <= 3) {

@@ -3,6 +3,8 @@
 #include <dsplib/array.h>
 #include <dsplib/keywords.h>
 
+#include <cstdint>
+
 namespace dsplib {
 
 //exponential
@@ -277,6 +279,7 @@ real_t db2mag(real_t v);
 arr_real db2mag(const arr_real& v);
 
 //----------------------------------------------------------------------------------------
+//TODO: limits to int32
 bool isprime(uint16_t n) noexcept;
 arr_int factor(uint16_t n) noexcept;
 
