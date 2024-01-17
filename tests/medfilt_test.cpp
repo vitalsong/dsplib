@@ -58,6 +58,20 @@ TEST(MedianFilter, OddOrder) {
     }
 }
 
+TEST(MedianFilter, OddOrderWarmup) {
+    {
+        arr_real x = {-1, 1, 1, 1, 1, 1};
+        auto y = medfilt(x, 3, median_filt::mode::warmup);
+        ASSERT_EQ_ARR_REAL(y, arr_real{-1, 1, 1, 1, 1, 1});
+    }
+
+    {
+        arr_real x = {2, -10, 55, 23, 73, 1};
+        auto y = medfilt(x, 5, median_filt::mode::warmup);
+        ASSERT_EQ_ARR_REAL(y, arr_real{2, 2, 23, 23, 23, 1});
+    }
+}
+
 TEST(MedianFilter, EvenOrder) {
     {
         arr_real x = {1, 1, 1, 1, 1, 1};
@@ -68,6 +82,19 @@ TEST(MedianFilter, EvenOrder) {
         arr_real x = {1, 2, 3, 4, 5, 6, 7};
         auto y = medfilt(x, 4);
         ASSERT_EQ_ARR_REAL(y, arr_real{0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 5.5});
+    }
+}
+
+TEST(MedianFilter, EvenOrderWarmup) {
+    {
+        arr_real x = {1, 1, 1, 1, 1, 1};
+        auto y = medfilt(x, 4, median_filt::mode::warmup);
+        ASSERT_EQ_ARR_REAL(y, arr_real{1, 1, 1, 1, 1, 1});
+    }
+    {
+        arr_real x = {1, 2, 3, 4, 5, 6, 7};
+        auto y = medfilt(x, 4, median_filt::mode::warmup);
+        ASSERT_EQ_ARR_REAL(y, arr_real{1, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5});
     }
 }
 

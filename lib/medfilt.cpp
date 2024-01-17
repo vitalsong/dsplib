@@ -65,11 +65,13 @@ arr_real MedianFilter::process(const arr_real& x) {
 }
 
 //------------------------------------------------------------------------------------------
-arr_real medfilt(arr_real& x, int n) {
+arr_real medfilt(arr_real& x, int n, median_filt::mode mode) {
     auto flt = MedianFilter(n);
     const int n1 = (n / 2);
     const int n2 = (n % 2 == 1) ? (n / 2) : (n / 2 - 1);
-    arr_real xp = zeros(n1) | x | zeros(n2);
+    arr_real add_begin = (mode == median_filt::mode::zeropad ? zeros(n1) : arr_real(std::vector<float>(n1, *x.begin())));
+    arr_real add_end = (mode == median_filt::mode::zeropad ? zeros(n2) : arr_real(std::vector<float>(n2, *(x.end() - 1))));
+    arr_real xp = add_begin | x | add_end;
     auto y = flt.process(xp);
     return y.slice(n - 1, indexing::end);
 }
