@@ -252,7 +252,9 @@ cmake --build build
 ./build/benchs/dsplib-benchs
 ```
 
-The implementation of a power-of-two size FFT is not much different from other popular implementations. For other cases, the `czt` algorithm is used, which, however, loses in terms of well-factorizable sizes.
+The implementation of non-power-of-two FFT is based on the general factorization algorithm. It is usually slower, but not critical. 
+
+For prime and semi-prime numbers, the czt algorithm is used, which can be significantly slower (but not as slow as regular DFT).
 
 > Use `FFT(N!=2^K)` only if you know what you are doing.
 
@@ -263,35 +265,38 @@ CPU Caches:
   L1 Instruction 32 KiB
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB
-Load Average: 6.33, 7.60, 6.51
 -----------------------------------------------------------------------------
 Benchmark                                   Time             CPU   Iterations
 -----------------------------------------------------------------------------
-BM_FFT_KISS/1024/min_time:5.000          8.35 us         8.35 us       836698
-BM_FFT_KISS/2048/min_time:5.000          22.6 us         22.6 us       309803
-BM_FFT_KISS/4096/min_time:5.000          40.4 us         40.4 us       172859
-BM_FFT_KISS/8192/min_time:5.000           113 us          113 us        62113
-BM_FFT_KISS/11200/min_time:5.000          299 us          299 us        23374
-BM_FFT_KISS/11202/min_time:5.000        42300 us        42295 us          166
-BM_FFT_KISS/16384/min_time:5.000          228 us          228 us        30997
-BM_FFTW3/1024/min_time:5.000             8.83 us         8.77 us      3352869
-BM_FFTW3/2048/min_time:5.000              200 us          199 us       365305 (WTF?)
-BM_FFTW3/4096/min_time:5.000             12.7 us         12.7 us       564812
-BM_FFTW3/8192/min_time:5.000             30.4 us         30.3 us       228224
-BM_FFTW3/11200/min_time:5.000            47.6 us         47.6 us       147614
-BM_FFTW3/11202/min_time:5.000             285 us          284 us        23909
-BM_FFTW3/16384/min_time:5.000            74.0 us         73.9 us        93175
-BM_FFT_DSPLIB/1024/min_time:5.000        8.08 us         8.06 us       875500
-BM_FFT_DSPLIB/2048/min_time:5.000        16.9 us         16.9 us       414268
-BM_FFT_DSPLIB/4096/min_time:5.000        38.7 us         38.6 us       180155
-BM_FFT_DSPLIB/8192/min_time:5.000        87.0 us         86.9 us        80394
-BM_FFT_DSPLIB/11200/min_time:5.000       1390 us         1388 us         5120 (czt)
-BM_FFT_DSPLIB/11202/min_time:5.000       1389 us         1387 us         4843 (czt)
-BM_FFT_DSPLIB/16384/min_time:5.000        214 us          211 us        34804
+BM_KISSFFT/1024/min_time:5.000        8.23 us         8.22 us       720099
+BM_KISSFFT/1331/min_time:5.000        84.3 us         84.3 us        83650
+BM_KISSFFT/2048/min_time:5.000        21.5 us         21.5 us       324763
+BM_KISSFFT/4096/min_time:5.000        38.7 us         38.6 us       184193
+BM_KISSFFT/8192/min_time:5.000         105 us          105 us        61205
+BM_KISSFFT/11200/min_time:5.000        315 us          315 us        22347
+BM_KISSFFT/11202/min_time:5.000      39972 us        39964 us          174 (semiprime)
+BM_KISSFFT/16384/min_time:5.000        212 us          212 us        32645
+
+BM_FFTW3_DOUBLE/1024/min_time:5.000        2.14 us         2.11 us      3350390
+BM_FFTW3_DOUBLE/1331/min_time:5.000        7.96 us         7.95 us       831896
+BM_FFTW3_DOUBLE/2048/min_time:5.000        4.54 us         4.53 us      1489583
+BM_FFTW3_DOUBLE/4096/min_time:5.000        10.7 us         10.7 us       630747
+BM_FFTW3_DOUBLE/8192/min_time:5.000        26.6 us         26.6 us       248424
+BM_FFTW3_DOUBLE/11200/min_time:5.000       42.3 us         42.3 us       167924
+BM_FFTW3_DOUBLE/11202/min_time:5.000        261 us          261 us        27397
+BM_FFTW3_DOUBLE/16384/min_time:5.000       63.8 us         63.8 us       108027
+
+BM_FFT_DSPLIB/1024/min_time:5.000        7.22 us         7.21 us       973596
+BM_FFT_DSPLIB/1331/min_time:5.000        62.0 us         61.9 us       112298
+BM_FFT_DSPLIB/2048/min_time:5.000        15.1 us         15.1 us       470951
+BM_FFT_DSPLIB/4096/min_time:5.000        33.2 us         33.2 us       207217
+BM_FFT_DSPLIB/8192/min_time:5.000        75.4 us         75.4 us        93323
+BM_FFT_DSPLIB/11200/min_time:5.000        768 us          767 us         8979
+BM_FFT_DSPLIB/11202/min_time:5.000        806 us          805 us         8380 (czt)
+BM_FFT_DSPLIB/16384/min_time:5.000        171 us          171 us        40601
 ```
 
 ## TODO:
-- Use FFT factorization instead CZT for N != 2^K
 - Select FFT backend type (fftw/ne10)
 - Add matrix syntax support
 - Add custom allocator for `base_array<T>` type
