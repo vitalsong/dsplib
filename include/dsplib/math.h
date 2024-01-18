@@ -3,6 +3,8 @@
 #include <dsplib/array.h>
 #include <dsplib/keywords.h>
 
+#include <cstdint>
+
 namespace dsplib {
 
 //exponential
@@ -136,14 +138,18 @@ int nextpow2(int m);
 bool ispow2(int m);
 
 //element-wise power
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_real pow2(const arr_real& arr);
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_cmplx pow2(const arr_cmplx& arr);
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_real pow2(
+  const arr_real& arr);
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_cmplx pow2(
+  const arr_cmplx& arr);
 
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr real_t pow2(real_t x) {
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr real_t pow2(
+  real_t x) {
     return x * x;
 }
 
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr cmplx_t pow2(cmplx_t x) {
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr cmplx_t pow2(
+  cmplx_t x) {
     return x * x;
 }
 
@@ -275,5 +281,24 @@ real_t mag2db(real_t v);
 arr_real mag2db(const arr_real& v);
 real_t db2mag(real_t v);
 arr_real db2mag(const arr_real& v);
+
+//----------------------------------------------------------------------------------------
+//check that the number is prime
+//example: isprime(5) = true
+bool isprime(uint32_t n) noexcept;
+
+//prime factors
+//example: factor(10) = {2, 5}
+arr_int factor(uint32_t n);
+
+//next prime number
+//example: nextprime(10) == 11
+//example: nextprime(257) == 257
+uint32_t nextprime(uint32_t n);
+
+//prime numbers (less than or equal)
+//example: primes(11) = {2, 3, 5, 7, 11}
+//example: primes(10) = {2, 3, 5, 7}
+arr_int primes(uint32_t n);
 
 }   // namespace dsplib

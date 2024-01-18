@@ -420,3 +420,51 @@ TEST(MathTest, Sort) {
         ASSERT_FALSE(issorted(sorted, Direction::Ascend));
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Factor) {
+    ASSERT_EQ_ARR_REAL(factor(0), arr_int{0});
+    ASSERT_EQ_ARR_REAL(factor(1), arr_int{1});
+    ASSERT_EQ_ARR_REAL(factor(2), arr_int{2});
+    ASSERT_EQ_ARR_REAL(factor(3), arr_int{3});
+    ASSERT_EQ_ARR_REAL(factor(11), arr_int{11});
+    ASSERT_EQ_ARR_REAL(factor(121), arr_int{11, 11});
+    ASSERT_EQ_ARR_REAL(factor(120), arr_int{2, 2, 2, 3, 5});
+    ASSERT_EQ_ARR_REAL(factor(128), arr_int{2, 2, 2, 2, 2, 2, 2});
+    ASSERT_EQ_ARR_REAL(factor(143), arr_int{11, 13});
+    ASSERT_EQ_ARR_REAL(factor(65535), arr_int{3, 5, 17, 257});
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, IsPrime) {
+    ASSERT_TRUE(isprime(2));
+    ASSERT_TRUE(isprime(3));
+    ASSERT_TRUE(isprime(5));
+    ASSERT_TRUE(isprime(7));
+    ASSERT_TRUE(isprime(11));
+    ASSERT_TRUE(isprime(257));
+    ASSERT_TRUE(isprime(997));
+    ASSERT_TRUE(isprime(1048583));
+
+    ASSERT_FALSE(isprime(0));
+    ASSERT_FALSE(isprime(1));
+    ASSERT_FALSE(isprime(4));
+    ASSERT_FALSE(isprime(12));
+    ASSERT_FALSE(isprime(1024));
+}
+
+TEST(MathTest, NextPrime) {
+    ASSERT_EQ(nextprime(256), 257);
+    ASSERT_EQ(nextprime(257), 257);
+    ASSERT_EQ(nextprime(1000), 1009);
+    ASSERT_EQ(nextprime(1009), 1009);
+    ASSERT_EQ(nextprime(1048576), 1048583);
+}
+
+TEST(MathTest, Primes) {
+    ASSERT_EQ_ARR_INT(primes(4), arr_int{2, 3});
+    ASSERT_EQ_ARR_INT(primes(5), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(6), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(7), arr_int{2, 3, 5, 7});
+    ASSERT_EQ(primes(1L << 20).size(), 82025);
+}
