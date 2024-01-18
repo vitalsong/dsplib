@@ -439,13 +439,32 @@ TEST(MathTest, Factor) {
 TEST(MathTest, IsPrime) {
     ASSERT_TRUE(isprime(2));
     ASSERT_TRUE(isprime(3));
+    ASSERT_TRUE(isprime(5));
     ASSERT_TRUE(isprime(7));
     ASSERT_TRUE(isprime(11));
+    ASSERT_TRUE(isprime(257));
     ASSERT_TRUE(isprime(997));
+    ASSERT_TRUE(isprime(1048583));
 
     ASSERT_FALSE(isprime(0));
     ASSERT_FALSE(isprime(1));
     ASSERT_FALSE(isprime(4));
     ASSERT_FALSE(isprime(12));
     ASSERT_FALSE(isprime(1024));
+}
+
+TEST(MathTest, NextPrime) {
+    ASSERT_EQ(nextprime(256), 257);
+    ASSERT_EQ(nextprime(257), 257);
+    ASSERT_EQ(nextprime(1000), 1009);
+    ASSERT_EQ(nextprime(1009), 1009);
+    ASSERT_EQ(nextprime(1048576), 1048583);
+}
+
+TEST(MathTest, Primes) {
+    ASSERT_EQ_ARR_INT(primes(4), arr_int{2, 3});
+    ASSERT_EQ_ARR_INT(primes(5), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(6), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(7), arr_int{2, 3, 5, 7});
+    ASSERT_EQ(primes(1L << 20).size(), 82025);
 }
