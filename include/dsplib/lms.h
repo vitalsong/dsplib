@@ -116,10 +116,6 @@ private:
     real_t _lk;
 };
 
-using lms [[deprecated]] = LmsFilter<real_t>;
-using clms [[deprecated]] = LmsFilter<cmplx_t>;
-using lms_type [[deprecated]] = LmsType;
-
 using LmsFilterR = LmsFilter<real_t>;
 using LmsFilterC = LmsFilter<cmplx_t>;
 

@@ -18,6 +18,7 @@ cpmaddpackage(NAME benchmark
     "HAVE_STD_REGEX OFF"
     "BENCHMARK_ENABLE_INSTALL OFF"
     "BENCHMARK_INSTALL_DOCS OFF"
+  EXCLUDE_FROM_ALL ON
 )
 
 cpmaddpackage(NAME kissfft
@@ -28,7 +29,10 @@ cpmaddpackage(NAME kissfft
   OPTIONS
     "KISSFFT_DATATYPE double"
     "KISSFFT_TEST OFF"
+    "KISSFFT_PKGCONFIG OFF"
     "KISSFFT_STATIC ON"
+    "KISSFFT_TOOLS OFF"
+  EXCLUDE_FROM_ALL ON
 )
 
 set(SOURCES

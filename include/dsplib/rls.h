@@ -53,11 +53,6 @@ private:
     bool _locked{false};
 };
 
-//-----------------------------------------------------------------------------------------------
-
-using rls [[deprecated]] = RlsFilter<real_t>;
-using crls [[deprecated]] = RlsFilter<cmplx_t>;
-
 using RlsFilterR = RlsFilter<real_t>;
 using RlsFilterC = RlsFilter<cmplx_t>;
 

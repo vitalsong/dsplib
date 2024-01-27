@@ -1,6 +1,9 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <dsplib/keywords.h>
+
+#include <cstdint>
 
 namespace dsplib {
 
@@ -71,6 +74,11 @@ arr_cmplx round(const arr_cmplx& arr);
 real_t sum(const arr_real& arr);
 cmplx_t sum(const arr_cmplx& arr);
 
+// cumulative sum
+// example: cumsum([1, 2, 3, 4, 5]) -> [1, 3, 6, 10, 15]
+arr_real cumsum(const arr_real& x, Direction dir = Direction::Forward);
+arr_cmplx cumsum(const arr_cmplx& x, Direction dir = Direction::Forward);
+
 //array dot
 real_t dot(const arr_real& x1, const arr_real& x2);
 cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2);
@@ -85,6 +93,17 @@ real_t stddev(const arr_cmplx& arr);
 
 //median
 real_t median(const arr_real& arr);
+
+//linear or rank correlation
+//TODO: add p-value result
+real_t corr(const arr_real& x, const arr_real& y, Correlation type = Correlation::Pearson);
+
+//sort array elements
+//result: [sorted array, sort index]
+std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir = Direction::Ascend);
+
+//determine if array is sorted
+bool issorted(const arr_real& x, Direction dir = Direction::Ascend);
 
 //real part
 arr_real real(const arr_cmplx& x);
@@ -115,35 +134,57 @@ arr_cmplx complex(const arr_real& re, const arr_real& im);
 //the nearest power of two numbers (with rounding up)
 int nextpow2(int m);
 
-//array pow
-arr_real pow2(const arr_real& arr);
-arr_cmplx pow2(const arr_cmplx& arr);
+//checks if m is an integral power of two
+bool ispow2(int m);
 
-constexpr real_t pow2(real_t x) {
+//element-wise power
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_real pow2(
+  const arr_real& arr);
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_cmplx pow2(
+  const arr_cmplx& arr);
+
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr real_t pow2(
+  real_t x) {
     return x * x;
 }
 
-constexpr cmplx_t pow2(cmplx_t x) {
+[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr cmplx_t pow2(
+  cmplx_t x) {
     return x * x;
 }
+
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] real_t pow(real_t x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] cmplx_t pow(cmplx_t x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(cmplx_t x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(real_t x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, real_t n);
+[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, real_t n);
 
 //scalar^scalar->scalar
-real_t pow(real_t x, real_t n);
-cmplx_t pow(cmplx_t x, real_t n);
+real_t power(real_t x, real_t n);
+cmplx_t power(cmplx_t x, real_t n);
 
 //scalar^vec->vec
-arr_cmplx pow(cmplx_t x, const arr_real& n);
+arr_cmplx power(cmplx_t x, const arr_real& n);
 
 //scalar^vec->vec
-arr_real pow(real_t x, const arr_real& n);
+arr_real power(real_t x, const arr_real& n);
 
 //vec.^vec->vec
-arr_real pow(const arr_real& x, const arr_real& n);
-arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
+arr_real power(const arr_real& x, const arr_real& n);
+arr_cmplx power(const arr_cmplx& x, const arr_real& n);
 
 //vec.^scalar->vec
-arr_real pow(const arr_real& x, real_t n);
-arr_cmplx pow(const arr_cmplx& x, real_t n);
+arr_real power(const arr_real& x, real_t n);
+arr_cmplx power(const arr_cmplx& x, real_t n);
+
+//integer power
+real_t power(real_t x, int n);
+cmplx_t power(cmplx_t x, int n);
+arr_real power(const arr_real& x, int n);
+arr_cmplx power(const arr_cmplx& x, int n);
 
 //array log
 arr_real log(const arr_real& arr);
@@ -178,11 +219,11 @@ constexpr real_t abs2(const cmplx_t& x) {
 }
 
 inline arr_real abs2(const arr_real& x) {
-    return pow2(x);
+    return power(x, 2);
 }
 
 constexpr real_t abs2(const real_t& x) {
-    return pow2(x);
+    return (x * x);
 }
 
 //from degrees to radians
@@ -202,7 +243,7 @@ real_t norm(const arr_cmplx& x, int p = 2);
 
 //Mean squared error
 inline real_t mse(const arr_real& x, const arr_real& y) {
-    return mean(pow2(x - y));
+    return mean(abs2(x - y));
 }
 inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
     return mean(abs2(x - y));
@@ -210,7 +251,7 @@ inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
 
 //Normalized mean squared error
 inline real_t nmse(const arr_real& x, const arr_real& y) {
-    return mse(x, y) / sum(pow2(x));
+    return mse(x, y) / sum(abs2(x));
 }
 inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
     return mse(x, y) / sum(abs2(x));
@@ -240,5 +281,24 @@ real_t mag2db(real_t v);
 arr_real mag2db(const arr_real& v);
 real_t db2mag(real_t v);
 arr_real db2mag(const arr_real& v);
+
+//----------------------------------------------------------------------------------------
+//check that the number is prime
+//example: isprime(5) = true
+bool isprime(uint32_t n) noexcept;
+
+//prime factors
+//example: factor(10) = {2, 5}
+arr_int factor(uint32_t n);
+
+//next prime number
+//example: nextprime(10) == 11
+//example: nextprime(257) == 257
+uint32_t nextprime(uint32_t n);
+
+//prime numbers (less than or equal)
+//example: primes(11) = {2, 3, 5, 7, 11}
+//example: primes(10) = {2, 3, 5, 7}
+arr_int primes(uint32_t n);
 
 }   // namespace dsplib

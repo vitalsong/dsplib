@@ -22,7 +22,6 @@ AlwaysBreakBeforeMultilineStrings: 'false'
 AlwaysBreakTemplateDeclarations: 'true'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
-BreakBeforeBraces: Linux
 BreakBeforeInheritanceComma: 'false'
 BreakBeforeTernaryOperators: 'false'
 BreakConstructorInitializers: BeforeComma

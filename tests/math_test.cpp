@@ -1,4 +1,8 @@
+#include "dsplib/keywords.h"
+#include "dsplib/math.h"
+#include "dsplib/utils.h"
 #include "tests_common.h"
+#include <gtest/gtest.h>
 
 using namespace dsplib;
 
@@ -95,18 +99,18 @@ TEST(MathTest, Std) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(MathTest, Pow2) {
+TEST(MathTest, Power2) {
     arr_real v1 = {5, 5, 5, 5};
     arr_real r1 = {25, 25, 25, 25};
-    ASSERT_EQ_ARR_REAL(pow2(v1), r1);
+    ASSERT_EQ_ARR_REAL(power(v1, 2), r1);
 
     arr_real v2 = {-1, 1, -1, 1};
     arr_real r2 = {1, 1, 1, 1};
-    ASSERT_EQ_ARR_REAL(pow2(v2), r2);
+    ASSERT_EQ_ARR_REAL(power(v2, 2), r2);
 
     arr_cmplx v3 = {1 + 1i, 1, 1i, 0};
     arr_cmplx r3 = {2i, 1, -1, 0};
-    ASSERT_EQ_ARR_CMPLX(pow2(v3), r3);
+    ASSERT_EQ_ARR_CMPLX(power(v3, 2), r3);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -344,4 +348,123 @@ TEST(MathTest, Eps) {
     ASSERT_NEAR(eps(2.0f), std::pow(2.0, -22), 1e-15);
     ASSERT_NEAR(eps(1000.0f), std::pow(2.0, -14), 1e-15);
     ASSERT_NEAR(eps(0.0f), std::pow(2.0, -149), 1e-15);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, CumSum) {
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        const arr_real x2 = {1, 3, 6, 10, 15};
+        ASSERT_EQ_ARR_REAL(cumsum(x1), x2);
+    }
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        const arr_real x2 = {15, 14, 12, 9, 5};
+        ASSERT_EQ_ARR_REAL(cumsum(x1, Direction::Reverse), x2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Corr) {
+    {
+        const arr_real x = randn(100);
+        ASSERT_EQ(corr(x, x), 1.0);
+        ASSERT_EQ(corr(x, -x), -1.0);
+    }
+    {
+        const arr_real x = {0, 1, 5, 6, 9, 11, 3, 2};
+        ASSERT_EQ(corr(x, x, Correlation::Spearman), 1.0);
+        ASSERT_EQ(corr(x, -x, Correlation::Spearman), -1.0);
+    }
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5, 6};
+        const arr_real x2 = {3, 1, 4, 2, 6, 5};
+        ASSERT_NEAR(corr(x1, x2, Correlation::Kendall), 0.466, 1e-3);
+        ASSERT_NEAR(corr(x1, -x2, Correlation::Kendall), -0.466, 1e-3);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Sort) {
+    {
+        const arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        auto [sorted, index] = sort(x1);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{1, 2, 3, 3, 4, 5, 6, 7});
+        ASSERT_EQ_ARR_REAL(index, arr_real{1, 2, 6, 7, 0, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted));
+    }
+    {
+        const arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        auto [sorted, index] = sort(x1, Direction::Descend);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{7, 6, 5, 4, 3, 3, 2, 1});
+        ASSERT_EQ_ARR_REAL(index, arr_real{5, 4, 3, 0, 6, 7, 2, 1});
+        ASSERT_TRUE(issorted(sorted, Direction::Descend));
+        ASSERT_FALSE(issorted(sorted, Direction::Ascend));
+    }
+    {
+        //sorted
+        const arr_real x1 = {0, 1, 2, 3, 4, 5};
+        auto [sorted, index] = sort(x1);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_EQ_ARR_REAL(index, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted));
+        ASSERT_FALSE(issorted(sorted, Direction::Descend));
+    }
+    {
+        //sorted
+        const arr_real x1 = {5, 4, 3, 2, 1, 0};
+        auto [sorted, index] = sort(x1, Direction::Descend);
+        ASSERT_EQ_ARR_REAL(sorted, arr_real{5, 4, 3, 2, 1, 0});
+        ASSERT_EQ_ARR_REAL(index, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(sorted, Direction::Descend));
+        ASSERT_FALSE(issorted(sorted, Direction::Ascend));
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Factor) {
+    ASSERT_EQ_ARR_REAL(factor(0), arr_int{0});
+    ASSERT_EQ_ARR_REAL(factor(1), arr_int{1});
+    ASSERT_EQ_ARR_REAL(factor(2), arr_int{2});
+    ASSERT_EQ_ARR_REAL(factor(3), arr_int{3});
+    ASSERT_EQ_ARR_REAL(factor(11), arr_int{11});
+    ASSERT_EQ_ARR_REAL(factor(121), arr_int{11, 11});
+    ASSERT_EQ_ARR_REAL(factor(120), arr_int{2, 2, 2, 3, 5});
+    ASSERT_EQ_ARR_REAL(factor(128), arr_int{2, 2, 2, 2, 2, 2, 2});
+    ASSERT_EQ_ARR_REAL(factor(143), arr_int{11, 13});
+    ASSERT_EQ_ARR_REAL(factor(65535), arr_int{3, 5, 17, 257});
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, IsPrime) {
+    ASSERT_TRUE(isprime(2));
+    ASSERT_TRUE(isprime(3));
+    ASSERT_TRUE(isprime(5));
+    ASSERT_TRUE(isprime(7));
+    ASSERT_TRUE(isprime(11));
+    ASSERT_TRUE(isprime(257));
+    ASSERT_TRUE(isprime(997));
+    ASSERT_TRUE(isprime(1048583));
+
+    ASSERT_FALSE(isprime(0));
+    ASSERT_FALSE(isprime(1));
+    ASSERT_FALSE(isprime(4));
+    ASSERT_FALSE(isprime(12));
+    ASSERT_FALSE(isprime(1024));
+}
+
+TEST(MathTest, NextPrime) {
+    ASSERT_EQ(nextprime(256), 257);
+    ASSERT_EQ(nextprime(257), 257);
+    ASSERT_EQ(nextprime(1000), 1009);
+    ASSERT_EQ(nextprime(1009), 1009);
+    ASSERT_EQ(nextprime(1048576), 1048583);
+}
+
+TEST(MathTest, Primes) {
+    ASSERT_EQ_ARR_INT(primes(4), arr_int{2, 3});
+    ASSERT_EQ_ARR_INT(primes(5), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(6), arr_int{2, 3, 5});
+    ASSERT_EQ_ARR_INT(primes(7), arr_int{2, 3, 5, 7});
+    ASSERT_EQ(primes(1L << 20).size(), 82025);
 }

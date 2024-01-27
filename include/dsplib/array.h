@@ -124,9 +124,7 @@ public:
 
     //--------------------------------------------------------------------
     base_array<T> operator[](const std::vector<bool>& idxs) const {
-        if (idxs.size() != _vec.size()) {
-            DSPLIB_THROW("array sizes are different");
-        }
+        DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
         std::vector<T> res;
         res.reserve(_vec.size());
         for (int i = 0; i < idxs.size(); ++i) {
@@ -135,6 +133,19 @@ public:
             }
         }
         return res;
+    }
+
+    base_array<T> operator[](const std::vector<int>& idxs) const {
+        DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
+        std::vector<T> res(_vec.size());
+        for (int i = 0; i < idxs.size(); ++i) {
+            res[i] = _vec[idxs[i]];
+        }
+        return res;
+    }
+
+    base_array<T> operator[](const base_array<int>& idxs) const {
+        return (*this)[idxs.to_vec()];
     }
 
     //--------------------------------------------------------------------
@@ -216,27 +227,6 @@ public:
         return _vec.end();
     }
 
-    [[deprecated("will be removed")]] void push_back(const T& v) {
-        _vec.push_back(v);
-    }
-
-    [[deprecated("will be removed")]] void push_front(const T& v) {
-        _vec.insert(_vec.begin(), v);
-    }
-
-    [[deprecated("will be removed")]] T pop_back() {
-        auto r = _vec.back();
-        _vec.pop_back();
-        return r;
-    }
-
-    [[deprecated("will be removed")]] T pop_front() {
-        auto r = _vec.front();
-        std::memmove(_vec.data(), _vec.data() + 1, (_vec.size() - 1) * sizeof(T));
-        _vec.resize(_vec.size() - 1);
-        return r;
-    }
-
     T* data() noexcept {
         return _vec.data();
     }
@@ -254,15 +244,16 @@ public:
     }
 
     //--------------------------------------------------------------------
-    base_array<T>& operator+() noexcept {
+    const base_array<T>& operator+() const noexcept {
         return *this;
     }
 
-    base_array<T>& operator-() noexcept {
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] = (-_vec[i]);
+    base_array<T> operator-() const noexcept {
+        base_array<T> r{_vec};
+        for (size_t i = 0; i < r.size(); ++i) {
+            r[i] = -r[i];
         }
-        return *this;
+        return r;
     }
 
     //--------------------------------------------------------------------

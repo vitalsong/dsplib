@@ -4,12 +4,20 @@
 
 namespace dsplib {
 
+enum class SinadType
+{
+    Time,   ///< calculate periodogram for time domain signal x
+    Psd,    ///< represent input signal x as precalculated PSD estimate
+    Power   ///< represent input signal x as precalculated spectrum power
+};
+
 /*!
  * \brief Signal to noise and distortion ratio
  * \todo sinad type enum (sig+dist/noise or sig/dist+noise)
- * \param sig time domain signal
+ * \param sig input signal
+ * \param type input signal type
  */
-real_t sinad(const arr_real& sig);
+real_t sinad(const arr_real& sig, SinadType type = SinadType::Time);
 
 struct ThdRes
 {
@@ -24,7 +32,7 @@ struct ThdRes
  * \param nharm number of harmonics
  * \param aliased use harmonics of the fundamental that are aliased into the Nyquist range
  */
-ThdRes thd(const arr_real& sig, int nharm = 6, bool aliased = false);
+ThdRes thd(const arr_real& sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
 
 /*!
  * \brief Signal-to-noise ratio
@@ -32,6 +40,6 @@ ThdRes thd(const arr_real& sig, int nharm = 6, bool aliased = false);
  * \param nharm number of harmonics
  * \param aliased use harmonics of the fundamental that are aliased into the Nyquist range
  */
-real_t snr(const arr_real& sig, int nharm = 6, bool aliased = false);
+real_t snr(const arr_real& sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
 
 }   // namespace dsplib

@@ -1,5 +1,4 @@
 #include "tests_common.h"
-#include <dsplib/snr.h>
 
 using namespace dsplib;
 
@@ -20,16 +19,25 @@ static arr_real _gen_test_signal(int len, real_t fs, arr_real harm_freq, arr_rea
 //-------------------------------------------------------------------------------------------------
 TEST(Sinad, Harm) {
     auto x = _gen_test_signal(1000, 1.0, {0.125, 0.25}, {1.0, 0.025});
-    auto tg_sinad = pow2db(pow2(1.0) / pow2(0.025));
+    auto tg_sinad = pow2db(abs2(1.0) / abs2(0.025));
     auto rs_sinad = sinad(x);
     ASSERT_NEAR(tg_sinad, rs_sinad, 0.1);
 }
 
 TEST(Sinad, HarmNoise) {
     auto x = _gen_test_signal(1000, 1.0, {0.125, 0.25}, {1.0, 0.025}, 0.001);
-    auto tg_sinad = pow2db(pow2(1.0) / (pow2(0.025) + pow2(0.001)));
+    auto tg_sinad = pow2db(abs2(1.0) / (abs2(0.025) + abs2(0.001)));
     auto rs_sinad = sinad(x);
     ASSERT_NEAR(tg_sinad, rs_sinad, 0.1);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Sinad, HarmNoisePxx) {
+    auto x = _gen_test_signal(160000, 1.0, {0.125, 0}, {1.0, 0}, 0);
+    x = awgn(x, -10);
+    auto [pxx, f] = welch(x, 1024, (1024 - 128), 1024, SpectrumType::Power);
+    auto rs_sinad = sinad(pxx, SinadType::Power);
+    ASSERT_NEAR(-10, rs_sinad, 1.0);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -38,7 +46,7 @@ TEST(Thd, Base) {
     arr_real harm_freq = {100, 200, 300};
     arr_real harm_amp = {2.0, 0.01, 0.005};
     auto x = _gen_test_signal(1000, 1000, harm_freq, harm_amp);
-    auto target = pow2db((pow2(harm_amp[1]) + pow2(harm_amp[2])) / pow2(harm_amp[0]));
+    auto target = pow2db((abs2(harm_amp[1]) + abs2(harm_amp[2])) / abs2(harm_amp[0]));
     auto res = thd(x, harm_freq.size());
     ASSERT_NEAR(target, res.value, 0.1);
 
@@ -75,8 +83,8 @@ TEST(Snr, Base) {
     arr_real harm_freq = {100, 200, 300};
     arr_real harm_amp = {2.0, 0.01, 0.005};
     real_t noise_amp = 0.1;
-    auto varnoise = pow2(noise_amp);
-    auto powfund = pow2(harm_amp[0]) / 2;
+    auto varnoise = abs2(noise_amp);
+    auto powfund = abs2(harm_amp[0]) / 2;
     auto x = _gen_test_signal(fs, fs, harm_freq, harm_amp, noise_amp);
     auto target = pow2db(powfund / varnoise);
     auto res = snr(x, harm_freq.size());
@@ -89,9 +97,9 @@ TEST(Snr, Compare) {
     arr_real harm_freq = {1000, 2000};
     arr_real harm_amp = {1.0, 0.4};
     real_t noise_amp = 0.1;
-    real_t varnoise = pow2(noise_amp);
-    real_t powfund = pow2(harm_amp[0]) / 2;
-    real_t powharm = pow2(harm_amp[1]) / 2;
+    real_t varnoise = abs2(noise_amp);
+    real_t powfund = abs2(harm_amp[0]) / 2;
+    real_t powharm = abs2(harm_amp[1]) / 2;
     auto x = _gen_test_signal(fs, fs, harm_freq, harm_amp, noise_amp);
 
     auto thd_v = thd(x).value;

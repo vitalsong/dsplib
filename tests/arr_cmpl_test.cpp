@@ -185,12 +185,12 @@ TEST(ArrCmplxTest, Pow) {
         arr_cmplx x1 = {1 + 1i, 2 - 1i, 3 + 1i, 4 - 1i};
         arr_real x2 = {1, 2, 3, 4};
         arr_cmplx r = {1 + 1i, 3 - 4i, 18 + 26i, 161 - 240i};
-        ASSERT_EQ_ARR_CMPLX(pow(x1, x2), r);
+        ASSERT_EQ_ARR_CMPLX(power(x1, x2), r);
     }
     {
         cmplx_t x1 = 5 - 3i;
         arr_real x2 = {1, 2, 3, 4};
         arr_cmplx r = {5 - 3i, 16 - 30i, -10 - 198i, -644 - 960i};
-        ASSERT_EQ_ARR_CMPLX(pow(x1, x2), r);
+        ASSERT_EQ_ARR_CMPLX(power(x1, x2), r);
     }
 }

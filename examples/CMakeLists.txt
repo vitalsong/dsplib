@@ -10,6 +10,7 @@ CPMAddPackage(NAME matplot
     GIT_REPOSITORY "https://github.com/alandefreitas/matplotplusplus.git"
     VERSION 1.1.0 
     OPTIONS "BUILD_WITH_PEDANTIC_WARNINGS OFF"
+    EXCLUDE_FROM_ALL ON
 )
 
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")

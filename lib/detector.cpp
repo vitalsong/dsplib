@@ -1,54 +1,126 @@
 #include <dsplib/detector.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <dsplib/fir.h>
 
 #include <cassert>
 
 namespace dsplib {
 
-//---------------------------------------------------------------------------------
-Detector::Detector(const arr_cmplx& ref, real_t threshold)
-  : nh_{ref.size()}
-  , fft_{int(1) << nextpow2(2 * nh_)}
-  , buf_(fft_.size())
-  , threshold_{threshold} {
-    assert((threshold > 0) && (threshold < 1.0));
-    ref_ = conj(fft_(zeropad(ref, fft_.size())));
+namespace {
+
+bool _is_valid(float value) noexcept {
+    return !(std::isinf(value) || std::isnan(value));
 }
 
-//---------------------------------------------------------------------------------
-Detector::State Detector::process(const arr_cmplx& sig) {
-    Detector::State result;
-    result.out = sig;
-
-    int offset = 0;
-    const int nfft = fft_.size();
-    for (int k = 0; k < sig.size(); ++k) {
-        buf_[wpos_ + nfft / 2] = sig[k];
-        result.out[k] = buf_[wpos_];
-        wpos_++;
-        offset++;
-        if (wpos_ == nfft / 2) {
-            const auto X1 = fft_(buf_);
-            auto Y = X1 * ref_;
-            for (int i = 0; i < nfft; ++i) {
-                Y[i] = conj(Y[i]) / abs(Y[i]);
-            }
-            const auto R = fft_(Y) / nfft;
-            const auto peak_idx = argmax(R);
-            const auto peak_val = abs(R[peak_idx]);
-            if ((peak_val > threshold_) && (peak_idx < nfft / 2)) {
-                result.triggered = true;
-                result.level = peak_val;
-                result.position = offset + peak_idx - (nfft / 2);
-            }
-
-            buf_.slice(0, nfft / 2) = buf_.slice(nfft / 2, nfft);
-            wpos_ = 0;
-        }
+//cyclic buffer based delay
+template<typename T>
+class CDelay
+{
+public:
+    explicit CDelay(int size)
+      : _size{size}
+      , _buf(size) {
     }
 
-    return result;
+    void push(const T& v) noexcept {
+        _buf[_idx] = v;
+        _idx = (_idx + 1);
+        _idx = (_idx == _size) ? 0 : _idx;
+    }
+
+    std::vector<T> extract() const noexcept {
+        int p = _idx;
+        std::vector<T> result(_size);
+        for (int i = 0; i < _size; ++i) {
+            result[i] = _buf[p];
+            p = (p + 1) % _size;
+        }
+        return result;
+    }
+
+    void reset() noexcept {
+        _idx = 0;
+        std::fill(_buf.begin(), _buf.end(), T());
+    }
+
+private:
+    int _idx{0};
+    int _size{0};
+    std::vector<T> _buf;
+};
+
+}   // namespace
+
+//---------------------------------------------------------------------------------------------------------------
+class PreambleDetectorImpl
+{
+public:
+    explicit PreambleDetectorImpl(const arr_cmplx& h, real_t threshold)
+      : _corr_flt{_convert_impulse(h)}
+      , _pow_flt{ones(h.size()) / h.size()}
+      , _threshold{threshold * threshold}
+      , _delay{h.size()} {
+    }
+
+    std::optional<PreambleDetector::Result> process(const arr_cmplx& sig) {
+        if (sig.size() % frame_len() != 0) {
+            throw std::runtime_error("Frame len not supported");
+        }
+
+        const auto cx = _corr_flt.process(sig);
+        const auto pwx = _pow_flt.process(abs2(sig));
+        const auto corr = abs2(cx) / (pwx + eps());
+        for (int i = 0; i < corr.size(); ++i) {
+            _delay.push(sig[i]);
+            if ((corr[i] > _threshold) && _is_valid(corr[i])) {
+                PreambleDetector::Result res;
+                res.offset = i;
+                res.preamble = _delay.extract();
+                res.score = std::sqrt(corr[i]);
+                return res;
+            }
+        }
+        return std::nullopt;
+    }
+
+    [[nodiscard]] int frame_len() const noexcept {
+        return _corr_flt.block_size();
+    }
+
+    void reset() {
+        _pow_flt.process(zeros(frame_len()));
+        _corr_flt.process(zeros(frame_len()));
+        _delay.reset();
+    }
+
+private:
+    static arr_cmplx _convert_impulse(const arr_cmplx& h) {
+        return flip(h) / (rms(h) * h.size());
+    }
+
+    FftFilter _corr_flt;
+    // TODO: replace _pow_flt with a moving average filter (taking into account numerical losses)
+    FftFilter _pow_flt;
+    real_t _threshold{1.0};
+    CDelay<cmplx_t> _delay;
+};
+
+//---------------------------------------------------------------------------------------------------------------
+PreambleDetector::PreambleDetector(const arr_cmplx& h, real_t threshold) {
+    _d = std::make_shared<PreambleDetectorImpl>(h, threshold);
+}
+
+std::optional<PreambleDetector::Result> PreambleDetector::process(const arr_cmplx& sig) {
+    return _d->process(sig);
+}
+
+[[nodiscard]] int PreambleDetector::frame_len() const noexcept {
+    return _d->frame_len();
+}
+
+void PreambleDetector::reset() {
+    return _d->reset();
 }
 
 }   // namespace dsplib

@@ -3,44 +3,43 @@
 
 using namespace dsplib;
 
-//-------------------------------------------------------------------------------------------------
-const arr_real impulses = {
-  0.0009696959912217, 0.002337889165401, -5.132250197644e-05, -0.01078532572765, -0.02511021325159,  -0.02605521284747,
-  -0.001729717261329, 0.03055533348918,  0.02997831233377,    -0.02035756228145, -0.07197861086446,  -0.03952554411153,
-  0.1086584225047,    0.2928228574697,   0.3766576194224,     0.2928228574697,   0.1086584225047,    -0.03952554411153,
-  -0.07197861086446,  -0.02035756228145, 0.02997831233377,    0.03055533348918,  -0.001729717261329, -0.02605521284747,
-  -0.02511021325159,  -0.01078532572765, -5.132250197644e-05, 0.002337889165401, 0.0009696959912217};
+namespace {
+const arr_real IR = fir1(31, 0.1);
+}
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FirAndOne) {
-    auto flt = FirFilter(impulses);
-    auto x = zeros(impulses.size());
+    auto flt = FirFilter(IR);
+    auto x = zeros(IR.size());
     x[0] = 1;
     auto y = flt(x);
-    ASSERT_EQ_ARR_REAL(impulses, y);
+    ASSERT_EQ_ARR_REAL(IR, y);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftFirAndOne) {
-    auto flt = FftFilter(impulses);
-    auto x = zeros(2 * impulses.size());
+    auto flt = FftFilter(IR);
+    auto x = zeros(2 * IR.size());
     x[0] = 1;
-    arr_real y = flt(x).slice(0, impulses.size());
-    ASSERT_EQ_ARR_REAL(impulses, y);
+    arr_real y = flt(x).slice(0, IR.size());
+    ASSERT_EQ_ARR_REAL(IR, y);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftEqFir) {
-    auto flt1 = FftFilter(impulses);
-    auto flt2 = FirFilter(impulses);
-    auto in = randn(10000);
-    auto x1 = flt1(in);
-    auto x2 = flt2(in);
-    int n = min(x1.size(), x2.size());
-    arr_real y1 = x1.slice(0, n);
-    arr_real y2 = x2.slice(0, n);
-    ASSERT_NE(n, 0);
-    ASSERT_EQ_ARR_REAL(y1, y2);
+    for (int nh = 1; nh <= 128; ++nh) {
+        const auto ir_coeff = fir1(nh, 0.1);
+        auto flt1 = FftFilter(ir_coeff);
+        auto flt2 = FirFilter(ir_coeff);
+        auto in = randn(10000);
+        auto x1 = flt1(in);
+        auto x2 = flt2(in);
+        int n = min(x1.size(), x2.size());
+        arr_real y1 = x1.slice(0, n);
+        arr_real y2 = x2.slice(0, n);
+        ASSERT_NE(n, 0);
+        ASSERT_EQ_ARR_REAL(y1, y2);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -82,9 +81,9 @@ static arr_cmplx _get_bandpass_fir(int len, double f0, double f1) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, Lms) {
-    int M = impulses.size();
+    int M = IR.size();
     int L = 1000;
-    auto flt = FirFilter(impulses);
+    auto flt = FirFilter(IR);
     auto x = randn(L);
     auto n = 0.01 * randn(L);
     auto d = flt(x) + n;
@@ -94,14 +93,14 @@ TEST(FirTest, Lms) {
     auto adapt = LmsFilterR(M, mu);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
-    ASSERT_LE(nmse(w, impulses), 1e-3);
+    ASSERT_LE(nmse(w, IR), 1e-3);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, Rls) {
-    int M = impulses.size();
+    int M = IR.size();
     int L = 1000;
-    auto flt = FirFilter(impulses);
+    auto flt = FirFilter(IR);
     auto x = randn(L);
     auto n = 0.01 * randn(L);
     auto d = flt(x) + n;
@@ -110,7 +109,7 @@ TEST(FirTest, Rls) {
     auto adapt = RlsFilterR(M, 0.99, diag_load);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
-    ASSERT_LE(nmse(w, impulses), 0.01);
+    ASSERT_LE(nmse(w, IR), 0.01);
 }
 
 //-------------------------------------------------------------------------------------------------

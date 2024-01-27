@@ -56,7 +56,7 @@ arr_real blackman(int n) {
 arr_real gauss(int n, real_t alpha) {
     const real_t m = n - 1;
     const arr_real t = arange(n) - (m / 2);
-    return exp(-0.5 * pow2(alpha * t / (m / 2)));
+    return exp(-0.5 * abs2(alpha * t / (m / 2)));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -101,11 +101,11 @@ static real_t _besseli0(real_t x) {
 arr_real kaiser(int nw, real_t beta) {
     const real_t bes = abs(_besseli0(beta));
     const int odd = nw % 2;
-    const auto xind = pow2(nw - 1);
+    const auto xind = abs2(nw - 1);
     const int n = (nw + 1) / 2;
     auto w = zeros(n);
     for (int i = 0; i < n; ++i) {
-        const auto xi = 4 * pow2(i + 0.5 * (1 - odd));
+        const auto xi = 4 * abs2(i + 0.5 * (1 - odd));
         w[i] = std::abs(_besseli0(beta * std::sqrt(1 - (xi / xind))) / bes);
     }
     const arr_real wl = flip(*w.slice(odd, n));

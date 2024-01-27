@@ -40,11 +40,11 @@ arr_cmplx FirFilter<cmplx_t>::conv(const arr_cmplx& x, const arr_cmplx& h) {
 //-------------------------------------------------------------------------------------------------
 FftFilter::FftFilter(const arr_cmplx& h)
   : _m{h.size()} {
-    int fft_len = 1L << nextpow2(2 * h.size());
-    _n = fft_len - h.size();
-    _olap = zeros(_m);
-    auto dh = conj(h) | zeros(fft_len - h.size());
-    _h = fft(dh);
+    const int fft_len = 1L << nextpow2(2 * h.size());
+    _n = fft_len - h.size() + 1;
+    assert(_n > _m);
+    _olap = zeros(_m - 1);
+    _h = fft(conj(h), fft_len);
     _x = zeros(fft_len);
 }
 
@@ -55,10 +55,6 @@ FftFilter::FftFilter(const arr_real& h)
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx FftFilter::process(const arr_cmplx& x) {
-    if (_n == 0) {
-        return x;
-    }
-
     const int nr = (x.size() + _nx) / _n * _n;
     arr_cmplx r(nr);
     cmplx_t* pr = r.data();
@@ -66,17 +62,17 @@ arr_cmplx FftFilter::process(const arr_cmplx& x) {
         _x[_nx] = val;
         _nx += 1;
         if (_nx == _n) {
-            const auto yy = fft(_x) * _h;
-            auto ry = ifft(yy);
-            for (int i = 0; i < _m; i++) {
-                ry[i] += _olap[i];
-            }
-            for (int i = 0; i < _m; i++) {
-                _olap[i] = ry[i + _n];
-            }
+            const auto ry = ifft(fft(_x) * _h);
+
             for (int i = 0; i < _n; i++) {
                 pr[i] = ry[i];
             }
+
+            for (int i = 0; i < (_m - 1); i++) {
+                pr[i] += _olap[i];
+                _olap[i] = ry[i + _n];
+            }
+
             pr += _n;
             _nx = 0;
         }
@@ -86,6 +82,7 @@ arr_cmplx FftFilter::process(const arr_cmplx& x) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real FftFilter::process(const arr_real& x) {
+    //TODO: real optimization
     return real(process(arr_cmplx(x)));
 }
 

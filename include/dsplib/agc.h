@@ -38,6 +38,4 @@ private:
     std::shared_ptr<AgcImpl> _d;
 };
 
-using agc [[deprecated]] = Agc;
-
 }   // namespace dsplib
