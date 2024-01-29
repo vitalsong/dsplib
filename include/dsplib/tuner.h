@@ -16,7 +16,7 @@ public:
     explicit Tuner(int sample_rate, real_t freq)
       : _fs{sample_rate}
       , _freq{freq} {
-        DSPLIB_ASSERT(std::abs(_freq) < (_fs / 2), "Tuner freq must be in range (-sample_rate/2 : sample_rate/2)");
+        DSPLIB_ASSERT(std::abs(_freq) <= (_fs / 2), "tuner freq must be in range (-fs/2 : fs/2)");
     }
 
     arr_cmplx process(const arr_cmplx& x) {

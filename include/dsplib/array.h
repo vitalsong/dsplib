@@ -136,8 +136,9 @@ public:
     }
 
     base_array<T> operator[](const std::vector<int>& idxs) const {
-        DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
-        std::vector<T> res(_vec.size());
+        const auto max_i = *std::max_element(idxs.begin(), idxs.end());
+        DSPLIB_ASSERT(max_i < _vec.size(), "index must not exceed the size of the vector");
+        std::vector<T> res(idxs.size());
         for (int i = 0; i < idxs.size(); ++i) {
             res[i] = _vec[idxs[i]];
         }
