@@ -6,7 +6,7 @@ using namespace dsplib;
 //-------------------------------------------------------------------------------------------------
 TEST(GCCPHAT, OneSignal) {
     for (size_t i = 0; i < 1000; i++) {
-        int dl = round(20 * randn());
+        int dl = dsplib::round(20 * randn());
         auto ref = randn(512);
         auto sig = delayseq(ref, dl);
         ref = awgn(ref, 30);
