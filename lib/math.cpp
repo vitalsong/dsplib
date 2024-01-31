@@ -114,25 +114,29 @@ real_t fast_abs(cmplx_t v) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real round(const arr_real& arr) {
-    arr_real r(arr.size());
-    const int N = arr.size();
-    for (int i = 0; i < N; ++i) {
-        r[i] = std::round(arr[i]);
-    }
-
-    return r;
+real_t round(const real_t& x) {
+    return std::round(x);
 }
 
-arr_cmplx round(const arr_cmplx& arr) {
-    arr_cmplx r(arr.size());
-    const int N = arr.size();
-    for (int i = 0; i < N; ++i) {
-        r[i].re = std::round(arr[i].re);
-        r[i].im = std::round(arr[i].im);
-    }
+cmplx_t round(const cmplx_t& x) {
+    return cmplx_t{std::round(x.re), std::round(x.im)};
+}
 
-    return r;
+template<typename T>
+static base_array<T> _round(const base_array<T>& x) {
+    base_array<T> y(x.size());
+    for (int i = 0; i < x.size(); ++i) {
+        y[i] = round(x[i]);
+    }
+    return y;
+}
+
+arr_real round(const arr_real& x) {
+    return _round(x);
+}
+
+arr_cmplx round(const arr_cmplx& x) {
+    return _round(x);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -747,7 +751,7 @@ real_t norm(const arr_real& x, int p) {
     if (p == 2) {
         return sqrt(sum(abs2(x)));
     }
-    return power(sum(power(abs(x), p)), 1.0 / p);
+    return power(sum(power(abs(x), p)), real_t(1) / p);
 }
 
 real_t norm(const arr_cmplx& x, int p) {
@@ -757,7 +761,7 @@ real_t norm(const arr_cmplx& x, int p) {
     if (p == 2) {
         return sqrt(sum(abs2(x)));
     }
-    return power(sum(power(abs(x), p)), 1.0 / p);
+    return power(sum(power(abs(x), p)), real_t(1) / p);
 }
 
 //-------------------------------------------------------------------------------------------------

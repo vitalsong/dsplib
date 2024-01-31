@@ -67,6 +67,8 @@ arr_real fast_abs(const arr_cmplx& arr);
 real_t fast_abs(cmplx_t v);
 
 //round
+real_t round(const real_t& x);
+cmplx_t round(const cmplx_t& x);
 arr_real round(const arr_real& arr);
 arr_cmplx round(const arr_cmplx& arr);
 
