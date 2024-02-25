@@ -188,6 +188,16 @@ TEST(Resampler, ResampleFunc) {
         _check_equal(x1, x2, fs1, fs2);
         _check_phase(x_in, x_out);
     }
+
+    {
+        //not multiple input size
+        const int q = 3;
+        const int fs2 = 16000;
+        const int fs1 = fs2 * q;
+        auto x_in = sin(2 * pi * 0.05 * arange(fs1 - (q - 1)));
+        auto x_out = resample(x_in, fs2, fs1);
+        ASSERT_EQ(x_out.size(), fs2);
+    }
 }
 
 //TODO: check FIRDecimator equal FIRRateConverter

@@ -162,12 +162,14 @@ arr_real resample(const arr_real& x, int p_, int q_, const arr_real& h) {
     }
 
     FIRResampler rsmp(p, q, h);
-    const int nr = x.size() * p / q;
+    const int nx = IResampler::next_size(x.size(), p, q);
+    const int ny = nx * p / q;
     const int dl = rsmp.delay();
-    const int nf = IResampler::next_size(dl * q / p, p, q);
-    auto out = rsmp.process(x) | rsmp.process(zeros(nf));
-    out = out.slice(dl, dl + nr);
-    return out;
+    const int mdl = dl * q / p;
+    const int nn = IResampler::next_size(nx + mdl, p, q);
+    const auto xx = zeropad(x, nn);
+    const auto y = *rsmp.process(xx).slice(dl, dl + ny);
+    return y;
 }
 
 }   // namespace dsplib
