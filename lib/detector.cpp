@@ -3,6 +3,8 @@
 #include <dsplib/utils.h>
 #include <dsplib/fir.h>
 
+#include "ma-filter.h"
+
 #include <cassert>
 
 namespace dsplib {
@@ -58,7 +60,7 @@ class PreambleDetectorImpl
 public:
     explicit PreambleDetectorImpl(const arr_cmplx& h, real_t threshold)
       : _corr_flt{_convert_impulse(h)}
-      , _pow_flt{ones(h.size()) / h.size()}
+      , _pow_flt{h.size()}
       , _threshold{threshold * threshold}
       , _delay{h.size()} {
     }
@@ -100,8 +102,7 @@ private:
     }
 
     FftFilter _corr_flt;
-    // TODO: replace _pow_flt with a moving average filter (taking into account numerical losses)
-    FftFilter _pow_flt;
+    MAFilterR _pow_flt;
     real_t _threshold{1.0};
     CDelay<cmplx_t> _delay;
 };

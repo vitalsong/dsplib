@@ -1,4 +1,5 @@
 #include "tests_common.h"
+#include "ma-filter.h"
 #include <cmath>
 
 using namespace dsplib;
@@ -273,4 +274,18 @@ TEST(FirTest, Firtype) {
     ASSERT_EQ(firtype({0, 1, 2, -1, 0}), FirType::NonlinearPhase);
     ASSERT_EQ(firtype({0, 1, 0, -1, 0}), FirType::EvenAntiSym);
     ASSERT_EQ(firtype({0, 1, 2, -2, -1, 0}), FirType::OddAntiSym);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FirTest, MovingAverage) {
+    auto x = randn(10000);
+    const int n = 100;
+
+    FirFilterR fir_flt(ones(n) / n);
+    const auto y1 = fir_flt.process(x);
+
+    MAFilterR ma_flt(n);
+    const auto y2 = ma_flt.process(x);
+
+    ASSERT_EQ_ARR_REAL(y1, y2);
 }

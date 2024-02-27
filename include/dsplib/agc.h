@@ -22,7 +22,7 @@ public:
     template<typename T>
     struct Result
     {
-        base_array<T> y;
+        base_array<T> out;
         arr_real gain;
     };
 

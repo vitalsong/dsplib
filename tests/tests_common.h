@@ -3,7 +3,7 @@
 #include <dsplib.h>
 #include <gtest/gtest.h>
 
-#define EQ_ABS_ERR (1e-7)
+constexpr dsplib::real_t EQ_ABS_ERR = 1e-7;
 
 using namespace std::complex_literals;
 
@@ -23,30 +23,35 @@ static void ASSERT_EQ_ARR_INT(const T1& r1, const T2& r2) {
     dsplib::arr_int x1(r1);
     dsplib::arr_int x2(r2);
     ASSERT_EQ(x1.size(), x2.size());
-    for (int i = 0; i < x1.size(); ++i) {
-        ASSERT_EQ(x1[i], x2[i]);
+    if (x1.empty()) {
+        return;
     }
+    const auto err = dsplib::max(dsplib::abs(x1 - x2));
+    ASSERT_EQ(err, 0);
 }
 
 template<typename T1, typename T2>
-static void ASSERT_EQ_ARR_REAL(const T1& r1, const T2& r2, double max_err = EQ_ABS_ERR) {
+static void ASSERT_EQ_ARR_REAL(const T1& r1, const T2& r2, dsplib::real_t max_err = EQ_ABS_ERR) {
     dsplib::arr_real x1(r1);
     dsplib::arr_real x2(r2);
     ASSERT_EQ(x1.size(), x2.size());
-    for (int i = 0; i < x1.size(); ++i) {
-        ASSERT_NEAR(x1[i], x2[i], max_err);
+    if (x1.empty()) {
+        return;
     }
+    const auto err = dsplib::max(dsplib::abs(x1 - x2));
+    ASSERT_LE(err, max_err);
 }
 
 template<typename T1, typename T2>
-static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2, double max_err = EQ_ABS_ERR) {
+static void ASSERT_EQ_ARR_CMPLX(const T1& r1, const T2& r2, dsplib::real_t max_err = EQ_ABS_ERR) {
     dsplib::arr_cmplx x1(r1);
     dsplib::arr_cmplx x2(r2);
     ASSERT_EQ(x1.size(), x2.size());
-    for (int i = 0; i < x1.size(); ++i) {
-        ASSERT_NEAR(x1[i].re, x2[i].re, max_err);
-        ASSERT_NEAR(x1[i].im, x2[i].im, max_err);
+    if (x1.empty()) {
+        return;
     }
+    const auto err = dsplib::max(dsplib::abs(x1 - x2));
+    ASSERT_LE(err, max_err);
 }
 
 namespace dsplib {
