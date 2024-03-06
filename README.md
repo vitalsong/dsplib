@@ -12,6 +12,10 @@ std::transform(x.begin(), x.end(), x.begin(), [](auto& v){
     return v * 0.3;
 });
 
+auto power = std::accumulate(x.begin() + lb, x.begin() + rb, 0.0, [](double accum, const std::complex<double>& v) {
+    return accum + (v.real() * v.real() + v.imag() * v.imag());
+});
+
 auto r = std::vector<double>(x1.size());
 for (int i=0; i < r.size(); ++i) {
     r[i] = x1[i] * x2[i];
@@ -25,9 +29,11 @@ fftw_destroy_plan(p);
 and who likes this:
 
 ```cpp
+using namespace dsplib;
 x *= 0.3;
-r = x1 * x2;
-auto spec = dsplib::fft(x);
+auto power = sum(abs2(*x.slice(lb, rb)));
+auto r = x1 * x2;
+auto spec = fft(x);
 ```
 
 ## Usage
@@ -214,7 +220,7 @@ auto out = dsplib::resample(in, 32000, 16000);
 
 ### Requires:
 - CMake (>=3.10)
-- C++ compiler for C++17 standard (gcc, clang, msvc. mingw)
+- C++ compiler for C++17 standard (gcc, clang, msvc, mingw)
 
 
 ### Build and install:
