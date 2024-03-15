@@ -118,7 +118,7 @@ void _dft_n3(cmplx_t* x) noexcept {
 
 void _dft_slow(cmplx_t* x, int n, const cmplx_t* tw) noexcept {
     cmplx_t y[MAX_DFT_SIZE];
-    std::memset(y, 0, sizeof(y));
+    std::memset(&y[0].re, 0, sizeof(y));
 
     for (int i = 0; i < n; ++i) {
         y[0] += x[i];

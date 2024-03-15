@@ -25,11 +25,8 @@ static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
     base_array<T> out(nx);
     arr_real gain(nx);
     for (int i = 0; i < nx; ++i) {
-        const auto d = agc.maflt(abs2(x[i]));
-        gain[i] = std::exp(agc.gain);
-        out[i] = x[i] * gain[i];
-
-        const real_t err = agc.target - (std::log(d) + (2 * agc.gain));
+        const auto input_power = agc.maflt(abs2(x[i])) + dsplib::eps();
+        const real_t err = agc.target - (std::log(input_power) + (2 * agc.gain));
         if (err > 1) {
             agc.gain += agc.trise * err;
         } else {
@@ -39,6 +36,9 @@ static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
         if (agc.gain > agc.max_gain) {
             agc.gain = agc.max_gain;
         }
+
+        gain[i] = std::exp(agc.gain);
+        out[i] = x[i] * gain[i];
     }
 
     return {out, gain};
