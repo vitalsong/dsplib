@@ -135,7 +135,7 @@ inline std::vector<T> from_real(const arr_real& arr) {
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     static_assert(is_scalar_v<T>, "Type is not scalar");
     std::vector<T> res(arr.size());
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (auto i = 0; i < arr.size(); i++) {
         res[i] = arr[i];
     }
     return res;
@@ -149,7 +149,7 @@ inline arr_cmplx to_complex(const T* x, size_t nx) {
 
     const T* p = x;
     arr_cmplx r(nx / 2);
-    for (size_t i = 0; i < r.size(); i++) {
+    for (auto i = 0; i < r.size(); i++) {
         r[i].re = *(p++);
         r[i].im = *(p++);
     }
@@ -167,7 +167,7 @@ inline std::vector<T> from_complex(const arr_cmplx& arr) {
     static_assert(is_scalar_v<T>, "Type is not scalar");
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     std::vector<T> res(arr.size() * 2);
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (auto i = 0; i < arr.size(); i++) {
         res[2 * i] = arr[i].re;
         res[2 * i + 1] = arr[i].im;
     }

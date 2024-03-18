@@ -112,14 +112,25 @@ public:
     //--------------------------------------------------------------------
     const T& operator[](int i) const noexcept {
         const int idx = (i >= 0) ? (i) : (_vec.size() + i);
-        assert((idx >= 0) && (idx < _vec.size()));
+        assert((idx >= 0) && (idx < int(_vec.size())));
         return _vec[idx];
     }
 
     T& operator[](int i) noexcept {
         const int idx = (i >= 0) ? (i) : (_vec.size() + i);
-        assert((idx >= 0) && (idx < _vec.size()));
+        assert((idx >= 0) && (idx < int(_vec.size())));
         return _vec[idx];
+    }
+
+    //--------------------------------------------------------------------
+    const T& operator[](size_t i) const noexcept {
+        assert(i < _vec.size());
+        return _vec[i];
+    }
+
+    T& operator[](size_t i) noexcept {
+        assert(i < _vec.size());
+        return _vec[i];
     }
 
     //--------------------------------------------------------------------
@@ -127,7 +138,7 @@ public:
         DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
         std::vector<T> res;
         res.reserve(_vec.size());
-        for (int i = 0; i < idxs.size(); ++i) {
+        for (size_t i = 0; i < idxs.size(); ++i) {
             if (idxs[i]) {
                 res.push_back(_vec[i]);
             }
@@ -136,10 +147,10 @@ public:
     }
 
     base_array<T> operator[](const std::vector<int>& idxs) const {
-        const auto max_i = *std::max_element(idxs.begin(), idxs.end());
+        const size_t max_i = *std::max_element(idxs.begin(), idxs.end());
         DSPLIB_ASSERT(max_i < _vec.size(), "index must not exceed the size of the vector");
         std::vector<T> res(idxs.size());
-        for (int i = 0; i < idxs.size(); ++i) {
+        for (size_t i = 0; i < idxs.size(); ++i) {
             res[i] = _vec[idxs[i]];
         }
         return res;
@@ -154,7 +165,7 @@ public:
     std::vector<bool> operator>(T2 val) const noexcept {
         static_assert(is_scalar_v<T2>, "Type is not scalar");
         std::vector<bool> res(_vec.size());
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] > val);
         }
         return res;
@@ -169,7 +180,7 @@ public:
 
     std::vector<bool> operator==(T val) const noexcept {
         std::vector<bool> res(_vec.size());
-        for (int i = 0; i < _vec.size(); ++i) {
+        for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = std::fabs(_vec[i] - val) < eps(val);
         }
         return res;
@@ -237,7 +248,7 @@ public:
     }
 
     [[nodiscard]] int size() const noexcept {
-        return _vec.size();
+        return int(_vec.size());
     }
 
     [[nodiscard]] bool empty() const noexcept {
@@ -251,7 +262,7 @@ public:
 
     base_array<T> operator-() const noexcept {
         base_array<T> r{_vec};
-        for (size_t i = 0; i < r.size(); ++i) {
+        for (int i = 0; i < r.size(); ++i) {
             r[i] = -r[i];
         }
         return r;
@@ -455,7 +466,7 @@ template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = type
          class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
     base_array<R> r(rhs);
-    for (size_t i = 0; i < r.size(); ++i) {
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = R(lhs) - rhs[i];
     }
     return r;
@@ -471,7 +482,7 @@ template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = type
          class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
     base_array<R> r(rhs);
-    for (size_t i = 0; i < r.size(); ++i) {
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = R(lhs) / rhs[i];
     }
     return r;

@@ -81,7 +81,7 @@ static std::array<real_t, N> _init_factorials() {
     facts[0] = 1;
     facts[1] = 1;
     facts[2] = 2;
-    for (int i = 3; i < N; ++i) {
+    for (size_t i = 3; i < N; ++i) {
         facts[i] = facts[i - 1] * i;
     }
     return facts;

@@ -52,12 +52,8 @@ std::vector<real_t> _gen_coeffs(const int n) {
 
 FftParam fft_tables(size_t size) {
     thread_local static FftParam base_prm;
-
     if (base_prm.size < size) {
-        const int nfft = int(1) << nextpow2(size);
-        if (nfft != size) {
-            DSPLIB_THROW("FFT table len is not power of 2");
-        }
+        DSPLIB_ASSERT(ispow2(size), "FFT table len must be power of 2");
         base_prm.coeffs = _gen_coeffs(size);
         base_prm.bitrev = _gen_bitrev(size);
         base_prm.size = size;
@@ -67,9 +63,7 @@ FftParam fft_tables(size_t size) {
         return base_prm;
     }
 
-    if (base_prm.size % size != 0) {
-        DSPLIB_THROW("FFT table len is not multiple");
-    }
+    DSPLIB_ASSERT(base_prm.size % size == 0, "FFT table len is not multiple");
 
     //decimate table
     FftParam result;
@@ -78,10 +72,10 @@ FftParam fft_tables(size_t size) {
     result.size = size;
 
     const int d = (base_prm.size / size);
-    for (int i = 0, k = 0; i < size; ++i, k += d) {
+    for (size_t i = 0, k = 0; i < size; ++i, k += d) {
         result.coeffs[i] = base_prm.coeffs[k];
     }
-    for (int i = 0, k = 0; i < size / 2; ++i, k += d) {
+    for (size_t i = 0, k = 0; i < size / 2; ++i, k += d) {
         result.bitrev[i] = base_prm.bitrev[k];
     }
     return result;

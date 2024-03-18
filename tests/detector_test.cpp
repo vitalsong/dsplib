@@ -34,7 +34,7 @@ TEST(PreambleDetector, FlowDetect) {
     int detected = 0;
     const int frame_len = dtc.frame_len();
     const int L = in.size() / frame_len;
-    for (size_t i = 0; i < L; i++) {
+    for (int i = 0; i < L; i++) {
         int t0 = i * frame_len;
         int t1 = t0 + frame_len;
         arr_cmplx x = in.slice(t0, t1);

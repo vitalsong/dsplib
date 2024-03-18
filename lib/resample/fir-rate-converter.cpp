@@ -31,8 +31,8 @@ FIRRateConverter::FIRRateConverter(int interp, int decim, const arr_real& h)
         }
     }
 
-    assert(h_.size() == interp_);
-    assert(xidxs_.size() == interp_);
+    assert(int(h_.size()) == interp_);
+    assert(int(xidxs_.size()) == interp_);
 }
 
 arr_real FIRRateConverter::process(const arr_real& in) {

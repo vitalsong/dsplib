@@ -33,7 +33,7 @@ gccphat_res_ch_t gccphat(const std::vector<arr_real>& sig, const arr_real& refsi
     gccphat_res_ch_t res;
     res.tau = zeros(sig.size());
     res.corr.resize(sig.size());
-    for (int i = 0; i < sig.size(); i++) {
+    for (size_t i = 0; i < sig.size(); i++) {
         auto X1 = fft(sig[i]);
         auto Y = X1 * X2;
         const auto R = ifft(Y / abs(Y));
