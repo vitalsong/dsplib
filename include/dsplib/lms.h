@@ -54,9 +54,9 @@ public:
         //update delay
         _u = tu.slice(nx, nx + _len - 1);
 
-        for (size_t k = 0; k < nx; k++) {
+        for (int k = 0; k < nx; k++) {
             //y(n) = w.T(n) * u(n)
-            for (size_t i = 0; i < _len; i++) {
+            for (int i = 0; i < _len; i++) {
                 y[k] += _w[i] * tu[i + k];
             }
 
@@ -69,20 +69,20 @@ public:
             if (_method == LmsType::LMS) {
                 //TODO: dont use cycles
                 //w(n) = w(n-1) * a + mu * e(n) * u(n)
-                for (size_t i = 0; i < _len; i++) {
+                for (int i = 0; i < _len; i++) {
                     _w[i] = (_w[i] * _lk) + (_mu * e[k] * conj(tu[i + k]));
                 }
             } else if (_method == LmsType::NLMS) {
                 //pu = u.T(n) * u(n)
                 //TODO: use recurrent sum
                 real_t pu = 0;
-                for (size_t i = 0; i < _len; i++) {
+                for (int i = 0; i < _len; i++) {
                     pu += tu2[i + k];
                 }
 
                 //w(n) = w(n-1) * a + mu * e(n) * u(n) / norm
                 const real_t norm = pu + eps();
-                for (size_t i = 0; i < _len; i++) {
+                for (int i = 0; i < _len; i++) {
                     _w[i] = (_w[i] * _lk) + (_mu * e[k] * conj(tu[i + k]) / norm);
                 }
             }

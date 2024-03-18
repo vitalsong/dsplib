@@ -15,7 +15,7 @@ public:
       , _u(_n)
       , _w(_n)
       , _p(_n * _n) {
-        for (size_t i = 0; i < _n; i++) {
+        for (auto i = 0; i < _n; i++) {
             _p[i * _n + i] = diag_load;
         }
     }

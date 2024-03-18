@@ -129,6 +129,7 @@ HarmInfo _harm_analyze(arr_real spectrum, int nharm, bool aliased = false) {
     }
 
     //filling voids after removing harmonics (for noise)
+    //TODO: fix small values for N/2+1 array size with zeropad to N
     const auto noise_floor = median(spectrum[spectrum > 0]);
     for (const auto& tn : tones) {
         spectrum.slice(tn.lpos, tn.rpos + 1) = noise_floor;
@@ -173,6 +174,7 @@ real_t sinad(const arr_real& sig, SinadType type) {
 }
 
 ThdRes thd(const arr_real& sig, int nharm, bool aliased, SinadType type) {
+    DSPLIB_ASSERT(nharm > 1, "number of harmonics must be 2 or greater");
     const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
     const auto info = _harm_analyze(pxx, nharm, aliased);
     ThdRes res;

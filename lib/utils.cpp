@@ -20,7 +20,7 @@ T _repelem(const T& x, int n) {
     }
 
     T r(x.size() * n);
-    for (size_t i = 0; i < x.size(); i++) {
+    for (int i = 0; i < x.size(); i++) {
         int t1 = i * n;
         int t2 = t1 + n;
         std::fill(r.data() + t1, r.data() + t2, x[i]);

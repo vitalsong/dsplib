@@ -33,11 +33,11 @@ arr_cmplx _cos_to_cmplx(const real_t* w, int n) {
 //-------------------------------------------------------------------------------------------------
 //bit reverse array permutation
 arr_cmplx _bitreverse(const arr_cmplx& x, const std::vector<int32_t>& bitrev) noexcept {
-    const int n = x.size();
-    const int n2 = n / 2;
+    const size_t n = x.size();
+    const size_t n2 = n / 2;
     assert(bitrev.size() == n2);
     arr_cmplx r(n);
-    for (int i = 0; i < n2; ++i) {
+    for (size_t i = 0; i < n2; ++i) {
         const auto kl = bitrev[i];
         const auto kr = kl + 1;
         r[i] = x[kl];

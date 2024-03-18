@@ -690,7 +690,7 @@ static T _downsample(const T& arr, int n, int phase) {
 
     const int nr = (arr.size() - phase - 1) / n + 1;
     T r(nr);
-    for (size_t i = 0, k = phase; k < arr.size(); ++i, k += n) {
+    for (int i = 0, k = phase; k < arr.size(); ++i, k += n) {
         r[i] = arr[k];
     }
     return r;
@@ -720,7 +720,7 @@ static T _upsample(const T& arr, int n, int phase) {
     }
 
     T r(arr.size() * n);
-    for (size_t i = 0, k = phase; k < r.size(); ++i, k += n) {
+    for (int i = 0, k = phase; k < r.size(); ++i, k += n) {
         r[k] = arr[i];
     }
     return r;
@@ -737,7 +737,7 @@ arr_cmplx upsample(const arr_cmplx& arr, int n, int phase) {
 //-------------------------------------------------------------------------------------------------
 arr_real abs2(const arr_cmplx& x) {
     arr_real r(x.size());
-    for (size_t i = 0; i < x.size(); i++) {
+    for (int i = 0; i < x.size(); i++) {
         r[i] = (x[i].re * x[i].re) + (x[i].im * x[i].im);
     }
     return r;
