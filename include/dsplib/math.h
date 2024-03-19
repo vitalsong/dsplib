@@ -23,8 +23,8 @@ arr_real tanh(arr_real x);
 arr_cmplx tanh(arr_cmplx x);
 
 //max element
-real_t max(const arr_real& arr);
-cmplx_t max(const arr_cmplx& arr);
+real_t max(span_real arr);
+cmplx_t max(span_cmplx arr);
 
 template<typename T1, typename T2>
 auto max(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
@@ -32,8 +32,8 @@ auto max(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
 }
 
 //min element
-real_t min(const arr_real& arr);
-cmplx_t min(const arr_cmplx& arr);
+real_t min(span_real arr);
+cmplx_t min(span_cmplx arr);
 
 template<typename T1, typename T2>
 auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
@@ -45,12 +45,12 @@ real_t peak2peak(const arr_real& arr);
 cmplx_t peak2peak(const arr_cmplx& arr);
 
 //max element index
-int argmax(const arr_real& arr);
-int argmax(const arr_cmplx& arr);
+int argmax(span_real arr);
+int argmax(span_cmplx arr);
 
 //min element index
-int argmin(const arr_real& arr);
-int argmin(const arr_cmplx& arr);
+int argmin(span_real arr);
+int argmin(span_cmplx arr);
 
 //absolute value and complex magnitude
 arr_real abs(const arr_real& arr);
@@ -129,7 +129,7 @@ constexpr real_t conj(const real_t& x) noexcept {
 
 //complex vector formation
 arr_cmplx complex(const arr_real& re, const arr_real& im);
-arr_cmplx complex(const arr_real& re) noexcept;
+arr_cmplx complex(const arr_real& re);
 
 //the nearest power of two numbers (with rounding up)
 constexpr int nextpow2(int m) noexcept {
