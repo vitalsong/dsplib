@@ -14,29 +14,29 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
-real_t max(const arr_real& arr) {
+real_t max(span_real arr) {
     return *std::max_element(arr.begin(), arr.end());
 }
 
-cmplx_t max(const arr_cmplx& arr) {
+cmplx_t max(span_cmplx arr) {
     return *std::max_element(arr.begin(), arr.end());
 }
 
 //-------------------------------------------------------------------------------------------------
-int argmax(const arr_real& arr) {
+int argmax(span_real arr) {
     return std::distance(arr.begin(), std::max_element(arr.begin(), arr.end()));
 }
 
-int argmax(const arr_cmplx& arr) {
+int argmax(span_cmplx arr) {
     return std::distance(arr.begin(), std::max_element(arr.begin(), arr.end()));
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t min(const arr_real& arr) {
+real_t min(span_real arr) {
     return *std::min_element(arr.begin(), arr.end());
 }
 
-cmplx_t min(const arr_cmplx& arr) {
+cmplx_t min(span_cmplx arr) {
     return *std::min_element(arr.begin(), arr.end());
 }
 
@@ -52,11 +52,11 @@ cmplx_t peak2peak(const arr_cmplx& arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
-int argmin(const arr_real& arr) {
+int argmin(span_real arr) {
     return std::distance(arr.begin(), std::min_element(arr.begin(), arr.end()));
 }
 
-int argmin(const arr_cmplx& arr) {
+int argmin(span_cmplx arr) {
     return std::distance(arr.begin(), std::min_element(arr.begin(), arr.end()));
 }
 
@@ -316,23 +316,23 @@ bool ispow2(int m) {
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx complex(const arr_real& re, const arr_real& im) {
-    if (re.size() != im.size()) {
-        DSPLIB_THROW("array sizes are different");
-    }
-
-    int n = re.size();
+    DSPLIB_ASSERT(re.size() == im.size(), "array sizes are different");
+    const int n = re.size();
     arr_cmplx r(n);
     for (int i = 0; i < n; ++i) {
         r[i].re = re[i];
         r[i].im = im[i];
     }
-
     return r;
+}
+
+arr_cmplx complex(const arr_real& re) {
+    return array_cast<cmplx_t>(re);
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_real log(const arr_real& arr) {
-    int n = arr.size();
+    const int n = arr.size();
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
         r[i] = std::log(arr[i]);
@@ -541,7 +541,7 @@ arr_cmplx pow(const arr_cmplx& x, real_t n) {
 template<typename T>
 static base_array<T> _power(const base_array<T>& x, int n) {
     if (n == 0) {
-        return ones(x.size());
+        return array_cast<T>(ones(x.size()));
     }
     if (n == 1) {
         return x;

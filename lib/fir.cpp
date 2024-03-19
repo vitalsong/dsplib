@@ -43,14 +43,14 @@ FftFilter::FftFilter(const arr_cmplx& h)
     const int fft_len = 1L << nextpow2(2 * h.size());
     _n = fft_len - h.size() + 1;
     assert(_n > _m);
-    _olap = zeros(_m - 1);
+    _olap = complex(zeros(_m - 1));
     _h = fft(conj(h), fft_len);
-    _x = zeros(fft_len);
+    _x = complex(zeros(fft_len));
 }
 
 //-------------------------------------------------------------------------------------------------
 FftFilter::FftFilter(const arr_real& h)
-  : FftFilter(arr_cmplx(h)) {
+  : FftFilter(complex(h)) {
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ arr_cmplx FftFilter::process(const arr_cmplx& x) {
 //-------------------------------------------------------------------------------------------------
 arr_real FftFilter::process(const arr_real& x) {
     //TODO: real optimization
-    return real(process(arr_cmplx(x)));
+    return real(process(complex(x)));
 }
 
 //----------------------------------------------------------------------------------------------

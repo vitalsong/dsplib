@@ -8,6 +8,7 @@
 #include <dsplib/slice.h>
 #include <dsplib/indexing.h>
 #include <dsplib/throw.h>
+#include <dsplib/span.h>
 
 namespace dsplib {
 
@@ -22,9 +23,57 @@ using conditional_t = typename std::conditional_t<Cond_, Iftrue_, Iffalse_>;
 template<typename Bt, typename It>
 using ResultType = conditional_t<std::is_same_v<Bt, cmplx_t> || std::is_same_v<It, cmplx_t>, cmplx_t, real_t>;
 
+template<typename T_dst, typename T_src>
+base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
+    static_assert(is_scalar_v<T_src> && is_scalar_v<T_dst>, "Types must be scalar");
+    static_assert(!(is_complex_v<T_src> && !is_complex_v<T_dst>), "Complex to Real cast is not allowed");
+
+    if constexpr (std::is_same_v<T_src, T_dst>) {
+        return src;
+    } else if constexpr (!is_complex_v<T_src> && is_complex_v<T_dst>) {
+        base_array<T_dst> dst(src.size());
+        for (int i = 0; i < src.size(); ++i) {
+            dst[i].re = static_cast<real_t>(src[i]);
+        }
+        return dst;
+    } else {
+        return base_array<T_dst>(src);
+    }
+}
+
+//TODO: constexpr function
+template<typename T_src, typename T_dst>
+constexpr bool is_array_castable() noexcept {
+    //std::complex -> cmplx_t
+    if constexpr (is_std_complex_v<T_src> && std::is_same_v<T_dst, cmplx_t>) {
+        return true;
+    }
+
+    //only arithmetic scalar
+    //TODO: std::complex is scalar type
+    if constexpr (!is_scalar_v<T_src> || !is_scalar_v<T_dst>) {
+        return false;
+    }
+
+    //cmplx -> real
+    if constexpr (is_complex_v<T_src> && !is_complex_v<T_dst>) {
+        return false;
+    }
+
+    //real -> cmplx
+    if constexpr (!is_complex_v<T_src> && is_complex_v<T_dst>) {
+        return false;
+    }
+
+    //TODO: disable float -> int
+
+    return true;
+}
+
 //base dsplib array type
 //TODO: add array_view as parent for array/slice
 //TODO: add slice(vector<bool>)
+//TODO: construct from span<T>
 template<typename T>
 class base_array
 {
@@ -50,7 +99,7 @@ public:
 
     template<typename T2>
     base_array(const std::vector<T2>& v) {
-        static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
+        static_assert(is_array_castable<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
         _vec.assign(v.begin(), v.end());
     }
 
@@ -63,10 +112,16 @@ public:
     }
 
     template<class T2>
-    base_array(const base_array<T2>& v) {
-        static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
-        _vec.assign(v.begin(), v.end());
+    base_array(const base_array<T2>& v)
+      : base_array(v.data(), v.size()) {
+        static_assert(is_array_castable<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
     }
+
+    //TODO: enable_if for vector/ptr+size/array
+    // template<class Container>
+    // base_array(const Container& v)
+    //   : base_array(span_t(v)) {
+    // }
 
     base_array(base_array<T>&& v) noexcept
       : _vec(std::move(v._vec)) {
@@ -76,9 +131,11 @@ public:
       : _vec(list) {
     }
 
+    //TODO: replace to span<T>
     template<typename T2>
     explicit base_array(const T2* x, size_t nx) {
-        static_assert(std::is_convertible<T2, T>::value, "Type is not convertible");
+        static_assert(is_array_castable<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+        static_assert(std::is_convertible<T2, T>::value, "Types must be convertible");
         _vec.insert(_vec.end(), x, x + nx);
     }
 
@@ -125,7 +182,7 @@ public:
 
     //--------------------------------------------------------------------
     base_array<T> operator[](const std::vector<bool>& idxs) const {
-        DSPLIB_ASSERT(idxs.size() == _vec.size(), "array sizes must be equal");
+        DSPLIB_ASSERT(idxs.size() == _vec.size(), "Array sizes must be equal");
         std::vector<T> res;
         res.reserve(_vec.size());
         for (size_t i = 0; i < idxs.size(); ++i) {
@@ -138,7 +195,7 @@ public:
 
     base_array<T> operator[](const std::vector<int>& idxs) const {
         const size_t max_i = *std::max_element(idxs.begin(), idxs.end());
-        DSPLIB_ASSERT(max_i < _vec.size(), "index must not exceed the size of the vector");
+        DSPLIB_ASSERT(max_i < _vec.size(), "Index must not exceed the size of the vector");
         std::vector<T> res(idxs.size());
         for (size_t i = 0; i < idxs.size(); ++i) {
             res[i] = _vec[idxs[i]];
@@ -216,6 +273,7 @@ public:
     }
 
     //--------------------------------------------------------------------
+    //TODO: remove
     const T& operator()(int i) const noexcept {
         return this->operator[](i);
     }
@@ -225,21 +283,44 @@ public:
     }
 
     //--------------------------------------------------------------------
-    slice_t<T> slice(int i1, int i2, int m = 1) {
-        return slice_t<T>(*this, i1, i2, m);
+    slice_t<T> slice(int i1, int i2, int m) {
+        return slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
     }
 
-    const_slice_t<T> slice(int i1, int i2, int m = 1) const {
-        return const_slice_t<T>(*this, i1, i2, m);
+    const_slice_t<T> slice(int i1, int i2, int m) const {
+        return const_slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
     }
 
     //TODO: add slice(end, first, -1) like x[::-1] numpy
-    slice_t<T> slice(int i1, indexing::end_t, int m = 1) {
-        return slice_t<T>(*this, i1, size(), m);
+    slice_t<T> slice(int i1, indexing::end_t, int m) {
+        return this->slice(i1, size(), m);
     }
 
-    const_slice_t<T> slice(int i1, indexing::end_t, int m = 1) const {
-        return const_slice_t<T>(*this, i1, size(), m);
+    const_slice_t<T> slice(int i1, indexing::end_t, int m) const {
+        return this->slice(i1, size(), m);
+    }
+
+    //use span for stride=1
+    mut_span_t<T> slice(int i1, int i2) {
+        i1 = (i1 >= 0) ? i1 : (size() + i1);
+        i2 = (i2 >= 0) ? i2 : (size() + i2);
+        DSPLIB_ASSERT((i2 > i1) && (i1 >= 0) && (i2 <= size()), "Invalid slice range");
+        return mut_span_t<T>(_vec.data() + i1, (i2 - i1));
+    }
+
+    mut_span_t<T> slice(int i1, indexing::end_t) {
+        return this->slice(i1, size());
+    }
+
+    span_t<T> slice(int i1, int i2) const {
+        i1 = (i1 >= 0) ? i1 : (size() + i1);
+        i2 = (i2 >= 0) ? i2 : (size() + i2);
+        DSPLIB_ASSERT((i2 > i1) && (i1 >= 0) && (i2 <= size()), "Invalid slice range");
+        return span_t<T>(_vec.data() + i1, (i2 - i1));
+    }
+
+    span_t<T> slice(int i1, indexing::end_t) const {
+        return this->slice(i1, size());
     }
 
     //--------------------------------------------------------------------
@@ -294,36 +375,41 @@ public:
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator+=(const T2& rhs) noexcept {
+        static_assert(is_scalar_v<T2>, "Type must be scalar");
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] += rhs;
+        for (auto& x : _vec) {
+            x += rhs;
         }
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator-=(const T2& rhs) noexcept {
+        static_assert(is_scalar_v<T2>, "Type must be scalar");
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] -= rhs;
+        for (auto& x : _vec) {
+            x -= rhs;
         }
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator*=(const T2& rhs) noexcept {
+        static_assert(is_scalar_v<T2>, "Type must be scalar");
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] *= rhs;
+        for (auto& x : _vec) {
+            x *= rhs;
         }
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator/=(const T2& rhs) {
+        static_assert(is_scalar_v<T2>, "Type must be scalar");
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] /= rhs;
+        for (auto& x : _vec) {
+            //TODO: use multiple by (1.0/rhs)
+            x /= rhs;
         }
         return *this;
     }
@@ -331,28 +417,28 @@ public:
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator+(const T2& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp += rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator-(const T2& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp -= rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator*(const T2& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp *= rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator/(const T2& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp /= rhs;
         return temp;
     }
@@ -360,81 +446,69 @@ public:
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator+=(const base_array<T2>& rhs) {
-        if (this->size() != rhs.size()) {
-            DSPLIB_THROW("array sizes are different");
-        }
-
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] += rhs[i];
         }
-
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator-=(const base_array<T2>& rhs) {
-        if (this->size() != rhs.size()) {
-            DSPLIB_THROW("array sizes are different");
-        }
-
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] -= rhs[i];
         }
-
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator*=(const base_array<T2>& rhs) {
-        if (this->size() != rhs.size()) {
-            DSPLIB_THROW("array sizes are different");
-        }
-
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] *= rhs[i];
         }
-
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator/=(const base_array<T2>& rhs) {
-        if (this->size() != rhs.size()) {
-            DSPLIB_THROW("array sizes are different");
-        }
-
+        static_assert(std::is_same_v<T, R>, "The operation changes the type");
+        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
         for (size_t i = 0; i < _vec.size(); ++i) {
             _vec[i] /= rhs[i];
         }
-
         return *this;
     }
 
     //--------------------------------------------------------------------
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator+(const base_array<T2>& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp += rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator-(const base_array<T2>& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp -= rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator*(const base_array<T2>& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp *= rhs;
         return temp;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator/(const base_array<T2>& rhs) const {
-        base_array<R> temp(*this);
+        auto temp = array_cast<R>(*this);
         temp /= rhs;
         return temp;
     }
@@ -449,8 +523,8 @@ public:
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator|(const base_array<T2>& rhs) const {
-        base_array<R> temp(*this);
-        temp |= rhs;
+        auto temp = array_cast<R>(*this);
+        temp |= array_cast<R>(rhs);
         return temp;
     }
 
@@ -488,7 +562,7 @@ inline base_array<R> operator+(const Scalar& lhs, const base_array<T>& rhs) {
 template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
          class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
-    base_array<R> r(rhs);
+    auto r = array_cast<R>(rhs);
     for (int i = 0; i < r.size(); ++i) {
         r[i] = R(lhs) - rhs[i];
     }
@@ -504,7 +578,7 @@ inline base_array<R> operator*(const Scalar& lhs, const base_array<T>& rhs) {
 template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = typename enable_scalar_t<Scalar>::type,
          class C_ = typename enable_convertible_t<Scalar, R>::type>
 inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
-    base_array<R> r(rhs);
+    auto r = array_cast<R>(rhs);
     for (int i = 0; i < r.size(); ++i) {
         r[i] = R(lhs) / rhs[i];
     }
@@ -513,6 +587,7 @@ inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
 
 //----------------------------------------------------------------------------------------
 inline base_array<cmplx_t> operator*(const base_array<real_t>& lhs, const std::complex<double>& rhs) {
+    //TODO: optimization for rhs == 1i
     return lhs * cmplx_t(rhs);
 }
 

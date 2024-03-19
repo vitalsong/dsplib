@@ -41,6 +41,8 @@ constexpr std::complex<T> operator-(const std::complex<T>& lhs, const int& rhs) 
 
 namespace dsplib {
 
+using namespace std::complex_literals;
+
 //-------------------------------------------------------------------------------------------------
 //base scalar type
 #ifdef DSPLIB_USE_FLOAT32
@@ -58,6 +60,22 @@ struct cmplx_t;
 float eps(float v);
 double eps(double v);
 real_t eps();
+
+template<typename T>
+struct is_std_complex
+  : std::integral_constant<bool, std::is_same_v<T, std::complex<float>> || std::is_same_v<T, std::complex<double>> ||
+                                   std::is_same_v<T, std::complex<int>>>
+{};
+
+template<typename T>
+constexpr bool is_std_complex_v = is_std_complex<T>::value;
+
+template<typename T>
+struct is_complex : std::integral_constant<bool, is_std_complex<T>::value || std::is_same_v<T, cmplx_t>>
+{};
+
+template<typename T>
+constexpr bool is_complex_v = is_complex<T>::value;
 
 template<typename T>
 struct is_scalar : std::integral_constant<bool, std::is_arithmetic_v<T> || std::is_same_v<T, cmplx_t>>
