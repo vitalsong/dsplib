@@ -25,17 +25,17 @@ TEST(FFT, FftReal) {
 
     {
         const arr_real x = randn(1024);
-        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(complex(x)));
     }
 
     {
         const arr_real x = randn(500);
-        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(complex(x)));
     }
 
     {
         const arr_real x = sin(2 * pi * arange(500) * 0.01);
-        ASSERT_EQ_ARR_CMPLX(fft(x), fft(arr_cmplx(x)));
+        ASSERT_EQ_ARR_CMPLX(fft(x), fft(complex(x)));
     }
 }
 
@@ -64,7 +64,7 @@ TEST(FFT, FftCmplx) {
 
     {
         const int n = 128;
-        const arr_cmplx x = sin(2 * pi * arange(n) * 0.1);
+        const arr_cmplx x = complex(sin(2 * pi * arange(n) * 0.1));
         const arr_cmplx y = fft(x).slice(0, n / 2 + 1);
         ASSERT_EQ(argmax(y), 13);
         ASSERT_CMPLX_NEAR(max(y), cmplx_t{-34.4803383753629 - 48.7604203346960i});
@@ -99,7 +99,7 @@ TEST(FFT, Czt) {
     arr_real x = {1.0, 2.0, 3.0};
     const int m = x.size();
     cmplx_t w = expj(-2 * pi / m);
-    auto czt_res = czt(x, m, w);
+    auto czt_res = czt(complex(x), m, w);
     ASSERT_EQ_ARR_CMPLX(czt_res, dft_ref);
 }
 
@@ -109,7 +109,7 @@ TEST(FFT, CztPrime) {
     using namespace std::complex_literals;
 
     const int n = 31;
-    arr_cmplx x = arange(n);
+    arr_cmplx x = complex(arange(n));
     arr_cmplx r = {465.000000000000 + 4.97379915032070e-14i, -15.5000000000000 + 152.423942689195i,
                    -15.5000000000000 + 75.4238733733689i,    -15.5000000000000 + 49.4020717291786i,
                    -15.5000000000000 + 36.1192711999180i,    -15.5000000000000 + 27.9256495884725i,
