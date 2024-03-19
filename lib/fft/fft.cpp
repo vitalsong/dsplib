@@ -143,7 +143,7 @@ public:
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
-        return _plan.solve(arr_cmplx(x));
+        return _plan.solve(complex(x));
     }
 
     [[nodiscard]] int size() const noexcept final {

@@ -1,0 +1,154 @@
+#pragma once
+
+#include <dsplib/slice.h>
+#include <cassert>
+
+namespace dsplib {
+
+template<class T>
+class mut_span_t;
+
+template<class T>
+class span_t;
+
+//span is a slice with a stride of 1
+//used to quickly access vector elements in functions (without memory allocation)
+
+//TODO: add concatenate syntax
+//TODO: add math operators
+//TODO: std::vector<T> support (without 'base_array' or use reference to vec_)
+
+//mutable span
+template<typename T>
+class mut_span_t : public slice_t<T>
+{
+public:
+    friend class span_t<T>;
+
+    explicit mut_span_t(T* data, int size)
+      : slice_t<T>(data, size, 0, size, 1)
+      , _ptr{data}
+      , _len{size} {
+    }
+
+    mut_span_t(base_array<T>& v)
+      : mut_span_t(v.data(), v.size()) {
+    }
+
+    mut_span_t(std::vector<T>& v)
+      : mut_span_t(v.data(), v.size()) {
+    }
+
+    [[nodiscard]] T* data() noexcept {
+        return _ptr;
+    }
+
+    [[nodiscard]] const T* data() const noexcept {
+        return _ptr;
+    }
+
+    [[nodiscard]] int size() const noexcept {
+        return _len;
+    }
+
+    T& operator()(int i) noexcept {
+        assert((i >= 0) && (i < _len));
+        return _ptr[i];
+    }
+
+    T& operator[](int i) noexcept {
+        assert((i >= 0) && (i < _len));
+        return _ptr[i];
+    }
+
+    //TODO: override fast implementation for span
+
+    mut_span_t& operator=(const const_slice_t<T>& rhs) {
+        slice_t<T>::operator=(rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const slice_t<T>& rhs) {
+        slice_t<T>::operator=(rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const base_array<T>& rhs) {
+        slice_t<T>::operator=(rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const T& rhs) {
+        std::fill(_ptr, (_ptr + _len), rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const std::initializer_list<T>& rhs) {
+        slice_t<T>::operator=(rhs);
+        return *this;
+    }
+
+private:
+    T* _ptr{nullptr};
+    int _len{0};
+};
+
+//immutable span
+template<typename T>
+class span_t : public const_slice_t<T>
+{
+public:
+    friend class mut_span_t<T>;
+
+    explicit span_t(const T* data, int size)
+      : const_slice_t<T>(data, size, 0, size, 1)
+      , _ptr{data}
+      , _len{size} {
+    }
+
+    span_t(const span_t<T>& v)
+      : span_t(v._data, v._i1, v._i2) {
+    }
+
+    span_t(const mut_span_t<T>& v)
+      : span_t(v.data(), v.size()) {
+    }
+
+    span_t(const base_array<T>& v)
+      : span_t(v.data(), v.size()) {
+    }
+
+    span_t(const std::vector<T>& v)
+      : span_t(v.data(), v.size()) {
+    }
+
+    [[nodiscard]] const T* data() const noexcept {
+        return _ptr;
+    }
+
+    [[nodiscard]] int size() const noexcept {
+        return _len;
+    }
+
+    const T& operator()(int i) const noexcept {
+        assert((i >= 0) && (i < _len));
+        return _ptr[i];
+    }
+
+    const T& operator[](int i) const noexcept {
+        assert((i >= 0) && (i < _len));
+        return _ptr[i];
+    }
+
+private:
+    const T* _ptr{nullptr};
+    int _len{0};
+};
+
+using mut_span_real = mut_span_t<real_t>;
+using mut_span_cmplx = mut_span_t<cmplx_t>;
+
+using span_real = span_t<real_t>;
+using span_cmplx = span_t<cmplx_t>;
+
+}   // namespace dsplib
