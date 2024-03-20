@@ -132,12 +132,48 @@ TEST(ArrRealTest, CheckEqual) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrRealTest, CheckGreater) {
-    arr_real x = {1.0, -1.0, 200, -1e-5, 10000.0};
-    std::vector<bool> r = (x > 1.0);
-    ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, false, true}));
-    auto y = x[r];
-    ASSERT_EQ_ARR_REAL(y, arr_real{200, 10000.0});
+TEST(ArrRealTest, CompareScalar) {
+    const arr_real x = {1.0, -1.0, 200, -1e-5, 10000.0};
+    {
+        std::vector<bool> r = (x > 1.0);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, false, true}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{200, 10000.0});
+    }
+
+    {
+        std::vector<bool> r = (x < 1.0);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, true, false, true, false}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{-1.0, -1e-5});
+    }
+
+    {
+        std::vector<bool> r = (abs(x) == 1.0);
+        ASSERT_TRUE(bool(r == std::vector<bool>{true, true, false, false, false}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{1.0, -1.0});
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, CompareVector) {
+    const arr_real x = {1.0, -1.0, 200, 1e-5, 10000.0};
+    const arr_real y = {1.0, 2.0, 300, 1e-6, 10001.0};
+    {
+        std::vector<bool> r = (x > y);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, false, true, false}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{1e-5});
+    }
+
+    {
+        std::vector<bool> r = (x < y);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, true, true, false, true}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{-1.0, 200, 10000.0});
+    }
+
+    {
+        std::vector<bool> r = (x == y);
+        ASSERT_TRUE(bool(r == std::vector<bool>{true, false, false, false, false}));
+        ASSERT_EQ_ARR_REAL(x[r], arr_real{1.0});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -51,7 +51,7 @@ std::vector<real_t> _gen_coeffs(const int n) {
 }   // namespace
 
 FftParam fft_tables(size_t size) {
-    thread_local static FftParam base_prm;
+    thread_local FftParam base_prm;
     if (base_prm.size < size) {
         DSPLIB_ASSERT(ispow2(size), "FFT table len must be power of 2");
         base_prm.coeffs = _gen_coeffs(size);

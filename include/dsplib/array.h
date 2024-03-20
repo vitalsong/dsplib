@@ -161,9 +161,8 @@ public:
     }
 
     //--------------------------------------------------------------------
-    template<typename T2>
-    std::vector<bool> operator>(T2 val) const noexcept {
-        static_assert(is_scalar_v<T2>, "Type is not scalar");
+    //compare scalar
+    std::vector<bool> operator>(T val) const noexcept {
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] > val);
@@ -171,23 +170,57 @@ public:
         return res;
     }
 
-    template<typename T2>
-    std::vector<bool> operator<(T2 val) const noexcept {
-        auto r = (*this == val);
-        r.flip();
-        return r;
+    std::vector<bool> operator<(T val) const noexcept {
+        std::vector<bool> res(_vec.size());
+        for (size_t i = 0; i < _vec.size(); ++i) {
+            res[i] = (_vec[i] < val);
+        }
+        return res;
     }
 
     std::vector<bool> operator==(T val) const noexcept {
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
-            res[i] = std::fabs(_vec[i] - val) < eps(val);
+            //TODO: add tolerance for compare?
+            res[i] = (_vec[i] == val);
         }
         return res;
     }
 
     std::vector<bool> operator!=(T val) const noexcept {
         auto r = (*this == val);
+        r.flip();
+        return r;
+    }
+
+    //--------------------------------------------------------------------
+    //compare vector
+    std::vector<bool> operator>(const base_array<T>& rhs) const noexcept {
+        std::vector<bool> res(_vec.size());
+        for (size_t i = 0; i < _vec.size(); ++i) {
+            res[i] = (_vec[i] > rhs._vec[i]);
+        }
+        return res;
+    }
+
+    std::vector<bool> operator<(const base_array<T>& rhs) const noexcept {
+        std::vector<bool> res(_vec.size());
+        for (size_t i = 0; i < _vec.size(); ++i) {
+            res[i] = (_vec[i] < rhs._vec[i]);
+        }
+        return res;
+    }
+
+    std::vector<bool> operator==(const base_array<T>& rhs) const noexcept {
+        std::vector<bool> res(_vec.size());
+        for (size_t i = 0; i < _vec.size(); ++i) {
+            res[i] = (_vec[i] == rhs._vec[i]);
+        }
+        return res;
+    }
+
+    std::vector<bool> operator!=(const base_array<T>& rhs) const noexcept {
+        auto r = (*this == rhs);
         r.flip();
         return r;
     }
