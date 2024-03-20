@@ -219,6 +219,14 @@ struct cmplx_t
         return abs2() < rhs.abs2();
     }
 
+    constexpr bool operator==(const cmplx_t& rhs) const noexcept {
+        return (re == rhs.re) && (im == rhs.im);
+    }
+
+    constexpr bool operator!=(const cmplx_t& rhs) const noexcept {
+        return !(*this == rhs);
+    }
+
     [[nodiscard]] constexpr cmplx_t conj() const noexcept {
         return {re, -im};
     }

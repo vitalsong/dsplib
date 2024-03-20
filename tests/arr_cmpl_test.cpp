@@ -194,3 +194,25 @@ TEST(ArrCmplxTest, Pow) {
         ASSERT_EQ_ARR_CMPLX(power(x1, x2), r);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrCmplxTest, CompareOperator) {
+    const arr_cmplx x = {1i, 2i, 3i, 4i};
+    {
+        std::vector<bool> r = (x > 2i);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, false, true, true}));
+        ASSERT_EQ_ARR_CMPLX(x[r], arr_cmplx{3i, 4i});
+    }
+
+    {
+        std::vector<bool> r = (x < 2i);
+        ASSERT_TRUE(bool(r == std::vector<bool>{true, false, false, false}));
+        ASSERT_EQ_ARR_CMPLX(x[r], arr_cmplx{1i});
+    }
+
+    {
+        std::vector<bool> r = (x == 2i);
+        ASSERT_TRUE(bool(r == std::vector<bool>{false, true, false, false}));
+        ASSERT_EQ_ARR_CMPLX(x[r], arr_cmplx{2i});
+    }
+}
