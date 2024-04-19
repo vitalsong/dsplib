@@ -23,3 +23,4 @@
 #include <dsplib/gccphat.h>
 #include <dsplib/resample.h>
 #include <dsplib/spectrum.h>
+#include <dsplib/noise-gate.h>
