@@ -9,8 +9,8 @@ namespace dsplib {
 class NoiseGate
 {
 public:
-    explicit NoiseGate(int sample_rate, real_t threshold = -10.0, real_t attack_time = 0.05, real_t release_time = 0.02,
-                       real_t hold_time = 0.05)
+    explicit NoiseGate(int sample_rate = 44100, real_t threshold = -10.0, real_t attack_time = 0.05,
+                       real_t release_time = 0.02, real_t hold_time = 0.05)
       : tlin_{db2mag(threshold)} {
         wA_ = std::exp(-std::log(9) / (sample_rate * attack_time));
         wR_ = std::exp(-std::log(9) / (sample_rate * release_time));
@@ -21,16 +21,18 @@ public:
 
     struct Result
     {
+        explicit Result(int n)
+          : out(n)
+          , gain(n) {
+        }
         arr_real out;
         arr_real gain;
     };
 
     Result process(const arr_real& x) {
-        Result res;
-        const int N = x.size();
-        res.gain = zeros(N);
-        res.out = zeros(N);
-        for (int i = 0; i < N; ++i) {
+        const int n = x.size();
+        Result res(n);
+        for (int i = 0; i < n; ++i) {
             const auto gc = (dsplib::abs(x[i]) >= tlin_) ? 1 : 0;
             lg_ = _smooth_gain(gc);
             res.gain[i] = lg_;

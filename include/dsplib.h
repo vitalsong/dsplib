@@ -24,3 +24,4 @@
 #include <dsplib/resample.h>
 #include <dsplib/spectrum.h>
 #include <dsplib/noise-gate.h>
+#include <dsplib/compressor.h>
