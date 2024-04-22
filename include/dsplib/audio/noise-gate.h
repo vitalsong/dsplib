@@ -6,6 +6,7 @@
 
 namespace dsplib {
 
+//Dynamic range gate
 class NoiseGate
 {
 public:
@@ -17,6 +18,10 @@ public:
         tA_ = std::floor(attack_time * sample_rate);
         tR_ = std::floor(release_time * sample_rate);
         tH_ = std::floor(hold_time * sample_rate);
+        DSPLIB_ASSERT(threshold >= -140 && threshold <= 0, "`threshold` must be in range [-140:0] db");
+        DSPLIB_ASSERT(attack_time >= 0 && attack_time <= 4, "`attack_time` must be in range [0:4] sec");
+        DSPLIB_ASSERT(release_time >= 0 && release_time <= 4, "`release_time` must be in range [0:4] sec");
+        DSPLIB_ASSERT(hold_time >= 0 && hold_time <= 4, "`hold_time` must be in range [0:4] sec");
     }
 
     struct Result
