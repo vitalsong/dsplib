@@ -3,6 +3,7 @@
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <memory>
 
 namespace dsplib {
 
@@ -23,19 +24,23 @@ public:
         const int n2 = std::pow(2, nextpow2(m + n - 1));
         _cp = chirp.slice(n - 1, n + n - 1);
 
+        assert(ispow2(n2));
+        _fft2 = std::make_shared<FftPlan>(n2);
+        _ifft2 = std::make_shared<IfftPlan>(n2);
+
         if (abs(a - 1) > eps(a.re)) {
             const auto pw = power(a, -arange(n));
             _cp *= pw;
         }
 
         const arr_cmplx dp = chirp.slice(0, m + n - 1);
-        _ich = fft((1.0 / dp) | zeros(n2 - m - n + 1));
+        _ich = _fft2->solve((1.0 / dp) | zeros(n2 - m - n + 1));
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
         auto xp = (x * _cp) | zeros(_ich.size() - x.size());
-        auto r = ifft(fft(xp) * _ich);
+        auto r = _ifft2->solve(_fft2->solve(xp) * _ich);
         arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);
         return tr * _rp;
     }
@@ -45,6 +50,8 @@ public:
     arr_cmplx _ich;
     arr_cmplx _cp;
     arr_cmplx _rp;
+    std::shared_ptr<FftPlan> _fft2;
+    std::shared_ptr<IfftPlan> _ifft2;
 };
 
 CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)

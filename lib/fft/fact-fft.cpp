@@ -1,4 +1,5 @@
 #include "fact-fft.h"
+#include "factory.h"
 
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
@@ -23,6 +24,8 @@ public:
         const auto fac = factor(n);
         if (fac.size() == 1) {
             _prime = true;
+            //it is important to use the cache because there can be several identical FFTs
+            _solver = create_fft_plan(n);
             return;
         }
 
@@ -65,76 +68,20 @@ public:
         return _prime;
     }
 
+    [[nodiscard]] std::shared_ptr<BaseFftPlanC> solver() const noexcept {
+        assert(_solver != nullptr);
+        return _solver;
+    }
+
 private:
     int _n;
     bool _prime{false};
     PlanTree* _p{nullptr};
     PlanTree* _q{nullptr};
+    std::shared_ptr<BaseFftPlanC> _solver;
 };
 
 namespace {
-
-constexpr int MAX_DFT_SIZE = 31;
-
-void _dft_n2(cmplx_t* x) noexcept {
-    cmplx_t y0, y1;
-
-    y0.re = x[0].re + x[1].re;
-    y0.im = x[0].im + x[1].im;
-
-    y1.re = (x[0].re - x[1].re);
-    y1.im = (x[0].im - x[1].im);
-
-    x[0] = y0;
-    x[1] = y1;
-}
-
-void _dft_n3(cmplx_t* x) noexcept {
-    cmplx_t y0, y1, y2;
-    constexpr real_t c = -0.5;
-    constexpr real_t d = 0.866025403784439;
-
-    y0.re = x[0].re + x[1].re + x[2].re;
-    y0.im = x[0].im + x[1].im + x[2].im;
-
-    const real_t re1_c = x[1].re * c;
-    const real_t im1_d = x[1].im * d;
-    const real_t re2_c = x[2].re * c;
-    const real_t im2_d = x[2].im * d;
-    y1.re = x[0].re + (re1_c + im1_d) + (re2_c - im2_d);
-    y2.re = x[0].re + (re1_c - im1_d) + (re2_c + im2_d);
-
-    const real_t re1_d = x[1].re * d;
-    const real_t im1_c = x[1].im * c;
-    const real_t re2_d = x[2].re * d;
-    const real_t im2_c = x[2].im * c;
-    y1.im = x[0].im + (-re1_d + im1_c) + (re2_d + im2_c);
-    y2.im = x[0].im + (re1_d + im1_c) + (-re2_d + im2_c);
-
-    x[0] = y0;
-    x[1] = y1;
-    x[2] = y2;
-}
-
-void _dft_slow(cmplx_t* x, int n, const cmplx_t* tw) noexcept {
-    cmplx_t y[MAX_DFT_SIZE];
-    std::memset(&y[0].re, 0, sizeof(y));
-
-    for (int i = 0; i < n; ++i) {
-        y[0] += x[i];
-    }
-
-    for (int k = 1; k < n; ++k) {
-        int iw = 0;
-        for (int i = 0; i < n; ++i) {
-            y[k] += x[i] * tw[iw];
-            iw += k;
-            iw = (iw < n) ? iw : (iw - n);
-        }
-    }
-
-    std::memcpy(x, y, n * sizeof(cmplx_t));
-}
 
 void _transpose(cmplx_t* x, cmplx_t* t, int n, int m) noexcept {
     for (int i = 0; i < n; ++i) {
@@ -145,65 +92,12 @@ void _transpose(cmplx_t* x, cmplx_t* t, int n, int m) noexcept {
     std::memcpy(x, t, n * m * sizeof(cmplx_t));
 }
 
-void _dft(cmplx_t* x, int n) {
-    using namespace std::complex_literals;
-
-    if (n == 2) {
-        _dft_n2(x);
-        return;
-    }
-
-    if (n == 3) {
-        _dft_n3(x);
-        return;
-    }
-
-    if (n == 5) {
-        const cmplx_t tw[5] = {1.00000000000000 + 0.00000000000000i, 0.309016994374947 - 0.951056516295154i,
-                               -0.809016994374947 - 0.587785252292473i, -0.809016994374948 + 0.587785252292473i,
-                               0.309016994374947 + 0.951056516295154i};
-        _dft_slow(x, n, tw);
-        return;
-    }
-
-    if (n == 7) {
-        const cmplx_t tw[7] = {1.00000000000000 + 0.00000000000000i,    0.623489801858734 - 0.781831482468030i,
-                               -0.222520933956314 - 0.974927912181824i, -0.900968867902419 - 0.433883739117558i,
-                               -0.900968867902419 + 0.433883739117558i, -0.222520933956315 + 0.974927912181824i,
-                               0.623489801858733 + 0.781831482468030i};
-        _dft_slow(x, n, tw);
-        return;
-    }
-
-    if (n == 11) {
-        const cmplx_t tw[11] = {1.00000000000000 + 0.00000000000000i,    0.841253532831181 - 0.540640817455598i,
-                                0.415415013001886 - 0.909631995354518i,  -0.142314838273285 - 0.989821441880933i,
-                                -0.654860733945285 - 0.755749574354258i, -0.959492973614497 - 0.281732556841430i,
-                                -0.959492973614498 + 0.281732556841429i, -0.654860733945285 + 0.755749574354258i,
-                                -0.142314838273285 + 0.989821441880933i, 0.415415013001886 + 0.909631995354519i,
-                                0.841253532831181 + 0.540640817455597i};
-        _dft_slow(x, n, tw);
-        return;
-    }
-
-    if (n <= MAX_DFT_SIZE) {
-        //TODO: use base twiddle factors table or use cache
-        const arr_cmplx tw = expj(-2 * pi * arange(n) / n);
-        _dft_slow(x, n, tw.data());
-        return;
-    }
-
-    //TODO: noexcept?
-    //TODO: call czt without copy, instance czt plan for last factor
-    const auto y = fft(arr_cmplx(x, n));
-    std::memcpy(x, y.data(), n * sizeof(cmplx_t));
-}
-
 void _ctfft(const PlanTree* plan, cmplx_t* x, cmplx_t* mm, const cmplx_t* tw, int ntw) {
     const int n = plan->size();
 
     if (plan->is_prime()) {
-        _dft(x, n);
+        //TODO: separate in/out pointer
+        plan->solver()->solve(x, x, n);
         return;
     }
 

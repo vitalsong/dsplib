@@ -1,11 +1,12 @@
 #include <dsplib/fft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
-#include <dsplib/czt.h>
 
 #include "dft-tables.h"
 #include "lru-cache.h"
 #include "fact-fft.h"
+#include "primes-fft.h"
+#include "factory.h"
 
 #include <cassert>
 
@@ -120,39 +121,18 @@ private:
 
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanC> _get_fft_plan(int n) {
+    //n!=2^K
+    if (isprime(n)) {
+        return std::make_shared<PrimesFftC>(n);
+    }
+
     //n=2^K
     if (ispow2(n)) {
         return std::make_shared<Fft2Plan>(n);
     }
 
-    //n!=2^K
-    if (isprime(n)) {
-        const cmplx_t w = expj(-2 * pi / n);
-        return std::make_shared<CztPlan>(n, n, w);
-    }
-
     return std::make_shared<FactorFFTPlan>(n);
 }
-
-//-------------------------------------------------------------------------------------------------
-class CztPlanR : public BaseFftPlanR
-{
-public:
-    explicit CztPlanR(int n)
-      : _plan(n) {
-    }
-
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
-        return _plan.solve(arr_cmplx(x));
-    }
-
-    [[nodiscard]] int size() const noexcept final {
-        return _plan.size();
-    }
-
-private:
-    FftPlan _plan;
-};
 
 //-------------------------------------------------------------------------------------------------
 class EvenFftPlanR : public BaseFftPlanR
@@ -213,12 +193,12 @@ private:
 
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
-    if (n % 2 == 0) {
-        return std::make_shared<EvenFftPlanR>(n);
+    if (isprime(n)) {
+        return std::make_shared<PrimesFftR>(n);
     }
 
-    if (isprime(n)) {
-        return std::make_shared<CztPlanR>(n);
+    if (n % 2 == 0) {
+        return std::make_shared<EvenFftPlanR>(n);
     }
 
     return std::make_shared<FactorFFTPlanR>(n);
@@ -227,12 +207,29 @@ std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
 }   // namespace
 
 //-------------------------------------------------------------------------------------------------
-FftPlan::FftPlan(int n) {
+std::shared_ptr<BaseFftPlanC> create_fft_plan(int n) {
     thread_local LRUCache<int, std::shared_ptr<BaseFftPlanC>> cache{FFT_CACHE_SIZE};
     if (!cache.exists(n)) {
-        cache.put(n, _get_fft_plan(n));
+        auto plan = _get_fft_plan(n);
+        cache.put(n, plan);
+        return plan;
     }
-    _d = cache.get(n);
+    return cache.get(n);
+}
+
+std::shared_ptr<BaseFftPlanR> create_rfft_plan(int n) {
+    thread_local LRUCache<int, std::shared_ptr<BaseFftPlanR>> cache{FFT_CACHE_SIZE};
+    if (!cache.exists(n)) {
+        auto plan = _get_rfft_plan(n);
+        cache.put(n, plan);
+        return plan;
+    }
+    return cache.get(n);
+}
+
+//-------------------------------------------------------------------------------------------------
+FftPlan::FftPlan(int n)
+  : _d{create_fft_plan(n)} {
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -255,12 +252,8 @@ arr_cmplx fft(const arr_cmplx& x, int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
-FftPlanR::FftPlanR(int n) {
-    thread_local LRUCache<int, std::shared_ptr<BaseFftPlanR>> cache{FFT_CACHE_SIZE};
-    if (!cache.exists(n)) {
-        cache.put(n, _get_rfft_plan(n));
-    }
-    _d = cache.get(n);
+FftPlanR::FftPlanR(int n)
+  : _d{create_rfft_plan(n)} {
 }
 
 //-------------------------------------------------------------------------------------------------

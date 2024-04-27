@@ -3,6 +3,22 @@
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
     using namespace dsplib;
+    using namespace std::complex_literals;
+
+    {
+        auto x = arr_real{1, 2};
+        auto y = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y, arr_cmplx{3, -1});
+    }
+
+    {
+        auto x = arr_real{1, 2, 3, 4, 5};
+        auto y1 = fft(x);
+        auto y2 = arr_cmplx{15.0000000000000 + 0.00000000000000i, -2.50000000000000 + 3.44095480117793i,
+                            -2.50000000000000 + 0.812299240582266i, -2.50000000000000 - 0.812299240582266i,
+                            -2.50000000000000 - 3.44095480117793i};
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
 
     {
         int idx = 10;
