@@ -186,3 +186,29 @@ TEST(FFT, CztIFft2) {
         ASSERT_EQ_ARR_CMPLX(y1, y2);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, CztDft) {
+    using namespace dsplib;
+
+    auto dft = [](const arr_cmplx& x) -> arr_cmplx {
+        const int n = x.size();
+        arr_cmplx y(n);
+        for (int i = 0; i < n; ++i) {
+            const auto w = expj(-2 * pi * arange(n) * i / n);
+            y[i] = dot(x, w);
+        }
+        return y;
+    };
+
+    const auto sizes = arange(42, 511);
+    for (auto n : sizes) {
+        const arr_cmplx x = randn(n) + 1i * randn(n);
+        const auto y1 = dft(x);
+        cmplx_t w = expj(-2 * pi / n);
+        const auto y2 = czt(x, n, w);
+        const auto y3 = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+        ASSERT_EQ_ARR_CMPLX(y1, y3);
+    }
+}

@@ -22,7 +22,6 @@ public:
       : n_{n} {
         DSPLIB_ASSERT(isprime(n_), "`n` must be a prime number");
         if (n > MAX_DFT_SIZE) {
-            //TODO: create CZT from cache?
             const cmplx_t w = expj(-2 * pi / n);
             czt_ = std::make_shared<CztPlan>(n, n, w);
         } else if (n <= MAX_DFT_SIZE) {

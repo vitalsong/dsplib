@@ -1,5 +1,5 @@
-#include "fact-fft.h"
-#include "factory.h"
+#include "fft/fact-fft.h"
+#include "fft/factory.h"
 
 #include <dsplib/math.h>
 #include <dsplib/utils.h>

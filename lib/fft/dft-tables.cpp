@@ -1,4 +1,5 @@
-#include "dft-tables.h"
+#include "fft/dft-tables.h"
+
 #include <dsplib/throw.h>
 #include <dsplib/math.h>
 

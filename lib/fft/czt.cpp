@@ -3,6 +3,8 @@
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <dsplib/throw.h>
+
 #include <memory>
 
 namespace dsplib {
@@ -39,14 +41,21 @@ public:
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
-        auto xp = (x * _cp) | zeros(_ich.size() - x.size());
-        auto r = _ifft2->solve(_fft2->solve(xp) * _ich);
-        arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);
-        return tr * _rp;
+        DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
+        arr_cmplx xp(_fft2->size());
+        for (size_t i = 0; i < _n; ++i) {
+            xp[i] = x[i] * _cp[i];
+        }
+        xp = _fft2->solve(xp);
+        xp *= _ich;
+        xp = _ifft2->solve(xp);
+        arr_cmplx tr = xp.slice(_n - 1, _m + _n - 1);
+        tr *= _rp;
+        return tr;
     }
 
-    int _n;
-    int _m;
+    const int _n;
+    const int _m;
     arr_cmplx _ich;
     arr_cmplx _cp;
     arr_cmplx _rp;
@@ -66,7 +75,7 @@ int CztPlan::size() const noexcept {
     return _d->_n;
 }
 
-arr_cmplx czt(arr_cmplx x, int m, cmplx_t w, cmplx_t a) {
+arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a) {
     CztPlan plan(x.size(), m, w, a);
     return plan(x);
 }

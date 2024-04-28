@@ -30,6 +30,6 @@ private:
 * \param a Spiral contour initial point
 * \return Chirp Z-transform
 */
-arr_cmplx czt(arr_cmplx x, int m, cmplx_t w, cmplx_t a = 1);
+arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a = 1);
 
 }   // namespace dsplib
