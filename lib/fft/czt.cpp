@@ -3,6 +3,9 @@
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
+#include <dsplib/throw.h>
+
+#include <memory>
 
 namespace dsplib {
 
@@ -23,28 +26,41 @@ public:
         const int n2 = std::pow(2, nextpow2(m + n - 1));
         _cp = chirp.slice(n - 1, n + n - 1);
 
+        assert(ispow2(n2));
+        _fft2 = std::make_shared<FftPlan>(n2);
+        _ifft2 = std::make_shared<IfftPlan>(n2);
+
         if (abs(a - 1) > eps(a.re)) {
             const auto pw = power(a, -arange(n));
             _cp *= pw;
         }
 
         const arr_cmplx dp = chirp.slice(0, m + n - 1);
-        _ich = fft((1.0 / dp) | zeros(n2 - m - n + 1));
+        _ich = _fft2->solve((1.0 / dp) | zeros(n2 - m - n + 1));
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
-        auto xp = (x * _cp) | zeros(_ich.size() - x.size());
-        auto r = ifft(fft(xp) * _ich);
-        arr_cmplx tr = r.slice(_n - 1, _m + _n - 1);
-        return tr * _rp;
+        DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
+        arr_cmplx xp(_fft2->size());
+        for (size_t i = 0; i < _n; ++i) {
+            xp[i] = x[i] * _cp[i];
+        }
+        xp = _fft2->solve(xp);
+        xp *= _ich;
+        xp = _ifft2->solve(xp);
+        arr_cmplx tr = xp.slice(_n - 1, _m + _n - 1);
+        tr *= _rp;
+        return tr;
     }
 
-    int _n;
-    int _m;
+    const int _n;
+    const int _m;
     arr_cmplx _ich;
     arr_cmplx _cp;
     arr_cmplx _rp;
+    std::shared_ptr<FftPlan> _fft2;
+    std::shared_ptr<IfftPlan> _ifft2;
 };
 
 CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
@@ -59,7 +75,7 @@ int CztPlan::size() const noexcept {
     return _d->_n;
 }
 
-arr_cmplx czt(arr_cmplx x, int m, cmplx_t w, cmplx_t a) {
+arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a) {
     CztPlan plan(x.size(), m, w, a);
     return plan(x);
 }

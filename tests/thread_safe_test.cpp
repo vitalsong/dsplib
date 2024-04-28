@@ -10,13 +10,11 @@
 TEST(ThreadSafe, FftCmplx) {
     using namespace dsplib;
 
-    std::vector<int> nfft_list = {128, 512, 1024, 4096, 8192};
     int test_steps = 1000;
     while (--test_steps) {
-        int idx = std::rand() % nfft_list.size();
-        int n = nfft_list[idx];
-        auto x1 = dsplib::randn(n);
-        auto x2 = x1;
+        const int n = 1L << randi({6, 13});
+        arr_cmplx x1 = dsplib::randn(n) + dsplib::randn(n) * 1i;
+        arr_cmplx x2 = x1;
 
         auto f1 = std::async([&]() {
             return dsplib::fft(x1);
@@ -28,7 +26,54 @@ TEST(ThreadSafe, FftCmplx) {
 
         auto y1 = f1.get();
         auto y2 = f2.get();
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
 
+//-------------------------------------------------------------------------------------------------
+TEST(ThreadSafe, FftReal) {
+    using namespace dsplib;
+
+    int test_steps = 1000;
+    while (--test_steps) {
+        const int n = 1L << randi({6, 13});
+        arr_real x1 = randn(n);
+        arr_real x2 = x1;
+
+        auto f1 = std::async([&]() {
+            return dsplib::fft(x1);
+        });
+
+        auto f2 = std::async([&]() {
+            return dsplib::fft(x2);
+        });
+
+        auto y1 = f1.get();
+        auto y2 = f2.get();
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ThreadSafe, FftNonPow2) {
+    using namespace dsplib;
+
+    int test_steps = 1000;
+    while (--test_steps) {
+        const int n = 1L << randi({6, 13});
+        arr_cmplx x1 = dsplib::randn(n);
+        arr_cmplx x2 = x1;
+
+        auto f1 = std::async([&]() {
+            return dsplib::fft(x1);
+        });
+
+        auto f2 = std::async([&]() {
+            return dsplib::fft(x2);
+        });
+
+        auto y1 = f1.get();
+        auto y2 = f2.get();
         ASSERT_EQ_ARR_CMPLX(y1, y2);
     }
 }

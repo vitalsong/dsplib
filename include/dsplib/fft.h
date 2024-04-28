@@ -11,6 +11,11 @@ class BaseFftPlanR
 public:
     virtual ~BaseFftPlanR() = default;
     [[nodiscard]] virtual arr_cmplx solve(const arr_real& x) const = 0;
+    virtual void solve(const real_t* x, cmplx_t* y, int n) const {
+        //TODO: use span
+        const auto r = this->solve(arr_real(x, n));
+        std::memcpy(y, r.data(), n * sizeof(cmplx_t));
+    }
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
@@ -20,6 +25,10 @@ class BaseFftPlanC
 public:
     virtual ~BaseFftPlanC() = default;
     [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
+    virtual void solve(const cmplx_t* x, cmplx_t* y, int n) const {
+        const auto r = this->solve(arr_cmplx(x, n));
+        std::memcpy(y, r.data(), n * sizeof(cmplx_t));
+    }
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 

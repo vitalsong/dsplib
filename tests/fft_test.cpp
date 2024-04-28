@@ -3,6 +3,22 @@
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
     using namespace dsplib;
+    using namespace std::complex_literals;
+
+    {
+        auto x = arr_real{1, 2};
+        auto y = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y, arr_cmplx{3, -1});
+    }
+
+    {
+        auto x = arr_real{1, 2, 3, 4, 5};
+        auto y1 = fft(x);
+        auto y2 = arr_cmplx{15.0000000000000 + 0.00000000000000i, -2.50000000000000 + 3.44095480117793i,
+                            -2.50000000000000 + 0.812299240582266i, -2.50000000000000 - 0.812299240582266i,
+                            -2.50000000000000 - 3.44095480117793i};
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
 
     {
         int idx = 10;
@@ -168,5 +184,31 @@ TEST(FFT, CztIFft2) {
         auto y1 = czt(x, n, w);
         auto y2 = ifft(x) * n;
         ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, CztDft) {
+    using namespace dsplib;
+
+    auto dft = [](const arr_cmplx& x) -> arr_cmplx {
+        const int n = x.size();
+        arr_cmplx y(n);
+        for (int i = 0; i < n; ++i) {
+            const auto w = expj(-2 * pi * arange(n) * i / n);
+            y[i] = dot(x, w);
+        }
+        return y;
+    };
+
+    const auto sizes = arange(42, 511);
+    for (auto n : sizes) {
+        const arr_cmplx x = randn(n) + 1i * randn(n);
+        const auto y1 = dft(x);
+        cmplx_t w = expj(-2 * pi / n);
+        const auto y2 = czt(x, n, w);
+        const auto y3 = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+        ASSERT_EQ_ARR_CMPLX(y1, y3);
     }
 }
