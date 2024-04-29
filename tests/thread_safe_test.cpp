@@ -60,7 +60,7 @@ TEST(ThreadSafe, FftNonPow2) {
 
     int test_steps = 1000;
     while (--test_steps) {
-        const int n = 1L << randi({6, 13});
+        const int n = randi({100, 2000});
         arr_cmplx x1 = dsplib::randn(n);
         arr_cmplx x2 = x1;
 

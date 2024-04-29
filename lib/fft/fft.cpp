@@ -2,7 +2,6 @@
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
 
-#include "fft/dft-tables.h"
 #include "fft/fact-fft.h"
 #include "fft/primes-fft.h"
 #include "fft/factory.h"
