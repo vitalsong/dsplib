@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
 
+option(DSPLIB_COVERAGE "Enable coverage compiler flags" OFF)
+
 CPMAddPackage(NAME googletest
     GIT_REPOSITORY "https://github.com/google/googletest.git"
         VERSION 1.14.0
@@ -25,3 +27,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC dsplib gtest)
+
+if (DSPLIB_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(STATUS "dsplib: coverage enabled")
+    target_compile_options(dsplib PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+    target_link_libraries(${PROJECT_NAME} PRIVATE -fprofile-instr-generate)
+endif()

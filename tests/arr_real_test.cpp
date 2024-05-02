@@ -1,4 +1,3 @@
-#include "dsplib/utils.h"
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -28,6 +27,26 @@ TEST(ArrRealTest, Init) {
     std::vector<::real_t> v2 = {1, 2, 3, 4};
     arr_real a9(v2);
     ASSERT_EQ_ARR_REAL(v2, a9);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, Cast) {
+    {
+        const arr_int x1 = {1, 2, 3, 4, 5};
+        const arr_real x2(x1);
+        ASSERT_EQ_ARR_REAL(x1, x2);
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        x1 = x1;
+        ASSERT_EQ_ARR_REAL(x1, arr_real{1, 2, 3, 4, 5});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = std::move(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2, 3, 4, 5});
+        ASSERT_EQ(x1.size(), 0);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

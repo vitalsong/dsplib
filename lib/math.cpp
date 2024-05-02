@@ -207,16 +207,14 @@ std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir) {
 }
 
 bool issorted(const arr_real& x, Direction dir) {
-    if (dir == Direction::Ascend) {
-        return std::is_sorted(x.begin(), x.end());
-    }
     if (dir == Direction::Descend) {
         auto comp = [&](auto lhs, auto rhs) {
             return (lhs > rhs);
         };
         return std::is_sorted(x.begin(), x.end(), comp);
     }
-    return false;
+
+    return std::is_sorted(x.begin(), x.end());
 }
 
 //-------------------------------------------------------------------------------------------------

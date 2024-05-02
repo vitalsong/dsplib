@@ -1,10 +1,11 @@
 #include "tests_common.h"
 
 using namespace dsplib;
+using namespace std::complex_literals;
 
 //-------------------------------------------------------------------------------------------------
 TEST(BaseTest, CmplxStdLiteral) {
-    dsplib::cmplx_t x1(10i);
+    cmplx_t x1(10i);
     ASSERT_CMPLX_EQ(x1, cmplx_t{0, 10});
 
     cmplx_t x2 = 2 - 1i;
@@ -19,6 +20,38 @@ TEST(BaseTest, CmplxStdLiteral) {
     std::complex<real_t> x5 = cmplx_t{10, -10};
     ASSERT_EQ(x5.real(), 10);
     ASSERT_EQ(x5.imag(), -10);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(BaseTest, CmplxUnary) {
+    {
+        cmplx_t x1 = 10 + 10i;
+        cmplx_t x2 = -x1;
+        cmplx_t x3 = conj(x1);
+        cmplx_t x4 = +x1;
+        ASSERT_CMPLX_EQ(x1, cmplx_t{10, 10});
+        ASSERT_CMPLX_EQ(x2, cmplx_t{-10, -10});
+        ASSERT_CMPLX_EQ(x3, cmplx_t{10, -10});
+        ASSERT_CMPLX_EQ(x4, cmplx_t{10, 10});
+        ASSERT_TRUE(x1 == x4);
+        ASSERT_TRUE(x1 != x2);
+    }
+    {
+        cmplx_t x1 = 10 + 10i;
+        x1 -= 10;
+        ASSERT_CMPLX_EQ(x1, cmplx_t{0, 10});
+    }
+    {
+        cmplx_t x1 = 10 + 10i;
+        x1 += 10;
+        ASSERT_CMPLX_EQ(x1, cmplx_t{20, 10});
+    }
+}
+
+TEST(BaseTest, CmplxScalarDiv) {
+    cmplx_t x1 = 10 + 10i;
+    cmplx_t x2 = 1 / x1;
+    ASSERT_CMPLX_EQ(x2, cmplx_t{0.05, -0.05});
 }
 
 //-------------------------------------------------------------------------------------------------

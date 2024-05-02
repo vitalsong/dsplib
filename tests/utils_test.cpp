@@ -1,5 +1,3 @@
-#include "dsplib/array.h"
-#include "dsplib/utils.h"
 #include "tests_common.h"
 
 using namespace dsplib;
@@ -59,6 +57,24 @@ TEST(Utils, Zeros) {
     auto x1 = zeros(5);
     arr_real x2 = {0, 0, 0, 0, 0};
     ASSERT_EQ_ARR_REAL(x1, x2);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, Zeropad) {
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = zeropad(x1, 5);
+        arr_real x3 = zeropad(x1, 7);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2, 3, 4, 5});
+        ASSERT_EQ_ARR_REAL(x3, arr_real{1, 2, 3, 4, 5, 0, 0});
+    }
+    {
+        arr_cmplx x1 = {1i, 2i, 3i, 4i, 5i};
+        arr_cmplx x2 = zeropad(x1, 5);
+        arr_cmplx x3 = zeropad(x1, 7);
+        ASSERT_EQ_ARR_CMPLX(x2, arr_cmplx{1i, 2i, 3i, 4i, 5i});
+        ASSERT_EQ_ARR_CMPLX(x3, arr_cmplx{1i, 2i, 3i, 4i, 5i, 0, 0});
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

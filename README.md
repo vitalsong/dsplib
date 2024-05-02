@@ -1,4 +1,5 @@
 # DSPLIB
+[![codecov](https://codecov.io/gh/vitalsong/dsplib/graph/badge.svg?token=8QBUTFWQI3)](https://codecov.io/gh/vitalsong/dsplib)
 ![testing](https://github.com/vitalsong/dsplib/actions/workflows/android-ndk.yml/badge.svg)
 ![testing](https://github.com/vitalsong/dsplib/actions/workflows/linux.yml/badge.svg)
 ![testing](https://github.com/vitalsong/dsplib/actions/workflows/windows.yml/badge.svg)

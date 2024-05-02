@@ -126,14 +126,12 @@ struct cmplx_t
 
     cmplx_t& operator=(const cmplx_t&) = default;
 
-    cmplx_t& operator+() noexcept {
+    const cmplx_t& operator+() const noexcept {
         return *this;
     }
 
-    cmplx_t& operator-() noexcept {
-        re = -re;
-        im = -im;
-        return *this;
+    cmplx_t operator-() const noexcept {
+        return {-re, -im};
     }
 
     cmplx_t& operator+=(const cmplx_t& rhs) noexcept {

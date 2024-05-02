@@ -40,18 +40,8 @@ public:
         this->slice(0, indexing::end) = rhs;
     }
 
-    base_array<T>& operator=(const const_slice_t<T>& rhs) {
-        *this = base_array<T>(rhs);
-        return *this;
-    }
-
     base_array(const slice_t<T>& rhs)
       : base_array(const_slice_t<T>(rhs)) {
-    }
-
-    base_array<T>& operator=(const slice_t<T>& rhs) {
-        *this = base_array<T>(const_slice_t<T>(rhs));
-        return *this;
     }
 
     base_array(const std::vector<T>& v)
