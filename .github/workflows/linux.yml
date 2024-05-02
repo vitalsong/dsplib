@@ -50,3 +50,31 @@ jobs:
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build-${{matrix.compiler}} --target dsplib-test
+
+  code-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install LLVM
+        run: sudo apt install -y llvm
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DDSPLIB_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DDSPLIB_COVERAGE=ON
+        env:
+          CXX: clang++
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
+
+      - name: Create coverage report
+        run: |
+          export LLVM_PROFILE_FILE=dsplib.profraw && ${{github.workspace}}/build/tests/dsplib-test
+          llvm-profdata merge dsplib.profraw -o dsplib.profdata
+          llvm-cov report ${{github.workspace}}/build/tests/dsplib-test -ignore-filename-regex=tests/* -instr-profile=dsplib.profdata -use-color
+          llvm-cov show ${{github.workspace}}/build/tests/dsplib-test -Xdemangler=c++filt -ignore-filename-regex=tests/* -instr-profile=dsplib.profdata > coverage.txt
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

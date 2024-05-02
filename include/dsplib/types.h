@@ -73,33 +73,13 @@ using enable_convertible_t = std::enable_if<std::is_convertible_v<T, T2>>;
 template<typename T1, typename T2>
 using enable_same_t = std::enable_if<std::is_same_v<T1, T2>>;
 
-template<typename T, class = void>
-struct cmplx_convert_to_t : std::false_type
-{};
-
-template<typename T>
-struct cmplx_convert_to_t<T, typename enable_scalar_t<T>::type>;
-
-template<typename T>
-constexpr cmplx_t to_cmplx_cast(const T& v);
-
-template<typename T>
-struct cmplx_convert_from_t : std::false_type
-{};
-
-template<typename T>
-constexpr T from_cmplx_cast(const cmplx_t& v);
-
 //-------------------------------------------------------------------------------------------------
 //basic complex type
 struct cmplx_t
 {
-    template<typename T>
-    using convert_fn_t = std::function<cmplx_t(T)>;
-
     constexpr cmplx_t(real_t re_ = 0, real_t im_ = 0)
-      : re(re_)
-      , im(im_) {
+      : re{re_}
+      , im{im_} {
     }
 
     constexpr cmplx_t(const cmplx_t&) = default;
@@ -112,13 +92,15 @@ struct cmplx_t
 
     //std::complex -> cmplx_t
     template<typename T>
-    cmplx_t(const std::complex<T>& v) {
-        *this = to_cmplx_cast(v);
+    constexpr cmplx_t(const std::complex<T>& v)
+      : re{static_cast<real_t>(v.real())}
+      , im{static_cast<real_t>(v.imag())} {
     }
 
-    template<typename T, typename C_ = typename std::enable_if<cmplx_convert_from_t<T>::value>::type>
-    operator T() const {
-        return from_cmplx_cast<T>(*this);
+    //cmplx_t -> std::complex
+    template<typename T>
+    operator std::complex<T>() const {
+        return std::complex<T>(static_cast<T>(re), static_cast<T>(im));
     }
 
     real_t re{0};
@@ -126,14 +108,12 @@ struct cmplx_t
 
     cmplx_t& operator=(const cmplx_t&) = default;
 
-    cmplx_t& operator+() noexcept {
+    const cmplx_t& operator+() const noexcept {
         return *this;
     }
 
-    cmplx_t& operator-() noexcept {
-        re = -re;
-        im = -im;
-        return *this;
+    cmplx_t operator-() const noexcept {
+        return {-re, -im};
     }
 
     cmplx_t& operator+=(const cmplx_t& rhs) noexcept {
@@ -261,43 +241,6 @@ template<class T, class S_ = typename enable_scalar_t<T>::type,
          class C_ = typename enable_convertible_t<T, cmplx_t>::type>
 constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
-}
-
-//cast rules
-template<typename T>
-struct cmplx_convert_to_t<T, typename enable_scalar_t<T>::type> : std::true_type
-{
-    static cmplx_t cast(const T& v) {
-        return cmplx_t{static_cast<real_t>(v), 0};
-    }
-};
-
-template<typename T>
-struct cmplx_convert_to_t<std::complex<T>> : std::true_type
-{
-    static cmplx_t cast(const std::complex<T>& v) {
-        return cmplx_t{static_cast<real_t>(v.real()), static_cast<real_t>(v.imag())};
-    }
-};
-
-template<typename T>
-struct cmplx_convert_from_t<std::complex<T>> : std::true_type
-{
-    static std::complex<T> cast(const cmplx_t& v) {
-        return std::complex<T>{static_cast<T>(v.re), static_cast<T>(v.im)};
-    }
-};
-
-template<typename T>
-constexpr cmplx_t to_cmplx_cast(const T& v) {
-    static_assert(cmplx_convert_to_t<T>::value, "Type is not convertable. Please define 'cmplx_convert_to_t<T>'");
-    return cmplx_convert_to_t<T>::cast(v);
-}
-
-template<typename T>
-constexpr T from_cmplx_cast(const cmplx_t& v) {
-    static_assert(cmplx_convert_from_t<T>::value, "Type is not convertable. Please define 'cmplx_convert_from_t<T>'");
-    return cmplx_convert_from_t<T>::cast(v);
 }
 
 }   // namespace dsplib

@@ -81,8 +81,6 @@ real_t corr(const arr_real& x, const arr_real& y, Correlation type) {
         return _spearman_corr(x, y);
     case Correlation::Kendall:
         return _kendall_corr(x, y);
-    default:
-        return 0;
     }
 }
 

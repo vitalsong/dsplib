@@ -42,6 +42,11 @@ TEST(SliceTest, Base) {
         ASSERT_EQ(y1.size(), 50);
         ASSERT_EQ(y2.size(), 50);
     }
+    {
+        arr_real x1 = {0, 1, 2, 3};
+        arr_real x2(x1.slice(0, 4));
+        ASSERT_EQ_ARR_REAL(x1, x2);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -147,6 +152,12 @@ TEST(SliceTest, Overlaped) {
     }
 
     {
+        arr_cmplx x = {0, 1, 2, 3};
+        x.slice(0, 2) = x.slice(2, 4);
+        ASSERT_EQ_ARR_CMPLX(x, arr_cmplx{2, 3, 2, 3});
+    }
+
+    {
         arr_real x = {3, 2, 1, 0};
         x.slice(2, 4) = x.slice(0, 2);
         ASSERT_EQ_ARR_REAL(x, arr_real{3, 2, 3, 2});
@@ -183,4 +194,44 @@ TEST(SliceTest, Placeholders) {
     const arr_real x1 = {0, 1, 2, 3};
     arr_real x2 = x1.slice(1, end);
     ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2, 3});
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, SameArray) {
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        x1.slice(0, 2) = x1.slice(3, 5);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{4, 5, 3, 4, 5});
+    }
+    {
+        arr_cmplx x1 = {1i, 2i, 3i, 4i, 5i};
+        x1.slice(0, 2) = x1.slice(3, 5);
+        ASSERT_EQ_ARR_CMPLX(x1, arr_cmplx{4i, 5i, 3i, 4i, 5i});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        x1.slice(0, 4, 2) = x1.slice(1, 5, 2);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{2, 2, 4, 4, 5});
+    }
+    {
+        arr_cmplx x1 = {1i, 2i, 3i, 4i, 5i};
+        x1.slice(0, 4, 2) = x1.slice(1, 5, 2);
+        ASSERT_EQ_ARR_CMPLX(x1, arr_cmplx{2i, 2i, 4i, 4i, 5i});
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(SliceTest, Indexies) {
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        std::vector<bool> idxs = {true, false, false, true, true};
+        const arr_real x2 = x1[idxs];
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1, 4, 5});
+    }
+    {
+        const arr_real x1 = {1, 2, 3, 4, 5};
+        std::vector<int> idxs = {0, 3, 4};
+        const arr_real x2 = x1[idxs];
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1, 4, 5});
+    }
 }
