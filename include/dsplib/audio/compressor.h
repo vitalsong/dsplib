@@ -2,6 +2,7 @@
 
 #include <dsplib/array.h>
 #include <dsplib/utils.h>
+#include <dsplib/math.h>
 
 namespace dsplib {
 
@@ -57,24 +58,24 @@ public:
     }
 
 private:
-    real_t _compute_gain(real_t x) const noexcept {
+    [[nodiscard]] real_t _compute_gain(real_t x) const noexcept {
         //TODO: fast log10?
         const auto xdb = mag2db(dsplib::abs(x) + eps());
         auto xsc = xdb;
-        if (xdb > (T_ + W_ / 2)) {
+        if (xdb >= (T_ + W_ / 2)) {
             xsc = T_ + (xdb - T_) / R_;
-        } else if ((xdb >= (T_ - W_ / 2)) && (xdb <= (T_ + W_ / 2))) {
+        } else if ((xdb > (T_ - W_ / 2)) && (xdb < (T_ + W_ / 2))) {
             xsc = xdb + (1 / R_ - 1) * abs2(xdb - T_ + W_ / 2) / (2 * W_);
         }
         return (xsc - xdb);
     }
 
-    real_t T_{1};    ///< threshold
-    int R_{1};       ///< ratio
-    real_t W_{0};    ///< knee width
-    real_t wA_{1};   ///< attack time coeff
-    real_t wR_{1};   ///< release time coeff
-    real_t gs_{0};   ///< smoothed gain
+    const real_t T_{1};   ///< threshold
+    const int R_{1};      ///< ratio
+    const real_t W_{0};   ///< knee width
+    real_t wA_{1};        ///< attack time coeff
+    real_t wR_{1};        ///< release time coeff
+    real_t gs_{0};        ///< smoothed gain
 };
 
 }   // namespace dsplib
