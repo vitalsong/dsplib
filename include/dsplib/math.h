@@ -75,6 +75,7 @@ arr_cmplx round(const arr_cmplx& arr);
 //array sum
 real_t sum(const arr_real& arr);
 cmplx_t sum(const arr_cmplx& arr);
+int sum(const std::vector<bool>& arr);
 
 // cumulative sum
 // example: cumsum([1, 2, 3, 4, 5]) -> [1, 3, 6, 10, 15]
@@ -302,5 +303,16 @@ uint32_t nextprime(uint32_t n);
 //example: primes(11) = {2, 3, 5, 7, 11}
 //example: primes(10) = {2, 3, 5, 7}
 arr_int primes(uint32_t n);
+
+//----------------------------------------------------------------------------------------
+//missing data
+
+//determine if any array element is NaN
+bool anynan(const arr_real& x);
+bool anynan(const arr_cmplx& x);
+
+//determine if any array element is Inf or -Inf
+bool anyinf(const arr_real& x);
+bool anyinf(const arr_cmplx& x);
 
 }   // namespace dsplib

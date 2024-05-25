@@ -1,6 +1,3 @@
-#include "dsplib/keywords.h"
-#include "dsplib/math.h"
-#include "dsplib/utils.h"
 #include "tests_common.h"
 #include <gtest/gtest.h>
 
@@ -467,4 +464,35 @@ TEST(MathTest, Primes) {
     ASSERT_EQ_ARR_INT(primes(6), arr_int{2, 3, 5});
     ASSERT_EQ_ARR_INT(primes(7), arr_int{2, 3, 5, 7});
     ASSERT_EQ(primes(1L << 20).size(), 82025);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, AnyInf) {
+    {
+        arr_real x = {0, 1, 2, 3};
+        ASSERT_FALSE(anyinf(x));
+    }
+    {
+        arr_real x = {0, 1, 2, inf};
+        ASSERT_TRUE(anyinf(x));
+    }
+    {
+        arr_real x = {0, 1, 2, -inf};
+        ASSERT_TRUE(anyinf(x));
+    }
+    {
+        arr_cmplx x = {0i, 1i, 2i, inf};
+        ASSERT_TRUE(anyinf(x));
+    }
+}
+
+TEST(MathTest, AnyNan) {
+    {
+        arr_real x = {0, 1, 2, NAN};
+        ASSERT_TRUE(anynan(x));
+    }
+    {
+        arr_cmplx x = {0i, 1i, 2i, NAN};
+        ASSERT_TRUE(anynan(x));
+    }
 }

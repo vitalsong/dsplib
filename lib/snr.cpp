@@ -130,7 +130,8 @@ HarmInfo _harm_analyze(arr_real spectrum, int nharm, bool aliased = false) {
 
     //filling voids after removing harmonics (for noise)
     //TODO: fix small values for N/2+1 array size with zeropad to N
-    const auto noise_floor = median(spectrum[spectrum > 0]);
+    const auto idxs = (spectrum > 0);
+    const auto noise_floor = (sum(idxs) > 0) ? median(spectrum[idxs]) : 0;
     for (const auto& tn : tones) {
         spectrum.slice(tn.lpos, tn.rpos + 1) = noise_floor;
     }

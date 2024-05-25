@@ -140,22 +140,16 @@ arr_cmplx round(const arr_cmplx& x) {
 }
 
 //-------------------------------------------------------------------------------------------------
-template<typename T>
-static T _sum(const base_array<T>& x) {
-    T acc = 0;
-    const int n = x.size();
-    for (int i = 0; i < n; ++i) {
-        acc += x[i];
-    }
-    return acc;
-}
-
 real_t sum(const arr_real& arr) {
-    return _sum(arr);
+    return std::accumulate(arr.begin(), arr.end(), real_t(0));
 }
 
 cmplx_t sum(const arr_cmplx& arr) {
-    return _sum(arr);
+    return std::accumulate(arr.begin(), arr.end(), cmplx_t(0));
+}
+
+int sum(const std::vector<bool>& arr) {
+    return int(std::count(arr.begin(), arr.end(), true));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -812,6 +806,36 @@ real_t db2mag(real_t v) {
 
 arr_real db2mag(const arr_real& v) {
     return power(10, (v / 20));
+}
+
+//-------------------------------------------------------------------------------------------------
+template<class T, class Fn>
+static bool _exists(const base_array<T>& x, Fn pred) {
+    return std::find_if(x.begin(), x.end(), pred) != x.end();
+}
+
+bool anynan(const arr_real& x) {
+    return _exists(x, [](const real_t& v) {
+        return std::isnan(v);
+    });
+}
+
+bool anynan(const arr_cmplx& x) {
+    return _exists(x, [](const cmplx_t& v) {
+        return std::isnan(v.re) || std::isnan(v.im);
+    });
+}
+
+bool anyinf(const arr_real& x) {
+    return _exists(x, [](const real_t& v) {
+        return std::isinf(v);
+    });
+}
+
+bool anyinf(const arr_cmplx& x) {
+    return _exists(x, [](const cmplx_t& v) {
+        return std::isinf(v.re) || std::isinf(v.im);
+    });
 }
 
 }   // namespace dsplib

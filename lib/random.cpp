@@ -63,6 +63,16 @@ real_t rand() {
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_real rand(std::array<real_t, 2> range, int n) {
+    arr_real r(n);
+    std::uniform_real_distribution<real_t> dist{range[0], range[1]};
+    for (int i = 0; i < n; ++i) {
+        r[i] = dist(g_engine);
+    }
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real randn(int n) {
     arr_real r(n);
     std::normal_distribution<real_t> dist{0, 1};

@@ -3,6 +3,7 @@
 #include <complex>
 #include <functional>
 #include <type_traits>
+#include <limits>
 #include <iosfwd>
 
 #ifndef restrict
@@ -49,11 +50,12 @@ using real_t = double;
 #endif
 
 constexpr real_t pi = 3.141592653589793238463;
+constexpr real_t inf = std::numeric_limits<real_t>::infinity();
 
 struct cmplx_t;
 
 //Floating-point relative accuracy
-double eps(float v);
+float eps(float v);
 double eps(double v);
 real_t eps();
 
