@@ -22,6 +22,7 @@ int randi(std::array<int, 2> range);
 //uniformly distributed random numbers
 real_t rand();
 arr_real rand(int n);
+arr_real rand(std::array<real_t, 2> range, int n);
 
 //normally distributed random numbers
 real_t randn();

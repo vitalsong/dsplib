@@ -4,7 +4,6 @@
 #include "dsplib/keywords.h"
 #include "dsplib/math.h"
 #include "dsplib/throw.h"
-#include "dsplib/types.h"
 #include "dsplib/utils.h"
 #include "dsplib/window.h"
 

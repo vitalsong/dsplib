@@ -7,8 +7,7 @@
 namespace dsplib {
 
 //Dynamic range compressor
-//TODO: add object builder
-//TODO: add makeup
+//TODO: add makeup gain
 class Compressor
 {
 public:
