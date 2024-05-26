@@ -23,6 +23,7 @@
 #include <dsplib/gccphat.h>
 #include <dsplib/resample.h>
 #include <dsplib/spectrum.h>
+#include <dsplib/iir.h>
 
 #include <dsplib/audio/noise-gate.h>
 #include <dsplib/audio/compressor.h>
