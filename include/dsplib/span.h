@@ -15,8 +15,7 @@ class span_t;
 //used to quickly access vector elements in functions (without memory allocation)
 
 //TODO: add concatenate syntax
-//TODO: add math operators
-//TODO: std::vector<T> support (without 'base_array' or use reference to vec_)
+//TODO: add math operators (+,-,*,/)
 
 //mutable span
 template<typename T>
@@ -88,6 +87,25 @@ public:
         return *this;
     }
 
+    using iterator = T*;
+    using const_iterator = const T*;
+
+    iterator begin() noexcept {
+        return _ptr;
+    }
+
+    iterator end() noexcept {
+        return _ptr + _len;
+    }
+
+    const_iterator begin() const noexcept {
+        return _ptr;
+    }
+
+    const_iterator end() const noexcept {
+        return _ptr + _len;
+    }
+
 private:
     T* _ptr{nullptr};
     int _len{0};
@@ -104,10 +122,6 @@ public:
       : const_slice_t<T>(data, size, 0, size, 1)
       , _ptr{data}
       , _len{size} {
-    }
-
-    span_t(const span_t<T>& v)
-      : span_t(v._data, v._i1, v._i2) {
     }
 
     span_t(const mut_span_t<T>& v)
@@ -140,11 +154,22 @@ public:
         return _ptr[i];
     }
 
+    using const_iterator = const T*;
+
+    const_iterator begin() const noexcept {
+        return _ptr;
+    }
+
+    const_iterator end() const noexcept {
+        return _ptr + _len;
+    }
+
 private:
     const T* _ptr{nullptr};
     int _len{0};
 };
 
+//TODO: short naming, mut_span_r/mut_span_c or m_span_r/m_span_c
 using mut_span_real = mut_span_t<real_t>;
 using mut_span_cmplx = mut_span_t<cmplx_t>;
 
