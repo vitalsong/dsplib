@@ -260,7 +260,7 @@ real_t imag(const cmplx_t& x) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx complex(const arr_real& re, const arr_real& im) {
+arr_cmplx complex(span_real re, span_real im) {
     DSPLIB_ASSERT(re.size() == im.size(), "array sizes are different");
     const int n = re.size();
     arr_cmplx r(n);
@@ -271,8 +271,12 @@ arr_cmplx complex(const arr_real& re, const arr_real& im) {
     return r;
 }
 
-arr_cmplx complex(const arr_real& re) noexcept {
-    return array_cast<cmplx_t>(re);
+arr_cmplx complex(span_real re) {
+    arr_cmplx r(re.size());
+    for (int i = 0; i < re.size(); ++i) {
+        r[i].re = re[i];
+    }
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------

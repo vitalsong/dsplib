@@ -129,7 +129,7 @@ TEST(ArrCmplxTest, Zeros) {
 //-------------------------------------------------------------------------------------------------
 TEST(ArrCmplxTest, UnpackReal) {
     std::vector<short> r1 = {1, -2, -3, +4};
-    arr_real s1(r1.data(), r1.size());
+    arr_real s1(span(r1.data(), r1.size()));
     std::vector<short> r2 = s1.to_vec<short>();
     ASSERT_EQ_ARR_REAL(r1, r2);
 }

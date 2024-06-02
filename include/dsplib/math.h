@@ -128,8 +128,8 @@ constexpr real_t conj(const real_t& x) noexcept {
 };
 
 //complex vector formation
-arr_cmplx complex(const arr_real& re, const arr_real& im);
-arr_cmplx complex(const arr_real& re);
+arr_cmplx complex(span_real re, span_real im);
+arr_cmplx complex(span_real re);
 
 //the nearest power of two numbers (with rounding up)
 constexpr int nextpow2(int m) noexcept {

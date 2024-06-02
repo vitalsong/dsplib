@@ -71,10 +71,9 @@ Pow2FftPlan::Pow2FftPlan(int n)
     coeffs_ = _gen_coeffs_table(n);
 }
 
-arr_cmplx Pow2FftPlan::solve(const arr_cmplx& x) const {
-    const int n = x.size();
-    arr_cmplx y(n);
-    solve(x.data(), y.data(), n);
+arr_cmplx Pow2FftPlan::solve(span_t<cmplx_t> x) const {
+    arr_cmplx y(x.size());
+    this->solve(x, y);
     return y;
 }
 

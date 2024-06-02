@@ -290,4 +290,24 @@ arr_cmplx zadoff_chu(int r, int n) {
     return expj(arg);
 }
 
+arr_real zeropad(span_t<real_t> x, int n) {
+    DSPLIB_ASSERT(x.size() <= n, "padding size error");
+    if (x.size() == n) {
+        return x;
+    }
+    arr_real r(n);
+    r.slice(0, x.size()) = x;
+    return r;
+}
+
+arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
+    DSPLIB_ASSERT(x.size() <= n, "padding size error");
+    if (x.size() == n) {
+        return x;
+    }
+    arr_cmplx r(n);
+    r.slice(0, x.size()) = x;
+    return r;
+}
+
 }   // namespace dsplib

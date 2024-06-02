@@ -11,9 +11,9 @@ class Pow2FftPlan : public FftPlanC
 public:
     explicit Pow2FftPlan(int n);
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
 
-    void solve(const cmplx_t* x, cmplx_t* y, int n) const final;
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> y) const final;
 
     [[nodiscard]] int size() const noexcept final;
 

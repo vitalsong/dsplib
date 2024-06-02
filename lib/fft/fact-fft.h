@@ -16,7 +16,7 @@ class FactorFFTPlan : public FftPlanC
 public:
     explicit FactorFFTPlan(int n);
     ~FactorFFTPlan() = default;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:
@@ -35,7 +35,7 @@ public:
 
     ~FactorFFTPlanR() = default;
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
         //TODO: real optimization (for odd sizes)
         return _plan.solve(complex(x));
     }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dsplib/types.h"
 #include <dsplib/fft.h>
 #include <memory>
 
@@ -11,10 +12,10 @@ class CztPlan : public FftPlanC
 {
 public:
     explicit CztPlan(int n, int m, cmplx_t w, cmplx_t a = 1);
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
     [[nodiscard]] int size() const noexcept final;
 
-    arr_cmplx operator()(const arr_cmplx& x) const {
+    arr_cmplx operator()(span_t<cmplx_t> x) const {
         return this->solve(x);
     }
 
@@ -30,6 +31,6 @@ private:
 * \param a Spiral contour initial point
 * \return Chirp Z-transform
 */
-arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a = 1);
+arr_cmplx czt(span_t<cmplx_t> x, int m, cmplx_t w, cmplx_t a = 1);
 
 }   // namespace dsplib

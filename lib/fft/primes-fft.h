@@ -3,7 +3,6 @@
 #include "dsplib/czt.h"
 #include "dsplib/fft.h"
 #include "dsplib/math.h"
-#include "dsplib/utils.h"
 
 #include <cassert>
 #include <cstring>
@@ -79,7 +78,7 @@ private:
             //TODO: noexcept?
             //TODO: call without copy
             assert(czt_ && czt_->size() == n);
-            const auto r = czt_->solve(arr_cmplx(x, n));
+            const auto r = czt_->solve(complex(x, n));
             std::memcpy(y, r.data(), n * sizeof(cmplx_t));
         }
     }
@@ -98,7 +97,7 @@ public:
       : plan_{n} {
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
         return plan_.solve(complex(x));
     }
 

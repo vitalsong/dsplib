@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsplib/array.h>
+
 #include <memory>
 
 namespace dsplib {
@@ -60,16 +61,16 @@ std::shared_ptr<FftPlanR> fft_plan_r(int n);
  * @param arr Input array [N]
  * @return Result array [N]
  */
-arr_cmplx fft(const arr_cmplx& x);
+arr_cmplx fft(span_t<cmplx_t> x);
 
 //n-point DFT
 // if x.size() is less than n, then X is padded with trailing zeros to length n
 // if x.size() is greater than n, then x is truncated to length n
-arr_cmplx fft(const arr_cmplx& x, int n);
+arr_cmplx fft(span_t<cmplx_t> x, int n);
 
 //Fast Fourier Transform (real)
-arr_cmplx fft(const arr_real& x);
-arr_cmplx fft(const arr_real& x, int n);
+arr_cmplx fft(span_t<real_t> x);
+arr_cmplx fft(span_t<real_t> x, int n);
 
 arr_cmplx rfft(const arr_real& x);          // equal `fft(x)`
 arr_cmplx rfft(const arr_real& x, int n);   // equal `fft(x, n)`

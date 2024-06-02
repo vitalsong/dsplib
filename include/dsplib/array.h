@@ -1,5 +1,6 @@
 #pragma once
 
+#include <type_traits>
 #include <vector>
 #include <cassert>
 #include <cmath>
@@ -88,16 +89,15 @@ base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
     }
 }
 
-//TODO: constexpr function
+//rules for implicit array conversion
+//TODO: use static_assert and verbose error message
 template<typename T_src, typename T_dst>
 constexpr bool is_array_castable() noexcept {
-    //std::complex -> cmplx_t
-    if constexpr (is_std_complex_v<T_src> && std::is_same_v<T_dst, cmplx_t>) {
-        return true;
+    if constexpr (!std::is_convertible_v<T_src, T_dst>) {
+        return false;
     }
 
     //only arithmetic scalar
-    //TODO: std::complex is scalar type
     if constexpr (!is_scalar_v<T_src> || !is_scalar_v<T_dst>) {
         return false;
     }
@@ -112,7 +112,10 @@ constexpr bool is_array_castable() noexcept {
         return false;
     }
 
-    //TODO: disable float -> int
+    //float -> int
+    if constexpr (std::is_floating_point_v<T_src> && std::is_integral_v<T_dst>) {
+        return false;
+    }
 
     return true;
 }
@@ -120,7 +123,6 @@ constexpr bool is_array_castable() noexcept {
 //base dsplib array type
 //TODO: add array_view as parent for array/slice
 //TODO: add slice(vector<bool>)
-//TODO: construct from span<T>
 template<typename T>
 class base_array
 {
@@ -145,9 +147,8 @@ public:
     }
 
     template<typename T2>
-    base_array(const std::vector<T2>& v) {
-        static_assert(is_array_convertible<T2, T>(), "only real->real, cmplx->cmplx array cast support");
-        _vec.assign(v.begin(), v.end());
+    base_array(const std::vector<T2>& v)
+      : base_array(span(v)) {
     }
 
     base_array(std::vector<T>&& v)
@@ -160,8 +161,7 @@ public:
 
     template<class T2>
     base_array(const base_array<T2>& v)
-      : base_array(v.data(), v.size()) {
-        static_assert(is_array_castable<T2, T>(), "only real2real/cmplx2cmplx array cast support");
+      : base_array(span(v.data(), v.size())) {
     }
 
     //TODO: enable_if for vector/ptr+size/array
@@ -178,12 +178,15 @@ public:
       : _vec(list) {
     }
 
-    //TODO: replace to span<T>
     template<typename T2>
-    explicit base_array(const T2* x, size_t nx) {
-        static_assert(is_array_castable<T2, T>(), "only real2real/cmplx2cmplx array cast support");
-        static_assert(std::is_convertible<T2, T>::value, "types must be convertible");
-        _vec.insert(_vec.end(), x, x + nx);
+    explicit base_array(span_t<T2> v) {
+        static_assert(is_array_castable<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+        _vec.assign(v.begin(), v.end());
+    }
+
+    template<typename T2>
+    explicit base_array(mut_span_t<T2> v)
+      : base_array(span_t<T2>(v)) {
     }
 
     //--------------------------------------------------------------------
