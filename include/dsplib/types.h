@@ -78,7 +78,7 @@ template<typename T>
 constexpr bool is_complex_v = is_complex<T>::value;
 
 template<typename T>
-struct is_scalar : std::integral_constant<bool, std::is_arithmetic_v<T> || std::is_same_v<T, cmplx_t>>
+struct is_scalar : std::integral_constant<bool, std::is_arithmetic_v<T> || is_complex_v<T>>
 {};
 
 template<typename T>

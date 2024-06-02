@@ -1,7 +1,11 @@
 #pragma once
 
+#include <dsplib/throw.h>
+#include <dsplib/types.h>
 #include <dsplib/slice.h>
+
 #include <cassert>
+#include <vector>
 
 namespace dsplib {
 
@@ -106,6 +110,13 @@ public:
         return _ptr + _len;
     }
 
+    //TODO: add more checks
+    mut_span_t slice(int i1, int i2) const {
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < _len), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= _len), "invalid range");
+        return mut_span_t(_ptr + i1, (i2 - i1));
+    }
+
 private:
     T* _ptr{nullptr};
     int _len{0};
@@ -164,15 +175,52 @@ public:
         return _ptr + _len;
     }
 
+    span_t slice(int i1, int i2) const {
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < _len), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= _len), "invalid range");
+        return span_t(_ptr + i1, (i2 - i1));
+    }
+
 private:
     const T* _ptr{nullptr};
     int _len{0};
 };
 
-//TODO: short naming, mut_span_r/mut_span_c or m_span_r/m_span_c
-using mut_span_real = mut_span_t<real_t>;
-using mut_span_cmplx = mut_span_t<cmplx_t>;
+//------------------------------------------------------------------------------------------------
+//TODO: rename to `make_span`?
+template<typename T>
+span_t<T> span(const T* x, int nx) noexcept {
+    return span_t<T>(x, nx);
+}
 
+template<typename T>
+mut_span_t<T> span(T* x, int nx) noexcept {
+    return mut_span_t<T>(x, nx);
+}
+
+//------------------------------------------------------------------------------------------------
+template<typename T>
+span_t<T> span(const std::vector<T>& x) noexcept {
+    return span_t<T>(x.data(), x.size());
+}
+
+template<typename T>
+mut_span_t<T> span(std::vector<T>& x) noexcept {
+    return mut_span_t<T>(x.data(), x.size());
+}
+
+//------------------------------------------------------------------------------------------------
+template<typename T>
+span_t<T> span(const base_array<T>& x) noexcept {
+    return span_t<T>(x.data(), x.size());
+}
+
+template<typename T>
+mut_span_t<T> span(base_array<T>& x) noexcept {
+    return mut_span_t<T>(x.data(), x.size());
+}
+
+//TODO: short naming, span_r/span_c?
 using span_real = span_t<real_t>;
 using span_cmplx = span_t<cmplx_t>;
 

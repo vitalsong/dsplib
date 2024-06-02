@@ -69,12 +69,12 @@ FftPlan::FftPlan(int n)
   : _d{create_fft_plan(n)} {
 }
 
-arr_cmplx fft(const arr_cmplx& x) {
+arr_cmplx fft(span_t<cmplx_t> x) {
     auto plan = FftPlan(x.size());
     return plan(x);
 }
 
-arr_cmplx fft(const arr_cmplx& x, int n) {
+arr_cmplx fft(span_t<cmplx_t> x, int n) {
     if (n == x.size()) {
         return fft(x);
     }
@@ -89,12 +89,12 @@ FftPlanR::FftPlanR(int n)
   : _d{create_rfft_plan(n)} {
 }
 
-arr_cmplx fft(const arr_real& x) {
+arr_cmplx fft(span_t<real_t> x) {
     auto plan = FftPlanR(x.size());
     return plan(x);
 }
 
-arr_cmplx fft(const arr_real& x, int n) {
+arr_cmplx fft(span_t<real_t> x, int n) {
     if (n == x.size()) {
         return fft(x);
     }

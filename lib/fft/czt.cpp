@@ -40,7 +40,7 @@ public:
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const {
         DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
         arr_cmplx xp(_fft2->size());
         for (size_t i = 0; i < _n; ++i) {
@@ -67,7 +67,7 @@ CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
   : _d{std::make_shared<CztPlanImpl>(n, m, w, a)} {
 }
 
-arr_cmplx CztPlan::solve(const arr_cmplx& x) const {
+arr_cmplx CztPlan::solve(span_t<cmplx_t> x) const {
     return _d->solve(x);
 }
 
@@ -75,7 +75,7 @@ int CztPlan::size() const noexcept {
     return _d->_n;
 }
 
-arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a) {
+arr_cmplx czt(span_t<cmplx_t> x, int m, cmplx_t w, cmplx_t a) {
     CztPlan plan(x.size(), m, w, a);
     return plan(x);
 }

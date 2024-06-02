@@ -208,4 +208,24 @@ int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2) {
     return _finddelay(x1, x2);
 }
 
+arr_real zeropad(span_t<real_t> x, int n) {
+    DSPLIB_ASSERT(x.size() <= n, "padding size error");
+    if (x.size() == n) {
+        return x;
+    }
+    arr_real r(n);
+    r.slice(0, x.size()) = x;
+    return r;
+}
+
+arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
+    DSPLIB_ASSERT(x.size() <= n, "padding size error");
+    if (x.size() == n) {
+        return x;
+    }
+    arr_cmplx r(n);
+    r.slice(0, x.size()) = x;
+    return r;
+}
+
 }   // namespace dsplib

@@ -95,15 +95,16 @@ Pow2FftPlan::Pow2FftPlan(int n)
     coeffs_ = _gen_coeffs_table(n);
 }
 
-arr_cmplx Pow2FftPlan::solve(const arr_cmplx& x) const {
-    const int n = x.size();
-    arr_cmplx y(n);
-    solve(x.data(), y.data(), n);
+arr_cmplx Pow2FftPlan::solve(span_t<cmplx_t> x) const {
+    arr_cmplx y(x.size());
+    this->solve(x, y);
     return y;
 }
 
-void Pow2FftPlan::solve(const cmplx_t* x, cmplx_t* y, int n) const {
-    _fft(x, y, n);
+void Pow2FftPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> y) const {
+    const int n = x.size();
+    assert(x.size() == y.size());
+    _fft(x.data(), y.data(), n);
 }
 
 int Pow2FftPlan::size() const noexcept {
