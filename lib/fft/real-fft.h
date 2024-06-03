@@ -18,12 +18,12 @@ public:
         w_ = expj(-2 * pi * arange(n / 2) / n).to_vec();
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
         using namespace std::complex_literals;
         DSPLIB_ASSERT(x.size() == n_, "Input size must be equal FFT size");
         const int n2 = n_ / 2;
 
-        arr_cmplx z(reinterpret_cast<const cmplx_t*>(x.data()), n2);
+        arr_cmplx z(span(reinterpret_cast<const cmplx_t*>(x.data()), n2));
         const auto Z = fft_->solve(z * 0.5);
 
         arr_cmplx res(n_);

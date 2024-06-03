@@ -138,7 +138,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(int16_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s, 6);
+        auto x1 = arr_real(span(s, 6));
         arr_real x2 = from_file("test.dat", dtype::int16, endian::little);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
@@ -150,7 +150,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(uint16_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s + 1, 5);
+        auto x1 = arr_real(span(s + 1, 5));
         arr_real x2 = from_file("test.dat", dtype::uint16, endian::little, sizeof(uint16_t));
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
@@ -162,7 +162,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(int32_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s + 1, 3);
+        auto x1 = arr_real(span(s + 1, 3));
         arr_real x2 = from_file("test.dat", dtype::int32, endian::little, sizeof(int32_t), 3);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }

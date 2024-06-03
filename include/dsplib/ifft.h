@@ -1,7 +1,5 @@
 #pragma once
 
-#include <dsplib/types.h>
-#include <dsplib/array.h>
 #include <dsplib/fft.h>
 #include <memory>
 
@@ -11,8 +9,8 @@ class IfftPlan
 {
 public:
     IfftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
+    arr_cmplx operator()(span_t<cmplx_t> x) const;
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const;
     [[nodiscard]] int size() const noexcept;
 
 private:
@@ -25,6 +23,6 @@ private:
  * \param arr Input array [N]
  * \return Result array [N]
  */
-arr_cmplx ifft(const arr_cmplx& arr);
+arr_cmplx ifft(span_t<cmplx_t> arr);
 
 }   // namespace dsplib
