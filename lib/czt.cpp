@@ -38,7 +38,7 @@ public:
         }
 
         const arr_cmplx dp = chirp.slice(0, m + n - 1);
-        _ich = _fft2->solve((1.0 / dp) | zeros(n2 - m - n + 1));
+        _ich = _fft2->solve(zeropad((1.0 / dp), n2));
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 

@@ -200,11 +200,11 @@ static int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
     return -delay;
 }
 
-int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2) {
+int finddelay(const arr_real& x1, const arr_real& x2) {
     return _finddelay(x1, x2);
 }
 
-int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2) {
+int finddelay(const arr_cmplx& x1, const arr_cmplx& x2) {
     return _finddelay(x1, x2);
 }
 
@@ -290,24 +290,52 @@ arr_cmplx zadoff_chu(int r, int n) {
     return expj(arg);
 }
 
-arr_real zeropad(span_t<real_t> x, int n) {
+template<typename T>
+static base_array<T> _zeropad(span_t<T> x, int n) {
     DSPLIB_ASSERT(x.size() <= n, "padding size error");
     if (x.size() == n) {
         return x;
     }
-    arr_real r(n);
+    base_array<T> r(n);
     r.slice(0, x.size()) = x;
     return r;
 }
 
+arr_real zeropad(span_t<real_t> x, int n) {
+    return _zeropad<real_t>(x, n);
+}
+
 arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
-    DSPLIB_ASSERT(x.size() <= n, "padding size error");
-    if (x.size() == n) {
-        return x;
+    return _zeropad<cmplx_t>(x, n);
+}
+
+template<class T>
+static base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span_t<T> a4, span_t<T> a5) {
+    std::array<span_t<T>, 5> span_list{a1, a2, a3, a4, a5};
+
+    size_t nr = 0;
+    for (const auto& x : span_list) {
+        nr += x.size();
     }
-    arr_cmplx r(n);
-    r.slice(0, x.size()) = x;
+
+    base_array<T> r(nr);
+    auto* pr = r.data();
+    for (const auto& x : span_list) {
+        if (x.empty()) {
+            continue;
+        }
+        std::memcpy(pr, x.data(), x.size() * sizeof(T));
+        pr += x.size();
+    }
     return r;
+}
+
+arr_real concatenate(span_real x1, span_real x2, span_real x3, span_real x4, span_real x5) {
+    return _concatenate<real_t>(x1, x2, x3, x4, x5);
+}
+
+arr_cmplx concatenate(span_cmplx x1, span_cmplx x2, span_cmplx x3, span_cmplx x4, span_cmplx x5) {
+    return _concatenate<cmplx_t>(x1, x2, x3, x4, x5);
 }
 
 }   // namespace dsplib

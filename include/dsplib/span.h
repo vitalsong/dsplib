@@ -28,6 +28,8 @@ class mut_span_t : public slice_t<T>
 public:
     friend class span_t<T>;
 
+    mut_span_t() = default;
+
     explicit mut_span_t(T* data, int size)
       : slice_t<T>(data, size, 0, size, 1)
       , _ptr{data}
@@ -128,6 +130,8 @@ class span_t : public const_slice_t<T>
 {
 public:
     friend class mut_span_t<T>;
+
+    span_t() = default;
 
     explicit span_t(const T* data, int size)
       : const_slice_t<T>(data, size, 0, size, 1)

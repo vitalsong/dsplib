@@ -59,28 +59,9 @@ template<typename T1, typename T2, typename T3, class R = typename enable_if_som
 }
 
 //join a sequence of arrays
-//TODO: add impl for slice/span
-template<class T>
-T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), const T& a5 = T()) {
-    std::array<const T*, 5> arrays{&a1, &a2, &a3, &a4, &a5};
-
-    size_t nr = 0;
-    for (auto array : arrays) {
-        nr += array->size();
-    }
-
-    T r(nr);
-    auto* pr = r.data();
-    for (auto array : arrays) {
-        const auto* pa = array->data();
-        for (int i = 0; i < array->size(); ++i) {
-            *pr = pa[i];
-            pr++;
-        }
-    }
-
-    return r;
-}
+//TODO: add slice args?
+arr_real concatenate(span_real x1, span_real x2, span_real x3 = {}, span_real x4 = {}, span_real x5 = {});
+arr_cmplx concatenate(span_cmplx x1, span_cmplx x2, span_cmplx x3 = {}, span_cmplx x4 = {}, span_cmplx x5 = {});
 
 //create array of all zeros
 inline arr_real zeros(int n) {
