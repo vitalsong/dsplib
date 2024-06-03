@@ -20,11 +20,18 @@ template<typename T>
 class const_slice_t;
 
 //----------------------------------------------------------------------------------------
+//TODO: support empty slices
 class base_slice_t
 {
 public:
+    base_slice_t() = default;
+
     explicit base_slice_t(int n, int i1, int i2, int m) {
-        DSPLIB_ASSERT(n != 0, "Slicing from an empty array");
+        //is empty
+        if (n == 0) {
+            return;
+        }
+
         DSPLIB_ASSERT(m != 0, "Slice stride cannot be zero");
 
         _m = m;
@@ -56,6 +63,10 @@ public:
         }
     }
 
+    bool empty() const noexcept {
+        return (_nc == 0);
+    }
+
 protected:
     int _i1{0};
     int _i2{0};
@@ -72,6 +83,8 @@ class const_slice_t : public base_slice_t
 public:
     friend class slice_t<T>;
     using const_iterator = SliceIterator<const T>;
+
+    const_slice_t() = default;
 
     const_slice_t(const T* data, int size, int i1, int i2, int m)
       : base_slice_t(size, i1, i2, m)
@@ -122,6 +135,8 @@ public:
     friend class const_slice_t<T>;
     using iterator = SliceIterator<T>;
     using const_iterator = SliceIterator<const T>;
+
+    slice_t() = default;
 
     slice_t(T* data, int size, int i1, int i2, int m)
       : base_slice_t(size, i1, i2, m)
