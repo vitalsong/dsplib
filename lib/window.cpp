@@ -7,70 +7,130 @@
 namespace dsplib {
 namespace window {
 
-//-------------------------------------------------------------------------------------------------
-arr_real rectangle(int n) {
-    arr_real arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = 1;
+namespace {
+
+//half window generators
+
+//not exist in matlab, result compatible with scipy/torch
+arr_real _cosinewin(int n, int m) noexcept {
+    arr_real w(m);
+    for (int i = 0; i < m; ++i) {
+        w[i] = std::sin(pi / n * (i + 0.5));
     }
-    return arr;
+    return w;
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_real sinus(int n) {
-    arr_real arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = std::sin((pi * i) / (n - 1));
+arr_real _hannwin(int n, int m) noexcept {
+    arr_real w(m);
+    for (int i = 0; i < m; ++i) {
+        w[i] = 0.5 - 0.5 * std::cos((2 * pi * i) / (n - 1));
     }
-    return arr;
+    return w;
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_real hann(int n) {
-    arr_real arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = 0.5 - 0.5 * std::cos((2 * pi * i) / (n - 1));
+arr_real _hammingwin(int n, int m) noexcept {
+    arr_real w(m);
+    for (int i = 0; i < m; ++i) {
+        w[i] = 0.54 - 0.46 * std::cos((2 * pi * i) / (n - 1));
     }
-    return arr;
+    return w;
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_real hamming(int n) {
-    arr_real arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = 0.54 - 0.46 * std::cos((2 * pi * i) / (n - 1));
+arr_real _blackmanwin(int n, int m) noexcept {
+    arr_real w(m);
+    for (int i = 0; i < m; ++i) {
+        w[i] = 0.42 - 0.5 * std::cos((2 * pi * i) / (n - 1)) + 0.08 * std::cos((4 * pi * i) / (n - 1));
     }
-    return arr;
+    return w;
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_real blackman(int n) {
-    arr_real arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = 0.42 - 0.5 * std::cos((2 * pi * i) / (n - 1)) + 0.08 * std::cos((4 * pi * i) / (n - 1));
-    }
-    return arr;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real gauss(int n, real_t alpha) {
-    const real_t m = n - 1;
-    const arr_real t = arange(n) - (m / 2);
-    return exp(-0.5 * abs2(alpha * t / (m / 2)));
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real blackmanharris(int n, bool periodic) {
+arr_real _blackmanharriswin(int n, int m) noexcept {
+    arr_real w(m);
     const real_t a0 = 0.35875;
     const real_t a1 = 0.48829;
     const real_t a2 = 0.14128;
     const real_t a3 = 0.01168;
-    const int den = (periodic) ? (n) : (n - 1);
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = a0 - a1 * std::cos(2 * pi * i / den) + a2 * std::cos(4 * pi * i / den) - a3 * std::cos(6 * pi * i / den);
+    for (int i = 0; i < m; ++i) {
+        w[i] = a0 - a1 * std::cos(2 * pi * i / (n - 1)) + a2 * std::cos(4 * pi * i / (n - 1)) -
+               a3 * std::cos(6 * pi * i / (n - 1));
     }
-    return r;
+    return w;
+}
+
+arr_real _gausswin(int n, int m, real_t alpha) {
+    const arr_real t = arange(m) - (real_t(n - 1) / 2);
+    return exp(-0.5 * abs2(alpha * t / (real_t(n - 1) / 2)));
+}
+
+arr_real _tukeywin(int n, int m, real_t ratio) {
+    if (ratio <= 0) {
+        return ones(m);
+    }
+
+    if (ratio >= 1) {
+        return _hannwin(n, m);
+    }
+
+    arr_real w = ones(m);
+    const auto per = ratio / 2;
+    const auto tl = std::floor(per * (n - 1)) + 1;
+    for (auto i = 0; i < tl; ++i) {
+        w[i] = (1 + std::cos(pi / per * (i / real_t(n - 1) - per))) / 2;
+    }
+    return w;
+}
+
+arr_real _sym_window(int n, bool sym, const std::function<arr_real(int n, int m)>& winfn) {
+    arr_real w(n);
+    const int nl = sym ? 0 : 1;
+    const int np = sym ? n : (n + 1);
+    if (np % 2 == 0) {
+        const int m = np / 2;
+        const auto hw = winfn(np, m);
+        w.slice(0, m) = hw;
+        w.slice(m, n) = flip(hw).slice(0, m - nl);
+    } else {
+        const int m = (np + 1) / 2;
+        const auto hw = winfn(np, m);
+        w.slice(0, m) = hw;
+        w.slice(m, n) = flip(hw).slice(1, m - nl);
+    }
+    return w;
+}
+
+}   // namespace
+
+arr_real cosine(int n, bool sym) {
+    return _sym_window(n, sym, _cosinewin);
+}
+
+arr_real hann(int n, bool sym) {
+    return _sym_window(n, sym, _hannwin);
+}
+
+arr_real hamming(int n, bool sym) {
+    return _sym_window(n, sym, _hammingwin);
+}
+
+arr_real blackman(int n, bool sym) {
+    return _sym_window(n, sym, _blackmanwin);
+}
+
+arr_real gauss(int n, real_t alpha, bool sym) {
+    return _sym_window(n, sym, [alpha](int n, int m) {
+        return _gausswin(n, m, alpha);
+    });
+}
+
+arr_real blackmanharris(int n, bool sym) {
+    return _sym_window(n, sym, _blackmanharriswin);
+}
+
+arr_real tukey(int n, real_t r) {
+    //TODO: add periodic form?
+    return _sym_window(n, true, [r](int n, int m) {
+        return _tukeywin(n, m, r);
+    });
 }
 
 //-------------------------------------------------------------------------------------------------
