@@ -1,0 +1,4 @@
+#pragma once
+
+#cmakedefine DSPLIB_NO_EXCEPTIONS
+#cmakedefine DSPLIB_USE_FLOAT32

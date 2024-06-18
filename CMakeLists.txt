@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.50.0)
+project(dsplib LANGUAGES CXX VERSION 0.50.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,9 +25,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
 
 target_include_directories(${PROJECT_NAME} 
-    PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+    PUBLIC include 
+    PUBLIC ${CMAKE_BINARY_DIR}
     PRIVATE lib
 )
 
@@ -39,17 +38,15 @@ endif()
 # base type select
 if (DSPLIB_USE_FLOAT32)
     message(STATUS "dsplib: base type of real_t: float32")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "DSPLIB_USE_FLOAT32")
+    configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
 else()
     message(STATUS "dsplib: base type of real_t: float64")
+    configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
 endif()
 
 if (DSPLIB_NO_EXCEPTIONS)
     message(STATUS "dsplib: disable exceptions")
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "DSPLIB_NO_EXCEPTIONS")
-else()
-    message(STATUS "dsplib: enable exceptions")
 endif()
 
 # check warnings
@@ -84,12 +81,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 )
 
 # install package
-include(cmake/InstallTools.cmake)
+include(GNUInstallDirs)
 
-ConfigInstallTarget(${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME})
 
 install(FILES "include/dsplib.h" 
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(FILES "${CMAKE_BINARY_DIR}/dsplib/defs.h" 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
 install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

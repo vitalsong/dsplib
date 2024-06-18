@@ -1,15 +1,17 @@
 from conan import ConanFile
-from conans.tools import load
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 import re
 
+
 def get_version():
     try:
-        content = load("CMakeLists.txt")
+        with open("CMakeLists.txt", "r", encoding="utf-8", newline="") as handle:
+            content = handle.read()
         version = re.search("project\(dsplib .* VERSION (.*)\)", content).group(1)
         return version.strip()
     except Exception as e:
         return None
+
 
 class DsplibConan(ConanFile):
     name = "dsplib"
@@ -19,11 +21,22 @@ class DsplibConan(ConanFile):
     author = "Vitaly Yulis (vitaly.yulis@gmail.com)"
     url = "https://github.com/vitalsong/dsplib"
     description = "C++ DSP library for MATLAB/Octave similar programming"
-    topics = ("dsp", "matlab", "c++17", "sound", "radio")
+    topics = ("dsp", "matlab", "c++17", "audio")
 
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "float32": [True, False]}
-    default_options = {"shared": False, "fPIC": True, "float32": False}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "float32": [True, False],
+        "noexcept": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "float32": False,
+        "noexcept": False,
+    }
+    generators = "CMakeDeps"
 
     exports_sources = "cmake/*", "CMakeLists.txt", "lib/*", "include/*"
 
@@ -36,14 +49,15 @@ class DsplibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self.options.float32:
+            tc.variables["DSPLIB_USE_FLOAT32"] = "ON"
+        if self.options.noexcept:
+            tc.variables["DSPLIB_NO_EXCEPTIONS"] = "ON"
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(variables = {
-            "BUILD_SHARED_LIBS": "ON" if self.options.shared else "OFF",
-            "DSPLIB_USE_FLOAT32": "ON" if self.options.float32 else "OFF",
-            "CMAKE_BUILD_TYPE": self.settings.build_type})
+        cmake.configure()
         cmake.build()
 
     def package(self):

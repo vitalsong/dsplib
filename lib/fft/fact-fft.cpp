@@ -18,7 +18,7 @@ public:
     explicit PlanTree(int n)
       : _n{n} {
         if (n < 2) {
-            throw std::runtime_error("Plan size must be greater than 2");
+            DSPLIB_THROW("Plan size must be greater than 2");
         }
 
         const auto fac = factor(n);
