@@ -1,10 +1,10 @@
 #include "tests_common.h"
 
+using namespace dsplib;
+using namespace std::complex_literals;
+
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftReal) {
-    using namespace dsplib;
-    using namespace std::complex_literals;
-
     {
         auto x = arr_real{1, 2};
         auto y = fft(x);
@@ -76,8 +76,6 @@ TEST(FFT, FftReal) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, FftCmplx) {
-    using namespace dsplib;
-
     {
         int idx = 10;
         int nfft = 512;
@@ -121,8 +119,6 @@ TEST(FFT, FftCmplx) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, Ifft) {
-    using namespace dsplib;
-
     {
         const int nfft = 512;
         auto x = randn(nfft) + 1i * randn(nfft);
@@ -142,7 +138,6 @@ TEST(FFT, Ifft) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, Czt) {
-    using namespace dsplib;
     arr_cmplx dft_ref = {6.0 + 0.0i, -1.5 + 0.866025403784439i, -1.5 - 0.866025403784439i};
     arr_real x = {1.0, 2.0, 3.0};
     const int m = x.size();
@@ -153,9 +148,6 @@ TEST(FFT, Czt) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, CztPrime) {
-    using namespace dsplib;
-    using namespace std::complex_literals;
-
     const int n = 31;
     arr_cmplx x = arange(n);
     arr_cmplx r = {465.000000000000 + 4.97379915032070e-14i, -15.5000000000000 + 152.423942689195i,
@@ -181,7 +173,6 @@ TEST(FFT, CztPrime) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, CztICzt) {
-    using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
         arr_cmplx x_in = randn(n) + 1i * randn(n);
@@ -193,7 +184,6 @@ TEST(FFT, CztICzt) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, CztFft2) {
-    using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
         n = 1L << nextpow2(n);
@@ -207,7 +197,6 @@ TEST(FFT, CztFft2) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, CztIFft2) {
-    using namespace dsplib;
     for (size_t i = 0; i < 1000; i++) {
         int n = randi({16, 2000});
         n = 1L << nextpow2(n);
@@ -221,8 +210,6 @@ TEST(FFT, CztIFft2) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, CztDft) {
-    using namespace dsplib;
-
     auto dft = [](const arr_cmplx& x) -> arr_cmplx {
         const int n = x.size();
         arr_cmplx y(n);
@@ -242,5 +229,18 @@ TEST(FFT, CztDft) {
         const auto y3 = fft(x);
         ASSERT_EQ_ARR_CMPLX(y1, y2);
         ASSERT_EQ_ARR_CMPLX(y1, y3);
+    }
+}
+
+TEST(FFT, DumbOne) {
+    {
+        ASSERT_EQ_ARR_CMPLX(fft(arr_real{1}), arr_real{1});
+        ASSERT_EQ_ARR_CMPLX(fft(arr_cmplx{1 + 1i}), arr_cmplx{1 + 1i});
+    }
+    {
+        auto plan = std::make_shared<FftPlan>(1);
+        arr_cmplx x = {1 + 1i};
+        arr_cmplx y = plan->solve(x);
+        ASSERT_EQ_ARR_CMPLX(y, x);
     }
 }

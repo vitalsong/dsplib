@@ -20,7 +20,36 @@ constexpr int FFT_CACHE_SIZE = DSPLIB_FFT_CACHE_SIZE;
 
 static_assert(FFT_CACHE_SIZE > 0);
 
+//dumb implementation for n==1
+template<typename T>
+class OnePlan : public std::conditional_t<std::is_same_v<T, real_t>, BaseFftPlanR, BaseFftPlanC>
+{
+public:
+    OnePlan() = default;
+    virtual ~OnePlan() = default;
+
+    [[nodiscard]] virtual arr_cmplx solve(const base_array<T>& x) const final {
+        assert(x.size() == 1);
+        return x;
+    }
+
+    void solve(const T* x, cmplx_t* y, int n) const final {
+        assert(n == 1);
+        *y = *x;
+    }
+
+    [[nodiscard]] int size() const noexcept final {
+        return 1;
+    }
+};
+
+using OnePlanR = OnePlan<real_t>;
+using OnePlanC = OnePlan<cmplx_t>;
+
 std::shared_ptr<BaseFftPlanC> _get_fft_plan(int n) {
+    if (n == 1) {
+        return std::make_shared<OnePlanC>();
+    }
     if (isprime(n)) {
         return std::make_shared<PrimesFftC>(n);
     }
@@ -31,6 +60,9 @@ std::shared_ptr<BaseFftPlanC> _get_fft_plan(int n) {
 }
 
 std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
+    if (n == 1) {
+        return std::make_shared<OnePlanR>();
+    }
     if (isprime(n)) {
         return std::make_shared<PrimesFftR>(n);
     }

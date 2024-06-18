@@ -25,8 +25,10 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
 
 target_include_directories(${PROJECT_NAME} 
-    PUBLIC include 
-    PUBLIC ${CMAKE_BINARY_DIR}
+    PUBLIC 
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE lib
 )
 
@@ -37,17 +39,18 @@ endif()
 
 # base type select
 if (DSPLIB_USE_FLOAT32)
-    message(STATUS "dsplib: base type of real_t: float32")
-    configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
+    message(STATUS "dsplib: base type of real_t = float32")
 else()
-    message(STATUS "dsplib: base type of real_t: float64")
-    configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
+    message(STATUS "dsplib: base type of real_t = float64")
 endif()
 
 if (DSPLIB_NO_EXCEPTIONS)
     message(STATUS "dsplib: disable exceptions")
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
 endif()
+
+# configure <dsplib/defs.h> file 
+configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
 
 # check warnings
 if (DSPLIB_IS_ROOT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -72,13 +75,6 @@ endif()
 if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_BENCHS)
     add_subdirectory(benchs)
 endif()
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-    DSPLIB_VERSION="${CMAKE_PROJECT_VERSION}"
-    DSPLIB_MAJOR_VERSION=${CMAKE_PROJECT_VERSION_MAJOR}
-    DSPLIB_MINOR_VERSION=${CMAKE_PROJECT_VERSION_MINOR}
-    DSPLIB_PATCH_VERSION=${CMAKE_PROJECT_VERSION_PATCH}
-)
 
 # install package
 include(GNUInstallDirs)

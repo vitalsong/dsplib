@@ -53,8 +53,6 @@ using real_t = double;
 static_assert(sizeof(real_t) == 8);
 #endif
 
-using namespace std::complex_literals;
-
 constexpr real_t pi = 3.141592653589793238463;
 constexpr real_t inf = std::numeric_limits<real_t>::infinity();
 
