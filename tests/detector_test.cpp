@@ -1,6 +1,5 @@
 #include "tests_common.h"
 #include <gtest/gtest.h>
-#include <vector>
 
 using namespace dsplib;
 
@@ -22,6 +21,11 @@ TEST(PreambleDetector, SingleDetect) {
     ASSERT_TRUE(result.has_value());
     ASSERT_EQ(result->preamble.size(), ref.size());
     ASSERT_EQ(finddelay(ref, result->preamble), 0);
+
+    ASSERT_ANY_THROW({
+        auto x = zeros(dtc.frame_len() + 1);
+        auto r = dtc.process(x);
+    });
 }
 
 //-------------------------------------------------------------------------------------------------

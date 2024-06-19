@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dsplib/defs.h>
+
 #ifdef DSPLIB_NO_EXCEPTIONS
 
 #include <iostream>
