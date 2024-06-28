@@ -12,10 +12,10 @@ class RealFftPlan : public BaseFftPlanR
 {
 public:
     explicit RealFftPlan(int n)
-      : n_{n} {
+      : n_{n}
+      , w_(expj(-2 * pi * arange(n / 2) / n).to_vec()) {
         DSPLIB_ASSERT(n % 2 == 0, "FFT size must be even");
         fft_ = create_fft_plan(n / 2);
-        w_ = expj(-2 * pi * arange(n / 2) / n).to_vec();
     }
 
     [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
@@ -61,7 +61,7 @@ public:
 private:
     const int n_;
     std::shared_ptr<BaseFftPlanC> fft_;
-    std::vector<cmplx_t> w_;
+    const std::vector<cmplx_t> w_;
 };
 
 }   // namespace dsplib
