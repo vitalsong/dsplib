@@ -32,14 +32,6 @@ void _check_phase(dsplib::arr_real x1, dsplib::arr_real x2) {
     ASSERT_LE(df, 1.0);
 }
 
-dsplib::arr_real _chirp(int n, dsplib::real_t f0, dsplib::real_t f1, dsplib::real_t fs) {
-    auto t = dsplib::arange(n) / fs;
-    const auto t1 = n / fs;
-    const auto b = (f1 - f0) / t1;
-    const auto f = f0 + b * t;
-    return dsplib::cos(dsplib::pi * f * t);
-}
-
 }   // namespace
 
 TEST(Resampler, Interp) {
@@ -210,7 +202,7 @@ TEST(Resampler, ChirpInterpDecim) {
     const int n = std::pow(2, nextpow2(fs1));
     const int nn = 8 * n;
 
-    auto x = _chirp(n, 0, (fs1 / 2), fs1);
+    auto x = chirp(n, 0, (fs1 / 2), fs1);
     auto y1 = resample(x, fs2, fs1);
     auto y2 = resample(y1, fs1, fs2);
 

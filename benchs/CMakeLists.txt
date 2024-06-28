@@ -38,6 +38,7 @@ cpmaddpackage(NAME kissfft
 set(SOURCES
     main.cpp
     fft.cpp
+    ifft.cpp
     adaptive.cpp
     resample.cpp
     slice.cpp
