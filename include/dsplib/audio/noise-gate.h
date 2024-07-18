@@ -12,8 +12,8 @@ public:
     explicit NoiseGate(int sample_rate = 44100, real_t threshold = -10.0, real_t attack_time = 0.05,
                        real_t release_time = 0.02, real_t hold_time = 0.05)
       : tlin_{db2mag(threshold)}
-      , wA_{std::exp(-std::log(9) / (sample_rate * attack_time))}
-      , wR_{std::exp(-std::log(9) / (sample_rate * release_time))}
+      , wA_{std::exp(-std::log(real_t(9)) / (sample_rate * attack_time))}
+      , wR_{std::exp(-std::log(real_t(9)) / (sample_rate * release_time))}
       , tH_{int(std::floor(hold_time * sample_rate))} {
         DSPLIB_ASSERT(threshold >= -140 && threshold <= 0, "`threshold` must be in range [-140:0] db");
         DSPLIB_ASSERT(attack_time >= 0 && attack_time <= 4, "`attack_time` must be in range [0:4] sec");

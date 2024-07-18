@@ -14,8 +14,8 @@ public:
                      real_t release_time = 0.2)
       : T_{threshold}
       , W_{knee_width}
-      , wA_{std::exp(-std::log(9) / (sample_rate * attack_time))}
-      , wR_{std::exp(-std::log(9) / (sample_rate * release_time))} {
+      , wA_{std::exp(-std::log(real_t(9)) / (sample_rate * attack_time))}
+      , wR_{std::exp(-std::log(real_t(9)) / (sample_rate * release_time))} {
         DSPLIB_ASSERT(threshold >= -50 && threshold <= 0, "`threshold` must be in range [-50:0] db");
         DSPLIB_ASSERT(knee_width >= 0 && knee_width <= 20, "`knee_width` must be in range [0:20] db");
         DSPLIB_ASSERT(attack_time >= 0 && attack_time <= 4, "`attack_time` must be in range [0:4] sec");
