@@ -29,12 +29,12 @@ public:
     virtual ~OnePlan() = default;
 
     [[nodiscard]] virtual arr_cmplx solve(const base_array<T>& x) const final {
-        assert(x.size() == 1);
+        DSPLIB_ASSERT(x.size() == 1, "input size must be 1");
         return x;
     }
 
     void solve(const T* x, cmplx_t* y, int n) const final {
-        assert(n == 1);
+        DSPLIB_ASSERT(n == 1, "input size must be 1");
         *y = *x;
     }
 
@@ -134,6 +134,14 @@ arr_cmplx fft(const arr_real& x, int n) {
         return fft(zeropad(x, n));
     }
     return fft(x.slice(0, n));
+}
+
+arr_cmplx rfft(const arr_real& x) {
+    return fft(x);
+}
+
+arr_cmplx rfft(const arr_real& x, int n) {
+    return fft(x, n);
 }
 
 }   // namespace dsplib

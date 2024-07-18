@@ -75,4 +75,13 @@ Harm harm_analyze(const base_array<T>& x, int winlen = 1024) {
     return res;
 }
 
+//TODO: add to utils
+static arr_real chirp(int n, real_t f0, real_t f1, real_t fs) {
+    auto t = arange(n) / fs;
+    const auto t1 = n / fs;
+    const auto b = (f1 - f0) / t1;
+    const auto f = f0 + b * t;
+    return cos(pi * f * t);
+}
+
 }   // namespace dsplib
