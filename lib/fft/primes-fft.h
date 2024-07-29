@@ -30,7 +30,7 @@ public:
         }
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
         arr_cmplx y(x);
         _dft(y.data(), y.size());
         return y;
@@ -40,11 +40,13 @@ public:
         return n_;
     }
 
-    void solve(const cmplx_t* x, cmplx_t* y, int n) const final {
-        if (x != y) {
-            std::memcpy(y, x, n * sizeof(cmplx_t));
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> y) const final {
+        const int n = x.size();
+        assert(x.size() == y.size());
+        if (x.data() != y.data()) {
+            std::memcpy(y.data(), x.data(), n * sizeof(cmplx_t));
         }
-        _dft(y, n);
+        _dft(y.data(), n);
     }
 
 private:
@@ -132,7 +134,7 @@ private:
         //TODO: noexcept?
         //TODO: call without copy
         assert(czt_ && czt_->size() == n);
-        const auto y = czt_->solve(arr_cmplx(x, n));
+        const auto y = czt_->solve(span(x, n));
         std::memcpy(x, y.data(), n * sizeof(cmplx_t));
     }
 
@@ -149,8 +151,8 @@ public:
       : plan_{n} {
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
-        return plan_.solve(arr_cmplx(x));
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
+        return plan_.solve(complex(x));
     }
 
     [[nodiscard]] int size() const noexcept final {

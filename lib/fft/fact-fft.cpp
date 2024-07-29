@@ -95,7 +95,8 @@ void _ctfft(const PlanTree* plan, cmplx_t* x, cmplx_t* mm, const cmplx_t* tw, in
 
     if (plan->is_prime()) {
         //TODO: separate in/out pointer
-        plan->solver()->solve(x, x, n);
+        auto sx = span(x, n);
+        plan->solver()->solve(sx, sx);
         return;
     }
 
@@ -144,7 +145,7 @@ FactorFFTPlan::FactorFFTPlan(int n)
     _plan = std::make_shared<PlanTree>(n);
 }
 
-[[nodiscard]] arr_cmplx FactorFFTPlan::solve(const arr_cmplx& x) const {
+[[nodiscard]] arr_cmplx FactorFFTPlan::solve(span_t<cmplx_t> x) const {
     DSPLIB_ASSERT(x.size() == _n, "input vector size is not equal fft size");
     arr_cmplx r(x);
     _ctfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
