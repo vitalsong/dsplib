@@ -1,7 +1,9 @@
 #pragma once
 
 #include <dsplib/array.h>
+
 #include <array>
+#include <cstdint>
 
 namespace dsplib {
 

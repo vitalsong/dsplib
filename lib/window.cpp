@@ -3,6 +3,7 @@
 #include <dsplib/utils.h>
 
 #include <cmath>
+#include <functional>
 
 namespace dsplib {
 namespace window {

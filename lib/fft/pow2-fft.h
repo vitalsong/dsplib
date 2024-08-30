@@ -2,6 +2,8 @@
 
 #include <dsplib/fft.h>
 
+#include <cstdint>
+
 namespace dsplib {
 
 class Pow2FftPlan : public BaseFftPlanC

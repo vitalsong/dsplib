@@ -1,7 +1,6 @@
 #pragma once
 
 #include <complex>
-#include <functional>
 #include <type_traits>
 #include <limits>
 #include <iosfwd>

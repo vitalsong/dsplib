@@ -93,4 +93,7 @@ arr_cmplx fft(const arr_cmplx& x, int n);
 arr_cmplx fft(const arr_real& x);
 arr_cmplx fft(const arr_real& x, int n);
 
+arr_cmplx rfft(const arr_real& x);          // equal `fft(x)`
+arr_cmplx rfft(const arr_real& x, int n);   // equal `fft(x, n)`
+
 }   // namespace dsplib
