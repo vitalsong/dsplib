@@ -82,6 +82,7 @@ real_t corr(const arr_real& x, const arr_real& y, Correlation type) {
     case Correlation::Kendall:
         return _kendall_corr(x, y);
     }
+    return 0;
 }
 
 }   // namespace dsplib
