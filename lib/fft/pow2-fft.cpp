@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <cstdint>
 
 namespace dsplib {
 
@@ -32,7 +33,7 @@ inline int _bitrev(int a, int s) noexcept {
 //generate a half of bitrev table
 //table is symmetry, table(n/2, n) == table(0, n/2)+1
 std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
-    assert(n % 4 == 0);
+    DSPLIB_ASSUME(n % 4 == 0);
     std::vector<int32_t> res(n / 2);
     const int s = nextpow2(n);
     for (int i = 0; i < n / 2; ++i) {
@@ -43,7 +44,7 @@ std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
 
 //generate exp(-1i * 2 * pi * t / n) table
 std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
-    assert(n % 4 == 0);
+    DSPLIB_ASSUME(n % 4 == 0);
     const int n4 = n / 4;
     const int n2 = n / 2;
     const int n3 = 3 * n / 4;
@@ -68,8 +69,8 @@ std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
 }
 
 //bit reverse array permutation
-void _bitreverse(const cmplx_t* x, cmplx_t* y, const int32_t* bitrev, int n) noexcept {
-    assert(n % 2 == 0);
+void _bitreverse(const cmplx_t* restrict x, cmplx_t* restrict y, const int32_t* restrict bitrev, int n) noexcept {
+    DSPLIB_ASSUME(n % 2 == 0);
     const int n2 = n / 2;
     for (int i = 0; i < n2; ++i) {
         const auto kl = bitrev[i];
@@ -77,12 +78,6 @@ void _bitreverse(const cmplx_t* x, cmplx_t* y, const int32_t* bitrev, int n) noe
         y[i] = x[kl];
         y[n2 + i] = x[kr];
     }
-}
-
-inline void _btrf(cmplx_t& x1, cmplx_t& x2, cmplx_t w) noexcept {
-    w *= x2;
-    x2 = x1 - w;
-    x1 = x1 + w;
 }
 
 }   // namespace
@@ -110,26 +105,36 @@ int Pow2FftPlan::size() const noexcept {
     return n_;
 }
 
-void Pow2FftPlan::_fft(const cmplx_t* in, cmplx_t* out, int n) const noexcept {
-    assert((n == n_) && (n_ % 2) == 0);
-    assert(in != out);
+void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n) const noexcept {
+    DSPLIB_ASSUME(n % 2 == 0);
+    DSPLIB_ASSUME(n >= 2);
+    DSPLIB_ASSUME(n == (1L << l_));
 
     //reverse sampling
     _bitreverse(in, out, bitrev_.data(), n);
 
-    int h = 1;       ///< number of butterflies in clusters (and step between elements)
-    int m = n / 2;   ///< number of clusters (and step for the butterfly table)
-    int r = 2;       ///< number of elements (butterflies * 2) in clusters
+    uint32_t h = 1;       ///< number of butterflies in clusters (and step between elements)
+    uint32_t m = n / 2;   ///< number of clusters (and step for the butterfly table)
+    uint32_t r = 2;       ///< number of elements (butterflies * 2) in clusters
 
+    const cmplx_t* restrict cf = coeffs_.data();
     for (int i = 0; i < l_; ++i) {
-        auto* px = out;
+        cmplx_t* px1 = out;
+        cmplx_t* px2 = out + h;
+        DSPLIB_ASSUME(px1 != px2);
         for (int j = 0; j < m; ++j) {
-            const auto* pw = coeffs_.data();
             for (int k = 0; k < h; ++k) {
-                _btrf(px[k], px[k + h], *pw);
-                pw += m;
+                const cmplx_t x1 = px1[k];
+                const cmplx_t x2 = px2[k];
+                const cmplx_t p = cf[k * m] * x2;
+                px2[k].re = x1.re - p.re;
+                px2[k].im = x1.im - p.im;
+                px1[k].re = x1.re + p.re;
+                px1[k].im = x1.im + p.im;
             }
-            px += r;
+            DSPLIB_ASSUME(r % 2 == 0);
+            px1 += r;
+            px2 += r;
         }
 
         //next cascade

@@ -23,3 +23,14 @@
     if (!(condition)) {                                                                                                \
         DSPLIB_THROW(message);                                                                                         \
     }
+
+//TODO: add assert for cond
+#ifdef _MSC_VER
+#define DSPLIB_ASSUME(cond) __assume(cond)
+#elif defined(__clang__)
+#define DSPLIB_ASSUME(cond) __builtin_assume(cond)
+#elif defined(__GNUC__)
+#define DSPLIB_ASSUME(cond) ((cond) ? static_cast<void>(0) : __builtin_unreachable())
+#else
+#define DSPLIB_ASSUME(cond) static_cast<void>(!!(cond))
+#endif
