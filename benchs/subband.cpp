@@ -18,7 +18,7 @@ static void BM_Channelizer(benchmark::State& state) {
 
 static void BM_ChannelSynthesizer(benchmark::State& state) {
     auto chan = dsplib::ChannelSynthesizer(N, D, M);
-    dsplib::arr_cmplx x = dsplib::randn(N);
+    dsplib::arr_cmplx x = dsplib::complex(dsplib::randn(N));
     for (auto _ : state) {
         auto y = chan.process(x);
         benchmark::DoNotOptimize(y);
