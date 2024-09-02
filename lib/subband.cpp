@@ -124,7 +124,6 @@ class DFTFilterBank
 public:
     virtual ~DFTFilterBank() = default;
 
-protected:
     explicit DFTFilterBank(int num_bands, int decim_factor, int num_taps, bool synthesis = false)
       : nbands_{num_bands}
       , ntaps_{num_taps}
@@ -139,19 +138,21 @@ protected:
     const int decim_;
     const int d_;
 
+    //TODO: size optimization
     CircBuffer buf_;
     CircBuffer gsi_;
 };
 
 arr_real _design_filter(int num_bands, int num_taps) {
     //TODO: cache last coeffs
-    return design_multirate_fir(1, num_bands, std::ceil(num_taps / 2.0));
+    assert(num_taps % 2 == 0);
+    return design_multirate_fir(1, num_bands, num_taps / 2, 80);
 }
 
 }   // namespace
 
 //--------------------------------------------------------------------------------------------------------
-class ChannelizerImpl : protected DFTFilterBank
+class ChannelizerImpl : public DFTFilterBank
 {
 public:
     explicit ChannelizerImpl(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor, int num_taps)
@@ -173,8 +174,6 @@ public:
                 convert[k + i * d_] = gsi[k];
             }
         }
-
-        //TODO: move or use `convert` array
         buf_.push(convert, true);
 
         // calculate outputs of polyphase filters
@@ -198,7 +197,7 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------------------
-class ChannelSynthesizerImpl : private DFTFilterBank
+class ChannelSynthesizerImpl : public DFTFilterBank
 {
 public:
     explicit ChannelSynthesizerImpl(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor,
@@ -212,7 +211,7 @@ public:
     arr_real process(const dsplib::arr_cmplx& x) {
         DSPLIB_ASSERT(x.size() == nbands_, "input vector size error");
 
-        const auto xx = ifft_(x * nbands_);
+        const auto xx = ifft_(x) * nbands_;
         buf_.push(xx, true);
 
         // calculate outputs of polyphase filters
@@ -237,7 +236,10 @@ public:
                 out[d_ - k - 1] += gsi[k + i * d_];
             }
         }
-        return out;
+
+        //normalize ouput
+        //TODO: more precision, gain error ~ 1 dB
+        return out * (nbands_ / decim_);
     }
 
 private:
@@ -247,40 +249,53 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------------------
-Channelizer::Channelizer(const arr_real& filter, int num_bands, int decim_factor, int num_taps) {
-    const auto fptr = std::make_shared<dsplib::arr_real>(filter);
-    d_ = std::make_unique<ChannelizerImpl>(fptr, num_bands, decim_factor, num_taps);
+Channelizer::Channelizer(const arr_real& filter, int num_bands, int decim_factor)
+  : Channelizer(std::make_shared<dsplib::arr_real>(filter), num_bands, decim_factor) {
 }
 
-Channelizer::Channelizer(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor, int num_taps) {
+Channelizer::Channelizer(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor) {
+    const int num_taps = filter->size() / num_bands;
+    DSPLIB_ASSERT(num_taps % 2 == 0, "`num_taps` expected to be even");
+    DSPLIB_ASSERT(num_bands % decim_factor == 0, "only integer ratio M/D supported");
+    DSPLIB_ASSERT(filter->size() == num_bands * num_taps, "filter size must be equal `num_bands * num_taps`");
     d_ = std::make_unique<ChannelizerImpl>(std::move(filter), num_bands, decim_factor, num_taps);
 }
 
 Channelizer::Channelizer(int num_bands, int decim_factor, int num_taps)
-  : Channelizer(_design_filter(num_bands, num_taps), num_bands, decim_factor, num_taps) {
+  : Channelizer(_design_filter(num_bands, num_taps), num_bands, decim_factor) {
 }
 
 arr_cmplx Channelizer::process(const arr_real& x) {
     return d_->process(x);
 }
 
-//--------------------------------------------------------------------------------------------------------------
-ChannelSynthesizer::ChannelSynthesizer(const arr_real& filter, int num_bands, int decim_factor, int num_taps) {
-    const auto fptr = std::make_shared<dsplib::arr_real>(filter);
-    d_ = std::make_unique<ChannelSynthesizerImpl>(fptr, num_bands, decim_factor, num_taps);
+int Channelizer::frame_len() const noexcept {
+    return (d_->nbands_ / d_->decim_);
 }
 
-ChannelSynthesizer::ChannelSynthesizer(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor,
-                                       int num_taps) {
+//--------------------------------------------------------------------------------------------------------------
+ChannelSynthesizer::ChannelSynthesizer(const arr_real& filter, int num_bands, int decim_factor)
+  : ChannelSynthesizer(std::make_shared<dsplib::arr_real>(filter), num_bands, decim_factor) {
+}
+
+ChannelSynthesizer::ChannelSynthesizer(std::shared_ptr<const arr_real> filter, int num_bands, int decim_factor) {
+    const int num_taps = filter->size() / num_bands;
+    DSPLIB_ASSERT(num_taps % 2 == 0, "`num_taps` expected to be even");
+    DSPLIB_ASSERT(num_bands % decim_factor == 0, "only integer ratio M/D supported");
+    DSPLIB_ASSERT(filter->size() == num_bands * num_taps, "filter size must be equal `num_bands * num_taps`");
     d_ = std::make_unique<ChannelSynthesizerImpl>(std::move(filter), num_bands, decim_factor, num_taps);
 }
 
 ChannelSynthesizer::ChannelSynthesizer(int num_bands, int decim_factor, int num_taps)
-  : ChannelSynthesizer(_design_filter(num_bands, num_taps), num_bands, decim_factor, num_taps) {
+  : ChannelSynthesizer(_design_filter(num_bands, num_taps), num_bands, decim_factor) {
 }
 
 arr_real ChannelSynthesizer::process(const arr_cmplx& x) {
     return d_->process(x);
+}
+
+int ChannelSynthesizer::frame_len() const noexcept {
+    return (d_->nbands_ / d_->decim_);
 }
 
 }   // namespace dsplib
