@@ -311,6 +311,7 @@ int nextpow2(int m) {
 }
 
 bool ispow2(int m) {
+    //TODO: optimization
     return (int(1) << nextpow2(m)) == m;
 }
 

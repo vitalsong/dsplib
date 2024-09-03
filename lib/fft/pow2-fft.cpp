@@ -12,32 +12,21 @@ namespace dsplib {
 
 namespace {
 
-inline int _get_bit(int a, int pos) noexcept {
-    return (a >> pos) & 0x1;
-}
-
-inline void _set_bit(int& a, int pos, int bit) noexcept {
-    a &= ~(1 << pos);
-    a |= (bit << pos);
-}
-
-inline int _bitrev(int a, int s) noexcept {
-    int r = 0;
-    for (int i = 0; i < ((s + 1) / 2); ++i) {
-        _set_bit(r, (s - i - 1), _get_bit(a, i));
-        _set_bit(r, i, _get_bit(a, (s - i - 1)));
-    }
-    return r;
-}
-
 //generate a half of bitrev table
 //table is symmetry, table(n/2, n) == table(0, n/2)+1
 std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
     DSPLIB_ASSUME(n % 4 == 0);
     std::vector<int32_t> res(n / 2);
+    int h = 1;
     const int s = nextpow2(n);
+    for (int i = 0; i < (s - 1); ++i, h *= 2) {
+        for (int k = 0; k < h; ++k) {
+            res[k] = 2 * res[k];
+            res[k + h] = res[k] + 1;
+        }
+    }
     for (int i = 0; i < n / 2; ++i) {
-        res[i] = _bitrev(i, s);
+        res[i] *= 2;
     }
     return res;
 }
@@ -73,10 +62,9 @@ void _bitreverse(const cmplx_t* restrict x, cmplx_t* restrict y, const int32_t* 
     DSPLIB_ASSUME(n % 2 == 0);
     const int n2 = n / 2;
     for (int i = 0; i < n2; ++i) {
-        const auto kl = bitrev[i];
-        const auto kr = kl + 1;
-        y[i] = x[kl];
-        y[n2 + i] = x[kr];
+        const auto k = bitrev[i];
+        y[i] = x[k];
+        y[n2 + i] = x[k + 1];
     }
 }
 
@@ -98,6 +86,7 @@ arr_cmplx Pow2FftPlan::solve(const arr_cmplx& x) const {
 }
 
 void Pow2FftPlan::solve(const cmplx_t* x, cmplx_t* y, int n) const {
+    DSPLIB_ASSERT(x != y, "Pointers must be restricted");
     _fft(x, y, n);
 }
 
@@ -105,6 +94,7 @@ int Pow2FftPlan::size() const noexcept {
     return n_;
 }
 
+//TODO: add "small" implementations (2, 4, 8)
 void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n) const noexcept {
     DSPLIB_ASSUME(n % 2 == 0);
     DSPLIB_ASSUME(n >= 2);
