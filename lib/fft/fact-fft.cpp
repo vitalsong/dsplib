@@ -111,57 +111,66 @@ private:
 
 namespace {
 
-void _transpose(cmplx_t* x, cmplx_t* t, int n, int m) noexcept {
+void _transpose(cmplx_t* restrict x, cmplx_t* restrict mem, int n, int m) noexcept {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
-            t[j * n + i] = x[i * m + j];
+            mem[j * n + i] = x[i * m + j];
         }
     }
-    std::memcpy(x, t, n * m * sizeof(cmplx_t));
+    std::memcpy(x, mem, n * m * sizeof(cmplx_t));
 }
 
-void _ctfft(const PlanTree* plan, cmplx_t* x, cmplx_t* mm, const cmplx_t* tw, int ntw) {
+/**
+ * @brief PlanTree processing
+ * 
+ * @param plan fft plan node
+ * @param x source signal
+ * @param mem calculations buffer
+ * @param tw complex exponent exp(-2 * pi * (0:n-1) / n)
+ * @param head_n basic FFT size (head node)
+ */
+void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, const cmplx_t* restrict tw, int head_n) {
     const int n = plan->size();
 
     if (!plan->has_next()) {
         //TODO: separate in/out pointer
-        plan->solver()->solve(x, mm, n);
-        std::memcpy(x, mm, n * sizeof(cmplx_t));
+        plan->solver()->solve(x, mem, n);
+        std::memcpy(x, mem, n * sizeof(cmplx_t));
         return;
     }
 
     const auto* qplan = plan->q_plan();
     const auto* pplan = plan->p_plan();
 
-    const int Q = qplan->size();
-    const int P = pplan->size();
+    const int qlen = qplan->size();
+    const int plen = pplan->size();
 
     //TODO: ignore this transpose and previous?
-    _transpose(x, mm, P, Q);
+    _transpose(x, mem, plen, qlen);
 
     //inner fft (size P)
-    for (int k = 0; k < Q; ++k) {
-        auto* px = x + (k * P);
-        _ctfft(pplan, px, mm, tw, ntw);
+    for (int k = 0; k < qlen; ++k) {
+        auto* px = x + (k * plen);
+        _facfft(pplan, px, mem, tw, head_n);
     }
 
     //multiple by twiddle (ignore first row and column, because it is always 1.0)
-    const int decim = ntw / (P * Q);
-    for (int p = 1; p < P; ++p) {
-        for (int q = 1; q < Q; ++q) {
+    const int decim = head_n / (plen * qlen);
+    for (int p = 1; p < plen; ++p) {
+        for (int q = 1; q < qlen; ++q) {
             const int idx = q * p * decim;
-            x[q * P + p] *= tw[idx];
+            x[q * plen + p] *= tw[idx];
         }
     }
 
     //outer fft (size Q)
-    _transpose(x, mm, Q, P);
-    for (int k = 0; k < P; ++k) {
-        auto* px = x + (k * Q);
-        _ctfft(qplan, px, mm, tw, ntw);
+    _transpose(x, mem, qlen, plen);
+    for (int k = 0; k < plen; ++k) {
+        auto* px = x + (k * qlen);
+        _facfft(qplan, px, mem, tw, head_n);
     }
 
-    _transpose(x, mm, P, Q);
+    _transpose(x, mem, plen, qlen);
 }
 
 }   // namespace
@@ -178,7 +187,7 @@ FactorFFTPlan::FactorFFTPlan(int n)
 [[nodiscard]] arr_cmplx FactorFFTPlan::solve(const arr_cmplx& x) const {
     DSPLIB_ASSERT(x.size() == _n, "input vector size is not equal fft size");
     arr_cmplx r(x);   //TODO: remove copy
-    _ctfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
+    _facfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
     return r;
 }
 
