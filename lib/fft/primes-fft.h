@@ -79,7 +79,7 @@ private:
 
     static void _dft_slow(const cmplx_t* restrict x, cmplx_t* restrict y, int n, const cmplx_t* restrict tw) noexcept {
         DSPLIB_ASSUME(n <= MAX_DFT_SIZE);
-        std::memset(y, 0, n * sizeof(cmplx_t));
+        std::memset(reinterpret_cast<real_t*>(y), 0, n * sizeof(cmplx_t));
 
         for (uint32_t i = 0; i < n; ++i) {
             y[0] += x[i];
