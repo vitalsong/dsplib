@@ -3,7 +3,6 @@
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
-#include <dsplib/throw.h>
 
 #include <memory>
 

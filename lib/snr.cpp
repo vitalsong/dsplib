@@ -3,7 +3,6 @@
 #include <dsplib/window.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
-#include <dsplib/throw.h>
 
 #include <utility>
 #include <vector>

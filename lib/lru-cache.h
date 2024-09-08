@@ -5,8 +5,6 @@
 #include <cassert>
 #include <cstddef>
 
-#include <dsplib/throw.h>
-
 namespace dsplib {
 
 template<typename Key, typename Value>

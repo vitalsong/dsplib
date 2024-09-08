@@ -7,7 +7,7 @@
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
 #include <dsplib/indexing.h>
-#include <dsplib/throw.h>
+#include <dsplib/assert.h>
 
 namespace dsplib {
 

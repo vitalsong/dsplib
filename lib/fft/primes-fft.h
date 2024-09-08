@@ -3,7 +3,6 @@
 #include "dsplib/czt.h"
 #include "dsplib/fft.h"
 #include "dsplib/math.h"
-#include "dsplib/throw.h"
 #include "dsplib/utils.h"
 
 #include <cassert>

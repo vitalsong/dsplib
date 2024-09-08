@@ -1,7 +1,6 @@
 #include "fft/pow2-fft.h"
 
 #include <dsplib/math.h>
-#include <dsplib/throw.h>
 #include <dsplib/types.h>
 
 #include <cmath>
