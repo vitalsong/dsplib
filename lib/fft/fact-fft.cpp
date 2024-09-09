@@ -10,18 +10,24 @@
 namespace dsplib {
 
 //constructing a factorization plan
-//example for n=120, factor is (2, 2, 2, 3, 5) and plan is 120 -> (8) | (15) -> (2 | (2 | 2))) | (3 | 5)
-//todo: allocate a separate 2^K plan
+//example for n=120, factor is (2, 2, 2, 3, 5) and plan is 120 -> (8) | (15) -> (8) | (3 | 5)
 class PlanTree
 {
 public:
     explicit PlanTree(int n)
       : _n{n} {
-        assert(n >= 2);
+        DSPLIB_ASSERT(n >= 2, "FFT plan size error");
 
-        const auto fac = factor(n);
+        //use Pow2FFT solver
+        if (ispow2(n)) {
+            _solver = create_fft_plan(n);
+            return;
+        }
+
+        const auto fac = _factor(n);
+
+        //use PrimeFFT solver
         if (fac.size() == 1) {
-            _prime = true;
             //it is important to use the cache because there can be several identical FFTs
             _solver = create_fft_plan(n);
             return;
@@ -55,15 +61,17 @@ public:
     }
 
     [[nodiscard]] PlanTree* q_plan() const noexcept {
+        assert(has_next());
         return _q;
     }
 
     [[nodiscard]] PlanTree* p_plan() const noexcept {
+        assert(has_next());
         return _p;
     }
 
-    bool is_prime() const noexcept {
-        return _prime;
+    bool has_next() const noexcept {
+        return (_q != nullptr) && (_p != nullptr);
     }
 
     [[nodiscard]] std::shared_ptr<BaseFftPlanC> solver() const noexcept {
@@ -72,8 +80,29 @@ public:
     }
 
 private:
-    int _n;
-    bool _prime{false};
+    //factorization with extract 2^n component, example (2, 2, 2, 3) -> (8, 3)
+    static std::vector<int> _factor(int n) noexcept {
+        const int pn = n;
+        while (n % 2 == 0) {
+            n /= 2;
+        }
+
+        std::vector<int> fac;
+        if (n != pn) {
+            fac.push_back(pn / n);
+        }
+
+        if (n == 1) {
+            return fac;
+        }
+
+        const auto fc = factor(n);
+        fac.insert(fac.end(), fc.begin(), fc.end());
+        std::sort(fac.begin(), fac.end());
+        return fac;
+    }
+
+    const int _n;
     PlanTree* _p{nullptr};
     PlanTree* _q{nullptr};
     std::shared_ptr<BaseFftPlanC> _solver;
@@ -81,56 +110,64 @@ private:
 
 namespace {
 
-void _transpose(cmplx_t* x, cmplx_t* t, int n, int m) noexcept {
+void _transpose(cmplx_t* restrict x, cmplx_t* restrict mem, int n, int m) noexcept {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
-            t[j * n + i] = x[i * m + j];
+            mem[j * n + i] = x[i * m + j];
         }
     }
-    std::memcpy(x, t, n * m * sizeof(cmplx_t));
+    std::memcpy(x, mem, n * m * sizeof(cmplx_t));
 }
 
-void _ctfft(const PlanTree* plan, cmplx_t* x, cmplx_t* mm, const cmplx_t* tw, int ntw) {
+/**
+ * @brief PlanTree processing
+ * 
+ * @param plan fft plan node
+ * @param x source signal
+ * @param mem calculations buffer
+ * @param tw complex exponent exp(-2 * pi * (0:n-1) / n)
+ * @param head_n basic FFT size (head node)
+ */
+void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, const cmplx_t* restrict tw, int head_n) {
     const int n = plan->size();
 
-    if (plan->is_prime()) {
-        //TODO: separate in/out pointer
-        plan->solver()->solve(x, x, n);
+    if (!plan->has_next()) {
+        plan->solver()->solve(x, mem, n);
+        std::memcpy(x, mem, n * sizeof(cmplx_t));
         return;
     }
 
     const auto* qplan = plan->q_plan();
     const auto* pplan = plan->p_plan();
 
-    const int Q = qplan->size();
-    const int P = pplan->size();
+    const int qlen = qplan->size();
+    const int plen = pplan->size();
 
-    //TODO: ignore this transpose and previous?
-    _transpose(x, mm, P, Q);
+    _transpose(x, mem, plen, qlen);
 
     //inner fft (size P)
-    for (int k = 0; k < Q; ++k) {
-        auto* px = x + (k * P);
-        _ctfft(pplan, px, mm, tw, ntw);
+    for (int k = 0; k < qlen; ++k) {
+        auto* px = x + (k * plen);
+        _facfft(pplan, px, mem, tw, head_n);
     }
 
     //multiple by twiddle (ignore first row and column, because it is always 1.0)
-    const int decim = ntw / (P * Q);
-    for (int p = 1; p < P; ++p) {
-        for (int q = 1; q < Q; ++q) {
+    const int decim = head_n / (plen * qlen);
+    for (int p = 1; p < plen; ++p) {
+        for (int q = 1; q < qlen; ++q) {
             const int idx = q * p * decim;
-            x[q * P + p] *= tw[idx];
+            x[q * plen + p] *= tw[idx];
         }
     }
 
     //outer fft (size Q)
-    _transpose(x, mm, Q, P);
-    for (int k = 0; k < P; ++k) {
-        auto* px = x + (k * Q);
-        _ctfft(qplan, px, mm, tw, ntw);
+    _transpose(x, mem, qlen, plen);
+    for (int k = 0; k < plen; ++k) {
+        auto* px = x + (k * qlen);
+        _facfft(qplan, px, mem, tw, head_n);
     }
 
-    _transpose(x, mm, P, Q);
+    _transpose(x, mem, plen, qlen);
 }
 
 }   // namespace
@@ -146,8 +183,8 @@ FactorFFTPlan::FactorFFTPlan(int n)
 
 [[nodiscard]] arr_cmplx FactorFFTPlan::solve(const arr_cmplx& x) const {
     DSPLIB_ASSERT(x.size() == _n, "input vector size is not equal fft size");
-    arr_cmplx r(x);
-    _ctfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
+    arr_cmplx r(x);   //TODO: remove copy
+    _facfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
     return r;
 }
 

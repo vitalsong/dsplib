@@ -2,7 +2,6 @@
 #include <dsplib/math.h>
 #include <cmath>
 
-#include "dsplib/throw.h"
 #include "ma-filter.h"
 
 namespace dsplib {

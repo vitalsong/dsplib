@@ -266,41 +266,47 @@ For prime and semi-prime numbers, the czt algorithm is used, which can be signif
 > Use `FFT(N!=2^K)` only if you know what you are doing.
 
 ```
-Run on (12 X 2600 MHz CPU s)
+Run on (20 X 5100 MHz CPU s)
 CPU Caches:
-  L1 Data 32 KiB
-  L1 Instruction 32 KiB
-  L2 Unified 256 KiB (x6)
-  L3 Unified 12288 KiB
------------------------------------------------------------------------------
-Benchmark                                   Time             CPU   Iterations
------------------------------------------------------------------------------
-BM_KISSFFT/1024/min_time:5.000        8.23 us         8.22 us       720099
-BM_KISSFFT/1331/min_time:5.000        84.3 us         84.3 us        83650
-BM_KISSFFT/2048/min_time:5.000        21.5 us         21.5 us       324763
-BM_KISSFFT/4096/min_time:5.000        38.7 us         38.6 us       184193
-BM_KISSFFT/8192/min_time:5.000         105 us          105 us        61205
-BM_KISSFFT/11200/min_time:5.000        315 us          315 us        22347
-BM_KISSFFT/11202/min_time:5.000      39972 us        39964 us          174 (semiprime)
-BM_KISSFFT/16384/min_time:5.000        212 us          212 us        32645
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 2048 KiB (x10)
+  L3 Unified 24576 KiB (x1)
+-------------------------------------------------------------------------------
+Benchmark                                     Time             CPU   Iterations
+-------------------------------------------------------------------------------
+BM_FFT_DSPLIB/1024/min_time:5.000          4.61 us         4.61 us      1503885
+BM_FFT_DSPLIB/1331/min_time:5.000          37.5 us         37.5 us       185462
+BM_FFT_DSPLIB/1536/min_time:5.000          12.7 us         12.7 us       533535
+BM_FFT_DSPLIB/1984/min_time:5.000          60.3 us         60.3 us       116035
+BM_FFT_DSPLIB/2048/min_time:5.000          10.4 us         10.4 us       672628
+BM_FFT_DSPLIB/4096/min_time:5.000          23.0 us         23.0 us       303742
+BM_FFT_DSPLIB/8192/min_time:5.000          53.2 us         53.2 us       131683
+BM_FFT_DSPLIB/11200/min_time:5.000          266 us          266 us        26324
+BM_FFT_DSPLIB/11202/min_time:5.000          511 us          511 us        13702
+BM_FFT_DSPLIB/16384/min_time:5.000          113 us          113 us        62225
 
-BM_FFTW3_DOUBLE/1024/min_time:5.000        2.14 us         2.11 us      3350390
-BM_FFTW3_DOUBLE/1331/min_time:5.000        7.96 us         7.95 us       831896
-BM_FFTW3_DOUBLE/2048/min_time:5.000        4.54 us         4.53 us      1489583
-BM_FFTW3_DOUBLE/4096/min_time:5.000        10.7 us         10.7 us       630747
-BM_FFTW3_DOUBLE/8192/min_time:5.000        26.6 us         26.6 us       248424
-BM_FFTW3_DOUBLE/11200/min_time:5.000       42.3 us         42.3 us       167924
-BM_FFTW3_DOUBLE/11202/min_time:5.000        261 us          261 us        27397
-BM_FFTW3_DOUBLE/16384/min_time:5.000       63.8 us         63.8 us       108027
+BM_FFTW3_DOUBLE/1024/min_time:5.000        1.03 us         1.03 us      6563943
+BM_FFTW3_DOUBLE/1331/min_time:5.000        4.20 us         4.20 us      1673972
+BM_FFTW3_DOUBLE/1536/min_time:5.000        1.89 us         1.89 us      3666687
+BM_FFTW3_DOUBLE/1984/min_time:5.000        12.3 us         12.3 us       553932
+BM_FFTW3_DOUBLE/2048/min_time:5.000        2.43 us         2.43 us      2814851
+BM_FFTW3_DOUBLE/4096/min_time:5.000        6.82 us         6.82 us      1027944
+BM_FFTW3_DOUBLE/8192/min_time:5.000        14.7 us         14.7 us       479778
+BM_FFTW3_DOUBLE/11200/min_time:5.000       22.2 us         22.2 us       310204
+BM_FFTW3_DOUBLE/11202/min_time:5.000        135 us          135 us        51474
+BM_FFTW3_DOUBLE/16384/min_time:5.000       30.1 us         30.1 us       231342
 
-BM_FFT_DSPLIB/1024/min_time:5.000        7.22 us         7.21 us       973596
-BM_FFT_DSPLIB/1331/min_time:5.000        62.0 us         61.9 us       112298
-BM_FFT_DSPLIB/2048/min_time:5.000        15.1 us         15.1 us       470951
-BM_FFT_DSPLIB/4096/min_time:5.000        33.2 us         33.2 us       207217
-BM_FFT_DSPLIB/8192/min_time:5.000        75.4 us         75.4 us        93323
-BM_FFT_DSPLIB/11200/min_time:5.000        768 us          767 us         8979
-BM_FFT_DSPLIB/11202/min_time:5.000        806 us          805 us         8380 (czt)
-BM_FFT_DSPLIB/16384/min_time:5.000        171 us          171 us        40601
+BM_KISSFFT/1024/min_time:5.000             4.25 us         4.25 us      1640712
+BM_KISSFFT/1331/min_time:5.000             42.2 us         42.2 us       170796
+BM_KISSFFT/1536/min_time:5.000             8.47 us         8.47 us       787339
+BM_KISSFFT/1984/min_time:5.000             71.1 us         71.1 us        96450
+BM_KISSFFT/2048/min_time:5.000             13.0 us         13.0 us       536075
+BM_KISSFFT/4096/min_time:5.000             21.1 us         21.1 us       331449
+BM_KISSFFT/8192/min_time:5.000             54.6 us         54.6 us       129238
+BM_KISSFFT/11200/min_time:5.000             127 us          127 us        54032
+BM_KISSFFT/11202/min_time:5.000           27936 us        27935 us          250
+BM_KISSFFT/16384/min_time:5.000            98.5 us         98.5 us        69101
 ```
 
 ## TODO:

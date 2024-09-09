@@ -1,6 +1,5 @@
-#include <dsplib/throw.h>
-#include <dsplib/window.h>
 #include <dsplib/hilbert.h>
+#include <dsplib/window.h>
 #include <dsplib/fft.h>
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>

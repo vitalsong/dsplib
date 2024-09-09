@@ -1,6 +1,5 @@
 #include <dsplib/medfilt.h>
 #include <dsplib/utils.h>
-#include <dsplib/throw.h>
 
 #include <cassert>
 #include <algorithm>

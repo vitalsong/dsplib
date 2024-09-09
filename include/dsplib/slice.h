@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include <dsplib/throw.h>
+#include <dsplib/assert.h>
 #include <dsplib/iterator.h>
 
 namespace dsplib {

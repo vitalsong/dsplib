@@ -1,5 +1,4 @@
 #include "dsplib/resample.h"
-#include "dsplib/throw.h"
 
 #include <cassert>
 

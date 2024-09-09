@@ -3,6 +3,8 @@
 #include <dsplib.h>
 #include <vector>
 
+constexpr int MIN_TIME = 5;
+
 #ifdef KISSFFT_SUPPORT
 
 #include "kiss_fft.h"
@@ -22,13 +24,15 @@ static void BM_KISSFFT(benchmark::State& state) {
 BENCHMARK(BM_KISSFFT)
   ->Arg(1024)
   ->Arg(1331)
+  ->Arg(512 * 3)
+  ->Arg(64 * 31)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)
   ->Arg(11200)
   ->Arg(11202)
   ->Arg(16384)
-  ->MinTime(5)
+  ->MinTime(MIN_TIME)
   ->Unit(benchmark::kMicrosecond);
 
 #endif
@@ -74,13 +78,15 @@ static void BM_FFTW3_DOUBLE(benchmark::State& state) {
 BENCHMARK(BM_FFTW3_DOUBLE)
   ->Arg(1024)
   ->Arg(1331)
+  ->Arg(512 * 3)
+  ->Arg(64 * 31)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)
   ->Arg(11200)
   ->Arg(11202)
   ->Arg(16384)
-  ->MinTime(5)
+  ->MinTime(MIN_TIME)
   ->Unit(benchmark::kMicrosecond);
 
 #endif
@@ -98,11 +104,13 @@ static void BM_FFT_DSPLIB(benchmark::State& state) {
 BENCHMARK(BM_FFT_DSPLIB)
   ->Arg(1024)
   ->Arg(1331)
+  ->Arg(512 * 3)
+  ->Arg(64 * 31)
   ->Arg(2048)
   ->Arg(4096)
   ->Arg(8192)
   ->Arg(11200)
   ->Arg(11202)
   ->Arg(16384)
-  ->MinTime(5)
+  ->MinTime(MIN_TIME)
   ->Unit(benchmark::kMicrosecond);

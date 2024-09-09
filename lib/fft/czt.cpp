@@ -3,7 +3,6 @@
 #include <dsplib/ifft.h>
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
-#include <dsplib/throw.h>
 
 #include <memory>
 
@@ -23,6 +22,7 @@ public:
             chirp[i] = expj(w_a * t[i]);
         }
 
+        //TODO: find the nearest well-factorized size (not power of 2)
         const int n2 = std::pow(2, nextpow2(m + n - 1));
         _cp = chirp.slice(n - 1, n + n - 1);
 

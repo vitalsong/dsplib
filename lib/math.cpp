@@ -1,7 +1,6 @@
 #include "dsplib/array.h"
 #include "dsplib/keywords.h"
 #include "dsplib/math.h"
-#include "dsplib/throw.h"
 #include "dsplib/types.h"
 #include "dsplib/utils.h"
 
@@ -311,6 +310,7 @@ int nextpow2(int m) {
 }
 
 bool ispow2(int m) {
+    //TODO: optimization
     return (int(1) << nextpow2(m)) == m;
 }
 
