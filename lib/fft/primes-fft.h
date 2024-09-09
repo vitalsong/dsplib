@@ -128,6 +128,7 @@ private:
 };
 
 //--------------------------------------------------------------------------------
+//TODO: real optimization
 class PrimesFftR : public BaseFftPlanR
 {
 public:

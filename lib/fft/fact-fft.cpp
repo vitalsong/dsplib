@@ -19,8 +19,7 @@ public:
         DSPLIB_ASSERT(n >= 2, "FFT plan size error");
 
         //use Pow2FFT solver
-        //TODO: move fft(n=2) from PrimeFFT
-        if ((n > 2) && ispow2(n)) {
+        if (ispow2(n)) {
             _solver = create_fft_plan(n);
             return;
         }
