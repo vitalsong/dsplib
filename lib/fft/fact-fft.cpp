@@ -132,7 +132,6 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
     const int n = plan->size();
 
     if (!plan->has_next()) {
-        //TODO: separate in/out pointer
         plan->solver()->solve(x, mem, n);
         std::memcpy(x, mem, n * sizeof(cmplx_t));
         return;
@@ -144,7 +143,6 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
     const int qlen = qplan->size();
     const int plen = pplan->size();
 
-    //TODO: ignore this transpose and previous?
     _transpose(x, mem, plen, qlen);
 
     //inner fft (size P)

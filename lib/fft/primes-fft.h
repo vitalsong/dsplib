@@ -20,12 +20,12 @@ public:
     explicit PrimesFftC(int n)
       : n_{n} {
         DSPLIB_ASSERT(isprime(n_), "`n` must be a prime number");
+        DSPLIB_ASSERT(n_ >= 3, "`n` must be greater than or equal to 3");
         if (n > MAX_DFT_SIZE) {
             const cmplx_t w = expj(-2 * pi / n);
             czt_ = std::make_shared<CztPlan>(n, n, w);
-        } else if (n <= MAX_DFT_SIZE) {
+        } else {
             w_ = expj(-2 * pi * arange(n) / n).to_vec();
-            return;
         }
     }
 
@@ -45,13 +45,6 @@ public:
     }
 
 private:
-    static void _dft_n2(const cmplx_t* restrict x, cmplx_t* restrict y) noexcept {
-        y[0].re = x[0].re + x[1].re;
-        y[0].im = x[0].im + x[1].im;
-        y[1].re = (x[0].re - x[1].re);
-        y[1].im = (x[0].im - x[1].im);
-    }
-
     static void _dft_n3(const cmplx_t* restrict x, cmplx_t* restrict y) noexcept {
         constexpr real_t c = -0.5;
         constexpr real_t d = 0.866025403784439;
@@ -97,11 +90,6 @@ private:
     void _dft(const cmplx_t* restrict x, cmplx_t* restrict y, int n) const {
         assert(n == n_);
 
-        if (n == 2) {
-            _dft_n2(x, y);
-            return;
-        }
-
         if (n == 3) {
             _dft_n3(x, y);
             return;
@@ -113,7 +101,7 @@ private:
             return;
         }
 
-        {
+        if (n > MAX_DFT_SIZE) {
             //TODO: noexcept?
             //TODO: call without copy
             assert(czt_ && czt_->size() == n);
