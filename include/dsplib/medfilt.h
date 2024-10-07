@@ -4,7 +4,16 @@
 
 namespace dsplib {
 
-arr_real medfilt(arr_real& x, int n);
+namespace median_filt{
+
+enum class mode{
+    zeropad,
+    warmup
+};
+
+}
+
+arr_real medfilt(arr_real& x, int n, median_filt::mode mode = median_filt::mode::zeropad);
 
 /*!
  * \brief Nth-order one-dimensional median filter
