@@ -1,4 +1,5 @@
 #include "dsplib/array.h"
+#include "dsplib/assert.h"
 #include "dsplib/keywords.h"
 #include "dsplib/math.h"
 #include "dsplib/types.h"
@@ -61,12 +62,10 @@ int argmin(const arr_cmplx& arr) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real abs(const arr_real& arr) {
-    arr_real r = arr;
-    const int N = arr.size();
-    for (int i = 0; i < N; ++i) {
-        r[i] = std::fabs(arr[i]);
+    arr_real r(arr);
+    for (int i = 0; i < r.size(); ++i) {
+        r[i] = std::fabs(r[i]);
     }
-
     return r;
 }
 
@@ -76,40 +75,14 @@ real_t abs(real_t v) {
 
 arr_real abs(const arr_cmplx& arr) {
     arr_real r(arr.size());
-    const int N = arr.size();
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = std::sqrt(arr[i].re * arr[i].re + arr[i].im * arr[i].im);
     }
-
     return r;
 }
 
 real_t abs(cmplx_t v) {
     return std::sqrt(v.re * v.re + v.im * v.im);
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real fast_abs(const arr_cmplx& arr) {
-    arr_real r(arr.size());
-    const int N = arr.size();
-    for (int i = 0; i < N; ++i) {
-        r[i] = fast_abs(arr[i]);
-    }
-
-    return r;
-}
-
-real_t fast_abs(cmplx_t v) {
-    real_t min, max;
-    if (std::abs(v.re) > std::abs(v.im)) {
-        min = std::abs(v.im);
-        max = std::abs(v.re);
-    } else {
-        min = std::abs(v.re);
-        max = std::abs(v.im);
-    }
-
-    return max + (min / 2);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -212,9 +185,7 @@ bool issorted(const arr_real& x, Direction dir) {
 
 //-------------------------------------------------------------------------------------------------
 real_t dot(const arr_real& x1, const arr_real& x2) {
-    if (x1.size() != x2.size()) {
-        DSPLIB_THROW("array sizes are different");
-    }
+    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
     real_t acc = 0;
     for (int i = 0; i < x1.size(); ++i) {
         acc += x1[i] * x2[i];
@@ -223,9 +194,7 @@ real_t dot(const arr_real& x1, const arr_real& x2) {
 }
 
 cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2) {
-    if (x1.size() != x2.size()) {
-        DSPLIB_THROW("array sizes are different");
-    }
+    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
     cmplx_t acc = 0;
     for (int i = 0; i < x1.size(); ++i) {
         acc += x1[i] * x2[i];
@@ -316,43 +285,35 @@ bool ispow2(int m) {
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx complex(const arr_real& re, const arr_real& im) {
-    if (re.size() != im.size()) {
-        DSPLIB_THROW("array sizes are different");
-    }
-
-    int n = re.size();
-    arr_cmplx r(n);
-    for (int i = 0; i < n; ++i) {
+    DSPLIB_ASSERT(re.size() == im.size(), "arrays sizes must be equal");
+    arr_cmplx r(re.size());
+    for (int i = 0; i < r.size(); ++i) {
         r[i].re = re[i];
         r[i].im = im[i];
     }
-
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_real log(const arr_real& arr) {
-    int n = arr.size();
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
+    arr_real r(arr.size());
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = std::log(arr[i]);
     }
     return r;
 }
 
 arr_real log2(const arr_real& arr) {
-    int n = arr.size();
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
+    arr_real r(arr.size());
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = std::log2(arr[i]);
     }
     return r;
 }
 
 arr_real log10(const arr_real& arr) {
-    int n = arr.size();
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
+    arr_real r(arr.size());
+    for (int i = 0; i < r.size(); ++i) {
         r[i] = std::log10(arr[i]);
     }
     return r;
@@ -373,71 +334,47 @@ real_t log10(const real_t& x) {
 
 //-------------------------------------------------------------------------------------------------
 real_t rms(const arr_real& arr) {
-    const int N = arr.size();
+    const int n = arr.size();
     real_t sum = 0;
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < n; ++i) {
         sum += (arr[i] * arr[i]);
     }
-
-    return std::sqrt(sum / (N - 1));
+    return std::sqrt(sum / (n - 1));
 }
 
 real_t rms(const arr_cmplx& arr) {
-    const int N = arr.size();
+    const int n = arr.size();
     real_t sum = 0;
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < n; ++i) {
         sum += (arr[i].re * arr[i].re);
         sum += (arr[i].im * arr[i].im);
     }
-
-    return std::sqrt(sum / (N - 1));
+    return std::sqrt(sum / (n - 1));
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_real sin(const arr_real& arr) {
-    int n = arr.size();
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = std::sin(arr[i]);
+    arr_real r(arr);
+    for (int i = 0; i < r.size(); ++i) {
+        r[i] = std::sin(r[i]);
     }
     return r;
 }
 
 arr_real cos(const arr_real& arr) {
-    int n = arr.size();
-    arr_real r(n);
-    for (int i = 0; i < n; ++i) {
-        r[i] = std::cos(arr[i]);
+    arr_real r(arr);
+    for (int i = 0; i < r.size(); ++i) {
+        r[i] = std::cos(r[i]);
     }
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_cmplx conj(const arr_cmplx& x) {
-    int n = x.size();
-    arr_cmplx r = x;
-    for (int i = 0; i < n; ++i) {
+    arr_cmplx r(x);
+    for (int i = 0; i < r.size(); ++i) {
         r[i].im = -r[i].im;
     }
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real pow2(const arr_real& arr) {
-    arr_real r(arr);
-    for (int i = 0; i < arr.size(); ++i) {
-        r[i] *= r[i];
-    }
-
-    return r;
-}
-
-arr_cmplx pow2(const arr_cmplx& arr) {
-    arr_cmplx r(arr);
-    for (int i = 0; i < arr.size(); ++i) {
-        r[i] *= r[i];
-    }
-
     return r;
 }
 
@@ -450,13 +387,9 @@ real_t pow(real_t x, real_t n) {
 }
 
 cmplx_t power(cmplx_t x, real_t n) {
-    real_t x_p = angle(x);
-    real_t x_a = abs(x);
+    const real_t x_p = angle(x);
+    const real_t x_a = abs(x);
     return power(x_a, n) * expj(x_p * n);
-}
-
-cmplx_t pow(cmplx_t x, real_t n) {
-    return power(x, n);
 }
 
 arr_cmplx power(cmplx_t x, const arr_real& n) {
@@ -469,10 +402,6 @@ arr_cmplx power(cmplx_t x, const arr_real& n) {
     return r;
 }
 
-arr_cmplx pow(cmplx_t x, const arr_real& n) {
-    return power(x, n);
-}
-
 arr_real power(real_t x, const arr_real& n) {
     arr_real r(n.size());
     for (int i = 0; i < n.size(); ++i) {
@@ -481,15 +410,9 @@ arr_real power(real_t x, const arr_real& n) {
     return r;
 }
 
-arr_real pow(real_t x, const arr_real& n) {
-    return power(x, n);
-}
-
 template<typename T1, typename T2, typename R>
 static base_array<R> _power(const base_array<T1>& x, const base_array<T2>& n) {
-    if (x.size() != n.size()) {
-        DSPLIB_THROW("array sizes are different");
-    }
+    DSPLIB_ASSERT(x.size() == n.size(), "arrays sizes must be equal");
     base_array<R> r(n.size());
     for (int i = 0; i < n.size(); ++i) {
         r[i] = power(x[i], n[i]);
@@ -501,16 +424,8 @@ arr_real power(const arr_real& x, const arr_real& n) {
     return _power<real_t, real_t, real_t>(x, n);
 }
 
-arr_real pow(const arr_real& x, const arr_real& n) {
-    return power(x, n);
-}
-
 arr_cmplx power(const arr_cmplx& x, const arr_real& n) {
     return _power<cmplx_t, real_t, cmplx_t>(x, n);
-}
-
-arr_cmplx pow(const arr_cmplx& x, const arr_real& n) {
-    return power(x, n);
 }
 
 template<typename T>
@@ -526,16 +441,8 @@ arr_real power(const arr_real& x, real_t n) {
     return _power(x, n);
 }
 
-arr_real pow(const arr_real& x, real_t n) {
-    return power(x, n);
-}
-
 arr_cmplx power(const arr_cmplx& x, real_t n) {
     return _power(x, n);
-}
-
-arr_cmplx pow(const arr_cmplx& x, real_t n) {
-    return power(x, n);
 }
 
 template<typename T>
@@ -592,7 +499,6 @@ arr_real angle(const arr_cmplx& arr) {
     for (int i = 0; i < r.size(); ++i) {
         r[i] = angle(arr[i]);
     }
-
     return r;
 }
 
@@ -603,7 +509,6 @@ real_t angle(cmplx_t v) {
     } else {
         d = 0;
     }
-
     return std::atan(v.im / v.re) + d;
 }
 
@@ -622,13 +527,11 @@ real_t exp(real_t v) {
 
 arr_cmplx exp(const arr_cmplx& arr) {
     arr_cmplx r(arr);
-    real_t v;
     for (int i = 0; i < r.size(); ++i) {
-        v = std::exp(r[i].re);
+        const real_t v = std::exp(r[i].re);
         r[i].re = v * std::cos(r[i].im);
         r[i].im = v * std::sin(r[i].im);
     }
-
     return r;
 }
 
@@ -642,7 +545,6 @@ arr_cmplx expj(const arr_real& im) {
         r[i].re = std::cos(im[i]);
         r[i].im = std::sin(im[i]);
     }
-
     return r;
 }
 
@@ -668,13 +570,8 @@ arr_cmplx tanh(arr_cmplx x) {
 //-------------------------------------------------------------------------------------------------
 template<class T>
 static T _downsample(const T& arr, int n, int phase) {
-    if (n <= 0) {
-        DSPLIB_THROW("downsample factor must be greater 0");
-    }
-
-    if (phase >= n || phase < 0) {
-        DSPLIB_THROW("phase must be [0, N-1]");
-    }
+    DSPLIB_ASSERT(n > 0, "downsample factor must be greater 0");
+    DSPLIB_ASSERT((phase < n) && (phase >= 0), "phase must be [0, N-1]");
 
     if (n == 1) {
         return arr;
@@ -699,13 +596,8 @@ arr_cmplx downsample(const arr_cmplx& arr, int n, int phase) {
 //-------------------------------------------------------------------------------------------------
 template<class T>
 static T _upsample(const T& arr, int n, int phase) {
-    if (n <= 0) {
-        DSPLIB_THROW("upsample factor must be greater 0");
-    }
-
-    if (phase >= n || phase < 0) {
-        DSPLIB_THROW("phase must be [0, N-1]");
-    }
+    DSPLIB_ASSERT(n > 0, "upsample factor must be greater 0");
+    DSPLIB_ASSERT((phase < n) && (phase >= 0), "phase must be [0, N-1]");
 
     if (n == 1) {
         return arr;
@@ -758,11 +650,11 @@ real_t norm(const arr_cmplx& x, int p) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real deg2rad(const arr_real& x) {
-    return x / 180.0 * pi;
+    return x / real_t(180) * pi;
 }
 
 real_t deg2rad(const real_t& x) {
-    return x / 180.0 * pi;
+    return x / real_t(180) * pi;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -162,6 +162,14 @@ TEST(MathTest, Exp) {
     ASSERT_EQ_ARR_CMPLX(x4, y4);
 }
 
+TEST(MathTest, CmplxExp) {
+    arr_cmplx x = {1 + 1i, 2 + 2i, 3 + 3i, 4 + 4i};
+    arr_cmplx y = dsplib::exp(x);
+    arr_cmplx r = {1.46869393991589 + 2.28735528717884i, -3.07493232063936 + 6.71884969742825i,
+                   -19.8845308441470 + 2.83447113248700i, -35.6877324801191 - 41.3200161842802i};
+    ASSERT_EQ_ARR_CMPLX(y, r);
+}
+
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Downsample) {
     {
@@ -495,4 +503,19 @@ TEST(MathTest, AnyNan) {
         arr_cmplx x = {0i, 1i, 2i, NAN};
         ASSERT_TRUE(anynan(x));
     }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Log) {
+    arr_real x = {1, 2, 3, 4, 5};
+    arr_real y = dsplib::log(x);
+    arr_real r = {0, 0.693147180559945, 1.09861228866811, 1.38629436111989, 1.60943791243410};
+    ASSERT_EQ_ARR_REAL(y, r);
+}
+
+TEST(MathTest, Log2) {
+    arr_real x = {1, 2, 3, 4, 5};
+    arr_real y = dsplib::log2(x);
+    arr_real r = {0, 1, 1.58496250072116, 2, 2.32192809488736};
+    ASSERT_EQ_ARR_REAL(y, r);
 }
