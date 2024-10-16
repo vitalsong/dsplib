@@ -86,28 +86,6 @@ real_t abs(cmplx_t v) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real fast_abs(const arr_cmplx& arr) {
-    arr_real r(arr.size());
-    for (int i = 0; i < r.size(); ++i) {
-        r[i] = fast_abs(arr[i]);
-    }
-    return r;
-}
-
-real_t fast_abs(cmplx_t v) {
-    real_t min_v{0};
-    real_t max_v{0};
-    if (std::abs(v.re) > std::abs(v.im)) {
-        min_v = std::abs(v.im);
-        max_v = std::abs(v.re);
-    } else {
-        min_v = std::abs(v.re);
-        max_v = std::abs(v.im);
-    }
-    return max_v + (min_v / 2);
-}
-
-//-------------------------------------------------------------------------------------------------
 real_t round(const real_t& x) {
     return std::round(x);
 }
@@ -400,23 +378,6 @@ arr_cmplx conj(const arr_cmplx& x) {
     return r;
 }
 
-//-------------------------------------------------------------------------------------------------
-arr_real pow2(const arr_real& arr) {
-    arr_real r(arr);
-    for (int i = 0; i < r.size(); ++i) {
-        r[i] *= r[i];
-    }
-    return r;
-}
-
-arr_cmplx pow2(const arr_cmplx& arr) {
-    arr_cmplx r(arr);
-    for (int i = 0; i < r.size(); ++i) {
-        r[i] *= r[i];
-    }
-    return r;
-}
-
 real_t power(real_t x, real_t n) {
     return std::pow(x, n);
 }
@@ -431,10 +392,6 @@ cmplx_t power(cmplx_t x, real_t n) {
     return power(x_a, n) * expj(x_p * n);
 }
 
-cmplx_t pow(cmplx_t x, real_t n) {
-    return power(x, n);
-}
-
 arr_cmplx power(cmplx_t x, const arr_real& n) {
     arr_cmplx r(n.size());
     const real_t x_p = angle(x);
@@ -445,20 +402,12 @@ arr_cmplx power(cmplx_t x, const arr_real& n) {
     return r;
 }
 
-arr_cmplx pow(cmplx_t x, const arr_real& n) {
-    return power(x, n);
-}
-
 arr_real power(real_t x, const arr_real& n) {
     arr_real r(n.size());
     for (int i = 0; i < n.size(); ++i) {
         r[i] = power(x, n[i]);
     }
     return r;
-}
-
-arr_real pow(real_t x, const arr_real& n) {
-    return power(x, n);
 }
 
 template<typename T1, typename T2, typename R>
@@ -475,16 +424,8 @@ arr_real power(const arr_real& x, const arr_real& n) {
     return _power<real_t, real_t, real_t>(x, n);
 }
 
-arr_real pow(const arr_real& x, const arr_real& n) {
-    return power(x, n);
-}
-
 arr_cmplx power(const arr_cmplx& x, const arr_real& n) {
     return _power<cmplx_t, real_t, cmplx_t>(x, n);
-}
-
-arr_cmplx pow(const arr_cmplx& x, const arr_real& n) {
-    return power(x, n);
 }
 
 template<typename T>
@@ -500,16 +441,8 @@ arr_real power(const arr_real& x, real_t n) {
     return _power(x, n);
 }
 
-arr_real pow(const arr_real& x, real_t n) {
-    return power(x, n);
-}
-
 arr_cmplx power(const arr_cmplx& x, real_t n) {
     return _power(x, n);
-}
-
-arr_cmplx pow(const arr_cmplx& x, real_t n) {
-    return power(x, n);
 }
 
 template<typename T>

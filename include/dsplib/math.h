@@ -62,10 +62,6 @@ real_t abs(cmplx_t v);
 arr_real angle(const arr_cmplx& arr);
 real_t angle(cmplx_t v);
 
-//fast absolute complex magnitude
-arr_real fast_abs(const arr_cmplx& arr);
-real_t fast_abs(cmplx_t v);
-
 //round
 real_t round(const real_t& x);
 cmplx_t round(const cmplx_t& x);
@@ -139,31 +135,6 @@ int nextpow2(int m);
 
 //checks if m is an integral power of two
 bool ispow2(int m);
-
-//element-wise power
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_real pow2(
-  const arr_real& arr);
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] arr_cmplx pow2(
-  const arr_cmplx& arr);
-
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr real_t pow2(
-  real_t x) {
-    return x * x;
-}
-
-[[deprecated("Behavior will be changed according to 'Matlab'. Use 'power(x, 2)' or 'abs2(x)'")]] constexpr cmplx_t pow2(
-  cmplx_t x) {
-    return x * x;
-}
-
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] real_t pow(real_t x, real_t n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] cmplx_t pow(cmplx_t x, real_t n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(cmplx_t x, const arr_real& n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(real_t x, const arr_real& n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, const arr_real& n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, const arr_real& n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_real pow(const arr_real& x, real_t n);
-[[deprecated("Function will be removed. Use 'power(x, n)'")]] arr_cmplx pow(const arr_cmplx& x, real_t n);
 
 //scalar^scalar->scalar
 real_t power(real_t x, real_t n);
