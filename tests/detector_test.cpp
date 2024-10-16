@@ -23,7 +23,7 @@ TEST(PreambleDetector, SingleDetect) {
     ASSERT_EQ(finddelay(ref, result->preamble), 0);
 
     ASSERT_ANY_THROW({
-        auto x = zeros(dtc.frame_len() + 1);
+        auto x = complex(zeros(dtc.frame_len() + 1));
         auto r = dtc.process(x);
     });
 }

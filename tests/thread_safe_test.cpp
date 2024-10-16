@@ -61,7 +61,7 @@ TEST(ThreadSafe, FftNonPow2) {
     int test_steps = 1000;
     while (--test_steps) {
         const int n = randi({100, 2000});
-        arr_cmplx x1 = dsplib::randn(n);
+        auto x1 = complex(dsplib::randn(n));
         arr_cmplx x2 = x1;
 
         auto f1 = std::async([&]() {

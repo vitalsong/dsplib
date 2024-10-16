@@ -4,7 +4,7 @@
 
 static void BM_IFFT_DSPLIB(benchmark::State& state) {
     const int n = state.range(0);
-    dsplib::arr_cmplx x = dsplib::randn(n);
+    auto x = complex(dsplib::randn(n));
     auto y = dsplib::fft(x);
     for (auto _ : state) {
         y[0] += 1e-10;

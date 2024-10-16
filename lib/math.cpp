@@ -294,6 +294,10 @@ arr_cmplx complex(const arr_real& re, const arr_real& im) {
     return r;
 }
 
+arr_cmplx complex(const arr_real& re) noexcept {
+    return array_cast<cmplx_t>(re);
+}
+
 //-------------------------------------------------------------------------------------------------
 arr_real log(const arr_real& arr) {
     arr_real r(arr.size());
@@ -448,7 +452,7 @@ arr_cmplx power(const arr_cmplx& x, real_t n) {
 template<typename T>
 static base_array<T> _power(const base_array<T>& x, int n) {
     if (n == 0) {
-        return ones(x.size());
+        return array_cast<T>(ones(x.size()));
     }
     if (n == 1) {
         return x;

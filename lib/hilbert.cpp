@@ -29,7 +29,7 @@ arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
 
     const auto lm = power(arange(k1 - 1) / (k1 - 1), 8);
     const auto rm = flip(lm);
-    const arr_cmplx H = lm | ones(k2 - k1 + 1) | rm | zeros(N / 2 - 1);
+    const arr_cmplx H = complex(lm | ones(k2 - k1 + 1) | rm | zeros(N / 2 - 1));
     const arr_cmplx h = ifft(H);   // desired impulse response
 
     const auto w = window::kaiser(M, 8);

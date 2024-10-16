@@ -70,7 +70,7 @@ TEST(FirTest, CmplxFftFir) {
 
 //-------------------------------------------------------------------------------------------------
 static arr_cmplx _get_bandpass_fir(int len, double f0, double f1) {
-    arr_cmplx H = zeros(len);
+    auto H = complex(zeros(len));
     auto t0 = int(f0 * len);
     auto t1 = int(f1 * len);
     H.slice(t0, t1) = 1;
