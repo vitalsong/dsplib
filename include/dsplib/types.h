@@ -22,19 +22,16 @@ constexpr std::complex<T> operator+(const int& lhs, const std::complex<T>& rhs) 
     return std::complex<T>(T(lhs)) + rhs;
 }
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 constexpr std::complex<T> operator-(const int& lhs, const std::complex<T>& rhs) {
     return std::complex<T>(T(lhs)) - rhs;
 }
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 constexpr std::complex<T> operator+(const std::complex<T>& lhs, const int& rhs) {
     return lhs + std::complex<T>(T(rhs));
 }
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 constexpr std::complex<T> operator-(const std::complex<T>& lhs, const int& rhs) {
     return lhs - std::complex<T>(T(rhs));
@@ -86,13 +83,16 @@ template<typename T>
 constexpr bool is_scalar_v = is_scalar<T>::value;
 
 template<typename T>
-using enable_scalar_t = std::enable_if<is_scalar_v<T>>;
+using enable_scalar = std::enable_if<is_scalar_v<T>>;
+
+template<typename T>
+using enable_scalar_t = typename enable_scalar<T>::type;
 
 template<typename T, typename T2>
-using enable_convertible_t = std::enable_if<std::is_convertible_v<T, T2>>;
+using enable_convertible = std::enable_if<std::is_convertible_v<T, T2>>;
 
-template<typename T1, typename T2>
-using enable_same_t = std::enable_if<std::is_same_v<T1, T2>>;
+template<typename T, typename T2>
+using enable_convertible_t = typename enable_convertible<T, T2>::type;
 
 //-------------------------------------------------------------------------------------------------
 //basic complex type
@@ -240,26 +240,22 @@ struct cmplx_t
 };
 
 //left oriented real * cmplx
-template<class T, class S_ = typename enable_scalar_t<T>::type,
-         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
 constexpr cmplx_t operator+(const T& lhs, const cmplx_t& rhs) {
     return rhs + lhs;
 }
 
-template<class T, class S_ = typename enable_scalar_t<T>::type,
-         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
 constexpr cmplx_t operator-(const T& lhs, const cmplx_t& rhs) {
     return {lhs - rhs.re, -rhs.im};
 }
 
-template<class T, class S_ = typename enable_scalar_t<T>::type,
-         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
 constexpr cmplx_t operator*(const T& lhs, const cmplx_t& rhs) {
     return rhs * lhs;
 }
 
-template<class T, class S_ = typename enable_scalar_t<T>::type,
-         class C_ = typename enable_convertible_t<T, cmplx_t>::type>
+template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
 constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }
