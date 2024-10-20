@@ -129,6 +129,7 @@ constexpr real_t conj(real_t x) {
 
 //complex vector formation
 arr_cmplx complex(const arr_real& re, const arr_real& im);
+arr_cmplx complex(const arr_real& re) noexcept;
 
 //the nearest power of two numbers (with rounding up)
 int nextpow2(int m);

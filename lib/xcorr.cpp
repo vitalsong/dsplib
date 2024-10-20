@@ -27,12 +27,12 @@ arr_cmplx xcorr(const arr_cmplx& x1, const arr_cmplx& x2) {
 
 //-------------------------------------------------------------------------------------------------
 arr_real xcorr(const arr_real& x1, const arr_real& x2) {
-    return real(xcorr(arr_cmplx(x1), arr_cmplx(x2)));
+    return real(xcorr(complex(x1), complex(x2)));
 }
 
 //-------------------------------------------------------------------------------------------------
 arr_real xcorr(const arr_real& x) {
-    return real(xcorr(arr_cmplx(x), arr_cmplx(x)));
+    return real(xcorr(complex(x), complex(x)));
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dsplib/math.h>
 #include <dsplib/fft.h>
 
 #include <memory>
@@ -35,7 +36,7 @@ public:
 
     [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
         //TODO: real optimization (for odd sizes)
-        return _plan.solve(arr_cmplx(x));
+        return _plan.solve(complex(x));
     }
 
     [[nodiscard]] int size() const noexcept final {

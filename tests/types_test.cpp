@@ -4,7 +4,7 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-TEST(Template, CmplxConvert) {
+TEST(Template, CmplxScalarConvert) {
     //scalar -> cmplx_t
     ASSERT_TRUE(bool(std::is_convertible<double, cmplx_t>::value));
     ASSERT_TRUE(bool(std::is_convertible<cmplx_t, cmplx_t>::value));
@@ -32,4 +32,31 @@ TEST(Template, CmplxConvert) {
 TEST(Template, IsScalar) {
     ASSERT_TRUE(bool(is_scalar_v<cmplx_t>));
     ASSERT_TRUE(bool(is_scalar_v<real_t>));
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Template, ArrayConvert) {
+    {
+        ASSERT_TRUE(bool(is_array_convertible<float, double>()));
+        dsplib::base_array<float> x(dsplib::base_array<double>(10));
+    }
+
+    {
+        ASSERT_TRUE(bool(is_array_convertible<double, float>()));
+        dsplib::base_array<double> x(dsplib::base_array<float>(10));
+    }
+
+    {
+        ASSERT_FALSE(bool(is_array_convertible<float, int>()));
+        ASSERT_TRUE(bool(is_array_convertible<int, float>()));
+        dsplib::base_array<float> x(dsplib::base_array<int>(10));
+    }
+
+    {
+        ASSERT_TRUE(bool(is_array_convertible<std::complex<real_t>, cmplx_t>()));
+        dsplib::base_array<cmplx_t> x(dsplib::base_array<std::complex<real_t>>(10));
+    }
+
+    ASSERT_FALSE(bool(is_array_convertible<real_t, cmplx_t>()));
+    ASSERT_FALSE(bool(is_array_convertible<cmplx_t, real_t>()));
 }
