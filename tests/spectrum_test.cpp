@@ -134,3 +134,39 @@ TEST(STFT, Chirp) {
         }
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(Coherence, Real) {
+    const int fs = 16000;
+    auto x = randn(fs * 10);
+    const real_t wn = 0.1;
+    const int winlen = 512;
+    const auto h = fir1(300, wn);
+    const auto y = FirFilterR(h).process(x);
+
+    const auto dl = finddelay(x, y);
+    x = delayseq(x, dl + 3);
+
+    const int tp1 = winlen * (wn * 0.45);
+    const int tp2 = winlen * (wn * 0.6);
+
+    {
+        const auto coh = mscohere(x, y, winlen);
+        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 1.0, 1e-2);
+        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+    }
+
+    {
+        const auto ny = awgn(y, 0);
+        const auto coh = mscohere(x, ny, winlen);
+        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 0.91, 1e-2);
+        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+    }
+
+    {
+        const auto ny = awgn(y, -10);
+        const auto coh = mscohere(x, ny, winlen);
+        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 0.5, 1e-2);
+        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+    }
+}

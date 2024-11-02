@@ -47,4 +47,13 @@ WelchResult welch(const arr_cmplx& x, int winlen, int noverlap, int nfft, Spectr
 WelchResult welch(const arr_cmplx& x, const arr_real& win, int noverlap, int nfft,
                   SpectrumType scale = SpectrumType::Psd);
 
+//magnitude-squared coherence (real, one-sided)
+arr_real mscohere(const arr_real& x, const arr_real& y, int winlen);
+
+arr_real mscohere(const arr_real& x, const arr_real& y, const arr_real& win);
+
+arr_real mscohere(const arr_real& x, const arr_real& y, int winlen, int noverlap, int nfft);
+
+arr_real mscohere(const arr_real& x, const arr_real& y, const arr_real& win, int noverlap, int nfft);
+
 }   // namespace dsplib
