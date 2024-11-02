@@ -208,4 +208,20 @@ int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2) {
     return _finddelay(x1, x2);
 }
 
+arr_real linspace(real_t x1, real_t x2, size_t n) {
+    DSPLIB_ASSERT(n >= 1, "n must be greater or equal 1");
+    if (n == 1) {
+        return arr_real{x2};
+    }
+    if (n == 2) {
+        return arr_real{x1, x2};
+    }
+    const real_t step = (x2 - x1) / (n - 1);
+    arr_real out(n);
+    for (int i = 0; i < n; ++i) {
+        out[i] = x1 + (i * step);
+    }
+    return out;
+}
+
 }   // namespace dsplib

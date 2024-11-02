@@ -224,3 +224,25 @@ TEST(Utils, Finddelay) {
         ASSERT_EQ(d, -3);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, Linspace) {
+    {
+        const arr_real x = linspace(-5, 5, 10);
+        ASSERT_EQ_ARR_REAL(
+          x, arr_real{-5.0000, -3.8889, -2.7778, -1.6667, -0.5556, 0.5556, 1.6667, 2.7778, 3.8889, 5.0000}, 1e-3);
+    }
+    {
+        const arr_real x = linspace(0, 10, 10);
+        ASSERT_EQ_ARR_REAL(x, arr_real{0, 1.1111, 2.2222, 3.3333, 4.4444, 5.5556, 6.6667, 7.7778, 8.8889, 10.0000},
+                           1e-3);
+    }
+    {
+        const arr_real x = linspace(-5, 5, 1);
+        ASSERT_EQ_ARR_REAL(x, arr_real{5}, 1e-3);
+    }
+    {
+        const arr_real x = linspace(-5, 5, 2);
+        ASSERT_EQ_ARR_REAL(x, arr_real{-5, 5}, 1e-3);
+    }
+}

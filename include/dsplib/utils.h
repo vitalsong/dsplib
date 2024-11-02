@@ -229,4 +229,7 @@ struct PeakList
 // find local maxima
 PeakList findpeaks(arr_real data, int npeaks);
 
+// generate linearly spaced vector
+arr_real linspace(real_t x1, real_t x2, size_t n);
+
 }   // namespace dsplib
