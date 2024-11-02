@@ -501,6 +501,26 @@ public:
         return _vec;
     }
 
+    //apply per element function
+    template<class Fn>
+    auto apply(Fn func) const {
+        using R = decltype(func(T()));
+        if constexpr (std::is_same_v<T, R>) {
+            base_array<T> out(*this);
+            for (T& v : out) {
+                v = func(v);
+            }
+            return out;
+        } else {
+            base_array<R> out(size());
+            R* pout = out.data();
+            for (const T& v : _vec) {
+                *pout++ = func(v);
+            }
+            return out;
+        }
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const base_array& x) {
         return x._print(os);
     }
