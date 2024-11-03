@@ -11,7 +11,7 @@ namespace dsplib {
 
 namespace {
 
-bool _is_valid(float value) noexcept {
+bool _is_valid(const real_t& value) noexcept {
     return !(std::isinf(value) || std::isnan(value));
 }
 

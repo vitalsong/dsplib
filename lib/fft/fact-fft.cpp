@@ -35,7 +35,7 @@ public:
 
         auto P = fac[0];
         const auto qn = std::sqrt(n);
-        for (int i = 1; i < fac.size(); ++i) {
+        for (size_t i = 1; i < fac.size(); ++i) {
             if (P * fac[i] > qn) {
                 break;
             }

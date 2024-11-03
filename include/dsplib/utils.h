@@ -14,7 +14,7 @@ using enable_if_some_float_t = std::enable_if<std::is_floating_point<T1>::value 
 
 template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
 arr_real arange(T1 start, T2 stop, T3 step = 1) {
-    const int n = std::round((stop - start) / double(step));
+    const auto n = (int)(std::round((stop - start) / double(step)));
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
         r[i] = start + (i * step);
@@ -23,11 +23,11 @@ arr_real arange(T1 start, T2 stop, T3 step = 1) {
 }
 
 inline arr_real arange(real_t stop) {
-    return arange(0.0, stop, 1.0);
+    return arange(real_t(0), stop, real_t(1));
 }
 
 inline arr_real arange(int start, int stop, int step = 1) {
-    const int n = std::round((stop - start) / double(step));
+    const auto n = (int)std::round((stop - start) / double(step));
     arr_real r(n);
     for (int i = 0; i < n; ++i) {
         r[i] = start;

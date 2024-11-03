@@ -69,7 +69,7 @@ private:
 
     //TODO: add dft5, dft7
 
-    static void _dft_slow(const cmplx_t* restrict x, cmplx_t* restrict y, int n, const cmplx_t* restrict tw) noexcept {
+    static void _dft_slow(const cmplx_t* restrict x, cmplx_t* restrict y, uint32_t n, const cmplx_t* restrict tw) noexcept {
         DSPLIB_ASSUME(n <= MAX_DFT_SIZE);
         std::memset(reinterpret_cast<real_t*>(y), 0, n * sizeof(cmplx_t));
 

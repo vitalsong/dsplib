@@ -111,8 +111,8 @@ void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n)
         cmplx_t* px1 = out;
         cmplx_t* px2 = out + h;
         DSPLIB_ASSUME(px1 != px2);
-        for (int j = 0; j < m; ++j) {
-            for (int k = 0; k < h; ++k) {
+        for (uint32_t j = 0; j < m; ++j) {
+            for (uint32_t k = 0; k < h; ++k) {
                 const cmplx_t x1 = px1[k];
                 const cmplx_t x2 = px2[k];
                 const cmplx_t p = cf[k * m] * x2;

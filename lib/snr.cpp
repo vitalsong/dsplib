@@ -55,7 +55,7 @@ int _right_descent(const dsplib::arr_real& spec, int idx) {
 
 ToneInfo _get_psd_tone(const dsplib::arr_real& spec, real_t tone_freq) {
     const int n = spec.size();
-    int freq_num = std::round(tone_freq * n);
+    int freq_num = (int)std::round(tone_freq * n);
     freq_num = min(freq_num, spec.size() - 1);
     freq_num = max(freq_num, 0);
 

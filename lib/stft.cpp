@@ -41,7 +41,7 @@ bool iscola(const arr_real& win, int noverlap, OverlapMethod method) {
     const auto hop = nwin - noverlap;
 
     const int pw = method == OverlapMethod::Ola ? 1 : 2;
-    int nsum = std::floor(nwin / hop);
+    const int nsum = (int)std::floor(nwin / hop);
     auto cola_chk = zeros(hop);
     for (int i = 0; i < nsum; ++i) {
         const arr_real w = win.slice(i * hop, (i + 1) * hop);

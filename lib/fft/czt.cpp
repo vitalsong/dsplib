@@ -23,7 +23,7 @@ public:
         }
 
         //TODO: find the nearest well-factorized size (not power of 2)
-        const int n2 = std::pow(2, nextpow2(m + n - 1));
+        const int n2 = (int)std::pow(2, nextpow2(m + n - 1));
         _cp = chirp.slice(n - 1, n + n - 1);
 
         assert(ispow2(n2));
@@ -43,7 +43,7 @@ public:
     [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
         DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
         arr_cmplx xp(_fft2->size());
-        for (size_t i = 0; i < _n; ++i) {
+        for (int i = 0; i < _n; ++i) {
             xp[i] = x[i] * _cp[i];
         }
         xp = _fft2->solve(xp);

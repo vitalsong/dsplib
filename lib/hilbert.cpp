@@ -21,8 +21,8 @@ HilbertFilter::HilbertFilter(int flen, real_t tw)
 
 arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
     const int M = (flen % 2 == 0) ? (flen + 1) : flen;
-    const int N = std::pow(2, nextpow2(8 * M));
-    int k1 = std::round(N * f1 / fs);
+    const int N = (int)std::pow(2, nextpow2(8 * M));
+    int k1 = (int)std::round(N * f1 / fs);
     k1 = (k1 < 2) ? 2 : k1;       // cannot have dc or fn response
     const int kn = N / 2 + 1;     // bin index at Nyquist limit (1-based)
     const int k2 = kn - k1 + 1;   // high-frequency band edge

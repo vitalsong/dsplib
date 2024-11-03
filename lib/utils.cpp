@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <dsplib/utils.h>
 #include <dsplib/math.h>
 #include <dsplib/fft.h>
@@ -117,9 +119,7 @@ uint32_t _from_bytes(const uint8_t* bytes, endian order) {
 template<typename T>
 arr_real _from_file(const std::string& file, long count, endian order, long offset) {
     FILE* fid = fopen(file.c_str(), "rb");
-    if (!fid) {
-        DSPLIB_THROW("open file error");
-    }
+    DSPLIB_ASSERT(fid != nullptr, "open file error");
 
     std::array<uint8_t, sizeof(T)> bytes{0};
     fseek(fid, offset, SEEK_CUR);
@@ -218,7 +218,7 @@ arr_real linspace(real_t x1, real_t x2, size_t n) {
     }
     const real_t step = (x2 - x1) / (n - 1);
     arr_real out(n);
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         out[i] = x1 + (i * step);
     }
     return out;
