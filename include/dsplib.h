@@ -25,6 +25,7 @@
 #include <dsplib/spectrum.h>
 #include <dsplib/stft.h>
 #include <dsplib/assert.h>
+#include <dsplib/mfcc.h>
 
 #include <dsplib/audio/noise-gate.h>
 #include <dsplib/audio/compressor.h>
