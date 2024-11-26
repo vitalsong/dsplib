@@ -275,16 +275,16 @@ CPU Caches:
 -------------------------------------------------------------------------------
 Benchmark                                     Time             CPU   Iterations
 -------------------------------------------------------------------------------
-BM_FFT_DSPLIB/1024/min_time:5.000          4.61 us         4.61 us      1503885
-BM_FFT_DSPLIB/1331/min_time:5.000          37.5 us         37.5 us       185462
-BM_FFT_DSPLIB/1536/min_time:5.000          12.7 us         12.7 us       533535
-BM_FFT_DSPLIB/1984/min_time:5.000          60.3 us         60.3 us       116035
-BM_FFT_DSPLIB/2048/min_time:5.000          10.4 us         10.4 us       672628
-BM_FFT_DSPLIB/4096/min_time:5.000          23.0 us         23.0 us       303742
-BM_FFT_DSPLIB/8192/min_time:5.000          53.2 us         53.2 us       131683
-BM_FFT_DSPLIB/11200/min_time:5.000          266 us          266 us        26324
-BM_FFT_DSPLIB/11202/min_time:5.000          511 us          511 us        13702
-BM_FFT_DSPLIB/16384/min_time:5.000          113 us          113 us        62225
+BM_FFT_DSPLIB/1024/min_time:5.000             4.32 us         4.32 us      1612493
+BM_FFT_DSPLIB/1331/min_time:5.000             37.6 us         37.6 us       184823
+BM_FFT_DSPLIB/1536/min_time:5.000             12.4 us         12.4 us       542987
+BM_FFT_DSPLIB/1984/min_time:5.000             60.3 us         60.3 us       112019
+BM_FFT_DSPLIB/2048/min_time:5.000             9.91 us         9.91 us       702093
+BM_FFT_DSPLIB/4096/min_time:5.000             22.1 us         22.1 us       318985
+BM_FFT_DSPLIB/8192/min_time:5.000             46.5 us         46.5 us       150514
+BM_FFT_DSPLIB/11200/min_time:5.000             264 us          264 us        26518
+BM_FFT_DSPLIB/11202/min_time:5.000             481 us          481 us        14543
+BM_FFT_DSPLIB/16384/min_time:5.000             100 us          100 us        69869
 
 BM_FFTW3_DOUBLE/1024/min_time:5.000        1.03 us         1.03 us      6563943
 BM_FFTW3_DOUBLE/1331/min_time:5.000        4.20 us         4.20 us      1673972

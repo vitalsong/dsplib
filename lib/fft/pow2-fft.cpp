@@ -30,28 +30,40 @@ std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
     return res;
 }
 
-//generate exp(-1i * 2 * pi * t / n) table
+//generate modified exp(-1i * 2 * pi * t / n) table
+//{0, 0, n/2, 0, n/4, n/2, 3*n/4, 0, n/8, n/4 ...}
 std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
     DSPLIB_ASSUME(n % 4 == 0);
     const int n4 = n / 4;
     const int n2 = n / 2;
-    const int n3 = 3 * n / 4;
-    std::vector<cmplx_t> res(n);
-    res[0] = {1, 0};
-    res[n4] = {0, -1};
-    res[n2] = {-1, 0};
-    res[n3] = {0, 1};
-    //use only first n/4 samples
+    std::vector<cmplx_t> tb(n / 2);
+
+    //calculate only first n/4 samples
+    tb[0] = {1, 0};
+    tb[n4] = {0, -1};
     for (int i = 1; i < n4; ++i) {
         const auto v = std::cos(2 * pi * i / n);
-        res[i].re = v;
-        res[n - i].re = v;
-        res[n2 + i].re = -v;
-        res[n2 - i].re = -v;
-        res[n4 + i].im = -v;
-        res[n4 - i].im = -v;
-        res[n3 + i].im = v;
-        res[n3 - i].im = v;
+        tb[i].re = v;
+        tb[n2 - i].re = -v;
+        tb[n4 + i].im = -v;
+        tb[n4 - i].im = -v;
+    }
+
+    //ensure consistent access to coefficients
+    //{0}, {0, n/2}, {0, n/4, 2*n/4, 3*n/4} ...
+    //todo: remove first {1, 0} element
+    uint32_t h = 1;
+    uint32_t m = n / 2;
+    uint32_t r = 0;
+    const uint32_t s = std::log2(n);
+    std::vector<cmplx_t> res(n);
+    for (uint32_t i = 0; i < s; ++i) {
+        for (int k = 0; k < h; ++k) {
+            res[r + k] = tb[k * m];
+        }
+        r += h;
+        h *= 2;
+        m /= 2;
     }
     return res;
 }
@@ -93,43 +105,89 @@ int Pow2FftPlan::size() const noexcept {
     return n_;
 }
 
-//TODO: add "small" implementations (2, 4, 8)
 void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n) const noexcept {
     DSPLIB_ASSUME(n % 2 == 0);
-    DSPLIB_ASSUME(n >= 2);
+    DSPLIB_ASSUME(n >= 4);
     DSPLIB_ASSUME(n == (1L << l_));
 
     //reverse sampling
     _bitreverse(in, out, bitrev_.data(), n);
 
-    uint32_t h = 1;       ///< number of butterflies in clusters (and step between elements)
-    uint32_t m = n / 2;   ///< number of clusters (and step for the butterfly table)
-    uint32_t r = 2;       ///< number of elements (butterflies * 2) in clusters
-
-    const cmplx_t* restrict cf = coeffs_.data();
-    for (int i = 0; i < l_; ++i) {
-        cmplx_t* px1 = out;
-        cmplx_t* px2 = out + h;
-        DSPLIB_ASSUME(px1 != px2);
-        for (uint32_t j = 0; j < m; ++j) {
-            for (uint32_t k = 0; k < h; ++k) {
-                const cmplx_t x1 = px1[k];
-                const cmplx_t x2 = px2[k];
-                const cmplx_t p = cf[k * m] * x2;
-                px2[k].re = x1.re - p.re;
-                px2[k].im = x1.im - p.im;
-                px1[k].re = x1.re + p.re;
-                px1[k].im = x1.im + p.im;
-            }
-            DSPLIB_ASSUME(r % 2 == 0);
-            px1 += r;
-            px2 += r;
+    //i=0
+    {
+        const uint32_t h = 1;
+        const uint32_t r = 2;
+        const uint32_t m = n / 2;
+        for (int j = 0; j < m; ++j) {
+            cmplx_t* px1 = out + (j * r);
+            cmplx_t* px2 = px1 + h;
+            const cmplx_t x1 = px1[0];
+            const cmplx_t w = px2[0];
+            px1[0].re = x1.re + w.re;
+            px1[0].im = x1.im + w.im;
+            px2[0].re = x1.re - w.re;
+            px2[0].im = x1.im - w.im;
         }
+    }
 
-        //next cascade
-        m /= 2;
-        h *= 2;
-        r *= 2;
+    //i=1
+    {
+        const uint32_t h = 2;
+        const uint32_t r = 4;
+        const uint32_t m = n / 4;
+        for (int j = 0; j < m; ++j) {
+            cmplx_t* px1 = out + (j * r);
+            cmplx_t* px2 = px1 + h;
+            //k=0, c={1,0}
+            {
+                const cmplx_t x1 = px1[0];
+                const cmplx_t w = px2[0];
+                px1[0].re = x1.re + w.re;
+                px1[0].im = x1.im + w.im;
+                px2[0].re = x1.re - w.re;
+                px2[0].im = x1.im - w.im;
+            }
+            //k=1, c={0,-1}
+            {
+                const cmplx_t x1 = px1[1];
+                const cmplx_t w = {px2[1].im, -px2[1].re};
+                px1[1].re = x1.re + w.re;
+                px1[1].im = x1.im + w.im;
+                px2[1].re = x1.re - w.re;
+                px2[1].im = x1.im - w.im;
+            }
+        }
+    }
+
+    for (int i = 2; i < l_; ++i) {
+        const uint32_t h = uint32_t(1) << i;
+        const uint32_t r = uint32_t(1) << (i + 1);
+        const uint32_t m = n >> (i + 1);
+        const cmplx_t* pw = coeffs_.data() + h - 1;
+        for (int j = 0; j < m; ++j) {
+            cmplx_t* px1 = out + (j * r);
+            cmplx_t* px2 = px1 + h;
+
+            //k=0, c={1,0}
+            {
+                const cmplx_t x1 = px1[0];
+                const cmplx_t w = px2[0];
+                px1[0].re = x1.re + w.re;
+                px1[0].im = x1.im + w.im;
+                px2[0].re = x1.re - w.re;
+                px2[0].im = x1.im - w.im;
+            }
+
+            //k=[1:h]
+            for (int k = 1; k < h; ++k) {
+                const cmplx_t x1 = px1[k];
+                const cmplx_t w = pw[k] * px2[k];
+                px1[k].re = x1.re + w.re;
+                px1[k].im = x1.im + w.im;
+                px2[k].re = x1.re - w.re;
+                px2[k].im = x1.im - w.im;
+            }
+        }
     }
 }
 
