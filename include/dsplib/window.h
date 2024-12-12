@@ -2,8 +2,7 @@
 
 #include <dsplib/array.h>
 
-namespace dsplib {
-namespace window {
+namespace dsplib::window {
 
 arr_real cosine(int n, bool sym = true);
 
@@ -21,5 +20,6 @@ arr_real kaiser(int n, real_t beta = 0.5);
 
 arr_real tukey(int n, real_t r = 0.5);
 
-}   // namespace window
-}   // namespace dsplib
+arr_real vorbis(int n);
+
+}   // namespace dsplib::window

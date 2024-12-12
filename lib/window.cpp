@@ -5,9 +5,7 @@
 #include <cmath>
 #include <functional>
 
-namespace dsplib {
-namespace window {
-
+namespace dsplib::window {
 namespace {
 
 //half window generators
@@ -99,6 +97,15 @@ arr_real _sym_window(int n, bool sym, const std::function<arr_real(int n, int m)
     return w;
 }
 
+arr_real _vorbis_win(int n) {
+    auto w = zeros(n);
+    for (int i = 0; i < n; ++i) {
+        const auto p = std::sin(pi * (i + real_t(0.5)) / n);
+        w[i] = std::sin(pi / 2 * p * p);
+    }
+    return w;
+}
+
 }   // namespace
 
 arr_real cosine(int n, bool sym) {
@@ -132,6 +139,10 @@ arr_real tukey(int n, real_t r) {
     return _sym_window(n, true, [r](int n, int m) {
         return _tukeywin(n, m, r);
     });
+}
+
+arr_real vorbis(int n) {
+    return _vorbis_win(n);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -173,5 +184,4 @@ arr_real kaiser(int nw, real_t beta) {
     return (wl | w);
 }
 
-}   // namespace window
-}   // namespace dsplib
+}   // namespace dsplib::window
