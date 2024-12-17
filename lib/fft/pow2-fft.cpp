@@ -35,25 +35,19 @@ std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
     DSPLIB_ASSUME(n % 4 == 0);
     const int n4 = n / 4;
     const int n2 = n / 2;
-    const int n3 = 3 * n / 4;
-    std::vector<cmplx_t> res(n);
-    res[0] = {1, 0};
-    res[n4] = {0, -1};
-    res[n2] = {-1, 0};
-    res[n3] = {0, 1};
-    //use only first n/4 samples
+    std::vector<cmplx_t> tb(n / 2);
+
+    //calculate only first n/4 samples
+    tb[0] = {1, 0};
+    tb[n4] = {0, -1};
     for (int i = 1; i < n4; ++i) {
         const auto v = std::cos(2 * pi * i / n);
-        res[i].re = v;
-        res[n - i].re = v;
-        res[n2 + i].re = -v;
-        res[n2 - i].re = -v;
-        res[n4 + i].im = -v;
-        res[n4 - i].im = -v;
-        res[n3 + i].im = v;
-        res[n3 - i].im = v;
+        tb[i].re = v;
+        tb[n2 - i].re = -v;
+        tb[n4 + i].im = -v;
+        tb[n4 - i].im = -v;
     }
-    return res;
+    return tb;
 }
 
 //bit reverse array permutation
@@ -93,7 +87,6 @@ int Pow2FftPlan::size() const noexcept {
     return n_;
 }
 
-//TODO: add "small" implementations (2, 4, 8)
 void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n) const noexcept {
     DSPLIB_ASSUME(n % 2 == 0);
     DSPLIB_ASSUME(n >= 2);
