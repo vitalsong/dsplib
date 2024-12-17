@@ -224,4 +224,47 @@ arr_real linspace(real_t x1, real_t x2, size_t n) {
     return out;
 }
 
+template<typename T>
+static base_array<T> _circshift(const base_array<T>& x, int k) {
+    const int n = x.size();
+    if (n == 1 || k == 0) {
+        return x;
+    }
+    base_array<T> y(n);
+    for (size_t i = 0; i < n; ++i) {
+        const size_t p = (i + k + n) % n;
+        y[i] = x[p];
+    }
+    return y;
+}
+
+arr_real circshift(const arr_real& x, int k) {
+    return _circshift(x, -k);
+}
+
+arr_cmplx circshift(const arr_cmplx& x, int k) {
+    return _circshift(x, -k);
+}
+
+template<typename T>
+static base_array<T> _fftshift(const base_array<T>& x) {
+    const int n = x.size();
+    if (n == 1) {
+        return x;
+    }
+    const int n2 = n / 2;
+    dsplib::base_array<T> y(x);
+    y.slice(0, n2) = x.slice(n - n2, n);
+    y.slice(n2, n) = x.slice(0, n - n2);
+    return y;
+}
+
+arr_real fftshift(const arr_real& x) {
+    return _fftshift(x);
+}
+
+arr_cmplx fftshift(const arr_cmplx& x) {
+    return _fftshift(x);
+}
+
 }   // namespace dsplib

@@ -246,3 +246,51 @@ TEST(Utils, Linspace) {
         ASSERT_EQ_ARR_REAL(x, arr_real{-5, 5}, 1e-3);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, Circshift) {
+    {
+        arr_real x1 = {1};
+        arr_real x2 = circshift(x1, 1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = circshift(x1, 0);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1, 2, 3, 4, 5});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = circshift(x1, 1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{5, 1, 2, 3, 4});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = circshift(x1, -1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{2, 3, 4, 5, 1});
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, FftShift) {
+    {
+        arr_real x1 = {1, 2, 3, 4, 5};
+        arr_real x2 = fftshift(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{4, 5, 1, 2, 3});
+    }
+    {
+        arr_real x1 = {1, 2, 3, 4, 5, 6};
+        arr_real x2 = fftshift(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{4, 5, 6, 1, 2, 3});
+    }
+    {
+        arr_real x1 = {1, 2};
+        arr_real x2 = fftshift(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{2, 1});
+    }
+    {
+        arr_real x1 = {1};
+        arr_real x2 = fftshift(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{1});
+    }
+}
