@@ -250,8 +250,8 @@ TEST(FFT, SmallFft) {
     using namespace std::complex_literals;
 
     {
-        SmallFftPow2R plan_r(1);
-        SmallFftPow2C plan_c(1);
+        SmallFftR plan_r(1);
+        SmallFftC plan_c(1);
         arr_real x = {10};
         arr_cmplx ref = {10};
         auto y1 = plan_r.solve(x);
@@ -262,8 +262,8 @@ TEST(FFT, SmallFft) {
         ASSERT_EQ_ARR_CMPLX(y3, ref);
     }
     {
-        SmallFftPow2R plan_r(2);
-        SmallFftPow2C plan_c(2);
+        SmallFftR plan_r(2);
+        SmallFftC plan_c(2);
         arr_real x = {1, 2};
         arr_cmplx ref = {3, -1};
         auto y1 = plan_r.solve(x);
@@ -274,8 +274,31 @@ TEST(FFT, SmallFft) {
         ASSERT_EQ_ARR_CMPLX(y3, ref);
     }
     {
-        SmallFftPow2R plan_r(4);
-        SmallFftPow2C plan_c(4);
+        SmallFftR plan_r(3);
+        SmallFftC plan_c(3);
+        arr_real x = {1, 2, 3};
+        arr_cmplx ref = {6.00000000000000 + 0.00000000000000i, -1.50000000000000 + 0.866025403784439i,
+                         -1.50000000000000 - 0.866025403784439i};
+        auto y1 = plan_r.solve(x);
+        auto y2 = plan_c.solve(complex(x));
+        auto y3 = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, ref);
+        ASSERT_EQ_ARR_CMPLX(y2, ref);
+        ASSERT_EQ_ARR_CMPLX(y3, ref);
+    }
+    {
+        SmallFftC plan(3);
+        arr_cmplx x = {1 + 1i, 2 + 2i, 3 - 3i};
+        arr_cmplx ref = {6.00000000000000 + 0.00000000000000i, 2.83012701892219 + 2.36602540378444i,
+                         -5.83012701892219 + 0.633974596215561i};
+        auto y1 = plan.solve(x);
+        auto y2 = fft(x);
+        ASSERT_EQ_ARR_CMPLX(y1, ref);
+        ASSERT_EQ_ARR_CMPLX(y2, ref);
+    }
+    {
+        SmallFftR plan_r(4);
+        SmallFftC plan_c(4);
         arr_real x = {1, 2, 3, 4};
         arr_cmplx ref = {10.0000000000000 + 0.00000000000000i, -2.00000000000000 + 2.00000000000000i,
                          -2.00000000000000 + 0.00000000000000i, -2.00000000000000 - 2.00000000000000i};
@@ -287,8 +310,8 @@ TEST(FFT, SmallFft) {
         ASSERT_EQ_ARR_CMPLX(y3, ref);
     }
     {
-        SmallFftPow2R plan_r(8);
-        SmallFftPow2C plan_c(8);
+        SmallFftR plan_r(8);
+        SmallFftC plan_c(8);
         arr_real x = {1, 2, 3, 4, 5, 6, 7, 8};
         arr_cmplx ref = {36.0000000000000 + 0.00000000000000i,  -4.00000000000000 + 9.65685424949238i,
                          -4.00000000000000 + 4.00000000000000i, -4.00000000000000 + 1.65685424949238i,

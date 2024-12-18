@@ -46,8 +46,8 @@ std::shared_ptr<BaseFftPlanR> _get_rfft_plan(int n) {
 //-------------------------------------------------------------------------------------------------
 std::shared_ptr<BaseFftPlanC> create_fft_plan(int n) {
     //dont cache small fft plans
-    if ((n == 1) || (n == 2) || (n == 4) || (n == 8)) {
-        return std::make_shared<SmallFftPow2C>(n);
+    if (SmallFftC::is_supported(n)) {
+        return std::make_shared<SmallFftC>(n);
     }
 
     //TODO: use weak_ptr cache to prevent duplication
@@ -61,8 +61,8 @@ std::shared_ptr<BaseFftPlanC> create_fft_plan(int n) {
 }
 
 std::shared_ptr<BaseFftPlanR> create_rfft_plan(int n) {
-    if ((n == 1) || (n == 2) || (n == 4) || (n == 8)) {
-        return std::make_shared<SmallFftPow2R>(n);
+    if (SmallFftR::is_supported(n)) {
+        return std::make_shared<SmallFftR>(n);
     }
 
     thread_local LRUCache<int, std::shared_ptr<BaseFftPlanR>> cache{FFT_CACHE_SIZE};
