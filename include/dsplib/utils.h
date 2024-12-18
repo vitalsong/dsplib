@@ -232,4 +232,12 @@ PeakList findpeaks(arr_real data, int npeaks);
 // generate linearly spaced vector
 arr_real linspace(real_t x1, real_t x2, size_t n);
 
+// shift array circularly
+arr_real circshift(const arr_real& x, int k);
+arr_cmplx circshift(const arr_cmplx& x, int k);
+
+//shift zero-frequency component to center of spectrum (swaps the left and right halves of X)
+arr_real fftshift(const arr_real& x);
+arr_cmplx fftshift(const arr_cmplx& x);
+
 }   // namespace dsplib

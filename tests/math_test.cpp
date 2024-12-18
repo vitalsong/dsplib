@@ -519,3 +519,9 @@ TEST(MathTest, Log2) {
     arr_real r = {0, 1, 1.58496250072116, 2, 2.32192809488736};
     ASSERT_EQ_ARR_REAL(y, r);
 }
+
+TEST(MathTest, Sqrt) {
+    arr_real x = {0, 1, 2, 3, 4, 5};
+    arr_real y = dsplib::sqrt(abs2(x));
+    ASSERT_EQ_ARR_REAL(y, x);
+}

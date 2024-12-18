@@ -498,6 +498,19 @@ arr_cmplx power(const arr_cmplx& x, int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
+real_t sqrt(real_t x) {
+    return std::sqrt(x);
+}
+
+arr_real sqrt(const arr_real& x) {
+    arr_real y(x.size());
+    for (int i = 0; i < x.size(); ++i) {
+        y[i] = std::sqrt(x[i]);
+    }
+    return y;
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real angle(const arr_cmplx& arr) {
     arr_real r(arr.size());
     for (int i = 0; i < r.size(); ++i) {

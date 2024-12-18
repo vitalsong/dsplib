@@ -161,6 +161,11 @@ cmplx_t power(cmplx_t x, int n);
 arr_real power(const arr_real& x, int n);
 arr_cmplx power(const arr_cmplx& x, int n);
 
+//square root (only positive values)
+//TODO: add complex result for negative or complex input
+real_t sqrt(real_t x);
+arr_real sqrt(const arr_real& x);
+
 //array log
 arr_real log(const arr_real& arr);
 arr_real log2(const arr_real& arr);
