@@ -35,6 +35,20 @@ cpmaddpackage(NAME kissfft
   EXCLUDE_FROM_ALL ON
 )
 
+cpmaddpackage(NAME pocketfft_ext
+  GIT_REPOSITORY 
+    "https://github.com/mreineck/pocketfft.git"
+  GIT_TAG 
+    "0fa0ef591e38c2758e3184c6c23e497b9f732ffa"
+  OPTIONS
+    "DOWNLOAD_ONLY ON"
+  EXCLUDE_FROM_ALL ON
+)
+
+add_library(pocketfft INTERFACE)
+target_include_directories(pocketfft INTERFACE ${pocketfft_ext_SOURCE_DIR})
+target_compile_definitions(pocketfft INTERFACE POCKETFFT_CACHE_SIZE=1 POCKETFFT_NO_MULTITHREADING=1)
+
 set(SOURCES
     main.cpp
     fft.cpp
@@ -46,7 +60,7 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(${PROJECT_NAME} dsplib benchmark kissfft)
+target_link_libraries(${PROJECT_NAME} dsplib benchmark kissfft pocketfft)
 target_compile_definitions(${PROJECT_NAME} PRIVATE KISSFFT_SUPPORT)
 
 FindFFTW()

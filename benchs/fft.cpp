@@ -1,5 +1,8 @@
 #include <benchmark/benchmark.h>
 
+#include "pocketfft_hdronly.h"
+
+#include <cstdint>
 #include <dsplib.h>
 #include <vector>
 
@@ -91,13 +94,46 @@ BENCHMARK(BM_FFTW3_DOUBLE)
 
 #endif
 
+static void BM_FFT_POCKETFFT(benchmark::State& state) {
+    const uint32_t n = state.range(0);
+
+    constexpr std::ptrdiff_t sz = sizeof(dsplib::cmplx_t);
+    const pocketfft::stride_t stride{static_cast<int32_t>(sz * n), sz};
+
+    auto x = complex(dsplib::randn(n));
+    auto y = dsplib::complex(dsplib::zeros(n));
+
+    auto tx = (std::complex<dsplib::real_t>*)x.data();
+    auto ty = (std::complex<dsplib::real_t>*)y.data();
+
+    for (auto _ : state) {
+        //its fucking ugly
+        pocketfft::c2c<dsplib::real_t>({1, n}, stride, stride, {0, 1}, pocketfft::FORWARD, tx, ty, 1.0);
+        x[0].re += 1e-5;
+    }
+}
+
+BENCHMARK(BM_FFT_POCKETFFT)
+  ->Arg(1024)
+  ->Arg(1331)
+  ->Arg(512 * 3)
+  ->Arg(64 * 31)
+  ->Arg(2048)
+  ->Arg(4096)
+  ->Arg(8192)
+  ->Arg(11200)
+  ->Arg(11202)
+  ->Arg(16384)
+  ->MinTime(MIN_TIME)
+  ->Unit(benchmark::kMicrosecond);
+
 static void BM_FFT_DSPLIB(benchmark::State& state) {
     const int n = state.range(0);
     auto x = complex(dsplib::randn(n));
     dsplib::arr_cmplx y = dsplib::fft(x);   ///< update cache
     for (auto _ : state) {
-        x[0] += 1e-5;
         y = dsplib::fft(x);
+        x[0] += 1e-5;
     }
 }
 
