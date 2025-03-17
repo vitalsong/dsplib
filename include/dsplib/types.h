@@ -98,28 +98,28 @@ using enable_convertible_t = typename enable_convertible<T, T2>::type;
 //basic complex type
 struct cmplx_t
 {
-    constexpr cmplx_t(real_t re_ = 0, real_t im_ = 0)
-      : re{re_}
-      , im{im_} {
+    constexpr cmplx_t(real_t vre = 0, real_t vim = 0)
+      : re{vre}
+      , im{vim} {
     }
 
     constexpr cmplx_t(const cmplx_t&) = default;
 
     //scalar -> cmplx_t
-    template<typename T, class S_ = typename std::is_arithmetic<T>::type>
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>* = nullptr>
     constexpr cmplx_t(const T& v)
       : re{static_cast<real_t>(v)} {
     }
 
     //std::complex -> cmplx_t
-    template<typename T>
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>* = nullptr>
     constexpr cmplx_t(const std::complex<T>& v)
       : re{static_cast<real_t>(v.real())}
       , im{static_cast<real_t>(v.imag())} {
     }
 
     //cmplx_t -> std::complex
-    template<typename T>
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>* = nullptr>
     operator std::complex<T>() const {
         return std::complex<T>(static_cast<T>(re), static_cast<T>(im));
     }
