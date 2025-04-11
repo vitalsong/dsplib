@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
 set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
+option(DSPLIB_EXCLUDE_FFT "Exclude FFT (must be implemented external)" OFF)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -15,10 +16,48 @@ option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
 option(DSPLIB_BUILD_DOXYGEN "Build dsplib documentation" OFF)
 
-file(GLOB_RECURSE DSPLIB_SOURCES 
-    "lib/*.cpp"  
-    "lib/*.h" 
-    "include/*.h")
+set(DSPLIB_SOURCES
+    lib/agc.cpp
+    lib/awgn.cpp
+    lib/corr.cpp
+    lib/detector.cpp
+    lib/findpeaks.cpp
+    lib/fir.cpp
+    lib/gccphat.cpp
+    lib/hilbert.cpp
+    lib/math.cpp
+    lib/medfilt.cpp
+    lib/mscohere.cpp
+    lib/primes.cpp
+    lib/snr.cpp
+    lib/random.cpp
+    lib/spectrum.cpp
+    lib/stft.cpp
+    lib/stream.cpp
+    lib/types.cpp
+    lib/utils.cpp
+    lib/window.cpp
+    lib/xcorr.cpp
+    lib/resample/fir-decimator.cpp
+    lib/resample/fir-interpolator.cpp
+    lib/resample/fir-rate-converter.cpp
+    lib/resample/resample.cpp
+    lib/fft.cpp
+    lib/ifft.cpp
+)
+
+if (DSPLIB_EXCLUDE_FFT)
+    message(STATUS "dsplib: use custom fft implementation")
+else()
+    list(APPEND DSPLIB_SOURCES
+        lib/fft/czt.cpp
+        lib/fft/fact-fft.cpp
+        lib/fft/factory.cpp
+        lib/fft/pow2-fft.cpp
+        lib/fft/real-fft.cpp
+        lib/fft/real-ifft.cpp
+    )
+endif()
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
 

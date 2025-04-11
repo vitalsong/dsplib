@@ -1,49 +1,27 @@
 #pragma once
 
+#include <dsplib/fft.h>
 #include <dsplib/array.h>
 #include <memory>
 
 namespace dsplib {
 
-class BaseIfftPlanC
-{
-public:
-    virtual ~BaseIfftPlanC() = default;
-    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
-    [[nodiscard]] virtual int size() const noexcept = 0;
-};
+using IfftPlanC = FftPlanC;
 
-class BaseIfftPlanR
+class IfftPlanR
 {
 public:
-    virtual ~BaseIfftPlanR() = default;
+    virtual ~IfftPlanR() = default;
     [[nodiscard]] virtual arr_real solve(const arr_cmplx& x) const = 0;
     [[nodiscard]] virtual int size() const noexcept = 0;
+
+    arr_real operator()(const arr_cmplx& x) const {
+        return this->solve(x);
+    }
 };
 
-class IfftPlan : public BaseIfftPlanC
-{
-public:
-    explicit IfftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
-    [[nodiscard]] int size() const noexcept final;
-
-private:
-    std::shared_ptr<BaseIfftPlanC> ifft_;
-};
-
-class IfftPlanR : public BaseIfftPlanR
-{
-public:
-    explicit IfftPlanR(int n);
-    arr_real operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_real solve(const arr_cmplx& x) const final;
-    [[nodiscard]] int size() const noexcept final;
-
-private:
-    std::shared_ptr<BaseIfftPlanR> ifft_;
-};
+std::shared_ptr<IfftPlanC> ifft_plan_c(int n);
+std::shared_ptr<IfftPlanR> ifft_plan_r(int n);
 
 /*!
  * \brief Inverse fourier transform

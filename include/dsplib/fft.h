@@ -6,10 +6,23 @@
 namespace dsplib {
 
 //base complex value FFT plan
-class BaseFftPlanR
+class FftPlanC
 {
 public:
-    virtual ~BaseFftPlanR() = default;
+    virtual ~FftPlanC() = default;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
+    virtual void solve(const cmplx_t* x, cmplx_t* y, int n) const {
+        const auto r = this->solve(arr_cmplx(x, n));
+        std::memcpy(y, r.data(), n * sizeof(cmplx_t));
+    }
+    [[nodiscard]] virtual int size() const noexcept = 0;
+};
+
+//base real value FFT plan
+class FftPlanR
+{
+public:
+    virtual ~FftPlanR() = default;
     [[nodiscard]] virtual arr_cmplx solve(const arr_real& x) const = 0;
     virtual void solve(const real_t* x, cmplx_t* y, int n) const {
         //TODO: use span
@@ -19,62 +32,8 @@ public:
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
-//base real value FFT plan
-class BaseFftPlanC
-{
-public:
-    virtual ~BaseFftPlanC() = default;
-    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
-    virtual void solve(const cmplx_t* x, cmplx_t* y, int n) const {
-        const auto r = this->solve(arr_cmplx(x, n));
-        std::memcpy(y, r.data(), n * sizeof(cmplx_t));
-    }
-    [[nodiscard]] virtual int size() const noexcept = 0;
-};
-
-//complex value FFT plan
-class FftPlan : public BaseFftPlanC
-{
-public:
-    explicit FftPlan(int n);
-
-    arr_cmplx operator()(const arr_cmplx& x) const {
-        return this->solve(x);
-    }
-
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
-        return _d->solve(x);
-    }
-
-    [[nodiscard]] int size() const noexcept final {
-        return _d->size();
-    }
-
-private:
-    std::shared_ptr<BaseFftPlanC> _d;
-};
-
-//real value FFT plan
-class FftPlanR : public BaseFftPlanR
-{
-public:
-    explicit FftPlanR(int n);
-
-    arr_cmplx operator()(const arr_real& x) const {
-        return this->solve(x);
-    }
-
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
-        return _d->solve(x);
-    }
-
-    [[nodiscard]] int size() const noexcept final {
-        return _d->size();
-    }
-
-private:
-    std::shared_ptr<BaseFftPlanR> _d;
-};
+std::shared_ptr<FftPlanC> fft_plan_c(int n);
+std::shared_ptr<FftPlanR> fft_plan_r(int n);
 
 /*!
  * \brief Fast Fourier Transform (complex)
