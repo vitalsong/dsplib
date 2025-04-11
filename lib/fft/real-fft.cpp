@@ -3,13 +3,12 @@
 #include <dsplib/math.h>
 
 #include "fft/real-fft.h"
-#include "fft/factory.h"
 
 namespace dsplib {
 
 RealFftPlan::RealFftPlan(int n)
   : n_{n}
-  , fft_{create_fft_plan(n / 2)}
+  , fft_{fft_plan_c(n / 2)}
   , w_(expj(-2 * pi * arange(n / 2) / n).to_vec()) {   //TODO: optimization (like in real ifft module)
     DSPLIB_ASSERT(n % 2 == 0, "FFT size must be even");
 }

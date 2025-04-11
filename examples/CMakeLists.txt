@@ -1,19 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
-project(dsplib-example LANGUAGES CXX)
+project(examples)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(${CMAKE_SOURCE_DIR}/cmake/FindFFTW.cmake)
 
-include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
+FindFFTW()
 
-CPMAddPackage(NAME matplot
-    GIT_REPOSITORY "https://github.com/alandefreitas/matplotplusplus.git"
-    VERSION 1.1.0 
-    OPTIONS "BUILD_WITH_PEDANTIC_WARNINGS OFF"
-    EXCLUDE_FROM_ALL ON
-)
-
-file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC dsplib matplot)
+if (DSPLIB_EXCLUDE_FFT AND TARGET FFTW:Double)
+    add_subdirectory(fftw-backend)
+else()
+    add_subdirectory(basics)
+endif()

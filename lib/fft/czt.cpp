@@ -27,8 +27,10 @@ public:
         _cp = chirp.slice(n - 1, n + n - 1);
 
         assert(ispow2(n2));
-        _fft2 = std::make_shared<FftPlan>(n2);
-        _ifft2 = std::make_shared<IfftPlan>(n2);
+
+        //use only _fft2 with conj
+        _fft2 = fft_plan_c(n2);
+        _ifft2 = ifft_plan_c(n2);
 
         if (abs(a - 1) > eps(a.re)) {
             const auto pw = power(a, -arange(n));
@@ -59,8 +61,8 @@ public:
     arr_cmplx _ich;
     arr_cmplx _cp;
     arr_cmplx _rp;
-    std::shared_ptr<FftPlan> _fft2;
-    std::shared_ptr<IfftPlan> _ifft2;
+    std::shared_ptr<FftPlanC> _fft2;
+    std::shared_ptr<IfftPlanC> _ifft2;
 };
 
 CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
@@ -77,7 +79,7 @@ int CztPlan::size() const noexcept {
 
 arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a) {
     CztPlan plan(x.size(), m, w, a);
-    return plan(x);
+    return plan.solve(x);
 }
 
 }   // namespace dsplib

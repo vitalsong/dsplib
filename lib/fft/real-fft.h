@@ -4,7 +4,7 @@
 
 namespace dsplib {
 
-class RealFftPlan : public BaseFftPlanR
+class RealFftPlan : public FftPlanR
 {
 public:
     explicit RealFftPlan(int n);
@@ -13,7 +13,7 @@ public:
 
 private:
     const int n_;
-    std::shared_ptr<BaseFftPlanC> fft_;
+    std::shared_ptr<FftPlanC> fft_;
     const std::vector<cmplx_t> w_;
 };
 

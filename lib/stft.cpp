@@ -67,13 +67,13 @@ std::vector<arr_cmplx> stft(const arr_real& x, const arr_real& win, int overlap,
     const int nwin = win.size();
     const int hop = nwin - overlap;
     const int nseg = (nx - overlap) / (nwin - overlap);
-    const auto fftp = FftPlanR(nfft);
+    const auto fftp = fft_plan_r(nfft);
     arr_real px(nfft);
     for (int i = 0; i < nseg; ++i) {
         const int t1 = (i * hop);
         const int t2 = t1 + nwin;
         px.slice(0, nwin) = *x.slice(t1, t2) * win;
-        y.emplace_back(_convert_range_stft(fftp(px), nfft, range));   //TODO: inplace
+        y.emplace_back(_convert_range_stft(fftp->solve(px), nfft, range));   //TODO: inplace
     }
     return y;
 }
@@ -95,11 +95,11 @@ arr_real istft(const std::vector<arr_cmplx>& xx, const arr_real& win, int overla
     const auto win_nom = power(win, a);
     const auto win_den = power(win, a + 1);
 
-    const auto irfftp = IfftPlanR(nfft);
+    const auto irfftp = ifft_plan_r(nfft);
     arr_real x(xlen);
     for (int i = 0; i < nseg; ++i) {
         //TODO: copy optimmization for `_convert_range`
-        const arr_real y = irfftp(_convert_range_istft(xx[i], nfft, range)).slice(0, nwin);
+        const arr_real y = irfftp->solve(_convert_range_istft(xx[i], nfft, range)).slice(0, nwin);
         const int t1 = i * hop;
         const int t2 = t1 + nwin;
         //TODO: remove slice unpacking
