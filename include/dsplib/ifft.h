@@ -1,36 +1,48 @@
 #pragma once
 
-#include <dsplib/types.h>
 #include <dsplib/array.h>
-#include <dsplib/fft.h>
 #include <memory>
 
 namespace dsplib {
 
-class IfftPlan
+class BaseIfftPlanC
 {
 public:
-    IfftPlan(int n);
-    arr_cmplx operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const;
-    [[nodiscard]] int size() const noexcept;
-
-private:
-    std::shared_ptr<FftPlan> _d;
+    virtual ~BaseIfftPlanC() = default;
+    [[nodiscard]] virtual arr_cmplx solve(const arr_cmplx& x) const = 0;
+    [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
-class IfftPlanR
+class BaseIfftPlanR
 {
 public:
-    IfftPlanR(int n);
-    arr_real operator()(const arr_cmplx& x) const;
-    [[nodiscard]] arr_real solve(const arr_cmplx& x) const;
-    [[nodiscard]] int size() const noexcept;
+    virtual ~BaseIfftPlanR() = default;
+    [[nodiscard]] virtual arr_real solve(const arr_cmplx& x) const = 0;
+    [[nodiscard]] virtual int size() const noexcept = 0;
+};
+
+class IfftPlan : public BaseIfftPlanC
+{
+public:
+    explicit IfftPlan(int n);
+    arr_cmplx operator()(const arr_cmplx& x) const;
+    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    [[nodiscard]] int size() const noexcept final;
 
 private:
-    const int _n;
-    std::shared_ptr<FftPlan> _d;
-    const std::vector<cmplx_t> _w;   //exp(1i * 2 * pi / n)
+    std::shared_ptr<BaseIfftPlanC> ifft_;
+};
+
+class IfftPlanR : public BaseIfftPlanR
+{
+public:
+    explicit IfftPlanR(int n);
+    arr_real operator()(const arr_cmplx& x) const;
+    [[nodiscard]] arr_real solve(const arr_cmplx& x) const final;
+    [[nodiscard]] int size() const noexcept final;
+
+private:
+    std::shared_ptr<BaseIfftPlanR> ifft_;
 };
 
 /*!
