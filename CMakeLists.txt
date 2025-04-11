@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.54.8)
+project(dsplib LANGUAGES CXX VERSION 0.54.9)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
