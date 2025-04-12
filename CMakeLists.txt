@@ -13,6 +13,7 @@ option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
+option(DSPLIB_BUILD_DOXYGEN "Build dsplib documentation" OFF)
 
 file(GLOB_RECURSE DSPLIB_SOURCES 
     "lib/*.cpp"  
@@ -92,3 +93,7 @@ install(DIRECTORY include/${PROJECT_NAME}
     FILES_MATCHING
     PATTERN "*.h"
 )
+
+if (DSPLIB_BUILD_DOXYGEN)
+    add_subdirectory(docs)
+endif()
