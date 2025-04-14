@@ -44,13 +44,13 @@ set(DSPLIB_SOURCES
     lib/resample/resample.cpp
     lib/fft.cpp
     lib/ifft.cpp
+    lib/czt.cpp
 )
 
 if (DSPLIB_EXCLUDE_FFT)
     message(STATUS "dsplib: use custom fft implementation")
 else()
     list(APPEND DSPLIB_SOURCES
-        lib/fft/czt.cpp
         lib/fft/fact-fft.cpp
         lib/fft/factory.cpp
         lib/fft/pow2-fft.cpp
