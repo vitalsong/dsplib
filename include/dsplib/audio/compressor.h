@@ -6,11 +6,24 @@
 
 namespace dsplib {
 
-//Dynamic range compressor
-//TODO: add makeup gain
+/**
+ * @brief Dynamic range compressor
+ * @see https://www.mathworks.com/help/audio/ref/compressor-system-object.html
+ * @todo Add makeup gain
+ */
 class Compressor
 {
 public:
+    /**
+     * @brief Construct a new Compressor object
+     * 
+     * @param sample_rate Input sample rate (Hz)
+     * @param threshold the level (dB) above which gain is applied to the input signal.
+     * @param ratio the input/output ratio for signals that overshoot the operation threshold (>=1).
+     * @param knee_width the transition area in the compression characteristic.
+     * @param attack_time the time (sec) it takes the compressor gain to rise from 10% to 90% of its final value when the input goes above the threshold.
+     * @param release_time the time (sec) it takes the compressor gain to drop from 90% to 10% of its final value when the input goes below the threshold.
+     */
     explicit Compressor(int sample_rate = 44100, real_t threshold = -10.0, int ratio = 5, real_t knee_width = 0,
                         real_t attack_time = 0.01, real_t release_time = 0.2)
       : T_{threshold}
@@ -25,16 +38,26 @@ public:
         DSPLIB_ASSERT(release_time >= 0 && release_time <= 4, "`knee_wrelease_timeidth` must be in range [0:4] sec");
     }
 
+    /**
+     * @brief Compressor processing result
+     */
     struct Result
     {
         explicit Result(int n)
           : out(n)
           , gain(n) {
         }
-        arr_real out;
-        arr_real gain;
+
+        arr_real out;    ///< processed signal, in * gain
+        arr_real gain;   ///< applied gain
     };
 
+    /**
+     * @brief Process audio frame
+     * 
+     * @param x [in] Input audio frame
+     * @return Result [out] Output pair processed and gain
+     */
     Result process(const arr_real& x) {
         const int n = x.size();
         Result res(n);
@@ -52,6 +75,10 @@ public:
         return res;
     }
 
+    /**
+     * @brief Process audio frame, obj(x) syntax
+     * @see process
+     */
     Result operator()(const arr_real& x) {
         return this->process(x);
     }
