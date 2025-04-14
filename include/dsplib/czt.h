@@ -7,7 +7,7 @@ namespace dsplib {
 
 class CztPlanImpl;
 
-class CztPlan : public BaseFftPlanC
+class CztPlan : public FftPlanC
 {
 public:
     explicit CztPlan(int n, int m, cmplx_t w, cmplx_t a = 1);
