@@ -1,0 +1,15 @@
+project(dsplib-docs)
+
+find_package(Doxygen REQUIRED)
+set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/include/dsplib)
+set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
+set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+add_custom_target(
+  ${PROJECT_NAME} ALL
+  COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Generate doxygen documentation"
+  VERBATIM)
