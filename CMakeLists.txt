@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
-project(dsplib LANGUAGES CXX VERSION 0.54.9)
+cmake_minimum_required(VERSION 3.15...4.0)
+project(dsplib LANGUAGES CXX VERSION 0.55.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -64,13 +64,19 @@ add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
     "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
 
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC 
+# add INTERFACE target
+add_library(${PROJECT_NAME}-interface INTERFACE)
+add_library(${PROJECT_NAME}::interface ALIAS ${PROJECT_NAME}-interface)
+
+target_include_directories(${PROJECT_NAME}-interface 
+    INTERFACE 
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-    PRIVATE lib
 )
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}-interface)
+target_include_directories(${PROJECT_NAME} PRIVATE lib)
 
 # check root project
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")
