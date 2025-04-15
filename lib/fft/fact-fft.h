@@ -10,7 +10,7 @@ namespace dsplib {
 class PlanTree;
 
 //The Cooley-Tukey FFT algorithm for general factorizations
-class FactorFFTPlan : public BaseFftPlanC
+class FactorFFTPlan : public FftPlanC
 {
 public:
     explicit FactorFFTPlan(int n);
@@ -25,7 +25,7 @@ private:
     std::shared_ptr<PlanTree> _plan;
 };
 
-class FactorFFTPlanR : public BaseFftPlanR
+class FactorFFTPlanR : public FftPlanR
 {
 public:
     explicit FactorFFTPlanR(int n)

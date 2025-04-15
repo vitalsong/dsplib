@@ -106,24 +106,24 @@ bool issorted(const arr_real& x, Direction dir = Direction::Ascend);
 
 //real part
 arr_real real(const arr_cmplx& x);
-real_t real(cmplx_t x);
+real_t real(const cmplx_t& x);
 
 //imag part
 arr_real imag(const arr_cmplx& x);
-real_t imag(cmplx_t x);
+real_t imag(const cmplx_t& x);
 
 //complex pairing
 arr_cmplx conj(const arr_cmplx& x);
 
-constexpr cmplx_t conj(cmplx_t x) {
+constexpr cmplx_t conj(const cmplx_t& x) noexcept {
     return x.conj();
 }
 
-inline arr_real conj(const arr_real& x) {
+inline arr_real conj(const arr_real& x) noexcept {
     return x;
 };
 
-constexpr real_t conj(real_t x) {
+constexpr real_t conj(const real_t& x) noexcept {
     return x;
 };
 
@@ -132,10 +132,28 @@ arr_cmplx complex(const arr_real& re, const arr_real& im);
 arr_cmplx complex(const arr_real& re) noexcept;
 
 //the nearest power of two numbers (with rounding up)
-int nextpow2(int m);
+constexpr int nextpow2(int m) noexcept {
+    if ((m == 0) || (m == 1)) {
+        return 0;
+    }
+
+    int p = 0;
+    while ((m >> p) != 0) {
+        ++p;
+    }
+
+    --p;
+    if ((int(1) << p) == m) {
+        return p;
+    }
+
+    return p + 1;
+}
 
 //checks if m is an integral power of two
-bool ispow2(int m);
+constexpr bool ispow2(int m) noexcept {
+    return (int(1) << nextpow2(m)) == m;
+}
 
 //scalar^scalar->scalar
 real_t power(real_t x, real_t n);
@@ -194,7 +212,7 @@ arr_cmplx upsample(const arr_cmplx& arr, int n, int phase = 0);
 //abs(x)^2
 arr_real abs2(const arr_cmplx& x);
 
-constexpr real_t abs2(const cmplx_t& x) {
+constexpr real_t abs2(const cmplx_t& x) noexcept {
     return x.abs2();
 }
 
@@ -202,7 +220,7 @@ inline arr_real abs2(const arr_real& x) {
     return power(x, 2);
 }
 
-constexpr real_t abs2(const real_t& x) {
+constexpr real_t abs2(const real_t& x) noexcept {
     return (x * x);
 }
 
@@ -238,11 +256,11 @@ inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
 }
 
 //signum function
-constexpr int sign(const real_t& x) {
+constexpr int sign(const real_t& x) noexcept {
     return (real_t(0) < x) - (x < real_t(0));
 }
 
-inline cmplx_t sign(const cmplx_t& x) {
+inline cmplx_t sign(const cmplx_t& x) noexcept {
     if (x.re == 0 && x.im == 0) {
         return 0;
     }
