@@ -1,5 +1,4 @@
 #include "fft/real-ifft.h"
-#include "fft/factory.h"
 
 namespace dsplib {
 
@@ -27,7 +26,7 @@ std::vector<cmplx_t> _irfft_coeffs(int n) noexcept {
 
 RealIfftPlan::RealIfftPlan(int n)
   : n_{n}
-  , fft_{create_fft_plan(n / 2)}
+  , fft_{fft_plan_c(n / 2)}
   , w_(_irfft_coeffs(n)) {
     DSPLIB_ASSERT(n % 2 == 0, "ifft size must be even");
 }

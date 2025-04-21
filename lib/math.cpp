@@ -242,7 +242,7 @@ arr_real real(const arr_cmplx& x) {
     return r;
 }
 
-real_t real(cmplx_t x) {
+real_t real(const cmplx_t& x) {
     return x.re;
 }
 
@@ -255,32 +255,8 @@ arr_real imag(const arr_cmplx& x) {
     return r;
 }
 
-real_t imag(cmplx_t x) {
+real_t imag(const cmplx_t& x) {
     return x.im;
-}
-
-//-------------------------------------------------------------------------------------------------
-int nextpow2(int m) {
-    if ((m == 0) || (m == 1)) {
-        return 0;
-    }
-
-    int p = 0;
-    while ((m >> p) != 0) {
-        ++p;
-    }
-
-    --p;
-    if ((int(1) << p) == m) {
-        return p;
-    }
-
-    return p + 1;
-}
-
-bool ispow2(int m) {
-    //TODO: optimization
-    return (int(1) << nextpow2(m)) == m;
 }
 
 //-------------------------------------------------------------------------------------------------
