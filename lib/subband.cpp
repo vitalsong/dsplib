@@ -159,7 +159,7 @@ public:
       : DFTFilterBank(num_bands, decim_factor, num_taps, false)
       , flt_{std::move(filter)}
       , fview_{MatView(*flt_, num_taps, num_bands)}
-      , fft_{num_bands} {
+      , fft_{fft_plan_r(num_bands)} {
     }
 
     [[nodiscard]] arr_cmplx process(const arr_real& x) {
@@ -187,13 +187,13 @@ public:
         }
 
         //TODO: flip `pout` and remove conj
-        return conj(fft_(pout));
+        return conj(fft_->solve(pout));
     }
 
 private:
     std::shared_ptr<const arr_real> flt_;
     MatView fview_;
-    FftPlanR fft_;
+    std::shared_ptr<FftPlanR> fft_;
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -205,13 +205,13 @@ public:
       : DFTFilterBank(num_bands, decim_factor, num_taps, true)
       , flt_{std::move(filter)}
       , fview_{MatView(*flt_, num_taps, num_bands)}
-      , ifft_{num_bands} {
+      , ifft_{ifft_plan_r(num_bands)} {
     }
 
     arr_real process(const dsplib::arr_cmplx& x) {
         DSPLIB_ASSERT(x.size() == nbands_, "input vector size error");
 
-        const auto xx = ifft_(x) * nbands_;
+        const auto xx = ifft_->solve(x) * nbands_;
         buf_.push(xx, true);
 
         // calculate outputs of polyphase filters
@@ -245,7 +245,7 @@ public:
 private:
     std::shared_ptr<const arr_real> flt_;
     MatView fview_;
-    IfftPlanR ifft_;
+    std::shared_ptr<IfftPlanR> ifft_;
 };
 
 //--------------------------------------------------------------------------------------------------------------
