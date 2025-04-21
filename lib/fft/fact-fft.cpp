@@ -1,5 +1,4 @@
 #include "fft/fact-fft.h"
-#include "fft/factory.h"
 
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
@@ -20,7 +19,7 @@ public:
 
         //use Pow2FFT solver
         if (ispow2(n)) {
-            _solver = create_fft_plan(n);
+            _solver = fft_plan_c(n);
             return;
         }
 
@@ -29,7 +28,7 @@ public:
         //use PrimeFFT solver
         if (fac.size() == 1) {
             //it is important to use the cache because there can be several identical FFTs
-            _solver = create_fft_plan(n);
+            _solver = fft_plan_c(n);
             return;
         }
 
@@ -74,7 +73,7 @@ public:
         return (_q != nullptr) && (_p != nullptr);
     }
 
-    [[nodiscard]] std::shared_ptr<BaseFftPlanC> solver() const noexcept {
+    [[nodiscard]] std::shared_ptr<FftPlanC> solver() const noexcept {
         assert(_solver != nullptr);
         return _solver;
     }
@@ -105,7 +104,7 @@ private:
     const int _n;
     PlanTree* _p{nullptr};
     PlanTree* _q{nullptr};
-    std::shared_ptr<BaseFftPlanC> _solver;
+    std::shared_ptr<FftPlanC> _solver;
 };
 
 namespace {

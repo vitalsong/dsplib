@@ -6,7 +6,7 @@
 
 namespace dsplib {
 
-class Pow2FftPlan : public BaseFftPlanC
+class Pow2FftPlan : public FftPlanC
 {
 public:
     explicit Pow2FftPlan(int n);
