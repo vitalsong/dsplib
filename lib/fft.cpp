@@ -2,18 +2,11 @@
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
 
-#include "fft/factory.h"
-
 namespace dsplib {
 
-//-------------------------------------------------------------------------------------------------
-FftPlan::FftPlan(int n)
-  : _d{create_fft_plan(n)} {
-}
-
 arr_cmplx fft(const arr_cmplx& x) {
-    auto plan = FftPlan(x.size());
-    return plan(x);
+    auto plan = fft_plan_c(x.size());
+    return plan->solve(x);
 }
 
 arr_cmplx fft(const arr_cmplx& x, int n) {
@@ -26,14 +19,9 @@ arr_cmplx fft(const arr_cmplx& x, int n) {
     return fft(x.slice(0, n));
 }
 
-//-------------------------------------------------------------------------------------------------
-FftPlanR::FftPlanR(int n)
-  : _d{create_rfft_plan(n)} {
-}
-
 arr_cmplx fft(const arr_real& x) {
-    auto plan = FftPlanR(x.size());
-    return plan(x);
+    auto plan = fft_plan_r(x.size());
+    return plan->solve(x);
 }
 
 arr_cmplx fft(const arr_real& x, int n) {

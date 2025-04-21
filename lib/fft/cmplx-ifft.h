@@ -2,15 +2,13 @@
 
 #include <dsplib/ifft.h>
 
-#include "fft/factory.h"
-
 namespace dsplib {
 
-class CmplxIfftPlan : public BaseIfftPlanC
+class CmplxIfftPlan : public IfftPlanC
 {
 public:
     explicit CmplxIfftPlan(int n)
-      : fft_{create_fft_plan(n)} {
+      : fft_{fft_plan_c(n)} {
     }
 
     arr_cmplx solve(const arr_cmplx& x) const final {
@@ -33,7 +31,7 @@ private:
         }
     }
 
-    std::shared_ptr<BaseFftPlanC> fft_;
+    std::shared_ptr<FftPlanC> fft_;
 };
 
 }   // namespace dsplib

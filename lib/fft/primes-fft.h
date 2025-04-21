@@ -14,7 +14,7 @@ namespace dsplib {
 constexpr int MAX_DFT_SIZE = 41;
 
 //--------------------------------------------------------------------------------
-class PrimesFftC : public BaseFftPlanC
+class PrimesFftC : public FftPlanC
 {
 public:
     explicit PrimesFftC(int n)
@@ -91,7 +91,7 @@ private:
 
 //--------------------------------------------------------------------------------
 //TODO: real optimization
-class PrimesFftR : public BaseFftPlanR
+class PrimesFftR : public FftPlanR
 {
 public:
     explicit PrimesFftR(int n)
