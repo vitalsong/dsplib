@@ -267,4 +267,27 @@ arr_cmplx fftshift(const arr_cmplx& x) {
     return _fftshift(x);
 }
 
+arr_cmplx zadoff_chu(int r, int n) {
+    DSPLIB_ASSERT((r > 0) && (n > 0), "must be positive");
+    DSPLIB_ASSERT((r >= 1) && (r < n), "root must be in range [1, n-1]");
+    arr_real arg(n);
+    if (n % 2 == 1) {
+        for (int i = 0; i < n; ++i) {
+            // the phase grows quadratically, which leads to an increase in error for large n
+            // arg[i] = (-pi * r * i * (i + 1)) / n;
+            const auto a = size_t(r) * i * (i + 1);
+            const auto b = (a / n) % 2;
+            arg[i] = (real_t(b) + real_t(a % n) / n) * (-pi);
+        }
+    } else {
+        for (int i = 0; i < n; ++i) {
+            // arg[i] = (-pi * r * i * i) / n;
+            const auto a = size_t(r) * i * i;
+            const auto b = (a / n) % 2;
+            arg[i] = (real_t(b) + real_t(a % n) / n) * (-pi);
+        }
+    }
+    return expj(arg);
+}
+
 }   // namespace dsplib

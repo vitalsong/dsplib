@@ -4,11 +4,6 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-static arr_cmplx zadoff_chu(int r, int n) {
-    return expj(-pi * r * power(arange(n), 2) / n);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(PreambleDetector, SingleDetect) {
     auto ref = zadoff_chu(1, 199);
     auto dtc = PreambleDetector(ref, 0.5);
