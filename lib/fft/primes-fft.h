@@ -72,14 +72,14 @@ private:
         DSPLIB_ASSUME(n == n_);
 
         if (n <= MAX_DFT_SIZE) {
-            DSPLIB_ASSUME(!w_.empty());
+            assert(!w_.empty());
             _dft_slow(x, y, n, w_.data());
             return;
         }
 
         if (n > MAX_DFT_SIZE) {
             //TODO: noexcept?
-            DSPLIB_ASSUME(czt_ && czt_->size() == n);
+            assert(czt_ && czt_->size() == n);
             czt_->solve(span(x, n), span(y, n));
         }
     }

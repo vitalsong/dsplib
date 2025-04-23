@@ -28,7 +28,7 @@ public:
         fftw_free(in_);
     }
 
-    dsplib::arr_cmplx solve(const dsplib::arr_cmplx& x) const final {
+    dsplib::arr_cmplx solve(span_t<cmplx_t> x) const final {
         DSPLIB_ASSERT(x.size() == n_, "input size must be equal `n`");
         std::memcpy(in_, x.data(), n_ * sizeof(x[0]));
         fftw_execute(plan_);
@@ -66,7 +66,7 @@ public:
         fftw_free(in_);
     }
 
-    dsplib::arr_cmplx solve(const dsplib::arr_real& x) const final {
+    dsplib::arr_cmplx solve(span_t<real_t> x) const final {
         DSPLIB_ASSERT(x.size() == n_, "input size must be equal `n`");
         std::memcpy(in_, x.data(), n_ * sizeof(x[0]));
         fftw_execute(plan_);
@@ -105,7 +105,7 @@ public:
         fftw_free(in_);
     }
 
-    dsplib::arr_real solve(const dsplib::arr_cmplx& x) const final {
+    dsplib::arr_real solve(span_t<cmplx_t> x) const final {
         const int n2 = n_ / 2 + 1;
         DSPLIB_ASSERT((x.size() == n_) || (x.size() == n2), "input size must be equal `n` or `n/2+1`");
         std::memcpy(in_, x.data(), n2 * sizeof(x[0]));
