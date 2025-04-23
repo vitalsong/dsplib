@@ -43,6 +43,7 @@ set(SOURCES
     resample.cpp
     slice.cpp
     fir.cpp
+    subband.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

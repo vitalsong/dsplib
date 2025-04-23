@@ -240,4 +240,12 @@ arr_cmplx circshift(const arr_cmplx& x, int k);
 arr_real fftshift(const arr_real& x);
 arr_cmplx fftshift(const arr_cmplx& x);
 
+/**
+ * @brief generate Zadoff-Chu sequence
+ * @param r root, from 1 to n-1
+ * @param n length
+ * @return Zadoff-Chu sequence
+ */
+arr_cmplx zadoff_chu(int r, int n);
+
 }   // namespace dsplib

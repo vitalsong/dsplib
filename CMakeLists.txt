@@ -45,6 +45,7 @@ set(DSPLIB_SOURCES
     lib/fft.cpp
     lib/ifft.cpp
     lib/czt.cpp
+    lib/subband.cpp
 )
 
 if (DSPLIB_EXCLUDE_FFT)

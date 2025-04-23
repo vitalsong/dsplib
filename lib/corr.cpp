@@ -84,6 +84,7 @@ real_t corr(const arr_real& x, const arr_real& y, Correlation type) {
     default:
         return 0;
     }
+    return 0;
 }
 
 }   // namespace dsplib
