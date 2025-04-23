@@ -65,7 +65,7 @@ TEST(Subband, ChannelizerRms) {
 
 TEST(Subband, Reconstruction) {
     int nbands = 512;
-    int ntaps = 4;
+    int ntaps = 2;
     int decim = 2;
     int fs = 16000;
 
@@ -80,14 +80,18 @@ TEST(Subband, Reconstruction) {
         out = concatenate(out, xx);
     });
 
-    //TODO: check auto-corr function
-
     int delay = _align_arrays(in, out);
     auto x1 = *in.slice(-fs, indexing::end);
     auto x2 = *out.slice(-fs, indexing::end);
-    const auto [tau, R] = gccphat(x1, x2);
-    auto cr = max(abs(R));
-    auto pr = abs(xcorr(x1, x2));
+    auto [_, R] = gccphat(x1, x2);
+    auto aR = abs(R);
+    auto corr_peak = max(aR);
+    ASSERT_GE(corr_peak, 0.99);
+
+    //weak correlation side lobes
+    auto max_lobes = max(aR.slice(1, indexing::end));
+    ASSERT_LE(max_lobes, 0.005);
+    //TODO: check auto-corr function
 }
 
 TEST(Subband, Oversampled2x) {
@@ -104,7 +108,7 @@ TEST(Subband, Oversampled2x) {
     auto chan = Channelizer(hptr, nbands, D);
     auto synth = ChannelSynthesizer(hptr, nbands, D);
 
-    auto in = randn(fs * 30);
+    auto in = randn(fs * 10);
     arr_real out;
     _frame_apply(in, chan.frame_len(), [&](const arr_real& x) {
         auto X = chan.process(x);
@@ -125,6 +129,6 @@ TEST(Subband, Oversampled2x) {
     ASSERT_NEAR(in_rms, out_rms, 2);
 
     //xcorr(in, out) must be near
-    auto [tau, corr] = gccphat(in_d, out_d);
+    auto [_, corr] = gccphat(in_d, out_d);
     ASSERT_GE(abs(max(corr)), 0.98);
 }

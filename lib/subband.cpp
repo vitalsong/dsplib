@@ -182,12 +182,11 @@ public:
             const auto* restrict buf = buf_[decim_ * k];
             const auto* restrict flt = fview_[k];
             for (int m = 0; m < nbands_; m++) {
-                pout[m] += flt[m] * buf[m];
+                pout[nbands_ - m - 1] += flt[m] * buf[m];
             }
         }
 
-        //TODO: flip `pout` and remove conj
-        return conj(fft_->solve(pout));
+        return fft_->solve(pout);
     }
 
 private:
@@ -211,7 +210,8 @@ public:
     arr_real process(const dsplib::arr_cmplx& x) {
         DSPLIB_ASSERT(x.size() == nbands_, "input vector size error");
 
-        const auto xx = ifft_->solve(x) * nbands_;
+        auto xx = ifft_->solve(x);
+        xx *= nbands_;
         buf_.push(xx, true);
 
         // calculate outputs of polyphase filters
@@ -239,7 +239,8 @@ public:
 
         //normalize ouput
         //TODO: more precision, gain error ~ 1 dB
-        return out * (nbands_ / decim_);
+        out *= nbands_ / decim_;
+        return out;
     }
 
 private:

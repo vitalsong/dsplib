@@ -15,7 +15,7 @@ public:
       : _n{n}
       , _m{m} {
         assert(abs(abs(w) - 1.0) < 2 * eps());
-        auto t = abs2(arange(1 - n, max(m, n))) / 2;
+        const auto t = abs2(arange(1 - n, max(m, n))) / 2;
         arr_cmplx chirp(t.size());
         const auto w_a = angle(w);
         for (int i = 0; i < t.size(); ++i) {

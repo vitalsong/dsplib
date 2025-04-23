@@ -77,14 +77,13 @@ class ChannelSynthesizerImpl;
  * @details Ideally ChannelSynthesizer(Channelizer(x)) == x.
  * @see Matlab dsp.ChannelSynthesizer
  * @warning This implementation differs from matlab in the decimation parameter. For decim_factor=1, the results should be identical.
+ * @todo remove num_taps if filter is calculated
+ * @todo params order (bands, decim, ntaps/coeffs)
  */
 class ChannelSynthesizer
 {
 public:
     ChannelSynthesizer(const ChannelSynthesizer&) = delete;
-
-    //TODO: remove num_taps if filter is calculated
-    //TODO: params order (bands, decim, ntaps/coeffs)
 
     /**
      * @brief Construct ChannelSynthesizer
