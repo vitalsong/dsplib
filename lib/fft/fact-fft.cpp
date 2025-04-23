@@ -131,11 +131,9 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
     const int n = plan->size();
 
     if (!plan->has_next()) {
-        //TODO: plan->solver()->solve(x, mem, n);
-        // std::memcpy(x, mem, n * sizeof(cmplx_t));
         //TODO: inplace fft
-        const auto y = plan->solver()->solve(span(x, n));
-        std::memcpy(x, y.data(), n * sizeof(cmplx_t));
+        plan->solver()->solve(span(x, n), span(mem, n));
+        std::memcpy(x, mem, n * sizeof(cmplx_t));
         return;
     }
 

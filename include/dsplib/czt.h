@@ -11,7 +11,11 @@ class CztPlan : public FftPlanC
 {
 public:
     explicit CztPlan(int n, int m, cmplx_t w, cmplx_t a = 1);
+
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
+
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
+
     [[nodiscard]] int size() const noexcept final;
 
     arr_cmplx operator()(span_t<cmplx_t> x) const {

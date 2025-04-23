@@ -42,18 +42,21 @@ public:
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const {
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
         DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
         arr_cmplx xp(_fft2->size());
         for (int i = 0; i < _n; ++i) {
             xp[i] = x[i] * _cp[i];
         }
+
+        //TODO: inplace
         xp = _fft2->solve(xp);
         xp *= _ich;
         xp = _ifft2->solve(xp);
-        arr_cmplx tr = xp.slice(_n - 1, _m + _n - 1);
-        tr *= _rp;
-        return tr;
+
+        for (int i = 0; i < _n; ++i) {
+            r[i] = xp[_n - 1 + i] * _rp[i];
+        }
     }
 
     const int _n;
@@ -70,7 +73,13 @@ CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
 }
 
 arr_cmplx CztPlan::solve(span_t<cmplx_t> x) const {
-    return _d->solve(x);
+    arr_cmplx r(_d->_n);
+    _d->solve(x, r);
+    return r;
+}
+
+void CztPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+    _d->solve(x, r);
 }
 
 int CztPlan::size() const noexcept {

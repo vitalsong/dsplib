@@ -13,7 +13,23 @@ class FftPlanC
 {
 public:
     virtual ~FftPlanC() = default;
+
     [[nodiscard]] virtual arr_cmplx solve(span_t<cmplx_t> x) const = 0;
+
+    /**
+     * @brief c2c FFT solve
+     * @param x [in] input array[n]
+     * @param r [out] result array[n]
+     */
+    virtual void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+        //default implementation
+        const int n = this->size();
+        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
+        DSPLIB_ASSERT(x.size() == n, "input size error");
+        const auto y = this->solve(x);
+        std::memcpy(r.data(), y.data(), n * sizeof(r[0]));
+    }
+
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
@@ -24,7 +40,23 @@ class FftPlanR
 {
 public:
     virtual ~FftPlanR() = default;
+
     [[nodiscard]] virtual arr_cmplx solve(span_t<real_t> x) const = 0;
+
+    /**
+     * @brief r2c FFT solve
+     * @param x [in] input array[n]
+     * @param r [out] result array[n]
+     */
+    virtual void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const {
+        //TODO: support n/2+1 output size
+        const int n = this->size();
+        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
+        DSPLIB_ASSERT(x.size() == n, "input size error");
+        const auto y = this->solve(x);
+        std::memcpy(r.data(), y.data(), n * sizeof(r[0]));
+    }
+
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 

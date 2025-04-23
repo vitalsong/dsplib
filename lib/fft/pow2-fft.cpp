@@ -71,10 +71,16 @@ Pow2FftPlan::Pow2FftPlan(int n)
     coeffs_ = _gen_coeffs_table(n);
 }
 
+void Pow2FftPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+    DSPLIB_ASSERT(x.size() == n_, "array size error");
+    DSPLIB_ASSERT(r.size() == n_, "array size error");
+    _fft(x.data(), r.data(), n_);
+}
+
 arr_cmplx Pow2FftPlan::solve(span_t<cmplx_t> x) const {
-    arr_cmplx y(x.size());
-    _fft(x.data(), y.data(), n_);
-    return y;
+    arr_cmplx r(x.size());
+    this->solve(x, r);
+    return r;
 }
 
 int Pow2FftPlan::size() const noexcept {

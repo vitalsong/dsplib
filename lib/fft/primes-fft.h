@@ -6,7 +6,6 @@
 #include "dsplib/span.h"
 #include "dsplib/utils.h"
 
-#include <cassert>
 #include <cstring>
 
 namespace dsplib {
@@ -31,9 +30,16 @@ public:
     }
 
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
-        arr_cmplx y(x.size());
-        _dft(x.data(), y.data(), y.size());
-        return y;
+        arr_cmplx r(n_);
+        this->solve(x, r);
+        return r;
+    }
+
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final {
+        DSPLIB_ASSERT(x.size() == n_, "array size error");
+        DSPLIB_ASSERT(r.size() == n_, "array size error");
+        //TODO: check x and r overlaped
+        _dft(x.data(), r.data(), n_);
     }
 
     [[nodiscard]] int size() const noexcept final {
@@ -63,20 +69,18 @@ private:
     }
 
     void _dft(const cmplx_t* restrict x, cmplx_t* restrict y, int n) const {
-        assert(n == n_);
+        DSPLIB_ASSUME(n == n_);
 
         if (n <= MAX_DFT_SIZE) {
-            assert(!w_.empty());
+            DSPLIB_ASSUME(!w_.empty());
             _dft_slow(x, y, n, w_.data());
             return;
         }
 
         if (n > MAX_DFT_SIZE) {
             //TODO: noexcept?
-            //TODO: call without copy
-            assert(czt_ && czt_->size() == n);
-            const auto r = czt_->solve(span(x, n));
-            std::memcpy(y, r.data(), n * sizeof(cmplx_t));
+            DSPLIB_ASSUME(czt_ && czt_->size() == n);
+            czt_->solve(span(x, n), span(y, n));
         }
     }
 
