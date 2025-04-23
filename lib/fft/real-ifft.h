@@ -9,7 +9,7 @@ class RealIfftPlan : public IfftPlanR
 {
 public:
     explicit RealIfftPlan(int n);
-    [[nodiscard]] arr_real solve(const arr_cmplx& x) const final;
+    [[nodiscard]] arr_real solve(span_t<cmplx_t>) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:

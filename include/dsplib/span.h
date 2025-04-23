@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsplib/throw.h>
+#include <dsplib/assert.h>
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
 
@@ -54,11 +54,6 @@ public:
 
     [[nodiscard]] int size() const noexcept {
         return _len;
-    }
-
-    T& operator()(int i) noexcept {
-        assert((i >= 0) && (i < _len));
-        return _ptr[i];
     }
 
     T& operator[](int i) noexcept {
@@ -157,11 +152,6 @@ public:
 
     [[nodiscard]] int size() const noexcept {
         return _len;
-    }
-
-    const T& operator()(int i) const noexcept {
-        assert((i >= 0) && (i < _len));
-        return _ptr[i];
     }
 
     const T& operator[](int i) const noexcept {

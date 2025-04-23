@@ -11,9 +11,10 @@ public:
       : fft_{fft_plan_c(n)} {
     }
 
-    arr_cmplx solve(const arr_cmplx& x) const final {
+    arr_cmplx solve(span_t<cmplx_t> x) const final {
         const real_t m = real_t(1) / x.size();
-        arr_cmplx y = x * m;
+        arr_cmplx y(x);
+        y *= m;
         _inplace_conj(y);
         y = fft_->solve(y);
         _inplace_conj(y);

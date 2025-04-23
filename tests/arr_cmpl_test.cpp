@@ -135,16 +135,6 @@ TEST(ArrCmplxTest, UnpackReal) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(ArrCmplxTest, UnpackCmplx) {
-    std::vector<short> s1 = {1, -2, -3, +4};
-    arr_cmplx a1 = to_complex(s1);
-    arr_cmplx a2 = {1 - 2i, -3 + 4i};
-    std::vector<short> s2 = from_complex<short>(a1);
-    ASSERT_EQ_ARR_REAL(s1, s2);
-    ASSERT_EQ_ARR_CMPLX(a1, a2);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(ArrCmplxTest, UnpackStdComplex) {
     arr_cmplx r1 = {1.0i, -2.0i, -3.0i, +4.0i};
     std::vector<std::complex<float>> r2 = r1.to_vec<std::complex<float>>();

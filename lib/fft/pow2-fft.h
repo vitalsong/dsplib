@@ -10,11 +10,7 @@ class Pow2FftPlan : public FftPlanC
 {
 public:
     explicit Pow2FftPlan(int n);
-
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
-
-    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> y) const final;
-
     [[nodiscard]] int size() const noexcept final;
 
 private:

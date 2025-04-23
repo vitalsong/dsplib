@@ -46,8 +46,8 @@ public:
         }
 
         int nx = x.size();
-        base_array<T> y = array_cast<T>(zeros(nx));
-        base_array<T> e = array_cast<T>(zeros(nx));
+        base_array<T> y(nx);
+        base_array<T> e(nx);
         base_array<T> tu = _u | x;
         arr_real tu2 = (_method == LmsType::NLMS) ? abs2(tu) : arr_real{};
 

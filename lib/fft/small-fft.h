@@ -22,33 +22,29 @@ public:
     ~SmallFftC() override {
     }
 
-    void solve(const cmplx_t* x, cmplx_t* y, int n) const final {
-        DSPLIB_ASSERT(n == n_, "input size error");
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
+        DSPLIB_ASSERT(x.size() == n_, "input size error");
+        arr_cmplx y(x.size());
         switch (n_) {
         case 1:
             y[0] = x[0];
             break;
         case 2:
-            _fft_n2(x, y);
+            _fft_n2(x.data(), y.data());
             break;
         case 3:
-            _fft_n3(x, y);
+            _fft_n3(x.data(), y.data());
             break;
         case 4:
-            _fft_n4(x, y);
+            _fft_n4(x.data(), y.data());
             break;
         case 8:
-            _fft_n8(x, y);
+            _fft_n8(x.data(), y.data());
             break;
         default:
             DSPLIB_THROW("size not supported");
             break;
         }
-    }
-
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
-        arr_cmplx y(x.size());
-        solve(x.data(), y.data(), x.size());
         return y;
     }
 
@@ -141,33 +137,29 @@ public:
     ~SmallFftR() override {
     }
 
-    void solve(const real_t* x, cmplx_t* y, int n) const final {
-        DSPLIB_ASSERT(n == n_, "input size error");
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
+        DSPLIB_ASSERT(x.size() == n_, "input size error");
+        arr_cmplx y(x.size());
         switch (n_) {
         case 1:
             y[0] = x[0];
             break;
         case 2:
-            _fft_n2(x, y);
+            _fft_n2(x.data(), y.data());
             break;
         case 3:
-            _fft_n3(x, y);
+            _fft_n3(x.data(), y.data());
             break;
         case 4:
-            _fft_n4(x, y);
+            _fft_n4(x.data(), y.data());
             break;
         case 8:
-            _fft_n8(x, y);
+            _fft_n8(x.data(), y.data());
             break;
         default:
             DSPLIB_THROW("size not supported");
             break;
         }
-    }
-
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
-        arr_cmplx y(x.size());
-        solve(x.data(), y.data(), x.size());
         return y;
     }
 

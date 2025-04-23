@@ -9,6 +9,7 @@
 #include <dsplib/slice.h>
 #include <dsplib/indexing.h>
 #include <dsplib/assert.h>
+#include <dsplib/span.h>
 
 namespace dsplib {
 
@@ -25,8 +26,8 @@ using ResultType = conditional_t<std::is_same_v<T1, cmplx_t> || std::is_same_v<T
 
 template<typename T_dst, typename T_src>
 base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
-    static_assert(is_scalar_v<T_src> && is_scalar_v<T_dst>, "types must be scalar");
-    static_assert(!(is_complex_v<T_src> && !is_complex_v<T_dst>), "complex to real cast is not allowed");
+    static_assert(is_scalar_v<T_src> && is_scalar_v<T_dst>, "Types must be scalar");
+    static_assert(!(is_complex_v<T_src> && !is_complex_v<T_dst>), "Complex to real cast is not allowed");
     if constexpr (std::is_same_v<T_src, T_dst>) {
         return src;
     } else if constexpr (!is_complex_v<T_src> && is_complex_v<T_dst>) {
@@ -69,24 +70,6 @@ constexpr bool is_array_convertible() noexcept {
     }
 
     return true;
-}
-
-template<typename T_dst, typename T_src>
-base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
-    static_assert(is_scalar_v<T_src> && is_scalar_v<T_dst>, "Types must be scalar");
-    static_assert(!(is_complex_v<T_src> && !is_complex_v<T_dst>), "Complex to Real cast is not allowed");
-
-    if constexpr (std::is_same_v<T_src, T_dst>) {
-        return src;
-    } else if constexpr (!is_complex_v<T_src> && is_complex_v<T_dst>) {
-        base_array<T_dst> dst(src.size());
-        for (int i = 0; i < src.size(); ++i) {
-            dst[i].re = static_cast<real_t>(src[i]);
-        }
-        return dst;
-    } else {
-        return base_array<T_dst>(src);
-    }
 }
 
 //rules for implicit array conversion
@@ -320,16 +303,6 @@ public:
         auto r = (*this == rhs);
         r.flip();
         return r;
-    }
-
-    //--------------------------------------------------------------------
-    //TODO: remove
-    const T& operator()(int i) const noexcept {
-        return this->operator[](i);
-    }
-
-    T& operator()(int i) noexcept {
-        return this->operator[](i);
     }
 
     //--------------------------------------------------------------------

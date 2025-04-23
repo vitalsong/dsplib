@@ -73,13 +73,8 @@ Pow2FftPlan::Pow2FftPlan(int n)
 
 arr_cmplx Pow2FftPlan::solve(span_t<cmplx_t> x) const {
     arr_cmplx y(x.size());
-    this->solve(x, y);
+    _fft(x.data(), y.data(), n_);
     return y;
-}
-
-void Pow2FftPlan::solve(const cmplx_t* x, cmplx_t* y, int n) const {
-    DSPLIB_ASSERT(x != y, "Pointers must be restricted");
-    _fft(x, y, n);
 }
 
 int Pow2FftPlan::size() const noexcept {

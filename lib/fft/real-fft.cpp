@@ -13,12 +13,12 @@ RealFftPlan::RealFftPlan(int n)
     DSPLIB_ASSERT(n % 2 == 0, "FFT size must be even");
 }
 
-arr_cmplx RealFftPlan::solve(const arr_real& x) const {
+arr_cmplx RealFftPlan::solve(span_t<real_t> x) const {
     using namespace std::complex_literals;
     DSPLIB_ASSERT(x.size() == n_, "Input size must be equal FFT size");
     const int n2 = n_ / 2;
 
-    arr_cmplx z(reinterpret_cast<const cmplx_t*>(x.data()), n2);
+    arr_cmplx z(span(reinterpret_cast<const cmplx_t*>(x.data()), n2));
     const auto Z = fft_->solve(z * 0.5);
 
     arr_cmplx res(n_);

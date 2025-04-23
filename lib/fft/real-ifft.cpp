@@ -31,7 +31,7 @@ RealIfftPlan::RealIfftPlan(int n)
     DSPLIB_ASSERT(n % 2 == 0, "ifft size must be even");
 }
 
-arr_real RealIfftPlan::solve(const arr_cmplx& x) const {
+arr_real RealIfftPlan::solve(span_t<cmplx_t> x) const {
     assert(n_ % 2 == 0);
     DSPLIB_ASSERT((x.size() == n_) || (x.size() == n_ / 2 + 1), "input size must be n/2+1 or n");
 
