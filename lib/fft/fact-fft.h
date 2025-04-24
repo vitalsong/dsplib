@@ -2,7 +2,6 @@
 
 #include <dsplib/math.h>
 #include <dsplib/fft.h>
-#include <dsplib/math.h>
 
 #include <memory>
 
@@ -15,14 +14,14 @@ class FactorFFTPlan : public FftPlanC
 {
 public:
     explicit FactorFFTPlan(int n);
-    ~FactorFFTPlan() = default;
+    ~FactorFFTPlan() override = default;
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:
-    int _n;
-    arr_cmplx _twiddle;
-    mutable arr_cmplx _px;   ///< tmp matrix for transpose
+    const int _n;
+    const arr_cmplx _twiddle;
     std::shared_ptr<PlanTree> _plan;
 };
 

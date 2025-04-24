@@ -1,7 +1,5 @@
 #pragma once
 
-#include "dsplib/array.h"
-#include "dsplib/types.h"
 #include <dsplib/fft.h>
 #include <dsplib/assert.h>
 
@@ -22,30 +20,35 @@ public:
     ~SmallFftC() override {
     }
 
-    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final {
         DSPLIB_ASSERT(x.size() == n_, "input size error");
-        arr_cmplx y(x.size());
+        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
         switch (n_) {
         case 1:
-            y[0] = x[0];
+            r[0] = x[0];
             break;
         case 2:
-            _fft_n2(x.data(), y.data());
+            _fft_n2(x.data(), r.data());
             break;
         case 3:
-            _fft_n3(x.data(), y.data());
+            _fft_n3(x.data(), r.data());
             break;
         case 4:
-            _fft_n4(x.data(), y.data());
+            _fft_n4(x.data(), r.data());
             break;
         case 8:
-            _fft_n8(x.data(), y.data());
+            _fft_n8(x.data(), r.data());
             break;
         default:
             DSPLIB_THROW("size not supported");
             break;
         }
-        return y;
+    }
+
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
+        arr_cmplx r(x.size());
+        this->solve(x, r);
+        return r;
     }
 
     [[nodiscard]] int size() const noexcept final {
@@ -137,30 +140,36 @@ public:
     ~SmallFftR() override {
     }
 
-    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
+    void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final {
         DSPLIB_ASSERT(x.size() == n_, "input size error");
-        arr_cmplx y(x.size());
+        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
         switch (n_) {
         case 1:
-            y[0] = x[0];
+            r[0].re = x[0];
+            r[0].im = 0;
             break;
         case 2:
-            _fft_n2(x.data(), y.data());
+            _fft_n2(x.data(), r.data());
             break;
         case 3:
-            _fft_n3(x.data(), y.data());
+            _fft_n3(x.data(), r.data());
             break;
         case 4:
-            _fft_n4(x.data(), y.data());
+            _fft_n4(x.data(), r.data());
             break;
         case 8:
-            _fft_n8(x.data(), y.data());
+            _fft_n8(x.data(), r.data());
             break;
         default:
             DSPLIB_THROW("size not supported");
             break;
         }
-        return y;
+    }
+
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
+        arr_cmplx r(x.size());
+        this->solve(x, r);
+        return r;
     }
 
     [[nodiscard]] int size() const noexcept final {

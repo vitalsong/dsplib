@@ -19,8 +19,8 @@ private:
 
     const int n_;
     const int l_;
-    std::vector<int32_t> bitrev_;
-    std::vector<cmplx_t> coeffs_;
+    const std::vector<int32_t> bitrev_;
+    const std::vector<cmplx_t> coeffs_;
 };
 
 }   // namespace dsplib

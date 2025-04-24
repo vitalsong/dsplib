@@ -65,10 +65,10 @@ void _bitreverse(const cmplx_t* restrict x, cmplx_t* restrict y, const int32_t* 
 
 Pow2FftPlan::Pow2FftPlan(int n)
   : n_{n}
-  , l_{nextpow2(n_)} {
+  , l_{nextpow2(n_)}
+  , bitrev_{_gen_bitrev_table(n)}
+  , coeffs_{_gen_coeffs_table(n)} {
     DSPLIB_ASSERT(ispow2(n), "FFT size must be power of 2");
-    bitrev_ = _gen_bitrev_table(n);
-    coeffs_ = _gen_coeffs_table(n);
 }
 
 void Pow2FftPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
