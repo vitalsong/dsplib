@@ -72,37 +72,6 @@ constexpr bool is_array_convertible() noexcept {
     return true;
 }
 
-//rules for implicit array conversion
-//TODO: use static_assert and verbose error message
-template<typename T_src, typename T_dst>
-constexpr bool is_array_castable() noexcept {
-    if constexpr (!std::is_convertible_v<T_src, T_dst>) {
-        return false;
-    }
-
-    //only arithmetic scalar
-    if constexpr (!is_scalar_v<T_src> || !is_scalar_v<T_dst>) {
-        return false;
-    }
-
-    //cmplx -> real
-    if constexpr (is_complex_v<T_src> && !is_complex_v<T_dst>) {
-        return false;
-    }
-
-    //real -> cmplx
-    if constexpr (!is_complex_v<T_src> && is_complex_v<T_dst>) {
-        return false;
-    }
-
-    //float -> int
-    if constexpr (std::is_floating_point_v<T_src> && std::is_integral_v<T_dst>) {
-        return false;
-    }
-
-    return true;
-}
-
 //base dsplib array type
 //TODO: add array_view as parent for array/slice
 //TODO: add slice(vector<bool>)
@@ -163,7 +132,7 @@ public:
 
     template<typename T2>
     explicit base_array(span_t<T2> v) {
-        static_assert(is_array_castable<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+        static_assert(is_array_convertible<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
         _vec.assign(v.begin(), v.end());
     }
 
