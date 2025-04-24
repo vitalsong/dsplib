@@ -102,6 +102,10 @@ public:
         return plan_.solve(complex(x));
     }
 
+    void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final {
+        plan_.solve(complex(x), r);
+    }
+
     [[nodiscard]] int size() const noexcept final {
         return plan_.size();
     }

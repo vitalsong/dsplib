@@ -21,14 +21,7 @@ public:
      * @param x [in] input array[n]
      * @param r [out] result array[n]
      */
-    virtual void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
-        //default implementation
-        const int n = this->size();
-        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
-        DSPLIB_ASSERT(x.size() == n, "input size error");
-        const auto y = this->solve(x);
-        std::memcpy(r.data(), y.data(), n * sizeof(r[0]));
-    }
+    virtual void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const = 0;
 
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
@@ -48,14 +41,7 @@ public:
      * @param x [in] input array[n]
      * @param r [out] result array[n]
      */
-    virtual void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const {
-        //TODO: support n/2+1 output size
-        const int n = this->size();
-        DSPLIB_ASSERT(x.size() == r.size(), "input size error");
-        DSPLIB_ASSERT(x.size() == n, "input size error");
-        const auto y = this->solve(x);
-        std::memcpy(r.data(), y.data(), n * sizeof(r[0]));
-    }
+    virtual void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const = 0;
 
     [[nodiscard]] virtual int size() const noexcept = 0;
 };

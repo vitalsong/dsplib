@@ -32,8 +32,15 @@ RealIfftPlan::RealIfftPlan(int n)
 }
 
 arr_real RealIfftPlan::solve(span_t<cmplx_t> x) const {
+    arr_real r(n_);
+    this->solve(x, r);
+    return r;
+}
+
+void RealIfftPlan::solve(span_t<cmplx_t> x, mut_span_t<real_t> r) const {
     assert(n_ % 2 == 0);
     DSPLIB_ASSERT((x.size() == n_) || (x.size() == n_ / 2 + 1), "input size must be n/2+1 or n");
+    DSPLIB_ASSERT(r.size() == n_, "output size must be n");
 
     const real_t dn = real_t(1) / n_;
     std::vector<cmplx_t> Z(n_ / 2);
@@ -46,12 +53,10 @@ arr_real RealIfftPlan::solve(span_t<cmplx_t> x) const {
     }
 
     const auto z = fft_->solve(Z);
-    std::vector<real_t> r(n_);
     for (int i = 0; i < n_ / 2; ++i) {
         r[2 * i] = z[i].re;
         r[2 * i + 1] = -z[i].im;
     }
-    return r;
 }
 
 int RealIfftPlan::size() const noexcept {
