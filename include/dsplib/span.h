@@ -23,17 +23,19 @@ class span_t;
 
 //mutable span
 template<typename T>
-class mut_span_t : public slice_t<T>
+class mut_span_t : public mut_slice_t<T>
 {
 public:
     friend class span_t<T>;
 
-    mut_span_t() = default;
-
     explicit mut_span_t(T* data, int size)
-      : slice_t<T>(data, size, 0, size, 1)
+      : mut_slice_t<T>(data, size, 0, size, 1)
       , _ptr{data}
       , _len{size} {
+    }
+
+    mut_span_t(const mut_span_t& v)
+      : mut_span_t(v._ptr, v._len) {
     }
 
     mut_span_t(base_array<T>& v)
@@ -63,18 +65,28 @@ public:
 
     //TODO: override fast implementation for span
 
-    mut_span_t& operator=(const const_slice_t<T>& rhs) {
-        slice_t<T>::operator=(rhs);
+    mut_span_t& operator=(const mut_span_t& rhs) {
+        if (this == &rhs) {
+            return *this;
+        }
+        mut_slice_t<T>::operator=(rhs);
         return *this;
     }
 
     mut_span_t& operator=(const slice_t<T>& rhs) {
-        slice_t<T>::operator=(rhs);
+        //TODO: check if slice ~ span (but check overlap memory)
+        mut_slice_t<T>::operator=(rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const mut_slice_t<T>& rhs) {
+        //TODO: check if slice ~ span
+        mut_slice_t<T>::operator=(rhs);
         return *this;
     }
 
     mut_span_t& operator=(const base_array<T>& rhs) {
-        slice_t<T>::operator=(rhs);
+        *this = span_t<T>(rhs.data(), rhs.size());
         return *this;
     }
 
@@ -84,7 +96,7 @@ public:
     }
 
     mut_span_t& operator=(const std::initializer_list<T>& rhs) {
-        slice_t<T>::operator=(rhs);
+        mut_slice_t<T>::operator=(rhs);
         return *this;
     }
 
@@ -116,12 +128,12 @@ public:
 
 private:
     T* _ptr{nullptr};
-    int _len{0};
+    const int _len{0};
 };
 
 //immutable span
 template<typename T>
-class span_t : public const_slice_t<T>
+class span_t : public slice_t<T>
 {
 public:
     friend class mut_span_t<T>;
@@ -129,7 +141,7 @@ public:
     span_t() = default;
 
     explicit span_t(const T* data, int size)
-      : const_slice_t<T>(data, size, 0, size, 1)
+      : slice_t<T>(data, size, 0, size, 1)
       , _ptr{data}
       , _len{size} {
     }
@@ -177,7 +189,7 @@ public:
 
 private:
     const T* _ptr{nullptr};
-    int _len{0};
+    const int _len{0};
 };
 
 //------------------------------------------------------------------------------------------------

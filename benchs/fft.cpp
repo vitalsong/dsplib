@@ -92,13 +92,12 @@ BENCHMARK(BM_FFTW3_DOUBLE)
 #endif
 
 static void BM_FFT_DSPLIB(benchmark::State& state) {
-    using namespace dsplib;
     const int n = state.range(0);
     auto x = complex(dsplib::randn(n));
     dsplib::arr_cmplx y = dsplib::fft(x);   ///< update cache
     for (auto _ : state) {
         x[0] += 1e-5;
-        y = fft(x);
+        y = dsplib::fft(x);
     }
 }
 

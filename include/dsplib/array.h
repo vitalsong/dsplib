@@ -72,9 +72,12 @@ constexpr bool is_array_convertible() noexcept {
     return true;
 }
 
-//base dsplib array type
-//TODO: add array_view as parent for array/slice
-//TODO: add slice(vector<bool>)
+/**
+ * @brief base dsplib array type
+ * @todo add array_view as parent for array/slice
+ * @todo add slice(vector<bool>)
+ * @tparam T real_t/cmplx_t/int
+ */
 template<typename T>
 class base_array
 {
@@ -85,13 +88,13 @@ public:
       : _vec(n, 0) {
     }
 
-    base_array(const const_slice_t<T>& rhs)
+    base_array(const slice_t<T>& rhs)
       : base_array(rhs.size()) {
         this->slice(0, indexing::end) = rhs;
     }
 
-    base_array(const slice_t<T>& rhs)
-      : base_array(const_slice_t<T>(rhs)) {
+    base_array(const mut_slice_t<T>& rhs)
+      : base_array(slice_t<T>(rhs)) {
     }
 
     base_array(const std::vector<T>& v)
@@ -131,13 +134,13 @@ public:
     }
 
     template<typename T2>
-    explicit base_array(span_t<T2> v) {
+    explicit base_array(const span_t<T2>& v) {
         static_assert(is_array_convertible<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
         _vec.assign(v.begin(), v.end());
     }
 
     template<typename T2>
-    explicit base_array(mut_span_t<T2> v)
+    explicit base_array(const mut_span_t<T2>& v)
       : base_array(span_t<T2>(v)) {
     }
 
@@ -275,20 +278,20 @@ public:
     }
 
     //--------------------------------------------------------------------
-    slice_t<T> slice(int i1, int i2, int m) {
+    mut_slice_t<T> slice(int i1, int i2, int m) {
+        return mut_slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
+    }
+
+    slice_t<T> slice(int i1, int i2, int m) const {
         return slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
     }
 
-    const_slice_t<T> slice(int i1, int i2, int m) const {
-        return const_slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
-    }
-
     //TODO: add slice(end, first, -1) like x[::-1] numpy
-    slice_t<T> slice(int i1, indexing::end_t, int m) {
+    mut_slice_t<T> slice(int i1, indexing::end_t, int m) {
         return this->slice(i1, size(), m);
     }
 
-    const_slice_t<T> slice(int i1, indexing::end_t, int m) const {
+    slice_t<T> slice(int i1, indexing::end_t, int m) const {
         return this->slice(i1, size(), m);
     }
 
