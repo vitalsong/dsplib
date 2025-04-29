@@ -39,6 +39,8 @@ constexpr std::complex<T> operator-(const std::complex<T>& lhs, const int& rhs) 
 
 namespace dsplib {
 
+using namespace std::complex_literals;
+
 //-------------------------------------------------------------------------------------------------
 //base scalar type
 #ifdef DSPLIB_USE_FLOAT32

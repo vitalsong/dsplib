@@ -329,10 +329,10 @@ TEST(MathTest, Pow2db) {
         ASSERT_EQ_ARR_REAL(mag2db(mag), db, 1e-3);
         ASSERT_EQ_ARR_REAL(pow2db(pow), db, 1e-3);
 
-        ASSERT_NEAR(db2pow(db(0)), pow(0), 1e-3);
-        ASSERT_NEAR(db2mag(db(0)), mag(0), 1e-3);
-        ASSERT_NEAR(mag2db(mag(0)), db(0), 1e-3);
-        ASSERT_NEAR(pow2db(pow(0)), db(0), 1e-3);
+        ASSERT_NEAR(db2pow(db[0]), pow[0], 1e-3);
+        ASSERT_NEAR(db2mag(db[0]), mag[0], 1e-3);
+        ASSERT_NEAR(mag2db(mag[0]), db[0], 1e-3);
+        ASSERT_NEAR(pow2db(pow[0]), db[0], 1e-3);
     }
 }
 

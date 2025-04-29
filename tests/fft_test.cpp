@@ -98,7 +98,7 @@ TEST(FFT, FftCmplx) {
 
     {
         const int n = 128;
-        const auto x = complex(sin(2 * pi * arange(n) * 0.1));
+        const arr_cmplx x = complex(sin(2 * pi * arange(n) * 0.1));
         const arr_cmplx y = fft(x).slice(0, n / 2 + 1);
         ASSERT_EQ(argmax(y), 13);
         ASSERT_CMPLX_NEAR(max(y), cmplx_t{-34.4803383753629 - 48.7604203346960i});

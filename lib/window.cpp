@@ -181,7 +181,7 @@ arr_real kaiser(int nw, real_t beta) {
         w[i] = std::abs(_besseli0(beta * std::sqrt(1 - (xi / xind))) / bes);
     }
     const arr_real wl = flip(*w.slice(odd, n));
-    return (wl | w);
+    return concatenate(wl, w);
 }
 
 }   // namespace dsplib::window

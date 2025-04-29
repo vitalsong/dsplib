@@ -68,7 +68,7 @@ arr_real medfilt(arr_real& x, int n) {
     auto flt = MedianFilter(n);
     const int n1 = (n / 2);
     const int n2 = (n % 2 == 1) ? (n / 2) : (n / 2 - 1);
-    arr_real xp = zeros(n1) | x | zeros(n2);
+    arr_real xp = concatenate(zeros(n1), x, zeros(n2));
     auto y = flt.process(xp);
     return y.slice(n - 1, indexing::end);
 }
