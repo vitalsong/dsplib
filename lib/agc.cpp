@@ -1,5 +1,6 @@
 #include <dsplib/agc.h>
 #include <dsplib/math.h>
+#include <dsplib/assert.h>
 #include <cmath>
 
 #include "ma-filter.h"
@@ -20,11 +21,13 @@ struct AgcImpl
 //------------------------------------------------------------------------------------------
 template<typename T>
 static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
+    static const auto e = dsplib::eps();
     const int nx = x.size();
     base_array<T> out(nx);
     arr_real gain(nx);
     for (int i = 0; i < nx; ++i) {
-        const auto input_power = agc.maflt(abs2(x[i])) + dsplib::eps();
+        const auto input_power = agc.maflt(abs2(x[i])) + e;
+        DSPLIB_ASSUME(input_power > 0);
         const real_t err = agc.target - (std::log(input_power) + (2 * agc.gain));
         if (err > 1) {
             agc.gain += agc.trise * err;
