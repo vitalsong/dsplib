@@ -7,53 +7,58 @@ namespace dsplib {
 
 /**
  * @brief Moving Average Filter
- * @details Implemented as a recurrent sum. 
- * The accumulator is recalculated every `n` points to eliminate numerical instability.
- * @todo Use binary tree
+ * @details Implemented as a recurrent sum (via binary tree)
  */
 template<typename T>
 class MAFilter
 {
 public:
-    explicit MAFilter(int n)
-      : _buf(n)
-      , _n{n} {
+    explicit MAFilter(int len)
+      : d_{nextpow2(len)}
+      , w_{len} {
+        buf_.resize((1 << (d_ + 1)));
     }
 
-    T process(const T& x) {
-        _accum -= _buf[_pos];
-        _accum += x;
-        _buf[_pos] = x;
-        _pos += 1;
-        //reset accumulator (fix number unstability)
-        if (_pos == _n) {
-            _pos = 0;
-            _accum = dsplib::sum(_buf);
+    explicit MAFilter(int len, const base_array<T>& init)
+      : MAFilter{len} {
+        DSPLIB_ASSERT(init.size() == w_, "`init` vector size must be equal window len");
+        for (int i = 0; i < w_; i++) {
+            buf_[(1 << d_) - 1 + i] = init[i];
         }
-        return _accum / _n;
     }
 
-    base_array<T> process(const base_array<T>& x) {
-        base_array<T> y(x.size());
-        for (int i = 0; i < x.size(); ++i) {
-            y[i] = process(x[i]);
+    T process(const T& in) noexcept {
+        buf_[(1 << d_) - 1 + pos_] = in;
+        for (int k = (1 << d_) - 1 + pos_; k > 0;) {
+            k = (k - 1) / 2;
+            buf_[k] = buf_[2 * k + 1] + buf_[2 * k + 2];
         }
-        return y;
+        pos_ = (pos_ + 1) % w_;
+        return buf_[0] / w_;
     }
 
-    T operator()(const T& x) {
+    base_array<T> process(const base_array<T>& in) noexcept {
+        const int n = in.size();
+        base_array<T> out(n);
+        for (int i = 0; i < n; i++) {
+            out[i] = process(in[i]);
+        }
+        return out;
+    }
+
+    T operator()(const T& x) noexcept {
         return this->process(x);
     }
 
-    base_array<T> operator()(const base_array<T>& x) {
+    base_array<T> operator()(const base_array<T>& x) noexcept {
         return this->process(x);
     }
 
 private:
-    base_array<T> _buf;
-    int _n{0};
-    int _pos{0};
-    T _accum{0};
+    int d_;
+    int w_;
+    std::vector<T> buf_;
+    int pos_{0};
 };
 
 using MAFilterR = MAFilter<real_t>;
