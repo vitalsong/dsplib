@@ -42,6 +42,7 @@ set(SOURCES
     adaptive.cpp
     resample.cpp
     slice.cpp
+    fir.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
