@@ -1,5 +1,4 @@
 #include "tests_common.h"
-#include "ma-filter.h"
 #include <cmath>
 
 using namespace dsplib;
@@ -277,15 +276,59 @@ TEST(FirTest, Firtype) {
 }
 
 //-------------------------------------------------------------------------------------------------
-TEST(FirTest, MovingAverage) {
-    auto x = randn(10000);
-    const int n = 100;
+TEST(FirTest, MAFilter) {
+    //real filter(h, 1, x) == mafilter(x)
+    {
+        auto x = randn(10000);
+        const int w = 50;
+        auto h = ones(w) / w;
+        FirFilterR fir_flt(h);
+        const auto y1 = fir_flt.process(x);
+        MAFilterR ma_flt(w);
+        const auto y2 = ma_flt.process(x);
+        ASSERT_EQ_ARR_REAL(y1, y2);
+    }
 
-    FirFilterR fir_flt(ones(n) / n);
-    const auto y1 = fir_flt.process(x);
+    //cmplx filter(h, 1, x) == mafilter(x)
+    {
+        auto x = hilbert(randn(10000));
+        const int w = 63;
+        auto h = complex(ones(w) / w);
+        FirFilterC fir_flt(h);
+        const auto y1 = fir_flt.process(x);
+        MAFilterC ma_flt(w);
+        const auto y2 = ma_flt.process(x);
+        ASSERT_EQ_ARR_CMPLX(y1, y2);
+    }
 
-    MAFilterR ma_flt(n);
-    const auto y2 = ma_flt.process(x);
+    //real
+    {
+        auto in = randn(1000);
+        MAFilterR ma_flt(1);
+        const auto out = ma_flt.process(in);
+        ASSERT_EQ_ARR_REAL(in, out);
+    }
 
-    ASSERT_EQ_ARR_REAL(y1, y2);
+    //cmplx
+    {
+        auto in = hilbert(randn(1000));
+        MAFilterC ma_flt(1);
+        const auto out = ma_flt.process(in);
+        ASSERT_EQ_ARR_CMPLX(in, out);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FirTest, MAFilterStress) {
+    int num_tests = 1000;
+    while (--num_tests != 0) {
+        auto x = randn(10000);
+        const int w = randi({1, 500});
+        auto h = ones(w) / w;
+        FirFilterR fir_flt(h);
+        const auto y1 = fir_flt.process(x);
+        MAFilterR ma_flt(w);
+        const auto y2 = ma_flt.process(x);
+        ASSERT_EQ_ARR_REAL(y1, y2);
+    }
 }

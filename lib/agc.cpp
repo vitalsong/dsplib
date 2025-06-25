@@ -1,9 +1,8 @@
 #include <dsplib/agc.h>
 #include <dsplib/math.h>
 #include <dsplib/assert.h>
+#include <dsplib/ma-filter.h>
 #include <cmath>
-
-#include "ma-filter.h"
 
 namespace dsplib {
 

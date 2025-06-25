@@ -2,8 +2,7 @@
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
 #include <dsplib/fir.h>
-
-#include "ma-filter.h"
+#include <dsplib/ma-filter.h>
 
 #include <cassert>
 

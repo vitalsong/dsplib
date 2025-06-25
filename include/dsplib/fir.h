@@ -20,6 +20,10 @@ public:
 
     //main processing
     base_array<T> process(const base_array<T>& s) {
+        if (_h.size() == 1) {
+            return s * _h[0];
+        }
+
         auto x = _d | s;
         auto r = FirFilter::conv(x, _h);
         int nd = _h.size() - 1;
