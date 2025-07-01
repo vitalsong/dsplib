@@ -2,6 +2,8 @@
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
 
+#include "internal/besseli.h"
+
 #include <cmath>
 #include <functional>
 
@@ -145,40 +147,15 @@ arr_real vorbis(int n) {
     return _vorbis_win(n);
 }
 
-//-------------------------------------------------------------------------------------------------
-template<std::size_t N>
-static std::array<real_t, N> _init_factorials() {
-    std::array<real_t, N> facts;
-    static_assert(N > 3);
-    facts[0] = 1;
-    facts[1] = 1;
-    facts[2] = 2;
-    for (size_t i = 3; i < N; ++i) {
-        facts[i] = facts[i - 1] * i;
-    }
-    return facts;
-}
-
-// zero-order modified Bessel function of the first kind
-static real_t _besseli0(real_t x) {
-    constexpr int num_steps = 15;
-    static const auto factorials = _init_factorials<num_steps>();
-    real_t r = 0;
-    for (int k = 0; k < num_steps; ++k) {
-        r += std::pow(std::pow(x / 2, k) / factorials[k], 2);
-    }
-    return r;
-}
-
 arr_real kaiser(int nw, real_t beta) {
-    const real_t bes = abs(_besseli0(beta));
+    const real_t bes = besseli0(beta);
     const int odd = nw % 2;
     const auto xind = abs2(nw - 1);
     const int n = (nw + 1) / 2;
     auto w = zeros(n);
     for (int i = 0; i < n; ++i) {
         const auto xi = 4 * abs2(i + 0.5 * (1 - odd));
-        w[i] = std::abs(_besseli0(beta * std::sqrt(1 - (xi / xind))) / bes);
+        w[i] = besseli0(beta * std::sqrt(1 - (xi / xind))) / bes;
     }
     const arr_real wl = flip(*w.slice(odd, n));
     return (wl | w);
