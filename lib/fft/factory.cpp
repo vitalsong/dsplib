@@ -11,7 +11,7 @@
 #include "fft/real-fft.h"
 #include "fft/real-ifft.h"
 #include "fft/small-fft.h"
-#include "lru-cache.h"
+#include "internal/lru-cache.h"
 
 #include <cassert>
 #include <memory>
