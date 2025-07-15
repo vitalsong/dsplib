@@ -5,8 +5,8 @@ namespace dsplib {
 
 namespace {
 
-std::vector<cmplx_t> _irfft_coeffs(int n) noexcept {
-    assert(n % 4 == 0);
+std::vector<cmplx_t> _icoeffs4(int n) noexcept {
+    DSPLIB_ASSUME(n % 4 == 0);
     const int n4 = n / 4;
     const int n2 = n / 2;
     std::vector<cmplx_t> res(n / 2);
@@ -21,6 +21,27 @@ std::vector<cmplx_t> _irfft_coeffs(int n) noexcept {
         res[n4 - i].im = v;
     }
     return res;
+}
+
+std::vector<cmplx_t> _icoeffs2(int n) noexcept {
+    DSPLIB_ASSUME(n % 2 == 0);
+    const int n2 = n / 2;
+    std::vector<cmplx_t> res(n / 2);
+    res[0] = {1, 0};
+    //FIXIT: not optimize
+    for (int i = 1; i < n2; ++i) {
+        res[i].re = std::cos(2 * pi * i / n);
+        res[i].im = std::sin(2 * pi * i / n);
+    }
+    return res;
+}
+
+std::vector<cmplx_t> _irfft_coeffs(int n) noexcept {
+    DSPLIB_ASSUME(n % 2 == 0);
+    if (n % 4 == 0) {
+        return _icoeffs4(n);
+    }
+    return _icoeffs2(n);
 }
 
 }   // namespace
