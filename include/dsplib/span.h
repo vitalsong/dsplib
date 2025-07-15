@@ -26,16 +26,18 @@ template<typename T>
 class mut_span_t : public mut_slice_t<T>
 {
 public:
+    static_assert(!std::is_same_v<std::remove_cv_t<T>, bool>, "`bool` type is not supported");
+
     friend class span_t<T>;
 
     explicit mut_span_t(T* data, int size)
       : mut_slice_t<T>(data, size, 0, size, 1)
-      , _ptr{data}
-      , _len{size} {
+      , data_{data}
+      , len_{size} {
     }
 
     mut_span_t(const mut_span_t& v)
-      : mut_span_t(v._ptr, v._len) {
+      : mut_span_t(v.data_, v.len_) {
     }
 
     mut_span_t(base_array<T>& v)
@@ -46,21 +48,25 @@ public:
       : mut_span_t(v.data(), v.size()) {
     }
 
+    //TODO: allow or not?
+    // mut_span_t(base_array<T>&& v) = delete;
+    // mut_span_t(std::vector<T>&& v) = delete;
+
     [[nodiscard]] T* data() noexcept {
-        return _ptr;
+        return data_;
     }
 
     [[nodiscard]] const T* data() const noexcept {
-        return _ptr;
+        return data_;
     }
 
     [[nodiscard]] int size() const noexcept {
-        return _len;
+        return len_;
     }
 
     T& operator[](int i) noexcept {
-        assert((i >= 0) && (i < _len));
-        return _ptr[i];
+        assert((i >= 0) && (i < len_));
+        return data_[i];
     }
 
     //TODO: override fast implementation for span
@@ -91,7 +97,7 @@ public:
     }
 
     mut_span_t& operator=(const T& rhs) {
-        std::fill(_ptr, (_ptr + _len), rhs);
+        std::fill(data_, (data_ + len_), rhs);
         return *this;
     }
 
@@ -104,31 +110,31 @@ public:
     using const_iterator = const T*;
 
     iterator begin() noexcept {
-        return _ptr;
+        return data_;
     }
 
     iterator end() noexcept {
-        return _ptr + _len;
+        return data_ + len_;
     }
 
     const_iterator begin() const noexcept {
-        return _ptr;
+        return data_;
     }
 
     const_iterator end() const noexcept {
-        return _ptr + _len;
+        return data_ + len_;
     }
 
     //TODO: add more checks
     mut_span_t slice(int i1, int i2) const {
-        DSPLIB_ASSERT((i1 >= 0) && (i1 < _len), "invalid range");
-        DSPLIB_ASSERT((i2 > i1) && (i2 <= _len), "invalid range");
-        return mut_span_t(_ptr + i1, (i2 - i1));
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < len_), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= len_), "invalid range");
+        return mut_span_t(data_ + i1, (i2 - i1));
     }
 
 private:
-    T* _ptr{nullptr};
-    const int _len{0};
+    T* data_{nullptr};
+    const int len_{0};
 };
 
 //immutable span
@@ -136,14 +142,16 @@ template<typename T>
 class span_t : public slice_t<T>
 {
 public:
+    static_assert(!std::is_same_v<std::remove_cv_t<T>, bool>, "`bool` type is not supported");
+
     friend class mut_span_t<T>;
 
     span_t() = default;
 
     explicit span_t(const T* data, int size)
       : slice_t<T>(data, size, 0, size, 1)
-      , _ptr{data}
-      , _len{size} {
+      , data_{data}
+      , len_{size} {
     }
 
     span_t(const mut_span_t<T>& v)
@@ -158,38 +166,41 @@ public:
       : span_t(v.data(), v.size()) {
     }
 
+    // span_t(base_array<T>&& v) = delete;
+    // span_t(std::vector<T>&& v) = delete;
+
     [[nodiscard]] const T* data() const noexcept {
-        return _ptr;
+        return data_;
     }
 
     [[nodiscard]] int size() const noexcept {
-        return _len;
+        return len_;
     }
 
     const T& operator[](int i) const noexcept {
-        assert((i >= 0) && (i < _len));
-        return _ptr[i];
+        assert((i >= 0) && (i < len_));
+        return data_[i];
     }
 
     using const_iterator = const T*;
 
     const_iterator begin() const noexcept {
-        return _ptr;
+        return data_;
     }
 
     const_iterator end() const noexcept {
-        return _ptr + _len;
+        return data_ + len_;
     }
 
     span_t slice(int i1, int i2) const {
-        DSPLIB_ASSERT((i1 >= 0) && (i1 < _len), "invalid range");
-        DSPLIB_ASSERT((i2 > i1) && (i2 <= _len), "invalid range");
-        return span_t(_ptr + i1, (i2 - i1));
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < len_), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= len_), "invalid range");
+        return span_t(data_ + i1, (i2 - i1));
     }
 
 private:
-    const T* _ptr{nullptr};
-    const int _len{0};
+    const T* data_{nullptr};
+    const int len_{0};
 };
 
 //------------------------------------------------------------------------------------------------

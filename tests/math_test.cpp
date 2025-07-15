@@ -244,6 +244,22 @@ TEST(MathTest, Abs2) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(MathTest, NextPow2) {
+    ASSERT_EQ(nextpow2(0), 0);
+    ASSERT_EQ(nextpow2(1), 0);
+    ASSERT_EQ(nextpow2(2), 1);
+    ASSERT_EQ(nextpow2(3), 2);
+    ASSERT_EQ(nextpow2(4), 2);
+    ASSERT_EQ(nextpow2(5), 3);
+    ASSERT_EQ(nextpow2(6), 3);
+    ASSERT_EQ(nextpow2(7), 3);
+    ASSERT_EQ(nextpow2(8), 3);
+    ASSERT_EQ(nextpow2(9), 4);
+    ASSERT_EQ(nextpow2(std::pow(2, 30)), 30);
+    ASSERT_EQ(nextpow2(std::pow(2, 30) + 1), 31);
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(MathTest, Deg2Rad) {
     arr_real deg = {0, 45, 90, 180, -45, -90, -180};
     arr_real rad = {0, pi / 4, pi / 2, pi, -pi / 4, -pi / 2, -pi};

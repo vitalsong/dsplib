@@ -25,7 +25,7 @@ template<typename T1, typename T2>
 using ResultType = conditional_t<std::is_same_v<T1, cmplx_t> || std::is_same_v<T2, cmplx_t>, cmplx_t, real_t>;
 
 template<typename T_dst, typename T_src>
-base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
+constexpr base_array<T_dst> array_cast(const base_array<T_src>& src) noexcept {
     static_assert(is_scalar_v<T_src> && is_scalar_v<T_dst>, "Types must be scalar");
     static_assert(!(is_complex_v<T_src> && !is_complex_v<T_dst>), "Complex to real cast is not allowed");
     if constexpr (std::is_same_v<T_src, T_dst>) {
@@ -72,15 +72,32 @@ constexpr bool is_array_convertible() noexcept {
     return true;
 }
 
+template<typename T>
+constexpr bool support_type_for_array() {
+    using U = std::remove_cv_t<T>;
+    if constexpr (std::is_same_v<U, real_t>) {
+        return true;
+    }
+    if constexpr (std::is_same_v<U, cmplx_t>) {
+        return true;
+    }
+    if constexpr (std::is_same_v<U, int>) {
+        return true;
+    }
+    return false;
+}
+
 /**
  * @brief base dsplib array type
  * @todo add array_view as parent for array/slice
  * @todo add slice(vector<bool>)
- * @tparam T real_t/cmplx_t/int
+ * @tparam T [real_t, cmplx_t, int]
  */
 template<typename T>
 class base_array
 {
+    static_assert(support_type_for_array<T>(), "type is not supported");
+
 public:
     base_array() = default;
 
@@ -115,15 +132,9 @@ public:
     }
 
     template<class T2>
-    base_array(const base_array<T2>& v)
-      : base_array(span(v.data(), v.size())) {
+    base_array(const base_array<T2>& v) {
+        _vec.assign(v.begin(), v.end());
     }
-
-    //TODO: enable_if for vector/ptr+size/array
-    // template<class Container>
-    // base_array(const Container& v)
-    //   : base_array(span_t(v)) {
-    // }
 
     base_array(base_array<T>&& v) noexcept
       : _vec(std::move(v._vec)) {
@@ -140,8 +151,9 @@ public:
     }
 
     template<typename T2>
-    explicit base_array(const mut_span_t<T2>& v)
-      : base_array(span_t<T2>(v)) {
+    explicit base_array(const mut_span_t<T2>& v) {
+        static_assert(is_array_convertible<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+        _vec.assign(v.begin(), v.end());
     }
 
     //--------------------------------------------------------------------
@@ -403,7 +415,6 @@ public:
         static_assert(is_scalar_v<T2>, "Type must be scalar");
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
         for (auto& x : _vec) {
-            //TODO: use multiple by (1.0/rhs)
             x /= rhs;
         }
         return *this;
