@@ -102,7 +102,7 @@ static arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
     auto h = zeros(M);
     h.slice(0, L) = sin(2 * pi * fc * tt) / tt * w;
     if (!is_odd) {
-        h(L) = 2 * pi * fc;
+        h[L] = 2 * pi * fc;
         h.slice(L + 1, M) = flip(h.slice(0, L));
     } else {
         h.slice(L, M) = flip(h.slice(0, L));
@@ -146,7 +146,7 @@ static arr_real _bandstop_fir(int n, real_t wn1, real_t wn2, const arr_real& win
     }
 
     auto h = (-1) * _bandpass_fir(n, wn1, wn2, win);
-    h(n / 2) = h(n / 2) + 1;
+    h[n / 2] = h[n / 2] + 1;
     return h;
 }
 

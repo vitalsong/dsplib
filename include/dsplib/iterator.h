@@ -55,6 +55,14 @@ struct SliceIterator
         return lhs.ptr_ != rhs.ptr_;
     };
 
+    friend bool operator>(const SliceIterator& lhs, const SliceIterator& rhs) noexcept {
+        return lhs.ptr_ > rhs.ptr_;
+    };
+
+    friend bool operator<(const SliceIterator& lhs, const SliceIterator& rhs) noexcept {
+        return lhs.ptr_ < rhs.ptr_;
+    };
+
 private:
     pointer ptr_;
     int step_{1};

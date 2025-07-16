@@ -29,13 +29,13 @@ arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
 
     const auto lm = power(arange(k1 - 1) / (k1 - 1), 8);
     const auto rm = flip(lm);
-    const arr_cmplx H = complex(lm | ones(k2 - k1 + 1) | rm | zeros(N / 2 - 1));
+    const arr_cmplx H = complex(concatenate(lm, ones(k2 - k1 + 1), rm, zeros(N / 2 - 1)));
     const arr_cmplx h = ifft(H);   // desired impulse response
 
     const auto w = window::kaiser(M, 8);
-    const auto wzp = *w.slice(M / 2, M) | zeros(N - M) | *w.slice(0, M / 2);
+    const auto wzp = concatenate(w.slice(M / 2, M), zeros(N - M), w.slice(0, M / 2));
     const auto hw = wzp * h;   // single-sideband FIR filter, zero-centered
-    const auto hh = *hw.slice(N - (M / 2), N) | *hw.slice(0, (M + 1) / 2);   // casual FIR
+    const auto hh = concatenate(hw.slice(N - (M / 2), N), hw.slice(0, (M + 1) / 2));   // casual FIR
     return hh;
 }
 

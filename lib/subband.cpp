@@ -182,11 +182,12 @@ public:
             const auto* restrict buf = buf_[decim_ * k];
             const auto* restrict flt = fview_[k];
             for (int m = 0; m < nbands_; m++) {
-                pout[nbands_ - m - 1] += flt[m] * buf[m];
+                pout[m] += flt[m] * buf[m];
             }
         }
 
-        return fft_->solve(pout);
+        //TODO: remove conj
+        return conj(fft_->solve(pout));
     }
 
 private:
@@ -212,6 +213,8 @@ public:
 
         auto xx = ifft_->solve(x);
         xx *= nbands_;
+
+        //TODO: fft and flip?
         buf_.push(xx, true);
 
         // calculate outputs of polyphase filters
