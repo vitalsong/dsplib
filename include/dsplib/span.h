@@ -32,13 +32,11 @@ public:
     friend class span_t<T>;
 
     explicit mut_span_t(T* data, int size)
-      : mut_slice_t<T>(data, size, 0, size, 1)
-      , data_{data}
-      , len_{size} {
+      : mut_slice_t<T>{data, 1, size} {
     }
 
     mut_span_t(const mut_span_t& v)
-      : mut_span_t(v.data_, v.len_) {
+      : mut_span_t(v.data_, v.count_) {
     }
 
     mut_span_t(base_array<T>& v)
@@ -50,20 +48,20 @@ public:
     }
 
     [[nodiscard]] T* data() noexcept {
-        return data_;
+        return this->data_;
     }
 
     [[nodiscard]] const T* data() const noexcept {
-        return data_;
+        return this->data_;
     }
 
     [[nodiscard]] int size() const noexcept {
-        return len_;
+        return this->count_;
     }
 
     T& operator[](int i) noexcept {
-        assert((i >= 0) && (i < len_));
-        return data_[i];
+        assert((i >= 0) && (i < size()));
+        return this->data_[i];
     }
 
     //TODO: override fast implementation for span
@@ -94,7 +92,7 @@ public:
     }
 
     mut_span_t& operator=(const T& rhs) {
-        std::fill(data_, (data_ + len_), rhs);
+        std::fill(this->data_, (this->data_ + this->count_), rhs);
         return *this;
     }
 
@@ -107,31 +105,27 @@ public:
     using const_iterator = const T*;
 
     iterator begin() noexcept {
-        return data_;
+        return this->data_;
     }
 
     iterator end() noexcept {
-        return data_ + len_;
+        return this->data_ + this->count_;
     }
 
     const_iterator begin() const noexcept {
-        return data_;
+        return this->data_;
     }
 
     const_iterator end() const noexcept {
-        return data_ + len_;
+        return this->data_ + this->count_;
     }
 
     //TODO: add more checks
     mut_span_t slice(int i1, int i2) const {
-        DSPLIB_ASSERT((i1 >= 0) && (i1 < len_), "invalid range");
-        DSPLIB_ASSERT((i2 > i1) && (i2 <= len_), "invalid range");
-        return mut_span_t(data_ + i1, (i2 - i1));
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < this->count_), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= this->count_), "invalid range");
+        return mut_span_t(this->data_ + i1, (i2 - i1));
     }
-
-private:
-    T* data_{nullptr};
-    const int len_{0};
 };
 
 //immutable span
@@ -146,9 +140,7 @@ public:
     span_t() = default;
 
     explicit span_t(const T* data, int size)
-      : slice_t<T>(data, size, 0, size, 1)
-      , data_{data}
-      , len_{size} {
+      : slice_t<T>{data, 1, size} {
     }
 
     span_t(const mut_span_t<T>& v)
@@ -164,37 +156,33 @@ public:
     }
 
     [[nodiscard]] const T* data() const noexcept {
-        return data_;
+        return this->data_;
     }
 
     [[nodiscard]] int size() const noexcept {
-        return len_;
+        return this->count_;
     }
 
     const T& operator[](int i) const noexcept {
-        assert((i >= 0) && (i < len_));
-        return data_[i];
+        assert((i >= 0) && (i < size()));
+        return this->data_[i];
     }
 
     using const_iterator = const T*;
 
     const_iterator begin() const noexcept {
-        return data_;
+        return this->data_;
     }
 
     const_iterator end() const noexcept {
-        return data_ + len_;
+        return this->data_ + this->count_;
     }
 
     span_t slice(int i1, int i2) const {
-        DSPLIB_ASSERT((i1 >= 0) && (i1 < len_), "invalid range");
-        DSPLIB_ASSERT((i2 > i1) && (i2 <= len_), "invalid range");
-        return span_t(data_ + i1, (i2 - i1));
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < this->count_), "invalid range");
+        DSPLIB_ASSERT((i2 > i1) && (i2 <= this->count_), "invalid range");
+        return span_t(this->data_ + i1, (i2 - i1));
     }
-
-private:
-    const T* data_{nullptr};
-    const int len_{0};
 };
 
 //------------------------------------------------------------------------------------------------

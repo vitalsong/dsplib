@@ -291,11 +291,11 @@ public:
 
     //--------------------------------------------------------------------
     mut_slice_t<T> slice(int i1, int i2, int m) {
-        return mut_slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
+        return mut_slice_t<T>::make_slice(_vec.data(), _vec.size(), i1, i2, m);
     }
 
     slice_t<T> slice(int i1, int i2, int m) const {
-        return slice_t<T>(_vec.data(), _vec.size(), i1, i2, m);
+        return slice_t<T>::make_slice(_vec.data(), _vec.size(), i1, i2, m);
     }
 
     //TODO: add slice(end, first, -1) like x[::-1] numpy
