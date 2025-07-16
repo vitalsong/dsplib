@@ -132,7 +132,7 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
 
     if (!plan->has_next()) {
         //TODO: inplace fft
-        plan->solver()->solve(span(x, n), span(mem, n));
+        plan->solver()->solve(make_span(x, n), make_span(mem, n));
         std::memcpy(x, mem, n * sizeof(cmplx_t));
         return;
     }

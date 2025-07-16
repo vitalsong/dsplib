@@ -45,11 +45,11 @@ public:
     }
 
 protected:
-    const int _m{1};
-    const int _n{0};
-    const int _i1{0};
-    const int _i2{0};
-    const int _nc{0};
+    int _m{1};
+    int _n{0};
+    int _i1{0};
+    int _i2{0};
+    int _nc{0};
 
 private:
     int _count() const noexcept {
@@ -62,6 +62,8 @@ private:
         return size;
     }
 };
+
+static_assert(std::is_trivially_copyable<base_slice_t>(), "type must be trivially copyable");
 
 /**
  * @brief Non-mutable slice object
@@ -80,11 +82,6 @@ public:
     slice_t(const T* data, int size, int i1, int i2, int m)
       : base_slice_t(size, i1, i2, m)
       , _data{data} {
-    }
-
-    slice_t(const slice_t& rhs)
-      : base_slice_t(rhs.size(), rhs._i1, rhs._i2, rhs._m)
-      , _data{rhs._data} {
     }
 
     slice_t(const mut_slice_t<T>& rhs)
@@ -135,11 +132,6 @@ public:
     mut_slice_t(T* data, int size, int i1, int i2, int m)
       : base_slice_t(size, i1, i2, m)
       , _data{data} {
-    }
-
-    mut_slice_t(const mut_slice_t& rhs)
-      : base_slice_t(rhs._n, rhs._i1, rhs._i2, rhs._m)
-      , _data{rhs._data} {
     }
 
     [[nodiscard]] int size() const noexcept {

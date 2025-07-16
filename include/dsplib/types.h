@@ -262,4 +262,7 @@ constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }
 
+static_assert(std::is_trivially_copyable<real_t>(), "type must be trivially copyable");
+static_assert(std::is_trivially_copyable<cmplx_t>(), "type must be trivially copyable");
+
 }   // namespace dsplib

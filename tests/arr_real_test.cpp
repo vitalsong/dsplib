@@ -21,7 +21,7 @@ TEST(ArrRealTest, Init) {
     ASSERT_TRUE(a3.empty());
 
     std::vector<short> v1 = {-1, -2, 3, 4};
-    arr_real a8(span(v1.data(), v1.size()));
+    arr_real a8(make_span(v1.data(), v1.size()));
     ASSERT_EQ_ARR_REAL(v1, a8);
 
     std::vector<::real_t> v2 = {1, 2, 3, 4};

@@ -120,7 +120,7 @@ public:
 
     template<typename T2>
     base_array(const std::vector<T2>& v)
-      : base_array(span(v)) {
+      : base_array(make_span(v)) {
     }
 
     base_array(std::vector<T>&& v)

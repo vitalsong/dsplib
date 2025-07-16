@@ -80,7 +80,7 @@ private:
         if (n > MAX_DFT_SIZE) {
             //TODO: noexcept?
             assert(czt_ && czt_->size() == n);
-            czt_->solve(span(x, n), span(y, n));
+            czt_->solve(make_span(x, n), make_span(y, n));
         }
     }
 

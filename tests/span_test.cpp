@@ -36,6 +36,17 @@ TEST(SpanTest, ConstMutable) {
     }
 }
 
+TEST(SpanTest, NoTempValueUB) {
+    auto fn = [](span_real x) {
+        auto y = dsplib::fft(x);
+        return y;
+    };
+
+    auto y1 = fn(std::vector<real_t>{1, 2, 3, 4});
+    auto y2 = fft(arr_real(std::vector<real_t>{1, 2, 3, 4}));
+    ASSERT_EQ_ARR_CMPLX(y1, y2);
+}
+
 TEST(SpanTest, StdVector) {
     {
         std::vector<real_t> x = {-1, 1, 2, 3};

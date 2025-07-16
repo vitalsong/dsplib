@@ -26,7 +26,7 @@ void RealFftPlan::solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const {
     DSPLIB_ASSERT(r.size() == n_, "Output size must be equal FFT size");
     const int n2 = n_ / 2;
 
-    arr_cmplx z(span(reinterpret_cast<const cmplx_t*>(x.data()), n2));
+    arr_cmplx z(make_span(reinterpret_cast<const cmplx_t*>(x.data()), n2));
     const auto Z = fft_->solve(z * 0.5);
 
     {

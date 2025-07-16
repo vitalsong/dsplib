@@ -20,6 +20,7 @@ class span_t;
 
 //TODO: add concatenate syntax
 //TODO: add math operators (+,-,*,/)
+//TODO: remove slice_t inheritance
 
 //mutable span
 template<typename T>
@@ -48,10 +49,6 @@ public:
       : mut_span_t(v.data(), v.size()) {
     }
 
-    //TODO: allow or not?
-    // mut_span_t(base_array<T>&& v) = delete;
-    // mut_span_t(std::vector<T>&& v) = delete;
-
     [[nodiscard]] T* data() noexcept {
         return data_;
     }
@@ -75,7 +72,7 @@ public:
         if (this == &rhs) {
             return *this;
         }
-        mut_slice_t<T>::operator=(rhs);
+        mut_slice_t<T>::operator=(slice_t<T>(rhs));
         return *this;
     }
 
@@ -166,9 +163,6 @@ public:
       : span_t(v.data(), v.size()) {
     }
 
-    // span_t(base_array<T>&& v) = delete;
-    // span_t(std::vector<T>&& v) = delete;
-
     [[nodiscard]] const T* data() const noexcept {
         return data_;
     }
@@ -204,36 +198,33 @@ private:
 };
 
 //------------------------------------------------------------------------------------------------
-//TODO: rename to `make_span`?
 template<typename T>
-span_t<T> span(const T* x, int nx) noexcept {
+span_t<T> make_span(const T* x, int nx) noexcept {
     return span_t<T>(x, nx);
 }
 
 template<typename T>
-mut_span_t<T> span(T* x, int nx) noexcept {
+mut_span_t<T> make_span(T* x, int nx) noexcept {
     return mut_span_t<T>(x, nx);
 }
 
-//------------------------------------------------------------------------------------------------
 template<typename T>
-span_t<T> span(const std::vector<T>& x) noexcept {
+span_t<T> make_span(const std::vector<T>& x) noexcept {
     return span_t<T>(x.data(), x.size());
 }
 
 template<typename T>
-mut_span_t<T> span(std::vector<T>& x) noexcept {
+mut_span_t<T> make_span(std::vector<T>& x) noexcept {
     return mut_span_t<T>(x.data(), x.size());
 }
 
-//------------------------------------------------------------------------------------------------
 template<typename T>
-span_t<T> span(const base_array<T>& x) noexcept {
+span_t<T> make_span(const base_array<T>& x) noexcept {
     return span_t<T>(x.data(), x.size());
 }
 
 template<typename T>
-mut_span_t<T> span(base_array<T>& x) noexcept {
+mut_span_t<T> make_span(base_array<T>& x) noexcept {
     return mut_span_t<T>(x.data(), x.size());
 }
 
