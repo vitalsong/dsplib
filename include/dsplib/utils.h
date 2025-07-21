@@ -126,9 +126,7 @@ template<typename T>
 
 template<typename T>
 [[deprecated]] inline arr_cmplx to_complex(const T* x, size_t nx) {
-    if (nx % 2 != 0) {
-        DSPLIB_THROW("Array size is not even");
-    }
+    DSPLIB_ASSERT(nx % 2 == 0, "Array size is not even");
     const T* p = x;
     arr_cmplx r(nx / 2);
     for (auto i = 0; i < r.size(); i++) {

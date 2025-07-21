@@ -41,9 +41,7 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
 MedianFilter::MedianFilter(int n, real_t init_value)
   : _i{0}
   , _n{n} {
-    if (n < 3) {
-        DSPLIB_THROW("The filter order must be greater than or equal to 3")
-    }
+    DSPLIB_ASSERT(n >= 3, "The filter order must be greater than or equal to 3");
     _d = zeros(_n);
     _s = zeros(_n);
     std::fill(_d.begin(), _d.end(), init_value);

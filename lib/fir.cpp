@@ -88,9 +88,7 @@ arr_real FftFilter::process(const arr_real& x) {
 
 //----------------------------------------------------------------------------------------------
 static arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
-    if (win.size() != (n + 1)) {
-        DSPLIB_THROW("Window must be n+1 elements");
-    }
+    DSPLIB_ASSERT(win.size() == (n + 1), "Window must be n+1 elements");
 
     const bool is_odd = (n % 2 == 1);
     const int M = win.size();
@@ -184,18 +182,14 @@ arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype, const arr_real& w
 }
 
 arr_real fir1(int n, real_t wn, FilterType ftype) {
-    if ((ftype != FilterType::High) && (ftype != FilterType::Low)) {
-        DSPLIB_THROW("Not supported for current filter type");
-    }
-
+    DSPLIB_ASSERT((ftype == FilterType::High) || (ftype == FilterType::Low), "Not supported for current filter type");
     const int nn = ((n % 2 == 1) && (ftype == FilterType::High)) ? (n + 2) : (n + 1);
     return fir1(n, wn, ftype, window::hamming(nn));
 }
 
 arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype) {
-    if ((ftype != FilterType::Bandstop) && (ftype != FilterType::Bandpass)) {
-        DSPLIB_THROW("Not supported for current filter type");
-    }
+    DSPLIB_ASSERT((ftype == FilterType::Bandstop) || (ftype == FilterType::Bandpass),
+                  "Not supported for current filter type");
     const int nn = ((n % 2 == 1) && (ftype == FilterType::Bandstop)) ? (n + 2) : (n + 1);
     return fir1(n, wn1, wn2, ftype, window::hamming(nn));
 }
