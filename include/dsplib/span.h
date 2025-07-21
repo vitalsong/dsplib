@@ -64,8 +64,6 @@ public:
         return this->data_[i];
     }
 
-    //TODO: override fast implementation for span
-
     mut_span_t& operator=(const mut_span_t& rhs) {
         if (this == &rhs) {
             return *this;
@@ -74,14 +72,13 @@ public:
         return *this;
     }
 
+    //TODO: override fast implementation for span
     mut_span_t& operator=(const slice_t<T>& rhs) {
-        //TODO: check if slice ~ span (but check overlap memory)
         mut_slice_t<T>::operator=(rhs);
         return *this;
     }
 
     mut_span_t& operator=(const mut_slice_t<T>& rhs) {
-        //TODO: check if slice ~ span
         mut_slice_t<T>::operator=(rhs);
         return *this;
     }
@@ -216,7 +213,6 @@ mut_span_t<T> make_span(base_array<T>& x) noexcept {
     return mut_span_t<T>(x.data(), x.size());
 }
 
-//TODO: short naming, span_r/span_c?
 using span_real = span_t<real_t>;
 using span_cmplx = span_t<cmplx_t>;
 

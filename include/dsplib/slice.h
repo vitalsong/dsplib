@@ -108,35 +108,7 @@ public:
     }
 
     mut_slice_t& operator=(const slice_t<T>& rhs) {
-        DSPLIB_ASSERT(this->size() == rhs.size(), "Slices size must be equal");
-        const int count = this->size();
-
-        //empty slice assign
-        if (count == 0) {
-            return *this;
-        }
-
-        //simple block copy/move (optimization)
-        const bool is_same = is_same_memory(rhs, slice_t(*this));
-        if ((this->stride() == 1) && (rhs.stride() == 1)) {
-            const auto* src = &(*rhs.begin());
-            auto* dst = &(*begin());
-            if (!is_same) {
-                std::memcpy(dst, src, count * sizeof(*src));
-            } else {
-                //overlapped
-                std::memmove(dst, src, count * sizeof(*src));
-            }
-            return *this;
-        }
-
-        //same array, specific indexing
-        if (is_same) {
-            *this = base_array<T>(rhs);
-            return *this;
-        }
-
-        std::copy(rhs.begin(), rhs.end(), this->begin());
+        this->copy(*this, rhs);
         return *this;
     }
 
@@ -216,6 +188,38 @@ public:
         DSPLIB_ASSERT(count <= size, "Slice range is greater array size");
 
         return mut_slice_t(data + i1, step, count);
+    }
+
+    static void copy(mut_slice_t<T> lhs, slice_t<T> rhs) {
+        DSPLIB_ASSERT(lhs.size() == rhs.size(), "Slices size must be equal");
+        const int count = lhs.size();
+
+        //empty slice assign
+        if (count == 0) {
+            return;
+        }
+
+        //simple block copy/move (optimization)
+        const bool is_same = is_same_memory(rhs, slice_t(lhs));
+        if ((lhs.stride() == 1) && (rhs.stride() == 1)) {
+            const auto* src = &(*rhs.begin());
+            auto* dst = &(*lhs.begin());
+            if (!is_same) {
+                std::memcpy(dst, src, count * sizeof(*src));
+            } else {
+                //overlapped
+                std::memmove(dst, src, count * sizeof(*src));
+            }
+            return;
+        }
+
+        //same array, specific indexing
+        if (is_same) {
+            lhs = base_array<T>(rhs);
+            return;
+        }
+
+        std::copy(rhs.begin(), rhs.end(), lhs.begin());
     }
 
 protected:
