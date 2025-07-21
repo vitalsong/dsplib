@@ -18,20 +18,21 @@ public:
     explicit MatView(const arr_real& x, int n, int m)
       : n_{n}
       , m_{m}
-      , data_{x.data()} {
-        DSPLIB_ASSERT(n * m == x.size(), "matrix size error");
+      , data_{x} {
+        DSPLIB_ASSERT(n * m == x.size(), "Matrix size error");
     }
 
-    //TODO: use span
-    const real_t* operator[](uint32_t i) const noexcept {
-        assert(i <= n_);
-        return data_ + (i * m_);
+    span_t<real_t> operator[](int i) const noexcept {
+        DSPLIB_ASSUME(i >= 0 && i < n_);
+        const int i1 = i * m_;
+        const int i2 = i1 + m_;
+        return data_.slice(i1, i2);
     }
 
 private:
-    const int n_;
-    const int m_;
-    const real_t* data_;
+    const int n_{0};
+    const int m_{0};
+    span_t<real_t> data_;
 };
 
 class MutMatView
@@ -40,24 +41,28 @@ public:
     explicit MutMatView(arr_real& x, int n, int m)
       : n_{n}
       , m_{m}
-      , data_{x.data()} {
-        DSPLIB_ASSERT(n * m == x.size(), "matrix size error");
+      , data_{x} {
+        DSPLIB_ASSERT(n * m == x.size(), "Matrix size error");
     }
 
-    const real_t* operator[](uint32_t i) const noexcept {
-        assert(i <= n_);
-        return data_ + (i * m_);
+    span_t<real_t> operator[](int i) const noexcept {
+        DSPLIB_ASSUME(i >= 0 && i < n_);
+        const int i1 = i * m_;
+        const int i2 = i1 + m_;
+        return data_.slice(i1, i2);
     }
 
-    real_t* operator[](uint32_t i) noexcept {
-        assert(i <= n_);
-        return data_ + (i * m_);
+    mut_span_t<real_t> operator[](int i) noexcept {
+        DSPLIB_ASSUME(i >= 0 && i < n_);
+        const int i1 = i * m_;
+        const int i2 = i1 + m_;
+        return data_.slice(i1, i2);
     }
 
 private:
-    const int n_;
-    const int m_;
-    real_t* data_;
+    const int n_{0};
+    const int m_{0};
+    mut_span_t<real_t> data_;
 };
 
 class CircBuffer
@@ -78,13 +83,12 @@ public:
       , smps_{buf_, period_, len_} {
     }
 
-    //TODO: use span
-    const real_t* operator[](int time) const noexcept {
+    span_t<real_t> operator[](int time) const noexcept {
         time = index_(time);
         return smps_[time];
     }
 
-    real_t* operator[](int time) noexcept {
+    mut_span_t<real_t> operator[](int time) noexcept {
         time = index_(time);
         return smps_[time];
     }
@@ -92,8 +96,7 @@ public:
     void push(const arr_real& s, bool reverse = false) {
         DSPLIB_ASSERT(s.size() == len_, "input size error");
         sample_idx_ = (sample_idx_ + 1) % period_;
-        auto* next_frame = smps_[sample_idx_];
-        assert(s.size() == len_);
+        auto next_frame = smps_[sample_idx_];
         if (reverse) {
             for (int i = 0; i < len_; i++) {
                 next_frame[i] = s[len_ - i - 1];
@@ -169,7 +172,7 @@ public:
 
         arr_real convert(nbands_);
         for (int i = 0; i < decim_; i++) {
-            const auto* gsi = gsi_[decim_ - i - 1];
+            auto gsi = gsi_[decim_ - i - 1];
             for (int k = 0; k < d_; ++k) {
                 convert[k + i * d_] = gsi[k];
             }
@@ -179,8 +182,8 @@ public:
         // calculate outputs of polyphase filters
         arr_real pout(nbands_);
         for (int k = 0; k < ntaps_; k++) {
-            const auto* restrict buf = buf_[decim_ * k];
-            const auto* restrict flt = fview_[k];
+            auto buf = buf_[decim_ * k];
+            auto flt = fview_[k];
             for (int m = 0; m < nbands_; m++) {
                 pout[m] += flt[m] * buf[m];
             }
@@ -221,8 +224,8 @@ public:
         // TODO: alternative impl for ntaps > nbands
         arr_real convert(nbands_);
         for (int k = 0; k < ntaps_; k++) {
-            const auto* restrict buf = buf_[decim_ * k];
-            const auto* restrict flt = fview_[k];
+            auto buf = buf_[decim_ * k];
+            auto flt = fview_[k];
             for (int m = 0; m < nbands_; m++) {
                 //TODO: inverse filter order
                 convert[m] += flt[nbands_ - m - 1] * buf[m];
@@ -234,7 +237,7 @@ public:
         // TODO: inverse order?
         arr_real out(d_);
         for (int i = 0; i < decim_; i++) {
-            const auto* gsi = gsi_[decim_ - i - 1];
+            auto gsi = gsi_[decim_ - i - 1];
             for (int k = 0; k < d_; k++) {
                 out[d_ - k - 1] += gsi[k + i * d_];
             }

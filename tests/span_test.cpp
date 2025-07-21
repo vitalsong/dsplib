@@ -57,3 +57,18 @@ TEST(SpanTest, StdVector) {
         ASSERT_CMPLX_EQ(dsplib::max(x), x[3]);
     }
 }
+
+TEST(SpanTest, RealToCmplx) {
+    {
+        arr_cmplx x = {1i, 2i, 3i, 4i};
+        x.slice(0, 2) = 1;
+        arr_cmplx y = {1, 1, 3i, 4i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+    {
+        arr_cmplx x = {1i, 2i, 3i, 4i};
+        x.slice(1, 3) = zeros(2);
+        arr_cmplx y = {1i, 0, 0, 4i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+}

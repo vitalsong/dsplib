@@ -31,6 +31,12 @@ public:
 
     slice_t() = default;
 
+    slice_t(const slice_t& rhs)
+      : data_{rhs.data_}
+      , stride_{rhs.stride_}
+      , count_{rhs.count_} {
+    }
+
     slice_t(const mut_slice_t<T>& rhs)
       : data_{rhs.data_}
       , stride_{rhs.stride_}
@@ -94,6 +100,12 @@ public:
     using const_iterator = SliceIterator<const T>;
 
     mut_slice_t() = default;
+
+    mut_slice_t(const mut_slice_t& rhs)
+      : data_{rhs.data_}
+      , stride_{rhs.stride_}
+      , count_{rhs.count_} {
+    }
 
     [[nodiscard]] int size() const noexcept {
         return count_;
