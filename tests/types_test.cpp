@@ -3,7 +3,6 @@
 
 using namespace dsplib;
 
-//-------------------------------------------------------------------------------------------------
 TEST(Template, CmplxScalarConvert) {
     //scalar -> cmplx_t
     ASSERT_TRUE(bool(std::is_convertible<double, cmplx_t>::value));
@@ -28,13 +27,11 @@ TEST(Template, CmplxScalarConvert) {
     ASSERT_FALSE(bool(std::is_convertible<cmplx_t, float>::value));
 }
 
-//-------------------------------------------------------------------------------------------------
 TEST(Template, IsScalar) {
     ASSERT_TRUE(bool(is_scalar_v<cmplx_t>));
     ASSERT_TRUE(bool(is_scalar_v<real_t>));
 }
 
-//-------------------------------------------------------------------------------------------------
 TEST(Template, ArrayConvert) {
     {
         ASSERT_TRUE(bool(is_array_convertible<float, real_t>()));
@@ -59,4 +56,12 @@ TEST(Template, ArrayConvert) {
 
     ASSERT_FALSE(bool(is_array_convertible<real_t, cmplx_t>()));
     ASSERT_FALSE(bool(is_array_convertible<cmplx_t, real_t>()));
+}
+
+TEST(Template, SupportTypeArray) {
+    ASSERT_TRUE(support_type_for_array<real_t>());
+    ASSERT_TRUE(support_type_for_array<cmplx_t>());
+    ASSERT_TRUE(support_type_for_array<int>());
+    ASSERT_FALSE(support_type_for_array<std::complex<float>>());
+    ASSERT_FALSE(support_type_for_array<std::complex<double>>());
 }
