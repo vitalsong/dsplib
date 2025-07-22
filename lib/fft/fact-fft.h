@@ -14,14 +14,15 @@ class FactorFFTPlan : public FftPlanC
 {
 public:
     explicit FactorFFTPlan(int n);
-    ~FactorFFTPlan() = default;
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
+    ~FactorFFTPlan() override = default;
+
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:
-    int _n;
-    arr_cmplx _twiddle;
-    mutable arr_cmplx _px;   ///< tmp matrix for transpose
+    const int _n;
+    const arr_cmplx _twiddle;
     std::shared_ptr<PlanTree> _plan;
 };
 
@@ -32,11 +33,15 @@ public:
       : _plan{n} {
     }
 
-    ~FactorFFTPlanR() = default;
+    ~FactorFFTPlanR() override = default;
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
         //TODO: real optimization (for odd sizes)
         return _plan.solve(complex(x));
+    }
+
+    void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final {
+        _plan.solve(complex(x), r);
     }
 
     [[nodiscard]] int size() const noexcept final {

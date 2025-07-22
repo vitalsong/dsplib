@@ -22,7 +22,7 @@ for (int i=0; i < r.size(); ++i) {
     r[i] = x1[i] * x2[i];
 }
 
-auto p = fftw_plan_dft_1d(N, x, spec, FFTW_FORWARD, FFTW_ESTIMATE);
+auto p = fftw_plan_dft_1d(N, x.data(), spec.data(), FFTW_FORWARD, FFTW_ESTIMATE);
 fftw_execute(p);
 fftw_destroy_plan(p);
 ```
@@ -32,7 +32,7 @@ and who likes this:
 ```cpp
 using namespace dsplib;
 x *= 0.3;
-auto power = sum(abs2(*x.slice(lb, rb)));
+auto power = sum(abs2(x.slice(lb, rb)));
 auto r = x1 * x2;
 auto spec = fft(x);
 ```
@@ -75,6 +75,7 @@ arr_cmplx y3 = x1 * x2;
 arr_cmplx y4 = x2 * 1000;
 arr_cmplx y5 = x2.slice(0, 2);
 arr_cmplx y6 = x1 * 2i;
+arr_cmplx y7 = complex(y1); // only explicit conversion
 ```
 
 ### Slicing
@@ -90,18 +91,63 @@ x.slice(-8, 7) ///OUT_OF_RANGE, but numpy returns [0 1 2 3 4 5 6]
 ```
 
 ### Fast Fourier Transform:
-The FFT/IFFT calculation table is cached on first run. To eliminate this behavior, you can use the FftPlan object.
+The `FFT` implementation has no radix size limitations. 
+It supports power-of-two, prime, and semiprime radices. 
+
+If your platform has a faster implementation (e.g., `NE10` on `ARM`), you can set the `DSPLIB_EXCLUDE_FFT=ON` option and implement the `fft_plan_c`, `fft_plan_r`, `ifft_plan_c`, and `ifft_plan_r` functions (see the `FFTW` example).
+
+The tables for the `FFT` are stored in the `LRU` cache and can be recalculated (if the pipeline uses many different bases). Use the `FftPlan` object to avoid this.
 ```cpp
+//FFT fn
 arr_real x = randn(500);
-arr_cmplx y1 = fft(x);  //500
-arr_cmplx y2 = fft(x, 1024); //1024
+arr_cmplx y1 = fft(x);  // real fft, n=500
+arr_cmplx y2 = fft(x, 1024); // real fft, n=1024, zero padding
+arr_cmplx y3 = fft(complex(y1)); // cmplx fft, n=500
+arr_cmplx y4 = rfft(y1); // real fft, equal `fft(x)`
 ```
 
-### Inverse Fast Fourier Transform:
 ```cpp
-arr_cmplx x = 1i * zeros(512);
-x[10] = 1;
-arr_cmplx y = ifft(x);
+//FFT Plan
+const int n = 512;
+const arr_real x = randn(n);
+std::shared_ptr<FftPlanR> plan = fft_plan_r(n);
+
+// real fft, n=512
+arr_cmplx y1 = plan->solve(x); 
+//or
+arr_cmplx y2 = plan->solve(x.slice(0, 512));
+//or
+arr_cmplx y3 = plan->solve(make_span(x.data(), n));
+
+//real fft, n=512, result copy to `r`
+arr_cmplx r(n);
+plan->solve(x, r); 
+//or
+plan->solve(make_span(x.data(), n), make_span(r.data(), n))
+```
+
+
+```cpp
+//IFFT fn
+const int n = 512;
+arr_cmplx x = complex(ones(n));
+arr_cmplx y1 = ifft(x);
+//or
+arr_real y2 = irfft(x.slice(0, n/2+1), n);
+//or
+arr_real y3 = irfft(x);
+```
+
+```cpp
+//IFFT Plan
+const int n = 512;
+const auto x = complex(ones(n));
+auto plan = ifft_plan_r(n);
+
+arr_real y1 = plan->solve(x);
+//or
+arr_real y2;
+plan->solve(make_span(x.data(), n/2+1), make_span(y2.data(), n));
 ```
 
 ### FIR filter:
@@ -217,11 +263,11 @@ auto out = dsplib::resample(in, 2, 1);
 auto out = dsplib::resample(in, 32000, 16000);
 ```
 
-## Building
+## Build
 
 ### Requires:
 - CMake (>=3.10)
-- C++ compiler for C++17 standard (gcc, clang, msvc, mingw)
+- C++17 compiler (exceptions can be disabled)
 
 
 ### Build and install:
@@ -241,7 +287,7 @@ CPMAddPackage(NAME dsplib
     GIT_REPOSITORY 
         "https://github.com/vitalsong/dsplib.git"
     VERSION 
-        0.45.0
+        0.55.3
     OPTIONS
         "DSPLIB_USE_FLOAT32 OFF"
         "DSPLIB_NO_EXCEPTIONS OFF"
@@ -258,6 +304,8 @@ cmake . -B build -DCMAKE_BUILD_TYPE=Release -DDSPLIB_BUILD_BENCHS=ON
 cmake --build build
 ./build/benchs/dsplib-benchs
 ```
+
+### FFT
 
 The implementation of non-power-of-two FFT is based on the general factorization algorithm. It is usually slower, but not critical. 
 
@@ -310,9 +358,12 @@ BM_KISSFFT/16384/min_time:5.000            98.5 us         98.5 us        69101
 ```
 
 ## TODO:
-- Select FFT backend type (fftw/ne10)
-- Add matrix syntax support
-- Add custom allocator for `base_array<T>` type
-- Add audioread/audiowrite functions (optional libsndfile?)
-- Add chain syntax like `fft(x)->abs2()->pow2db()`
-- Use `const_span<T>` args
+- Add matrix syntax support;
+- Add custom allocator for `base_array<T>` type;
+- Add audioread/audiowrite functions (optional libsndfile?);
+- Add chain syntax like `fft(x)->abs2()->pow2db()`;
+- `SOS` filters;
+- Multichannel resampler;
+- Thread-safe storage for `FFT` (not `thread_local`);
+- Add `chirp`, `conv`, `filter`, `dzt`, `remez` etc.
+- Real/Imag slice for `arr_cmplx`;

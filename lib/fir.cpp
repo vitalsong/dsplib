@@ -37,7 +37,7 @@ arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
     auto h = zeros(M);
     h.slice(0, L) = sin(2 * pi * fc * tt) / tt * w;
     if (!is_odd) {
-        h(L) = 2 * pi * fc;
+        h[L] = 2 * pi * fc;
         h.slice(L + 1, M) = flip(h.slice(0, L));
     } else {
         h.slice(L, M) = flip(h.slice(0, L));
@@ -78,7 +78,7 @@ arr_real _bandstop_fir(int n, real_t wn1, real_t wn2, const arr_real& win) {
     }
 
     auto h = (-1) * _bandpass_fir(n, wn1, wn2, win);
-    h(n / 2) = h(n / 2) + 1;
+    h[n / 2] = h[n / 2] + 1;
     return h;
 }
 
@@ -202,18 +202,14 @@ arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype, const arr_real& w
 }
 
 arr_real fir1(int n, real_t wn, FilterType ftype) {
-    if ((ftype != FilterType::High) && (ftype != FilterType::Low)) {
-        DSPLIB_THROW("Not supported for current filter type");
-    }
-
+    DSPLIB_ASSERT((ftype == FilterType::High) || (ftype == FilterType::Low), "Not supported for current filter type");
     const int nn = ((n % 2 == 1) && (ftype == FilterType::High)) ? (n + 2) : (n + 1);
     return fir1(n, wn, ftype, window::hamming(nn));
 }
 
 arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype) {
-    if ((ftype != FilterType::Bandstop) && (ftype != FilterType::Bandpass)) {
-        DSPLIB_THROW("Not supported for current filter type");
-    }
+    DSPLIB_ASSERT((ftype == FilterType::Bandstop) || (ftype == FilterType::Bandpass),
+                  "Not supported for current filter type");
     const int nn = ((n % 2 == 1) && (ftype == FilterType::Bandstop)) ? (n + 2) : (n + 1);
     return fir1(n, wn1, wn2, ftype, window::hamming(nn));
 }

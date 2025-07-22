@@ -8,7 +8,8 @@ class RealFftPlan : public FftPlanR
 {
 public:
     explicit RealFftPlan(int n);
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final;
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final;
+    void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:

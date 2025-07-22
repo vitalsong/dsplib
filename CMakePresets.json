@@ -1,0 +1,68 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 18,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "DSPLIB_BUILD_TESTS": "OFF",
+                "DSPLIB_BUILD_BENCHS": "OFF",
+                "DSPLIB_BUILD_EXAMPLES": "OFF",
+                "DSPLIB_USE_FLOAT32": "OFF",
+                "DSPLIB_EXCLUDE_FFT": "OFF",
+                "DSPLIB_ASAN_ENABLED": "OFF",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
+            },
+            "environment": {
+                "CC": "clang",
+                "CXX": "clang++"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "tests",
+            "inherits": "default",
+            "cacheVariables": {
+                "DSPLIB_BUILD_TESTS": "ON",
+                "DSPLIB_ASAN_ENABLED": "ON"
+            }
+        },
+        {
+            "name": "benchs-float64",
+            "inherits": "default",
+            "cacheVariables": {
+                "DSPLIB_BUILD_BENCHS": "ON",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "benchs-float32",
+            "inherits": "default",
+            "cacheVariables": {
+                "DSPLIB_BUILD_BENCHS": "ON",
+                "CMAKE_BUILD_TYPE": "Release",
+                "DSPLIB_USE_FLOAT32": "ON"
+            }
+        },
+        {
+            "name": "examples",
+            "inherits": "default",
+            "cacheVariables": {
+                "DSPLIB_BUILD_EXAMPLES": "ON",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ]
+}

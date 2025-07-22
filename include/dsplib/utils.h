@@ -59,28 +59,9 @@ template<typename T1, typename T2, typename T3, class R = typename enable_if_som
 }
 
 //join a sequence of arrays
-//TODO: add impl for slices
-template<class T>
-T concatenate(const T& a1, const T& a2, const T& a3 = T(), const T& a4 = T(), const T& a5 = T()) {
-    std::array<const T*, 5> arrays{&a1, &a2, &a3, &a4, &a5};
-
-    size_t nr = 0;
-    for (auto array : arrays) {
-        nr += array->size();
-    }
-
-    T r(nr);
-    auto* pr = r.data();
-    for (auto array : arrays) {
-        const auto* pa = array->data();
-        for (int i = 0; i < array->size(); ++i) {
-            *pr = pa[i];
-            pr++;
-        }
-    }
-
-    return r;
-}
+//TODO: add slice args?
+arr_real concatenate(span_real x1, span_real x2, span_real x3 = {}, span_real x4 = {}, span_real x5 = {});
+arr_cmplx concatenate(span_cmplx x1, span_cmplx x2, span_cmplx x3 = {}, span_cmplx x4 = {}, span_cmplx x5 = {});
 
 //create array of all zeros
 inline arr_real zeros(int n) {
@@ -121,19 +102,19 @@ arr_real from_file(const std::string& file, dtype type = dtype::int16, endian or
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-inline arr_real to_real(const T* x, size_t nx) {
+[[deprecated]] inline arr_real to_real(const T* x, size_t nx) {
     return dsplib::arr_real(x, nx);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-inline arr_real to_real(const std::vector<T>& arr) {
+[[deprecated]] inline arr_real to_real(const std::vector<T>& arr) {
     return dsplib::arr_real(arr);
 }
 
 //----------------------------------------------------------------------------------------------------------
 template<typename T>
-inline std::vector<T> from_real(const arr_real& arr) {
+[[deprecated]] inline std::vector<T> from_real(const arr_real& arr) {
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     static_assert(is_scalar_v<T>, "Type is not scalar");
     std::vector<T> res(arr.size());
@@ -144,11 +125,8 @@ inline std::vector<T> from_real(const arr_real& arr) {
 }
 
 template<typename T>
-inline arr_cmplx to_complex(const T* x, size_t nx) {
-    if (nx % 2 != 0) {
-        DSPLIB_THROW("Array size is not even");
-    }
-
+[[deprecated]] inline arr_cmplx to_complex(const T* x, size_t nx) {
+    DSPLIB_ASSERT(nx % 2 == 0, "Array size is not even");
     const T* p = x;
     arr_cmplx r(nx / 2);
     for (auto i = 0; i < r.size(); i++) {
@@ -159,13 +137,13 @@ inline arr_cmplx to_complex(const T* x, size_t nx) {
 }
 
 template<typename T>
-inline arr_cmplx to_complex(const std::vector<T>& arr) {
+[[deprecated]] inline arr_cmplx to_complex(const std::vector<T>& arr) {
     static_assert(is_scalar_v<T>, "Type is not scalar");
     return to_complex(arr.data(), arr.size());
 }
 
 template<typename T>
-inline std::vector<T> from_complex(const arr_cmplx& arr) {
+[[deprecated]] inline std::vector<T> from_complex(const arr_cmplx& arr) {
     static_assert(is_scalar_v<T>, "Type is not scalar");
     static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
     std::vector<T> res(arr.size() * 2);
@@ -176,18 +154,9 @@ inline std::vector<T> from_complex(const arr_cmplx& arr) {
     return res;
 }
 
-template<typename T>
-inline base_array<T> zeropad(const base_array<T>& x, int n) {
-    if (x.size() > n) {
-        DSPLIB_THROW("padding size error");
-    }
-
-    if (x.size() == n) {
-        return x;
-    }
-
-    return x | zeros(n - x.size());
-}
+//add zeros to the end of the array
+arr_real zeropad(span_t<real_t> x, int n);
+arr_cmplx zeropad(span_t<cmplx_t> x, int n);
 
 //delays or advances the signal by the number of samples specified in delay
 //TODO: fractional delay support

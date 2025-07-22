@@ -15,7 +15,16 @@ class IfftPlanR
 {
 public:
     virtual ~IfftPlanR() = default;
-    [[nodiscard]] virtual arr_real solve(const arr_cmplx& x) const = 0;
+
+    [[nodiscard]] virtual arr_real solve(span_t<cmplx_t> x) const = 0;
+
+    /**
+     * @brief c2r iFFT solve
+     * @param x [in] input array[n]
+     * @param r [out] result array[n]
+     */
+    virtual void solve(span_t<cmplx_t> x, mut_span_t<real_t> r) const = 0;
+
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 
@@ -37,7 +46,7 @@ std::shared_ptr<IfftPlanR> ifft_plan_r(int n);
  * @param x Input array [N]
  * @return Result array [N]
  */
-arr_cmplx ifft(const arr_cmplx& x);
+arr_cmplx ifft(span_t<cmplx_t> x);
 
 /**
  * @brief Inverse real fourier transform
@@ -45,8 +54,8 @@ arr_cmplx ifft(const arr_cmplx& x);
  * @param n Transform size
  * @return Result array [N]
  */
-arr_real irfft(const arr_cmplx& x, int n);
+arr_real irfft(span_t<cmplx_t> x, int n);
 
-arr_real irfft(const arr_cmplx& x);
+arr_real irfft(span_t<cmplx_t> x);
 
 }   // namespace dsplib
