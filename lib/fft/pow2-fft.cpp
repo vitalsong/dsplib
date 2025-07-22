@@ -65,22 +65,22 @@ void _bitreverse(const cmplx_t* restrict x, cmplx_t* restrict y, const int32_t* 
 
 Pow2FftPlan::Pow2FftPlan(int n)
   : n_{n}
-  , l_{nextpow2(n_)} {
+  , l_{nextpow2(n_)}
+  , bitrev_{_gen_bitrev_table(n)}
+  , coeffs_{_gen_coeffs_table(n)} {
     DSPLIB_ASSERT(ispow2(n), "FFT size must be power of 2");
-    bitrev_ = _gen_bitrev_table(n);
-    coeffs_ = _gen_coeffs_table(n);
 }
 
-arr_cmplx Pow2FftPlan::solve(const arr_cmplx& x) const {
-    const int n = x.size();
-    arr_cmplx y(n);
-    solve(x.data(), y.data(), n);
-    return y;
+void Pow2FftPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+    DSPLIB_ASSERT(x.size() == n_, "array size error");
+    DSPLIB_ASSERT(r.size() == n_, "array size error");
+    _fft(x.data(), r.data(), n_);
 }
 
-void Pow2FftPlan::solve(const cmplx_t* x, cmplx_t* y, int n) const {
-    DSPLIB_ASSERT(x != y, "Pointers must be restricted");
-    _fft(x, y, n);
+arr_cmplx Pow2FftPlan::solve(span_t<cmplx_t> x) const {
+    arr_cmplx r(x.size());
+    this->solve(x, r);
+    return r;
 }
 
 int Pow2FftPlan::size() const noexcept {

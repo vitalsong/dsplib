@@ -59,9 +59,7 @@ using RlsFilterC = RlsFilter<cmplx_t>;
 //-----------------------------------------------------------------------------------------------
 template<typename T>
 typename RlsFilter<T>::Result RlsFilter<T>::process(const base_array<T>& x, const base_array<T>& d) {
-    if (x.size() != d.size()) {
-        DSPLIB_THROW("vector size error: len(x) != len(d)");
-    }
+    DSPLIB_ASSERT(x.size() == d.size(), "vector size error: len(x) != len(d)");
 
     const int nx = x.size();
     base_array<T> y(nx);

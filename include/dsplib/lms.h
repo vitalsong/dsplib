@@ -41,9 +41,7 @@ public:
     }
 
     Result process(const base_array<T>& x, const base_array<T>& d) {
-        if (x.size() != d.size()) {
-            DSPLIB_THROW("vector size error: len(x) != len(d)");
-        }
+        DSPLIB_ASSERT(x.size() == d.size(), "vector size error: len(x) != len(d)");
 
         int nx = x.size();
         base_array<T> y(nx);

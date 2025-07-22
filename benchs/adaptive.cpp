@@ -3,7 +3,7 @@
 
 static std::pair<dsplib::arr_real, dsplib::arr_real> _prepare_frame(int M, int L) {
     const auto h = dsplib::randn(M);
-    auto flt = dsplib::FftFilter(h);
+    auto flt = dsplib::FirFilter(h);
     auto x = dsplib::randn(L);
     auto n = 0.01 * dsplib::randn(L);
     auto d = flt(x) + n;

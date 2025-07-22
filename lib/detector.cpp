@@ -66,9 +66,7 @@ public:
     }
 
     std::optional<PreambleDetector::Result> process(const arr_cmplx& sig) {
-        if (sig.size() % frame_len() != 0) {
-            DSPLIB_THROW("Frame len not supported");
-        }
+        DSPLIB_ASSERT(sig.size() % frame_len() == 0, "Frame len not supported");
 
         const auto cx = _corr_flt.process(sig);
         const auto pwx = _pow_flt.process(abs2(sig));

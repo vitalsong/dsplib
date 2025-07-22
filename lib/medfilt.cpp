@@ -41,9 +41,7 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
 MedianFilter::MedianFilter(int n, real_t init_value)
   : _i{0}
   , _n{n} {
-    if (n < 3) {
-        DSPLIB_THROW("The filter order must be greater than or equal to 3")
-    }
+    DSPLIB_ASSERT(n >= 3, "The filter order must be greater than or equal to 3");
     _d = zeros(_n);
     _s = zeros(_n);
     std::fill(_d.begin(), _d.end(), init_value);
@@ -68,7 +66,7 @@ arr_real medfilt(arr_real& x, int n) {
     auto flt = MedianFilter(n);
     const int n1 = (n / 2);
     const int n2 = (n % 2 == 1) ? (n / 2) : (n / 2 - 1);
-    arr_real xp = zeros(n1) | x | zeros(n2);
+    arr_real xp = concatenate(zeros(n1), x, zeros(n2));
     auto y = flt.process(xp);
     return y.slice(n - 1, indexing::end);
 }
