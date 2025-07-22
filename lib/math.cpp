@@ -61,19 +61,25 @@ int argmin(span_cmplx arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real abs(const arr_real& arr) {
-    arr_real r(arr);
-    for (int i = 0; i < r.size(); ++i) {
-        r[i] = std::fabs(r[i]);
+void abs(inplace_real arr) noexcept {
+    auto x = arr.get();
+    const int nx = x.size();
+    for (int i = 0; i < nx; ++i) {
+        x[i] = std::fabs(x[i]);
     }
+}
+
+arr_real abs(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    abs(inplace(r));
     return r;
 }
 
-real_t abs(real_t v) {
+real_t abs(real_t v) noexcept {
     return std::fabs(v);
 }
 
-arr_real abs(const arr_cmplx& arr) {
+arr_real abs(const arr_cmplx& arr) noexcept {
     arr_real r(arr.size());
     for (int i = 0; i < r.size(); ++i) {
         r[i] = std::sqrt(arr[i].re * arr[i].re + arr[i].im * arr[i].im);
@@ -81,34 +87,44 @@ arr_real abs(const arr_cmplx& arr) {
     return r;
 }
 
-real_t abs(cmplx_t v) {
+real_t abs(cmplx_t v) noexcept {
     return std::sqrt(v.re * v.re + v.im * v.im);
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t round(const real_t& x) {
+real_t round(const real_t& x) noexcept {
     return std::round(x);
 }
 
-cmplx_t round(const cmplx_t& x) {
+cmplx_t round(const cmplx_t& x) noexcept {
     return cmplx_t{std::round(x.re), std::round(x.im)};
 }
 
 template<typename T>
-static base_array<T> _round(const base_array<T>& x) {
-    base_array<T> y(x.size());
+void _round(mut_span_t<T> x) noexcept {
     for (int i = 0; i < x.size(); ++i) {
-        y[i] = round(x[i]);
+        x[i] = round(x[i]);
     }
-    return y;
 }
 
-arr_real round(const arr_real& x) {
-    return _round(x);
+void round(inplace_real arr) noexcept {
+    _round(arr.get());
 }
 
-arr_cmplx round(const arr_cmplx& x) {
-    return _round(x);
+void round(inplace_cmplx arr) noexcept {
+    _round(arr.get());
+}
+
+arr_real round(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    round(inplace(r));
+    return r;
+}
+
+arr_cmplx round(const arr_cmplx& arr) noexcept {
+    arr_cmplx r(arr);
+    round(inplace(r));
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -355,11 +371,16 @@ arr_real cos(const arr_real& arr) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_cmplx conj(const arr_cmplx& x) {
-    arr_cmplx r(x);
+void conj(inplace_cmplx x) noexcept {
+    auto r = x.get();
     for (int i = 0; i < r.size(); ++i) {
         r[i].im = -r[i].im;
     }
+}
+
+arr_cmplx conj(const arr_cmplx& x) noexcept {
+    arr_cmplx r(x);
+    conj(inplace(r));
     return r;
 }
 
@@ -479,16 +500,21 @@ arr_cmplx power(const arr_cmplx& x, int n) {
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t sqrt(real_t x) {
+real_t sqrt(real_t x) noexcept {
     return std::sqrt(x);
 }
 
-arr_real sqrt(const arr_real& x) {
-    arr_real y(x.size());
+void sqrt(inplace_real arr) noexcept {
+    auto x = arr.get();
     for (int i = 0; i < x.size(); ++i) {
-        y[i] = std::sqrt(x[i]);
+        x[i] = std::sqrt(x[i]);
     }
-    return y;
+}
+
+arr_real sqrt(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    sqrt(inplace(r));
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -617,7 +643,7 @@ arr_cmplx upsample(const arr_cmplx& arr, int n, int phase) {
 }
 
 //-------------------------------------------------------------------------------------------------
-arr_real abs2(const arr_cmplx& x) {
+arr_real abs2(const arr_cmplx& x) noexcept {
     arr_real r(x.size());
     for (int i = 0; i < x.size(); i++) {
         r[i] = (x[i].re * x[i].re) + (x[i].im * x[i].im);
@@ -665,37 +691,73 @@ real_t rad2deg(const real_t& x) {
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t pow2db(real_t v) {
+void pow2db(inplace_real arr) noexcept {
+    auto x = arr.get();
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = pow2db(x[i]);
+    }
+}
+
+void db2pow(inplace_real arr) noexcept {
+    auto x = arr.get();
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = db2pow(x[i]);
+    }
+}
+
+real_t pow2db(real_t v) noexcept {
     return 10 * std::log10(v);
 }
 
-arr_real pow2db(const arr_real& v) {
-    return 10 * log10(v);
+arr_real pow2db(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    pow2db(inplace(r));
+    return r;
 }
 
-real_t db2pow(real_t v) {
+real_t db2pow(real_t v) noexcept {
     return std::pow(real_t(10), (v / 10));
 }
 
-arr_real db2pow(const arr_real& v) {
-    return power(10, (v / 10));
+arr_real db2pow(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    db2pow(inplace(r));
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t mag2db(real_t v) {
+void mag2db(inplace_real arr) noexcept {
+    auto x = arr.get();
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = mag2db(x[i]);
+    }
+}
+
+void db2mag(inplace_real arr) noexcept {
+    auto x = arr.get();
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = db2mag(x[i]);
+    }
+}
+
+real_t mag2db(real_t v) noexcept {
     return 20 * std::log10(v);
 }
 
-arr_real mag2db(const arr_real& v) {
-    return 20 * log10(v);
+arr_real mag2db(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    mag2db(inplace(r));
+    return r;
 }
 
-real_t db2mag(real_t v) {
+real_t db2mag(real_t v) noexcept {
     return std::pow(real_t(10), (v / 20));
 }
 
-arr_real db2mag(const arr_real& v) {
-    return power(10, (v / 20));
+arr_real db2mag(const arr_real& arr) noexcept {
+    arr_real r(arr);
+    db2mag(inplace(r));
+    return r;
 }
 
 //-------------------------------------------------------------------------------------------------

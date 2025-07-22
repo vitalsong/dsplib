@@ -317,7 +317,7 @@ TEST(Utils, ZadoffChu) {
         auto y = zadoff_chu(n - 1, n);
         ASSERT_EQ_ARR_CMPLX(x, conj(y));
         //must be symmetry
-        ASSERT_EQ_ARR_CMPLX(*x.slice(0, n / 2), flip(*x.slice(n / 2 + 1, n)));
-        ASSERT_EQ_ARR_CMPLX(*y.slice(0, n / 2), flip(*y.slice(n / 2 + 1, n)));
+        ASSERT_EQ_ARR_CMPLX(x.slice(0, n / 2), flip(x.slice(n / 2 + 1, n)));
+        ASSERT_EQ_ARR_CMPLX(y.slice(0, n / 2), flip(y.slice(n / 2 + 1, n)));
     }
 }

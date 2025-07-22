@@ -189,8 +189,10 @@ public:
             }
         }
 
-        //TODO: remove conj
-        return conj(fft_->solve(pout));
+        //TODO: flip and remove conj
+        auto out = fft_->solve(pout);
+        conj(inplace(out));
+        return out;
     }
 
 private:

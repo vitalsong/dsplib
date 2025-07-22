@@ -5,7 +5,8 @@ namespace dsplib {
 gccphat_res_t gccphat(const arr_real& sig, const arr_real& refsig, int fs) {
     const real_t ts = 1.0 / fs;
     auto X1 = fft(sig);
-    auto X2 = conj(fft(refsig));
+    auto X2 = fft(refsig);
+    conj(inplace(X2));
     auto Y = X1 * X2;
     const auto R = ifft(Y / abs(Y));
     const auto n = argmax(R);
@@ -27,7 +28,8 @@ gccphat_res_t gccphat(const arr_real& sig, const arr_real& refsig, int fs) {
 
 gccphat_res_ch_t gccphat(const std::vector<arr_real>& sig, const arr_real& refsig, int fs) {
     const real_t ts = 1.0 / fs;
-    const auto X2 = conj(fft(refsig));
+    auto X2 = fft(refsig);
+    conj(inplace(X2));
     const int M = X2.size();
     const int M2 = M / 2;
     gccphat_res_ch_t res;

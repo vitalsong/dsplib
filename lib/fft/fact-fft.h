@@ -18,6 +18,7 @@ public:
 
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
     void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
+    void solve(inplace_span_t<cmplx_t> r) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:
