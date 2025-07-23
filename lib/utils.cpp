@@ -11,6 +11,8 @@
 namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------
+namespace {
+
 template<class T>
 T _repelem(const T& x, int n) {
     if (n == 0) {
@@ -31,35 +33,45 @@ T _repelem(const T& x, int n) {
     return r;
 }
 
-//-------------------------------------------------------------------------------------------------
+}   // namespace
+
 arr_real repelem(const arr_real& x, int n) {
     return _repelem<arr_real>(x, n);
 }
 
-//-------------------------------------------------------------------------------------------------
 arr_cmplx repelem(const arr_cmplx& x, int n) {
     return _repelem<arr_cmplx>(x, n);
 }
 
 //-------------------------------------------------------------------------------------------------
+void flip(inplace_real x) {
+    auto r = x.get();
+    std::reverse(r.begin(), r.end());
+}
+
+void flip(inplace_cmplx x) {
+    auto r = x.get();
+    std::reverse(r.begin(), r.end());
+}
+
 arr_real flip(const arr_real& x) {
     arr_real r(x);
-    std::reverse(r.begin(), r.end());
+    flip(inplace(r));
     return r;
 }
 
-//-------------------------------------------------------------------------------------------------
 arr_cmplx flip(const arr_cmplx& x) {
     arr_cmplx r(x);
-    std::reverse(r.begin(), r.end());
+    flip(inplace(r));
     return r;
 }
 
 //-------------------------------------------------------------------------------------------------
+namespace {
+
 template<typename T>
 T _from_bytes(const uint8_t* bytes, endian order);
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 T _from_bytes_16(const uint8_t* bytes, endian order) {
     static_assert(sizeof(T) == 2, "The type is the wrong size");
@@ -75,19 +87,16 @@ T _from_bytes_16(const uint8_t* bytes, endian order) {
     return T();
 }
 
-//-------------------------------------------------------------------------------------------------
 template<>
 int16_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_16<int16_t>(bytes, order);
 }
 
-//-------------------------------------------------------------------------------------------------
 template<>
 uint16_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_16<uint16_t>(bytes, order);
 }
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 T _from_bytes_32(const uint8_t* bytes, endian order) {
     static_assert(sizeof(T) == 4, "The type is the wrong size");
@@ -103,19 +112,16 @@ T _from_bytes_32(const uint8_t* bytes, endian order) {
     return T();
 }
 
-//-------------------------------------------------------------------------------------------------
 template<>
 int32_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_32<int32_t>(bytes, order);
 }
 
-//-------------------------------------------------------------------------------------------------
 template<>
 uint32_t _from_bytes(const uint8_t* bytes, endian order) {
     return _from_bytes_32<uint32_t>(bytes, order);
 }
 
-//-------------------------------------------------------------------------------------------------
 template<typename T>
 arr_real _from_file(const std::string& file, long count, endian order, long offset) {
     FILE* fid = fopen(file.c_str(), "rb");
@@ -138,7 +144,8 @@ arr_real _from_file(const std::string& file, long count, endian order, long offs
     return res;
 }
 
-//-------------------------------------------------------------------------------------------------
+}   // namespace
+
 arr_real from_file(const std::string& file, dtype type, endian order, long offset, long count) {
     switch (type) {
     case dtype::int16:
@@ -154,6 +161,7 @@ arr_real from_file(const std::string& file, dtype type, endian order, long offse
     }
 }
 
+//-------------------------------------------------------------------------------------------------
 real_t peakloc(const arr_real& x, int idx, bool cyclic) {
     const int n = x.size();
     if (!cyclic && (idx == 0 || idx == n - 1)) {
@@ -183,9 +191,11 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
     auto d = (x[mr] - x[ml]) / (2 * x[mk] - x[ml] - x[mr]);
     return mk - real(d);
 }
+//-------------------------------------------------------------------------------------------------
+namespace {
 
 template<typename T>
-static int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
+int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
     const int max_lag = max(x1.size(), x2.size());
     const int nfft = 1L << nextpow2(max_lag);
     const auto s1 = zeropad(x1, nfft);
@@ -200,6 +210,8 @@ static int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
     return -delay;
 }
 
+}   // namespace
+
 int finddelay(const arr_real& x1, const arr_real& x2) {
     return _finddelay(x1, x2);
 }
@@ -208,6 +220,7 @@ int finddelay(const arr_cmplx& x1, const arr_cmplx& x2) {
     return _finddelay(x1, x2);
 }
 
+//-------------------------------------------------------------------------------------------------
 arr_real linspace(real_t x1, real_t x2, size_t n) {
     DSPLIB_ASSERT(n >= 1, "n must be greater or equal 1");
     if (n == 1) {
@@ -224,8 +237,11 @@ arr_real linspace(real_t x1, real_t x2, size_t n) {
     return out;
 }
 
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<typename T>
-static base_array<T> _circshift(const base_array<T>& x, int k) {
+base_array<T> _circshift(const base_array<T>& x, int k) {
     const int n = x.size();
     if (n == 1 || k == 0) {
         return x;
@@ -238,6 +254,8 @@ static base_array<T> _circshift(const base_array<T>& x, int k) {
     return y;
 }
 
+}   // namespace
+
 arr_real circshift(const arr_real& x, int k) {
     return _circshift(x, -k);
 }
@@ -246,8 +264,10 @@ arr_cmplx circshift(const arr_cmplx& x, int k) {
     return _circshift(x, -k);
 }
 
+namespace {
+
 template<typename T>
-static base_array<T> _fftshift(const base_array<T>& x) {
+base_array<T> _fftshift(const base_array<T>& x) {
     const int n = x.size();
     if (n == 1) {
         return x;
@@ -259,6 +279,8 @@ static base_array<T> _fftshift(const base_array<T>& x) {
     return y;
 }
 
+}   // namespace
+
 arr_real fftshift(const arr_real& x) {
     return _fftshift(x);
 }
@@ -267,6 +289,7 @@ arr_cmplx fftshift(const arr_cmplx& x) {
     return _fftshift(x);
 }
 
+//-------------------------------------------------------------------------------------------------
 arr_cmplx zadoff_chu(int r, int n) {
     DSPLIB_ASSERT((r > 0) && (n > 0), "must be positive");
     DSPLIB_ASSERT((r >= 1) && (r < n), "root must be in range [1, n-1]");
@@ -290,8 +313,11 @@ arr_cmplx zadoff_chu(int r, int n) {
     return expj(arg);
 }
 
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<typename T>
-static base_array<T> _zeropad(span_t<T> x, int n) {
+base_array<T> _zeropad(span_t<T> x, int n) {
     DSPLIB_ASSERT(x.size() <= n, "padding size error");
     if (x.size() == n) {
         return x;
@@ -301,6 +327,8 @@ static base_array<T> _zeropad(span_t<T> x, int n) {
     return r;
 }
 
+}   // namespace
+
 arr_real zeropad(span_t<real_t> x, int n) {
     return _zeropad<real_t>(x, n);
 }
@@ -309,8 +337,11 @@ arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
     return _zeropad<cmplx_t>(x, n);
 }
 
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<class T>
-static base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span_t<T> a4, span_t<T> a5) {
+base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span_t<T> a4, span_t<T> a5) {
     std::array<span_t<T>, 5> span_list{a1, a2, a3, a4, a5};
 
     size_t nr = 0;
@@ -329,6 +360,8 @@ static base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span
     }
     return r;
 }
+
+}   // namespace
 
 arr_real concatenate(span_real x1, span_real x2, span_real x3, span_real x4, span_real x5) {
     return _concatenate<real_t>(x1, x2, x3, x4, x5);

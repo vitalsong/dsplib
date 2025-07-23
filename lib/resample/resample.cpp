@@ -72,7 +72,7 @@ std::vector<arr_real> IResampler::polyphase(arr_real h, int m, real_t gain, bool
 
     if (flip_coeffs) {
         for (int i = 0; i < m; ++i) {
-            r[i] = flip(r[i]);
+            flip(inplace(r[i]));
         }
     }
 

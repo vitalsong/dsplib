@@ -18,10 +18,6 @@ public:
 
     [[nodiscard]] int size() const noexcept final;
 
-    arr_cmplx operator()(span_t<cmplx_t> x) const {
-        return this->solve(x);
-    }
-
 private:
     std::shared_ptr<CztPlanImpl> _d;
 };
