@@ -120,17 +120,17 @@ public:
     }
 
     mut_slice_t& operator=(const slice_t<T>& rhs) {
-        this->copy(*this, rhs);
+        this->assign(rhs);
         return *this;
     }
 
     mut_slice_t& operator=(const mut_slice_t<T>& rhs) {
-        *this = slice_t<T>(rhs);
+        this->assign(slice_t<T>(rhs));
         return *this;
     }
 
     mut_slice_t& operator=(const base_array<T>& rhs) {
-        DSPLIB_ASSERT(!is_same_memory(rhs.slice(0, rhs.size()), *this), "Assigned array to same slice");
+        DSPLIB_ASSERT(!is_same_memory(rhs.slice(0, rhs.size())), "Assigned array to same slice");
         *this = rhs.slice(0, rhs.size());
         return *this;
     }
@@ -165,19 +165,42 @@ public:
         return current;
     }
 
+    //TODO: replace to `copy` or `to_arr` function
     base_array<T> operator*() const noexcept {
         return base_array<T>(*this);
     }
 
-    static bool is_same_memory(slice_t<T> r1, slice_t<T> r2) noexcept {
-        if (r1.empty() || r2.empty()) {
-            return false;
+    void assign(slice_t<T> rhs) {
+        DSPLIB_ASSERT(size() == rhs.size(), "Slices size must be equal");
+        const int count = size();
+
+        //empty slice assign
+        if (count == 0) {
+            return;
         }
-        auto start1 = r1.begin();
-        auto end1 = r1.end();
-        auto start2 = r2.begin();
-        auto end2 = r2.end();
-        return (start1 < end2) && (start2 < end1);
+
+        //simple block copy/move (optimization)
+        const bool is_same = is_same_memory(rhs);
+
+        //check all slices is span
+        if ((stride() == 1) && (rhs.stride() == 1)) {
+            const auto* src = rhs.data_;
+            auto* dst = data_;
+            if (!is_same) {
+                std::memcpy(dst, src, count * sizeof(*src));
+            } else {
+                std::memmove(dst, src, count * sizeof(*src));
+            }
+            return;
+        }
+
+        //same array, specific indexing
+        if (is_same) {
+            *this = base_array<T>(rhs);
+            return;
+        }
+
+        std::copy(rhs.begin(), rhs.end(), begin());
     }
 
     static mut_slice_t make_slice(T* data, int size, int i1, int i2, int step) {
@@ -202,44 +225,31 @@ public:
         return mut_slice_t(data + i1, step, count);
     }
 
-    static void copy(mut_slice_t<T> lhs, slice_t<T> rhs) {
-        DSPLIB_ASSERT(lhs.size() == rhs.size(), "Slices size must be equal");
-        const int count = lhs.size();
-
-        //empty slice assign
-        if (count == 0) {
-            return;
-        }
-
-        //simple block copy/move (optimization)
-        const bool is_same = is_same_memory(rhs, slice_t(lhs));
-        if ((lhs.stride() == 1) && (rhs.stride() == 1)) {
-            const auto* src = &(*rhs.begin());
-            auto* dst = &(*lhs.begin());
-            if (!is_same) {
-                std::memcpy(dst, src, count * sizeof(*src));
-            } else {
-                //overlapped
-                std::memmove(dst, src, count * sizeof(*src));
-            }
-            return;
-        }
-
-        //same array, specific indexing
-        if (is_same) {
-            lhs = base_array<T>(rhs);
-            return;
-        }
-
-        std::copy(rhs.begin(), rhs.end(), lhs.begin());
-    }
-
 protected:
     explicit mut_slice_t(T* data, int stride, int count)
       : data_{data}
       , stride_{stride}
       , count_{count} {
         DSPLIB_ASSERT(count >= 0, "Count of elements must be positive");
+    }
+
+    bool is_same_memory(slice_t<T> rhs) noexcept {
+        if (empty() || rhs.empty()) {
+            return false;
+        }
+        auto start1 = rhs.data_;
+        auto end1 = start1 + (rhs.count_ * rhs.stride_);
+        if (start1 > end1) {
+            std::swap(start1, end1);
+        }
+
+        auto start2 = data_;
+        auto end2 = start2 + (count_ * stride_);
+        if (start2 > end2) {
+            std::swap(start2, end2);
+        }
+
+        return (start1 < end2) && (start2 < end1);
     }
 
     T* data_{nullptr};

@@ -49,10 +49,9 @@ public:
             xp[i] = x[i] * _cp[i];
         }
 
-        //TODO: inplace
-        xp = _fft2->solve(xp);
+        _fft2->solve(inplace(xp));
         xp *= _ich;
-        xp = _ifft2->solve(xp);
+        _ifft2->solve(inplace(xp));
 
         for (int i = 0; i < _n; ++i) {
             r[i] = xp[_n - 1 + i] * _rp[i];

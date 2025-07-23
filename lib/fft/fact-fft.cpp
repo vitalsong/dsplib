@@ -131,9 +131,7 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
     const int n = plan->size();
 
     if (!plan->has_next()) {
-        //TODO: inplace fft
-        plan->solver()->solve(make_span(x, n), make_span(mem, n));
-        std::memcpy(x, mem, n * sizeof(cmplx_t));
+        plan->solver()->solve(inplace(make_span(x, n)));
         return;
     }
 
@@ -188,11 +186,16 @@ FactorFFTPlan::FactorFFTPlan(int n)
 }
 
 void FactorFFTPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
-    DSPLIB_ASSERT(x.size() == _n, "input array size is not equal fft size");
     DSPLIB_ASSERT(x.size() == r.size(), "output array size error");
+    r.assign(x);
+    this->solve(inplace(r));
+}
+
+void FactorFFTPlan::solve(inplace_span_t<cmplx_t> r) const {
+    auto x = r.get();
+    DSPLIB_ASSERT(x.size() == _n, "input array size is not equal fft size");
     arr_cmplx tmp(_n);
-    r = x;   //TODO: remove copy
-    _facfft(_plan.get(), r.data(), tmp.data(), _twiddle.data(), _n);
+    _facfft(_plan.get(), x.data(), tmp.data(), _twiddle.data(), _n);
 }
 
 [[nodiscard]] int FactorFFTPlan::size() const noexcept {
