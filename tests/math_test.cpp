@@ -541,3 +541,18 @@ TEST(MathTest, Sqrt) {
     arr_real y = dsplib::sqrt(abs2(x));
     ASSERT_EQ_ARR_REAL(y, x);
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Round) {
+    {
+        arr_real x = {1.1, 2.2, 3.5, 4.6};
+        arr_real r = {1, 2, 4, 5};
+        ASSERT_EQ_ARR_REAL(round(x), r);
+    }
+
+    {
+        arr_cmplx x = {1 + 1.1i, 2.2 + 3.5i, 4 - 1.1i, 4.4999 - 4.6i};
+        arr_cmplx r = {1 + 1i, 2 + 4i, 4 - 1i, 4 - 5i};
+        ASSERT_EQ_ARR_CMPLX(round(x), r);
+    }
+}
