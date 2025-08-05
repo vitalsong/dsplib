@@ -1,14 +1,15 @@
 #include <dsplib/medfilt.h>
 #include <dsplib/utils.h>
+#include <dsplib/assert.h>
 
 #include <cassert>
 #include <algorithm>
 
 namespace dsplib {
+namespace {
 
-//-------------------------------------------------------------------------------------------------
 //insert new value in sorted list
-static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
+void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) noexcept {
     int pos;
 
     //search old value
@@ -37,13 +38,13 @@ static void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) {
     x[pos] = v_new;
 }
 
+}   // namespace
+
 //------------------------------------------------------------------------------------------
 MedianFilter::MedianFilter(int n, real_t init_value)
   : _i{0}
   , _n{n} {
-    if (n < 3) {
-        DSPLIB_THROW("The filter order must be greater than or equal to 3")
-    }
+    DSPLIB_ASSERT(n >= 3, "The filter order must be greater than or equal to 3");
     _d = zeros(_n);
     _s = zeros(_n);
     std::fill(_d.begin(), _d.end(), init_value);
@@ -51,15 +52,19 @@ MedianFilter::MedianFilter(int n, real_t init_value)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real MedianFilter::process(const arr_real& x) {
+arr_real MedianFilter::process(const arr_real& x) noexcept {
     auto y = zeros(x.size());
     for (int i = 0; i < x.size(); ++i) {
-        _i = (_i + 1) % _n;
-        _update_sort(_s.data(), _n, x[i], _d[_i]);
-        _d[_i] = x[i];
-        y[i] = (_n % 2 == 1) ? _s[_n / 2] : (_s[_n / 2] + _s[_n / 2 - 1]) / 2;
+        y[i] = process(x[i]);
     }
+    return y;
+}
 
+real_t MedianFilter::process(const real_t& x) noexcept {
+    _i = (_i + 1) % _n;
+    _update_sort(_s.data(), _n, x, _d[_i]);
+    _d[_i] = x;
+    auto y = (_n % 2 == 1) ? _s[_n / 2] : (_s[_n / 2] + _s[_n / 2 - 1]) / 2;
     return y;
 }
 
