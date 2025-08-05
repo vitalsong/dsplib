@@ -17,9 +17,16 @@ class MedianFilter
 {
 public:
     explicit MedianFilter(int n = 3, real_t init_value = 0);
-    arr_real process(const arr_real& x);
 
-    arr_real operator()(const arr_real& x) {
+    arr_real process(const arr_real& x) noexcept;
+
+    real_t process(const real_t& x) noexcept;
+
+    arr_real operator()(const arr_real& x) noexcept {
+        return this->process(x);
+    }
+
+    real_t operator()(const real_t& x) noexcept {
         return this->process(x);
     }
 
@@ -28,10 +35,10 @@ public:
     }
 
 private:
-    arr_real _d;    ///< delay
-    arr_real _s;    ///< sorted delay
-    int _i;         ///< delay cycle index
-    const int _n;   ///< delay size
+    arr_real _d;   ///< delay
+    arr_real _s;   ///< sorted delay
+    int _i;        ///< delay cycle index
+    int _n;        ///< delay size
 };
 
 }   // namespace dsplib

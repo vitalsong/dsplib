@@ -92,17 +92,34 @@ TEST(MedianFilter, Init) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(MedianFilter, Filter) {
-    auto t = arange(1000) / 16000;
-    arr_real x = sin(2 * pi * 440 * t);
-    x[20] = 10;
-    x[30] = -10;
+    {
+        auto t = arange(1000) / 16000;
+        arr_real x = sin(2 * pi * 440 * t);
+        x[20] = 10;
+        x[30] = -10;
 
-    MedianFilter flt(3);
-    auto y = flt(x);
+        MedianFilter flt(3);
+        auto y = flt(x);
 
-    ASSERT_NEAR(max(x), 10.0, 1e-7);
-    ASSERT_NEAR(min(x), -10.0, 1e-7);
+        ASSERT_NEAR(max(x), 10.0, 1e-7);
+        ASSERT_NEAR(min(x), -10.0, 1e-7);
 
-    ASSERT_NEAR(max(y), 1.0, 1e-2);
-    ASSERT_NEAR(min(y), -1.0, 1e-2);
+        ASSERT_NEAR(max(y), 1.0, 1e-2);
+        ASSERT_NEAR(min(y), -1.0, 1e-2);
+    }
+    {
+        MedianFilter flt(3, 1);
+        ASSERT_EQ(flt.order(), 3);
+        ASSERT_EQ(flt(0), 1);
+        ASSERT_EQ(flt(0), 0);
+        ASSERT_EQ(flt(0), 0);
+    }
+    {
+        MedianFilter flt(4, 1);
+        ASSERT_EQ(flt.order(), 4);
+        ASSERT_EQ(flt(0), 1);
+        ASSERT_EQ(flt(0), 0.5);
+        ASSERT_EQ(flt(0), 0);
+        ASSERT_EQ(flt(0), 0);
+    }
 }
