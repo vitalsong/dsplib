@@ -5,7 +5,7 @@
 
 namespace dsplib {
 
-class RealIfftPlan : public BaseIfftPlanR
+class RealIfftPlan : public IfftPlanR
 {
 public:
     explicit RealIfftPlan(int n);
@@ -14,7 +14,7 @@ public:
 
 private:
     const int n_;
-    std::shared_ptr<BaseFftPlanC> fft_;
+    std::shared_ptr<FftPlanC> fft_;
     const std::vector<cmplx_t> w_;   //exp(1i * 2 * pi / n)
 };
 

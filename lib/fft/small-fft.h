@@ -9,7 +9,7 @@ namespace dsplib {
 
 //-------------------------------------------------------------------------------------------------------------
 //FFT implementation for small sizes
-class SmallFftC : public BaseFftPlanC
+class SmallFftC : public FftPlanC
 {
 public:
     friend class SmallFftR;
@@ -130,7 +130,7 @@ private:
 };
 
 //-------------------------------------------------------------------------------------------------------------
-class SmallFftR : public BaseFftPlanR
+class SmallFftR : public FftPlanR
 {
 public:
     explicit SmallFftR(int n)
