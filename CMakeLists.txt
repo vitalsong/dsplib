@@ -9,6 +9,7 @@ option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
 set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
 option(DSPLIB_EXCLUDE_FFT "Exclude FFT (must be implemented external)" OFF)
+set(DSPLIB_FFT_BACKEND "dsplib" CACHE STRING "FFT backend type [dsplib, ne10, fftw]")
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -46,39 +47,69 @@ set(DSPLIB_SOURCES
     lib/ifft.cpp
     lib/czt.cpp
     lib/subband.cpp
+    lib/fft/fact-fft.cpp
+    lib/fft/factory.cpp
+    lib/fft/pow2-fft.cpp
+    lib/fft/real-fft.cpp
+    lib/fft/real-ifft.cpp
     lib/internal/besseli.cpp
 )
 
+list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+# config fft backend
+set(FFT_LIBS)
+set(FFT_INCLUDES)
+if (DSPLIB_FFT_BACKEND STREQUAL "fftw")
+    find_package(FFTW REQUIRED)
+    if (DSPLIB_USE_FLOAT32)
+        set(FFT_LIBS ${FFTWF_LIB})
+        list(APPEND DSPLIB_SOURCES lib/fft/fftw3f.cpp)
+    else()
+        set(FFT_LIBS ${FFTW_LIB})
+        list(APPEND DSPLIB_SOURCES lib/fft/fftw3.cpp)
+    endif()
+    set(FFT_INCLUDES ${FFTW_INCLUDES})
+    set(DSPLIB_EXCLUDE_FFT ON)
+    set(DSPLIB_FFT_CACHE_SIZE 0) # FFTW has its own cache
+elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
+    find_package(NE10 REQUIRED)
+    if (DSPLIB_USE_FLOAT32)
+        set(FFT_LIBS ${NE10_LIBRARIES})
+    else()
+        message(FATAL_ERROR "supported only float32")
+    endif()
+    set(FFT_INCLUDES ${NE10_INCLUDES})
+    list(APPEND DSPLIB_SOURCES lib/fft/ne10.cpp)
+    set(DSPLIB_EXCLUDE_FFT ON)
+endif()
+
 if (DSPLIB_EXCLUDE_FFT)
-    message(STATUS "dsplib: use custom fft implementation")
+    message(STATUS "dsplib: use custom fft implementation - ${DSPLIB_FFT_BACKEND}")
 else()
-    list(APPEND DSPLIB_SOURCES
-        lib/fft/fact-fft.cpp
-        lib/fft/factory.cpp
-        lib/fft/pow2-fft.cpp
-        lib/fft/real-fft.cpp
-        lib/fft/real-ifft.cpp
-    )
+    list(APPEND DSPLIB_SOURCES lib/fft/dsplib.cpp)
 endif()
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE 
-    "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}")
+target_compile_definitions(${PROJECT_NAME} 
+    PRIVATE 
+        "DSPLIB_FFT_CACHE_SIZE=${DSPLIB_FFT_CACHE_SIZE}"
+)
 
-# add INTERFACE target
-add_library(${PROJECT_NAME}-interface INTERFACE)
-add_library(${PROJECT_NAME}::interface ALIAS ${PROJECT_NAME}-interface)
-
-target_include_directories(${PROJECT_NAME}-interface 
-    INTERFACE 
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+    PRIVATE 
+        lib
+        ${FFT_INCLUDES}
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}-interface)
-target_include_directories(${PROJECT_NAME} PRIVATE lib)
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE ${FFT_LIBS}
+)
 
 # check root project
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")
