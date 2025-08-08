@@ -23,7 +23,9 @@ public:
      * @param x [in] input array[n]
      * @param r [out] result array[n]
      */
-    virtual void solve(span_t<cmplx_t> x, mut_span_t<real_t> r) const = 0;
+    virtual void solve(span_t<cmplx_t> x, mut_span_t<real_t> r) const {
+        r = this->solve(x);
+    }
 
     [[nodiscard]] virtual int size() const noexcept = 0;
 };

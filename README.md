@@ -94,9 +94,11 @@ x.slice(-8, 7) ///OUT_OF_RANGE, but numpy returns [0 1 2 3 4 5 6]
 The `FFT` implementation has no radix size limitations. 
 It supports power-of-two, prime, and semiprime radices. 
 
-If your platform has a faster implementation (e.g., `NE10` on `ARM`), you can set the `DSPLIB_EXCLUDE_FFT=ON` option and implement the `fft_plan_c`, `fft_plan_r`, `ifft_plan_c`, and `ifft_plan_r` functions (see the `FFTW` example).
-
 The tables for the `FFT` are stored in the `LRU` cache and can be recalculated (if the pipeline uses many different bases). Use the `FftPlan` object to avoid this.
+
+If your platform has a faster implementation, you can set the `DSPLIB_EXCLUDE_FFT=ON` option and implement the `get_fft_plan` functions (see the `lib/fft/fftw.cpp` example). 
+You can also select the type of FFT backend via the `DSPLIB_FFT_BACKEND` option (dsplib, fftw, ne10[float]).
+
 ```cpp
 //FFT fn
 arr_real x = randn(500);
@@ -263,6 +265,13 @@ auto out = dsplib::resample(in, 2, 1);
 auto out = dsplib::resample(in, 32000, 16000);
 ```
 
+### Thread Safety Notice:
+
+The standard implementation is **thread-safe** because all caches (primarily FFT-related) use `thread_local` storage.  
+**Memory warning:** This may increase memory consumption if used carelessly – please avoid spreading processing across hundreds of threads.  
+
+The FFTW3 backend is wrapped with a **static mutex** (excluding `fftw_execute` calls) and is also thread-safe. 
+
 ## Build
 
 ### Requires:
@@ -367,3 +376,7 @@ BM_KISSFFT/16384/min_time:5.000            98.5 us         98.5 us        69101
 - Thread-safe storage for `FFT` (not `thread_local`);
 - Add `chirp`, `conv`, `filter`, `dzt`, `remez` etc.
 - Real/Imag slice for `arr_cmplx`;
+
+## License Notes
+⚠️ **Critical compliance notice:**  
+If you enable FFTW3 backend via `-DSPLIB_FFT_BACKEND=fftw`, your project automatically falls under [GPLv2+](https://www.gnu.org/licenses/gpl-2.0.html) requirements.

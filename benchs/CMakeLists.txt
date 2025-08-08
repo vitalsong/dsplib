@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/FindFFTW.cmake)
 
 cpmaddpackage(NAME benchmark
   GIT_REPOSITORY 
@@ -51,8 +50,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(${PROJECT_NAME} dsplib benchmark kissfft)
 target_compile_definitions(${PROJECT_NAME} PRIVATE KISSFFT_SUPPORT)
 
-FindFFTW()
-if(TARGET FFTW:Double)
-  target_link_libraries(${PROJECT_NAME} FFTW:Double)
+find_package(FFTW)
+if(FFTW_FOUND)
+  target_link_libraries(${PROJECT_NAME} ${FFTW_LIB})
   target_compile_definitions(${PROJECT_NAME} PRIVATE FFTW_SUPPORT)
 endif()
