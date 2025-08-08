@@ -24,7 +24,7 @@ class NE10PlanC : public FftPlanC
 public:
     explicit NE10PlanC(int n)
       : _n{n}
-      , _in(n) {
+      , _tm(n) {
         _plan = ne10_fft_alloc_c2c_float32(_n);
     }
 
@@ -41,10 +41,17 @@ public:
     void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final {
         DSPLIB_ASSERT(x.size() == _n, "Input vector size is not equal FFT");
         DSPLIB_ASSERT(r.size() == _n, "Output vector size is not equal FFT");
-        _in.slice(0, _n) = x;
-        auto* pin = reinterpret_cast<ne10_fft_cpx_float32_t*>(_in.data());
-        auto* pout = reinterpret_cast<ne10_fft_cpx_float32_t*>(r.data());
+        r.assign(x);
+        this->solve(inplace(r));
+    }
+
+    void solve(inplace_cmplx inp) const final {
+        auto x = inp.get();
+        DSPLIB_ASSERT(x.size() == _n, "Input vector size is not equal FFT");
+        auto* pin = reinterpret_cast<ne10_fft_cpx_float32_t*>(x.data());
+        auto* pout = reinterpret_cast<ne10_fft_cpx_float32_t*>(_tm.data());
         ne10_fft_c2c_1d_float32(pout, pin, _plan, 0);
+        x.assign(_tm);
     }
 
     int size() const noexcept final {
@@ -54,7 +61,7 @@ public:
 private:
     int _n;
     mutable ne10_fft_cfg_float32_t _plan{nullptr};
-    mutable arr_cmplx _in;
+    mutable arr_cmplx _tm;   //TODO: not thread-safe if used static cache (for the future)
 };
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -64,7 +71,7 @@ class NE10PlanR : public FftPlanR
 public:
     explicit NE10PlanR(int n)
       : _n{n}
-      , _in(n) {
+      , _tm(n) {
         _plan = ne10_fft_alloc_r2c_float32(_n);
     }
 
@@ -81,8 +88,8 @@ public:
     void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final {
         DSPLIB_ASSERT(x.size() == _n, "Input vector size is not equal FFT");
         DSPLIB_ASSERT(r.size() == _n, "Output vector size is not equal FFT");
-        _in.slice(0, _n) = x;
-        auto* pin = reinterpret_cast<ne10_float32_t*>(_in.data());
+        _tm.slice(0, _n).assign(x);
+        auto* pin = reinterpret_cast<ne10_float32_t*>(_tm.data());
         auto* pout = reinterpret_cast<ne10_fft_cpx_float32_t*>(r.data());
         ne10_fft_r2c_1d_float32(pout, pin, _plan);
         const int n2 = (_n % 2 == 0) ? (_n / 2) : (_n / 2 + 1);
@@ -98,7 +105,7 @@ public:
 private:
     int _n;
     mutable ne10_fft_r2c_cfg_float32_t _plan{nullptr};
-    mutable arr_real _in;
+    mutable arr_real _tm;
 };
 
 }   // namespace
