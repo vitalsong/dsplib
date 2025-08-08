@@ -71,7 +71,6 @@ if (DSPLIB_FFT_BACKEND STREQUAL "fftw")
     endif()
     set(FFT_INCLUDES ${FFTW_INCLUDES})
     set(DSPLIB_EXCLUDE_FFT ON)
-    set(DSPLIB_FFT_CACHE_SIZE 0) # FFTW has its own cache
 elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
     find_package(NE10 REQUIRED)
     if (DSPLIB_USE_FLOAT32)

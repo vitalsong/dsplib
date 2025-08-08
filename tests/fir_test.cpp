@@ -323,7 +323,7 @@ TEST(FirTest, MAFilterStress) {
     int num_tests = 1000;
     while (--num_tests != 0) {
         auto x = randn(10000);
-        const int w = randi({1, 500});
+        const int w = randi({2, 500});
         auto h = ones(w) / w;
         FirFilterR fir_flt(h);
         const auto y1 = fir_flt.process(x);

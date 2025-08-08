@@ -68,7 +68,12 @@ public:
         if (this == &rhs) {
             return *this;
         }
-        mut_slice_t<T>::operator=(slice_t<T>(rhs));
+        this->assign(rhs);
+        return *this;
+    }
+
+    mut_span_t& operator=(const span_t<T>& rhs) {
+        this->assign(rhs);
         return *this;
     }
 
@@ -84,7 +89,7 @@ public:
     }
 
     mut_span_t& operator=(const base_array<T>& rhs) {
-        *this = span_t<T>(rhs.data(), rhs.size());
+        this->assign(rhs);
         return *this;
     }
 
@@ -117,11 +122,32 @@ public:
         return this->data_ + this->count_;
     }
 
+    void assign(span_t<T> rhs) {
+        DSPLIB_ASSERT(this->size() == rhs.size(), "Span size is not equal");
+        if (!is_same_memory(rhs)) {
+            std::memcpy(this->data(), rhs.data(), size() * sizeof(T));
+        } else {
+            std::memmove(this->data(), rhs.data(), size() * sizeof(T));
+        }
+    }
+
     //TODO: add more checks
     mut_span_t slice(int i1, int i2) const {
         DSPLIB_ASSERT((i1 >= 0) && (i1 < this->count_), "invalid range");
         DSPLIB_ASSERT((i2 > i1) && (i2 <= this->count_), "invalid range");
         return mut_span_t(this->data_ + i1, (i2 - i1));
+    }
+
+private:
+    bool is_same_memory(span_t<T> rhs) noexcept {
+        if (this->size() == 0 || rhs.size() == 0) {
+            return false;
+        }
+        auto start1 = this->data();
+        auto end1 = start1 + this->size();
+        auto start2 = rhs.data();
+        auto end2 = start2 + rhs.size();
+        return (start1 < end2) && (start2 < end1);
     }
 };
 
@@ -215,5 +241,39 @@ mut_span_t<T> make_span(base_array<T>& x) noexcept {
 
 using span_real = span_t<real_t>;
 using span_cmplx = span_t<cmplx_t>;
+
+template<typename T>
+class inplace_span_t
+{
+public:
+    explicit inplace_span_t(mut_span_t<T> v) noexcept
+      : d_{std::move(v)} {
+    }
+
+    mut_span_t<T> get() noexcept {
+        return d_;
+    }
+
+private:
+    mut_span_t<T> d_;
+};
+
+template<typename T>
+inplace_span_t<T> inplace(base_array<T>& x) {
+    return inplace_span_t(make_span(x));
+}
+
+template<typename T>
+inplace_span_t<T> inplace(std::vector<T>& x) {
+    return inplace_span_t(make_span(x));
+}
+
+template<typename T>
+inplace_span_t<T> inplace(mut_span_t<T> x) {
+    return inplace_span_t(x);
+}
+
+using inplace_real = inplace_span_t<real_t>;
+using inplace_cmplx = inplace_span_t<cmplx_t>;
 
 }   // namespace dsplib

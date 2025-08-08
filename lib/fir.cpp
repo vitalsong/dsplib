@@ -11,14 +11,15 @@ namespace dsplib {
 namespace {
 
 template<class T>
-static void _conv(const T* restrict x, const T* restrict h, T* restrict r, int nh, int nx) {
+void _conv(T* restrict x, const T* restrict h, int nh, int nx) {
     const int nr = nx - nh + 1;
-    assert(nr > 0);
+    DSPLIB_ASSUME(nr > 0);
     for (int i = 0; i < nr; ++i) {
-        r[i] = 0;
+        T r = 0;
         for (int k = 0; k < nh; ++k) {
-            r[i] += x[i + k] * conj(h[nh - k - 1]);
+            r += x[i + k] * conj(h[nh - k - 1]);
         }
+        x[i] = r;
     }
 }
 
@@ -110,17 +111,12 @@ bool _is_antisymmetric(const dsplib::arr_real& h) {
 
 //-------------------------------------------------------------------------------------------------
 template<>
-arr_real FirFilter<real_t>::conv(const arr_real& x, const arr_real& h) {
-    arr_real r(x.size() - h.size() + 1);
-    _conv(x.data(), h.data(), r.data(), h.size(), x.size());
-    return r;
+void FirFilter<real_t>::conv(mut_span_t<real_t> x, span_t<real_t> h) {
+    _conv(x.data(), h.data(), h.size(), x.size());
 }
-
 template<>
-arr_cmplx FirFilter<cmplx_t>::conv(const arr_cmplx& x, const arr_cmplx& h) {
-    arr_cmplx r(x.size() - h.size() + 1);
-    _conv(x.data(), h.data(), r.data(), h.size(), x.size());
-    return r;
+void FirFilter<cmplx_t>::conv(mut_span_t<cmplx_t> x, span_t<cmplx_t> h) {
+    _conv(x.data(), h.data(), h.size(), x.size());
 }
 
 //-------------------------------------------------------------------------------------------------

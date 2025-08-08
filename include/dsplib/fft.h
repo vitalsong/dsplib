@@ -25,6 +25,14 @@ public:
         r = this->solve(x);
     }
 
+    //inplace FFT implementation
+    virtual void solve(inplace_cmplx inp) const {
+        //default non optimal implementation with temp array
+        auto x = inp.get();
+        const auto y = this->solve(x);
+        x.assign(y);
+    }
+
     [[nodiscard]] virtual int size() const noexcept = 0;
 };
 

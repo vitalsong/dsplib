@@ -32,6 +32,42 @@ T _repelem(const T& x, int n) {
     return r;
 }
 
+}   // namespace
+
+arr_real repelem(const arr_real& x, int n) {
+    return _repelem<arr_real>(x, n);
+}
+
+arr_cmplx repelem(const arr_cmplx& x, int n) {
+    return _repelem<arr_cmplx>(x, n);
+}
+
+//-------------------------------------------------------------------------------------------------
+void flip(inplace_real x) {
+    auto r = x.get();
+    std::reverse(r.begin(), r.end());
+}
+
+void flip(inplace_cmplx x) {
+    auto r = x.get();
+    std::reverse(r.begin(), r.end());
+}
+
+arr_real flip(const arr_real& x) {
+    arr_real r(x);
+    flip(inplace(r));
+    return r;
+}
+
+arr_cmplx flip(const arr_cmplx& x) {
+    arr_cmplx r(x);
+    flip(inplace(r));
+    return r;
+}
+
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<typename T>
 T _from_bytes(const uint8_t* bytes, endian order);
 
@@ -107,74 +143,8 @@ arr_real _from_file(const std::string& file, long count, endian order, long offs
     return res;
 }
 
-template<typename T>
-int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
-    const int max_lag = max(x1.size(), x2.size());
-    const int nfft = 1L << nextpow2(max_lag);
-    const auto s1 = zeropad(x1, nfft);
-    const auto s2 = zeropad(x2, nfft);
-    const auto S1 = fft(s1);
-    const auto S2 = fft(s2);
-    const auto s = ifft(S1 * conj(S2));
-    int delay = argmax(s);
-    if (delay > nfft / 2) {
-        delay = -(nfft - delay);
-    }
-    return -delay;
-}
-
-template<typename T>
-base_array<T> _circshift(const base_array<T>& x, int k) {
-    const int n = x.size();
-    if (n == 1 || k == 0) {
-        return x;
-    }
-    base_array<T> y(n);
-    for (size_t i = 0; i < n; ++i) {
-        const size_t p = (i + k + n) % n;
-        y[i] = x[p];
-    }
-    return y;
-}
-
-template<typename T>
-base_array<T> _fftshift(const base_array<T>& x) {
-    const int n = x.size();
-    if (n == 1) {
-        return x;
-    }
-    const int n2 = n / 2;
-    dsplib::base_array<T> y(x);
-    y.slice(0, n2) = x.slice(n - n2, n);
-    y.slice(n2, n) = x.slice(0, n - n2);
-    return y;
-}
-
 }   // namespace
 
-//-------------------------------------------------------------------------------------------------
-arr_real repelem(const arr_real& x, int n) {
-    return _repelem<arr_real>(x, n);
-}
-
-arr_cmplx repelem(const arr_cmplx& x, int n) {
-    return _repelem<arr_cmplx>(x, n);
-}
-
-//-------------------------------------------------------------------------------------------------
-arr_real flip(const arr_real& x) {
-    arr_real r(x);
-    std::reverse(r.begin(), r.end());
-    return r;
-}
-
-arr_cmplx flip(const arr_cmplx& x) {
-    arr_cmplx r(x);
-    std::reverse(r.begin(), r.end());
-    return r;
-}
-
-//-------------------------------------------------------------------------------------------------
 arr_real from_file(const std::string& file, dtype type, endian order, long offset, long count) {
     switch (type) {
     case dtype::int16:
@@ -220,9 +190,28 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
     auto d = (x[mr] - x[ml]) / (2 * x[mk] - x[ml] - x[mr]);
     return mk - real(d);
 }
-
 //-------------------------------------------------------------------------------------------------
-int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2) {
+namespace {
+
+template<typename T>
+int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
+    const int max_lag = max(x1.size(), x2.size());
+    const int nfft = 1L << nextpow2(max_lag);
+    const auto s1 = zeropad(x1, nfft);
+    const auto s2 = zeropad(x2, nfft);
+    const auto S1 = fft(s1);
+    const auto S2 = fft(s2);
+    const auto s = ifft(S1 * conj(S2));
+    int delay = argmax(s);
+    if (delay > nfft / 2) {
+        delay = -(nfft - delay);
+    }
+    return -delay;
+}
+
+}   // namespace
+
+int finddelay(const arr_real& x1, const arr_real& x2) {
     return _finddelay(x1, x2);
 }
 
@@ -248,6 +237,24 @@ arr_real linspace(real_t x1, real_t x2, size_t n) {
 }
 
 //-------------------------------------------------------------------------------------------------
+namespace {
+
+template<typename T>
+base_array<T> _circshift(const base_array<T>& x, int k) {
+    const int n = x.size();
+    if (n == 1 || k == 0) {
+        return x;
+    }
+    base_array<T> y(n);
+    for (size_t i = 0; i < n; ++i) {
+        const size_t p = (i + k + n) % n;
+        y[i] = x[p];
+    }
+    return y;
+}
+
+}   // namespace
+
 arr_real circshift(const arr_real& x, int k) {
     return _circshift(x, -k);
 }
@@ -255,6 +262,23 @@ arr_real circshift(const arr_real& x, int k) {
 arr_cmplx circshift(const arr_cmplx& x, int k) {
     return _circshift(x, -k);
 }
+
+namespace {
+
+template<typename T>
+base_array<T> _fftshift(const base_array<T>& x) {
+    const int n = x.size();
+    if (n == 1) {
+        return x;
+    }
+    const int n2 = n / 2;
+    dsplib::base_array<T> y(x);
+    y.slice(0, n2) = x.slice(n - n2, n);
+    y.slice(n2, n) = x.slice(0, n - n2);
+    return y;
+}
+
+}   // namespace
 
 arr_real fftshift(const arr_real& x) {
     return _fftshift(x);
@@ -264,6 +288,7 @@ arr_cmplx fftshift(const arr_cmplx& x) {
     return _fftshift(x);
 }
 
+//-------------------------------------------------------------------------------------------------
 arr_cmplx zadoff_chu(int r, int n) {
     DSPLIB_ASSERT((r > 0) && (n > 0), "must be positive");
     DSPLIB_ASSERT((r >= 1) && (r < n), "root must be in range [1, n-1]");
@@ -287,8 +312,11 @@ arr_cmplx zadoff_chu(int r, int n) {
     return expj(arg);
 }
 
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<typename T>
-static base_array<T> _zeropad(span_t<T> x, int n) {
+base_array<T> _zeropad(span_t<T> x, int n) {
     DSPLIB_ASSERT(x.size() <= n, "padding size error");
     if (x.size() == n) {
         return x;
@@ -298,6 +326,8 @@ static base_array<T> _zeropad(span_t<T> x, int n) {
     return r;
 }
 
+}   // namespace
+
 arr_real zeropad(span_t<real_t> x, int n) {
     return _zeropad<real_t>(x, n);
 }
@@ -306,8 +336,11 @@ arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
     return _zeropad<cmplx_t>(x, n);
 }
 
+//-------------------------------------------------------------------------------------------------
+namespace {
+
 template<class T>
-static base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span_t<T> a4, span_t<T> a5) {
+base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span_t<T> a4, span_t<T> a5) {
     std::array<span_t<T>, 5> span_list{a1, a2, a3, a4, a5};
 
     size_t nr = 0;
@@ -326,6 +359,8 @@ static base_array<T> _concatenate(span_t<T> a1, span_t<T> a2, span_t<T> a3, span
     }
     return r;
 }
+
+}   // namespace
 
 arr_real concatenate(span_real x1, span_real x2, span_real x3, span_real x4, span_real x5) {
     return _concatenate<real_t>(x1, x2, x3, x4, x5);

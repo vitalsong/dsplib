@@ -40,24 +40,6 @@ inline arr_real arange(int stop) {
     return arange(0, stop, 1);
 }
 
-//-----------------------------------------------------------------------------------------------------------
-template<typename T1, typename T2, typename T3, class R = typename enable_if_some_float_t<T1, T2, T3>::type>
-[[deprecated("Use arange() instead.")]] arr_real range(T1 start, T2 stop, T3 step = 1) {
-    return arange(start, stop, step);
-}
-
-[[deprecated("Use arange() instead.")]] inline arr_real range(real_t stop) {
-    return arange(0.0, stop, 1.0);
-}
-
-[[deprecated("Use arange() instead.")]] inline arr_real range(int start, int stop, int step = 1) {
-    return arange(start, stop, step);
-}
-
-[[deprecated("Use arange() instead.")]] inline arr_real range(int stop) {
-    return arange(stop);
-}
-
 //join a sequence of arrays
 //TODO: add slice args?
 arr_real concatenate(span_real x1, span_real x2, span_real x3 = {}, span_real x4 = {}, span_real x5 = {});
@@ -82,6 +64,8 @@ arr_cmplx repelem(const arr_cmplx& x, int n);
 //flip order of elements
 arr_real flip(const arr_real& x);
 arr_cmplx flip(const arr_cmplx& x);
+void flip(inplace_real x);
+void flip(inplace_cmplx x);
 
 enum class dtype
 {
@@ -100,60 +84,6 @@ enum class endian
 arr_real from_file(const std::string& file, dtype type = dtype::int16, endian order = endian::little, long offset = 0,
                    long count = std::numeric_limits<long>::max());
 
-//----------------------------------------------------------------------------------------------------------
-template<typename T>
-[[deprecated]] inline arr_real to_real(const T* x, size_t nx) {
-    return dsplib::arr_real(x, nx);
-}
-
-//----------------------------------------------------------------------------------------------------------
-template<typename T>
-[[deprecated]] inline arr_real to_real(const std::vector<T>& arr) {
-    return dsplib::arr_real(arr);
-}
-
-//----------------------------------------------------------------------------------------------------------
-template<typename T>
-[[deprecated]] inline std::vector<T> from_real(const arr_real& arr) {
-    static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
-    static_assert(is_scalar_v<T>, "Type is not scalar");
-    std::vector<T> res(arr.size());
-    for (auto i = 0; i < arr.size(); i++) {
-        res[i] = arr[i];
-    }
-    return res;
-}
-
-template<typename T>
-[[deprecated]] inline arr_cmplx to_complex(const T* x, size_t nx) {
-    DSPLIB_ASSERT(nx % 2 == 0, "Array size is not even");
-    const T* p = x;
-    arr_cmplx r(nx / 2);
-    for (auto i = 0; i < r.size(); i++) {
-        r[i].re = *(p++);
-        r[i].im = *(p++);
-    }
-    return r;
-}
-
-template<typename T>
-[[deprecated]] inline arr_cmplx to_complex(const std::vector<T>& arr) {
-    static_assert(is_scalar_v<T>, "Type is not scalar");
-    return to_complex(arr.data(), arr.size());
-}
-
-template<typename T>
-[[deprecated]] inline std::vector<T> from_complex(const arr_cmplx& arr) {
-    static_assert(is_scalar_v<T>, "Type is not scalar");
-    static_assert(std::is_convertible<real_t, T>::value, "Type is not convertible");
-    std::vector<T> res(arr.size() * 2);
-    for (auto i = 0; i < arr.size(); i++) {
-        res[2 * i] = arr[i].re;
-        res[2 * i + 1] = arr[i].im;
-    }
-    return res;
-}
-
 //add zeros to the end of the array
 arr_real zeropad(span_t<real_t> x, int n);
 arr_cmplx zeropad(span_t<cmplx_t> x, int n);
@@ -161,7 +91,7 @@ arr_cmplx zeropad(span_t<cmplx_t> x, int n);
 //delays or advances the signal by the number of samples specified in delay
 //TODO: fractional delay support
 template<typename T>
-inline base_array<T> delayseq(const base_array<T>& data, int delay) {
+base_array<T> delayseq(const base_array<T>& data, int delay) {
     if (delay == 0) {
         return data;
     }

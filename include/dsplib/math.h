@@ -7,6 +7,8 @@
 
 namespace dsplib {
 
+//TODO: mark noexcept
+
 //exponential
 arr_real exp(const arr_real& arr);
 real_t exp(real_t v);
@@ -53,20 +55,23 @@ int argmin(span_real arr);
 int argmin(span_cmplx arr);
 
 //absolute value and complex magnitude
-arr_real abs(const arr_real& arr);
-real_t abs(real_t v);
-arr_real abs(const arr_cmplx& arr);
-real_t abs(cmplx_t v);
+arr_real abs(const arr_real& arr) noexcept;
+real_t abs(real_t v) noexcept;
+arr_real abs(const arr_cmplx& arr) noexcept;
+real_t abs(cmplx_t v) noexcept;
+void abs(inplace_real arr) noexcept;
 
 //phase angle in the interval [-pi, pi] for each element of a complex array z
 arr_real angle(const arr_cmplx& arr);
 real_t angle(cmplx_t v);
 
 //round
-real_t round(const real_t& x);
-cmplx_t round(const cmplx_t& x);
-arr_real round(const arr_real& arr);
-arr_cmplx round(const arr_cmplx& arr);
+real_t round(const real_t& x) noexcept;
+cmplx_t round(const cmplx_t& x) noexcept;
+arr_real round(const arr_real& arr) noexcept;
+arr_cmplx round(const arr_cmplx& arr) noexcept;
+void round(inplace_real arr) noexcept;
+void round(inplace_cmplx arr) noexcept;
 
 //array sum
 real_t sum(const arr_real& arr);
@@ -113,7 +118,9 @@ arr_real imag(const arr_cmplx& x);
 real_t imag(const cmplx_t& x);
 
 //complex pairing
-arr_cmplx conj(const arr_cmplx& x);
+arr_cmplx conj(const arr_cmplx& x) noexcept;
+
+void conj(inplace_cmplx x) noexcept;
 
 constexpr cmplx_t conj(const cmplx_t& x) noexcept {
     return x.conj();
@@ -181,8 +188,9 @@ arr_cmplx power(const arr_cmplx& x, int n);
 
 //square root (only positive values)
 //TODO: add complex result for negative or complex input
-real_t sqrt(real_t x);
-arr_real sqrt(const arr_real& x);
+real_t sqrt(real_t x) noexcept;
+arr_real sqrt(const arr_real& arr) noexcept;
+void sqrt(inplace_real arr) noexcept;
 
 //array log
 arr_real log(const arr_real& arr);
@@ -210,7 +218,7 @@ arr_real upsample(const arr_real& arr, int n, int phase = 0);
 arr_cmplx upsample(const arr_cmplx& arr, int n, int phase = 0);
 
 //abs(x)^2
-arr_real abs2(const arr_cmplx& x);
+arr_real abs2(const arr_cmplx& x) noexcept;
 
 constexpr real_t abs2(const cmplx_t& x) noexcept {
     return x.abs2();
@@ -269,16 +277,20 @@ inline cmplx_t sign(const cmplx_t& x) noexcept {
 
 //----------------------------------------------------------------------------------------
 //convert power <-> decibels: db = 10 * log10(pow)
-real_t pow2db(real_t v);
-arr_real pow2db(const arr_real& v);
-real_t db2pow(real_t v);
-arr_real db2pow(const arr_real& v);
+real_t pow2db(real_t v) noexcept;
+arr_real pow2db(const arr_real& arr) noexcept;
+real_t db2pow(real_t v) noexcept;
+arr_real db2pow(const arr_real& arr) noexcept;
+void pow2db(inplace_real arr) noexcept;
+void db2pow(inplace_real arr) noexcept;
 
 //convert magnitude <-> decibels: db = 20 * log10(mag)
-real_t mag2db(real_t v);
-arr_real mag2db(const arr_real& v);
-real_t db2mag(real_t v);
-arr_real db2mag(const arr_real& v);
+real_t mag2db(real_t v) noexcept;
+arr_real mag2db(const arr_real& arr) noexcept;
+real_t db2mag(real_t v) noexcept;
+arr_real db2mag(const arr_real& arr) noexcept;
+void mag2db(inplace_real arr) noexcept;
+void db2mag(inplace_real arr) noexcept;
 
 //----------------------------------------------------------------------------------------
 //check that the number is prime
