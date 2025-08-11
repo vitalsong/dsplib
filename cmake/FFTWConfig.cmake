@@ -38,54 +38,44 @@ else()
 endif()
 
 if( FFTW_ROOT )
-  #find libs
-  find_library(
-    FFTW_LIB
+  find_library(FFTW_LIB
     NAMES "fftw3"
     PATHS ${FFTW_ROOT}
     PATH_SUFFIXES "lib" "lib64"
     NO_DEFAULT_PATH
   )
-  find_library(
-    FFTWF_LIB
+  find_library(FFTWF_LIB
     NAMES "fftw3f"
     PATHS ${FFTW_ROOT}
     PATH_SUFFIXES "lib" "lib64"
     NO_DEFAULT_PATH
   )
-  find_library(
-    FFTWL_LIB
+  find_library(FFTWL_LIB
     NAMES "fftw3l"
     PATHS ${FFTW_ROOT}
     PATH_SUFFIXES "lib" "lib64"
     NO_DEFAULT_PATH
   )
-  #find includes
-  find_path(
-    FFTW_INCLUDES
+  find_path(FFTW_INCLUDES
     NAMES "fftw3.h"
     PATHS ${FFTW_ROOT}
     PATH_SUFFIXES "include"
     NO_DEFAULT_PATH
   )
 else()
-  find_library(
-    FFTW_LIB
+  find_library(FFTW_LIB
     NAMES "fftw3"
     PATHS ${PKG_FFTW_LIBRARY_DIRS} ${LIB_INSTALL_DIR}
   )
-  find_library(
-    FFTWF_LIB
+  find_library(FFTWF_LIB
     NAMES "fftw3f"
     PATHS ${PKG_FFTW_LIBRARY_DIRS} ${LIB_INSTALL_DIR}
   )
-  find_library(
-    FFTWL_LIB
+  find_library(FFTWL_LIB
     NAMES "fftw3l"
     PATHS ${PKG_FFTW_LIBRARY_DIRS} ${LIB_INSTALL_DIR}
   )
-  find_path(
-    FFTW_INCLUDES
+  find_path(FFTW_INCLUDES
     NAMES "fftw3.h"
     PATHS ${PKG_FFTW_INCLUDE_DIRS} ${INCLUDE_INSTALL_DIR}
   )
@@ -94,6 +84,27 @@ endif()
 set(FFTW_LIBRARIES ${FFTW_LIB} ${FFTWF_LIB})
 if(FFTWL_LIB)
   set(FFTW_LIBRARIES ${FFTW_LIBRARIES} ${FFTWL_LIB})
+endif()
+
+ # create imported target
+if(NOT TARGET FFTW::fftw3)
+    add_library(FFTW::fftw3f UNKNOWN IMPORTED)
+    set_target_properties(FFTW::fftw3f PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDES}"
+        IMPORTED_LOCATION "${FFTWF_LIB}"
+    )
+    add_library(FFTW::fftw3 UNKNOWN IMPORTED)
+    set_target_properties(FFTW::fftw3 PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDES}"
+        IMPORTED_LOCATION "${FFTW_LIB}"
+    )
+    if (FFTWL_LIB)
+      add_library(FFTW::fftw3l UNKNOWN IMPORTED)
+      set_target_properties(FFTW::fftw3l PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDES}"
+          IMPORTED_LOCATION "${FFTWL_LIB}"
+      )
+    endif()
 endif()
 
 set( CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_SAV} )

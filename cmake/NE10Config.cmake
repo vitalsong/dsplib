@@ -20,41 +20,49 @@ endif()
 
 include(CMakeFindDependencyMacro)
 
-#Check whether to search static or dynamic libs
+# search only static lib
 set( CMAKE_FIND_LIBRARY_SUFFIXES_SAV ${CMAKE_FIND_LIBRARY_SUFFIXES} )
 set( CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX} )
 
 if( NE10_ROOT )
-  find_library(
-    NE10_LIB
-    NAMES "NE10"
+  find_library(NE10_LIB
+    NAMES "NE10" "ne10"
     PATHS ${NE10_ROOT}
     PATH_SUFFIXES "lib" "lib64"
     NO_DEFAULT_PATH
   )
-  find_path(
-    NE10_INCLUDES
+  find_path(NE10_INCLUDES
     NAMES "NE10.h"
     PATHS ${NE10_ROOT}
     PATH_SUFFIXES "include"
     NO_DEFAULT_PATH
   )
 else()
-  find_library(
-    NE10_LIB
-    NAMES "NE10"
+  find_library(NE10_LIB
+    NAMES "NE10" "ne10"
     PATHS ${LIB_INSTALL_DIR}
   )
-  find_path(
-    NE10_INCLUDES
+  find_path(NE10_INCLUDES
     NAMES "NE10.h"
     PATHS ${INCLUDE_INSTALL_DIR}
   )
 endif()
 
-set(NE10_LIBRARIES ${NE10_LIB})
-
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_SAV})
+
+if(NOT TARGET NE10)
+    # create imported target
+    add_library(NE10 UNKNOWN IMPORTED)
+    set_target_properties(NE10 PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${NE10_INCLUDES}"
+        IMPORTED_LOCATION "${NE10_LIB}"
+    )
+else()
+  get_target_property(NE10_INCLUDES NE10 INTERFACE_INCLUDE_DIRECTORIES)
+  set(NE10_LIB "NE10")
+endif()
+
+set(NE10_LIBRARIES ${NE10_LIB})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NE10 DEFAULT_MSG NE10_INCLUDES NE10_LIBRARIES)
