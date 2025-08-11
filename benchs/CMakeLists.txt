@@ -52,6 +52,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE KISSFFT_SUPPORT)
 
 find_package(FFTW)
 if(FFTW_FOUND)
-  target_link_libraries(${PROJECT_NAME} ${FFTW_LIB})
+  target_link_libraries(${PROJECT_NAME} FFTW::fftw3)
   target_compile_definitions(${PROJECT_NAME} PRIVATE FFTW_SUPPORT)
 endif()

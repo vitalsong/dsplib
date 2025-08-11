@@ -58,27 +58,23 @@ set(DSPLIB_SOURCES
 list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # config fft backend
-set(FFT_LIBS)
-set(FFT_INCLUDES)
+set(FFT_LIB)
 if (DSPLIB_FFT_BACKEND STREQUAL "fftw")
     find_package(FFTW REQUIRED)
     if (DSPLIB_USE_FLOAT32)
-        set(FFT_LIBS ${FFTWF_LIB})
+        set(FFT_LIB "FFTW::fftw3f")
         list(APPEND DSPLIB_SOURCES lib/fft/fftw3f.cpp)
     else()
-        set(FFT_LIBS ${FFTW_LIB})
+        set(FFT_LIB "FFTW::fftw3")
         list(APPEND DSPLIB_SOURCES lib/fft/fftw3.cpp)
     endif()
-    set(FFT_INCLUDES ${FFTW_INCLUDES})
     set(DSPLIB_EXCLUDE_FFT ON)
 elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
-    find_package(NE10 REQUIRED)
-    if (DSPLIB_USE_FLOAT32)
-        set(FFT_LIBS ${NE10_LIBRARIES})
-    else()
-        message(FATAL_ERROR "supported only float32")
+    if (NOT DSPLIB_USE_FLOAT32)
+        message(FATAL_ERROR "supported only with float32")
     endif()
-    set(FFT_INCLUDES ${NE10_INCLUDES})
+    find_package(NE10 REQUIRED)
+    set(FFT_LIB "NE10")
     list(APPEND DSPLIB_SOURCES lib/fft/ne10.cpp)
     set(DSPLIB_EXCLUDE_FFT ON)
 endif()
@@ -107,7 +103,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} 
-    PRIVATE ${FFT_LIBS}
+    PRIVATE ${FFT_LIB}
 )
 
 # check root project
