@@ -11,10 +11,14 @@ namespace dsplib {
 
 namespace {
 
+constexpr int MIN_NFFT = 16;
+
 //generate a half of bitrev table
 //table is symmetry, table(n/2, n) == table(0, n/2)+1
 std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
-    DSPLIB_ASSUME(n % 4 == 0);
+    DSPLIB_ASSUME(n >= MIN_NFFT);
+    DSPLIB_ASSUME(n % MIN_NFFT == 0);
+
     std::vector<int32_t> res(n / 2);
     int h = 1;
     const int s = nextpow2(n);
@@ -32,7 +36,9 @@ std::vector<int32_t> _gen_bitrev_table(int n) noexcept {
 
 //generate exp(-1i * 2 * pi * t / n) table
 std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
-    DSPLIB_ASSUME(n % 4 == 0);
+    DSPLIB_ASSUME(n >= MIN_NFFT);
+    DSPLIB_ASSUME(n % MIN_NFFT == 0);
+
     const int n4 = n / 4;
     const int n2 = n / 2;
     std::vector<cmplx_t> tb(n / 2);
@@ -52,7 +58,9 @@ std::vector<cmplx_t> _gen_coeffs_table(int n) noexcept {
 
 //bit reverse array permutation
 void _bitreverse(const cmplx_t* restrict x, cmplx_t* restrict y, const int32_t* restrict bitrev, int n) noexcept {
-    DSPLIB_ASSUME(n % 2 == 0);
+    DSPLIB_ASSUME(n >= MIN_NFFT);
+    DSPLIB_ASSUME(n % MIN_NFFT == 0);
+
     const int n2 = n / 2;
     for (int i = 0; i < n2; ++i) {
         const auto k = bitrev[i];
@@ -69,6 +77,7 @@ Pow2FftPlan::Pow2FftPlan(int n)
   , bitrev_{_gen_bitrev_table(n)}
   , coeffs_{_gen_coeffs_table(n)} {
     DSPLIB_ASSERT(ispow2(n), "FFT size must be power of 2");
+    DSPLIB_ASSERT(n >= MIN_NFFT, "Use `SmallFft` for n <= 8");
 }
 
 void Pow2FftPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
@@ -87,10 +96,10 @@ int Pow2FftPlan::size() const noexcept {
     return n_;
 }
 
+//TODO: use fft<int N> template
 void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n) const noexcept {
-    DSPLIB_ASSUME(n % 2 == 0);
-    DSPLIB_ASSUME(n >= 2);
-    DSPLIB_ASSUME(n == (1L << l_));
+    DSPLIB_ASSUME(n >= MIN_NFFT);
+    DSPLIB_ASSUME(n % MIN_NFFT == 0);
 
     //reverse sampling
     _bitreverse(in, out, bitrev_.data(), n);
@@ -103,7 +112,6 @@ void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n)
     for (int i = 0; i < l_; ++i) {
         cmplx_t* px1 = out;
         cmplx_t* px2 = out + h;
-        DSPLIB_ASSUME(px1 != px2);
         for (uint32_t j = 0; j < m; ++j) {
             for (uint32_t k = 0; k < h; ++k) {
                 const cmplx_t x1 = px1[k];
@@ -114,7 +122,6 @@ void Pow2FftPlan::_fft(const cmplx_t* restrict in, cmplx_t* restrict out, int n)
                 px1[k].re = x1.re + p.re;
                 px1[k].im = x1.im + p.im;
             }
-            DSPLIB_ASSUME(r % 2 == 0);
             px1 += r;
             px2 += r;
         }

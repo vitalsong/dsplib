@@ -140,9 +140,13 @@ arr_cmplx complex(span_real re);
 
 //the nearest power of two numbers (with rounding up)
 constexpr int nextpow2(int m) noexcept {
+    assert(m >= 0);
+
     if ((m == 0) || (m == 1)) {
         return 0;
     }
+
+    //TODO: if pow2 - use __builtin_ctz
 
     int p = 0;
     while ((m >> p) != 0) {
@@ -159,7 +163,8 @@ constexpr int nextpow2(int m) noexcept {
 
 //checks if m is an integral power of two
 constexpr bool ispow2(int m) noexcept {
-    return (int(1) << nextpow2(m)) == m;
+    assert(m >= 0);
+    return (m > 0) && (m & (m - 1)) == 0;
 }
 
 //scalar^scalar->scalar
