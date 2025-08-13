@@ -6,14 +6,14 @@ FIRDecimator::FIRDecimator(int decim)
   : FIRDecimator(decim, design_multirate_fir(1, decim)) {
 }
 
-FIRDecimator::FIRDecimator(int decim, const arr_real& h)
+FIRDecimator::FIRDecimator(int decim, span_real h)
   : decim_{decim} {
     h_ = polyphase(h, decim_, 1.0, false);
     sublen_ = h_[0].size();
     d_ = zeros(decim_ * (sublen_ - 1));
 }
 
-arr_real FIRDecimator::process(const arr_real& in) {
+arr_real FIRDecimator::process(span_real in) {
     const int nx = in.size();
     const int nd = d_.size();
 

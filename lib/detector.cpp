@@ -57,7 +57,7 @@ private:
 class PreambleDetectorImpl
 {
 public:
-    explicit PreambleDetectorImpl(const arr_cmplx& h, real_t threshold)
+    explicit PreambleDetectorImpl(span_cmplx h, real_t threshold)
       : _corr_flt{_convert_impulse(h)}
       , _pow_flt{h.size()}
       , _threshold{threshold * threshold}
@@ -94,7 +94,7 @@ public:
     }
 
 private:
-    static arr_cmplx _convert_impulse(const arr_cmplx& h) {
+    static arr_cmplx _convert_impulse(span_cmplx h) {
         return flip(h) / (rms(h) * h.size());
     }
 
@@ -105,12 +105,12 @@ private:
 };
 
 //---------------------------------------------------------------------------------------------------------------
-PreambleDetector::PreambleDetector(const arr_cmplx& h, real_t threshold) {
+PreambleDetector::PreambleDetector(span_cmplx h, real_t threshold) {
     _d = std::make_shared<PreambleDetectorImpl>(h, threshold);
 }
 
-std::optional<PreambleDetector::Result> PreambleDetector::process(const arr_cmplx& sig) {
-    return _d->process(sig);
+std::optional<PreambleDetector::Result> PreambleDetector::process(span_cmplx x) {
+    return _d->process(x);
 }
 
 [[nodiscard]] int PreambleDetector::frame_len() const noexcept {

@@ -9,7 +9,7 @@ namespace dsplib {
 
 namespace {
 
-arr_real real_hilbert(const arr_cmplx& h) {
+arr_real real_hilbert(span_cmplx h) {
     return imag(h) * 2;
 }
 
@@ -39,13 +39,13 @@ arr_cmplx HilbertFilter::design_fir(int flen, real_t fs, real_t f1) {
     return hh;
 }
 
-HilbertFilter::HilbertFilter(const arr_real& h)
+HilbertFilter::HilbertFilter(span_real h)
   : _fir(h)
   , _d{h.size() / 2} {
     DSPLIB_ASSERT(firtype(h) == FirType::EvenAntiSym, "Only firtype 3 supported");
 }
 
-arr_cmplx HilbertFilter::process(const arr_real& s) {
+arr_cmplx HilbertFilter::process(span_real s) {
     const int n = s.size();
 
     arr_cmplx r(n);
@@ -63,11 +63,11 @@ arr_cmplx HilbertFilter::process(const arr_real& s) {
     return r;
 }
 
-const arr_real& HilbertFilter::impz() const {
+span_real HilbertFilter::impz() const {
     return _fir.coeffs();
 }
 
-arr_cmplx hilbert(const arr_real& x) {
+arr_cmplx hilbert(span_real x) {
     const int n = x.size();
     arr_cmplx r = fft(x) * 2;
     r.slice(n / 2 + 1, n) = 0;
@@ -75,7 +75,7 @@ arr_cmplx hilbert(const arr_real& x) {
     return r;
 }
 
-arr_cmplx hilbert(const arr_real& x, int n) {
+arr_cmplx hilbert(span_real x, int n) {
     if (n > x.size()) {
         return hilbert(zeropad(x, n));
     }

@@ -167,15 +167,15 @@ arr_real _periodogram(const arr_real& sig) {
 }   // namespace
 
 //------------------------------------------------------------------------------------
-real_t sinad(const arr_real& sig, SinadType type) {
-    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+real_t sinad(span_real sig, SinadType type) {
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : arr_real(sig);
     auto info = _harm_analyze(pxx, 1);
     return pow2db(info.harmpow[0] / info.noisepow);
 }
 
-ThdRes thd(const arr_real& sig, int nharm, bool aliased, SinadType type) {
+ThdRes thd(span_real sig, int nharm, bool aliased, SinadType type) {
     DSPLIB_ASSERT(nharm > 1, "number of harmonics must be 2 or greater");
-    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : arr_real(sig);
     const auto info = _harm_analyze(pxx, nharm, aliased);
     ThdRes res;
     const auto harm_sum = sum(info.harmpow.slice(1, nharm));
@@ -185,8 +185,8 @@ ThdRes thd(const arr_real& sig, int nharm, bool aliased, SinadType type) {
     return res;
 }
 
-real_t snr(const arr_real& sig, int nharm, bool aliased, SinadType type) {
-    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : sig;
+real_t snr(span_real sig, int nharm, bool aliased, SinadType type) {
+    const auto pxx = (type == SinadType::Time) ? _periodogram(sig) : arr_real(sig);
     auto info = _harm_analyze(pxx, nharm, aliased);
     return pow2db(info.harmpow[0] / info.noisepow);
 }

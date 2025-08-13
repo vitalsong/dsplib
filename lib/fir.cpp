@@ -23,7 +23,7 @@ void _conv(T* restrict x, const T* restrict h, int nh, int nx) {
     }
 }
 
-arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
+arr_real _lowpass_fir(int n, real_t wn, span_real win) {
     if (win.size() != (n + 1)) {
         DSPLIB_THROW("Window must be n+1 elements");
     }
@@ -48,7 +48,7 @@ arr_real _lowpass_fir(int n, real_t wn, const arr_real& win) {
     return h;
 }
 
-arr_real _highpass_fir(int n, real_t wn, const arr_real& win) {
+arr_real _highpass_fir(int n, real_t wn, span_real win) {
     wn = 1 - wn;
     int t1 = 0;
     if (n % 2 == 1) {
@@ -62,7 +62,7 @@ arr_real _highpass_fir(int n, real_t wn, const arr_real& win) {
     return h;
 }
 
-arr_real _bandpass_fir(int n, real_t wn1, real_t wn2, const arr_real& win) {
+arr_real _bandpass_fir(int n, real_t wn1, real_t wn2, span_real win) {
     wn1 = wn1 / 2;
     wn2 = wn2 / 2;
     auto wp = (wn2 - wn1) / 2;
@@ -73,7 +73,7 @@ arr_real _bandpass_fir(int n, real_t wn1, real_t wn2, const arr_real& win) {
     return h;
 }
 
-arr_real _bandstop_fir(int n, real_t wn1, real_t wn2, const arr_real& win) {
+arr_real _bandstop_fir(int n, real_t wn1, real_t wn2, span_real win) {
     if (n % 2 == 1) {
         n += 1;
     }
@@ -87,7 +87,7 @@ bool _equal(const real_t& x1, const real_t& x2) {
     return (abs(x1 - x2) < 2 * eps());
 }
 
-bool _is_symmetric(const dsplib::arr_real& h) {
+bool _is_symmetric(span_real h) {
     const int n = h.size();
     for (int i = 0; i < n / 2; i++) {
         if (!_equal(h[i], h[n - i - 1])) {
@@ -97,7 +97,7 @@ bool _is_symmetric(const dsplib::arr_real& h) {
     return true;
 }
 
-bool _is_antisymmetric(const dsplib::arr_real& h) {
+bool _is_antisymmetric(span_real h) {
     const int n = h.size();
     for (int i = 0; i < n / 2; i++) {
         if (!_equal(h[i], -h[n - i - 1])) {
@@ -120,7 +120,7 @@ void FirFilter<cmplx_t>::conv(mut_span_t<cmplx_t> x, span_t<cmplx_t> h) {
 }
 
 //-------------------------------------------------------------------------------------------------
-FftFilter::FftFilter(const arr_cmplx& h)
+FftFilter::FftFilter(span_cmplx h)
   : _m{h.size()} {
     const int fft_len = 1L << nextpow2(2 * h.size());
     _n = fft_len - h.size() + 1;
@@ -130,11 +130,11 @@ FftFilter::FftFilter(const arr_cmplx& h)
     _x = complex(zeros(fft_len));
 }
 
-FftFilter::FftFilter(const arr_real& h)
+FftFilter::FftFilter(span_real h)
   : FftFilter(complex(h)) {
 }
 
-arr_cmplx FftFilter::process(const arr_cmplx& x) {
+arr_cmplx FftFilter::process(span_cmplx x) {
     const int nr = (x.size() + _nx) / _n * _n;
     arr_cmplx r(nr);
     cmplx_t* pr = r.data();
@@ -160,7 +160,7 @@ arr_cmplx FftFilter::process(const arr_cmplx& x) {
     return r;
 }
 
-arr_real FftFilter::process(const arr_real& x) {
+arr_real FftFilter::process(span_real x) {
     //TODO: real optimization
     return real(process(complex(x)));
 }
@@ -211,7 +211,7 @@ arr_real fir1(int n, real_t wn1, real_t wn2, FilterType ftype) {
 }
 
 //----------------------------------------------------------------------------------------------
-FirType firtype(const dsplib::arr_real& h) {
+FirType firtype(span_real h) {
     const int n = h.size();
 
     if (n == 1) {

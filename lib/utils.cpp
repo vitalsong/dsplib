@@ -194,7 +194,7 @@ real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
 namespace {
 
 template<typename T>
-int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
+int _finddelay(span_t<T> x1, span_t<T> x2) {
     const int max_lag = max(x1.size(), x2.size());
     const int nfft = 1L << nextpow2(max_lag);
     const auto s1 = zeropad(x1, nfft);
@@ -211,11 +211,11 @@ int _finddelay(const base_array<T>& x1, const base_array<T>& x2) {
 
 }   // namespace
 
-int finddelay(const arr_real& x1, const arr_real& x2) {
+int finddelay(span_real x1, span_real x2) {
     return _finddelay(x1, x2);
 }
 
-int finddelay(const arr_cmplx& x1, const arr_cmplx& x2) {
+int finddelay(span_cmplx x1, span_cmplx x2) {
     return _finddelay(x1, x2);
 }
 

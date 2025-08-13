@@ -16,7 +16,7 @@ class BypassResampler : public IResampler
 {
 public:
     explicit BypassResampler() = default;
-    arr_real process(const arr_real& sig) final {
+    arr_real process(span_real sig) final {
         return sig;
     }
 };
@@ -55,17 +55,17 @@ arr_real design_multirate_fir(int interp, int decim, int hlen, real_t astop) {
     return _multirate_fir(p, q, hlen, beta);
 }
 
-std::vector<arr_real> IResampler::polyphase(arr_real h, int m, real_t gain, bool flip_coeffs) {
+std::vector<arr_real> IResampler::polyphase(span_real h, int m, real_t gain, bool flip_coeffs) {
     const int nh = (h.size() % m == 0) ? (h.size()) : ((h.size() / m + 1) * m);
-    h = zeropad(h, nh);
-    h /= sum(h);
+    auto ph = zeropad(h, nh);
+    ph /= sum(h);
     assert(nh % m == 0);
     const int n = nh / m;
     auto r = std::vector<arr_real>(m, zeros(n));
     for (int i = 0; i < m; ++i) {
         int ih = (m + i) % m;
         for (int k = 0; k < n; ++k) {
-            r[i][k] = h[ih] * gain;
+            r[i][k] = ph[ih] * gain;
             ih += m;
         }
     }
@@ -103,7 +103,7 @@ FIRResampler::FIRResampler(int out_fs, int in_fs)
   : FIRResampler(out_fs, in_fs, design_multirate_fir(out_fs, in_fs)) {
 }
 
-FIRResampler::FIRResampler(int out_fs, int in_fs, const arr_real& h) {
+FIRResampler::FIRResampler(int out_fs, int in_fs, span_real h) {
     const auto [m, d] = IResampler::simplify(out_fs, in_fs);
 
     if (m == d) {
@@ -140,12 +140,12 @@ int FIRResampler::decim_rate() const noexcept {
     return rsmp_->decim_rate();
 }
 
-arr_real FIRResampler::process(const arr_real& sig) {
+arr_real FIRResampler::process(span_real sig) {
     return rsmp_->process(sig);
 }
 
 //------------------------------------------------------------------------------
-arr_real resample(const arr_real& x, int p_, int q_, int n, real_t beta) {
+arr_real resample(span_real x, int p_, int q_, int n, real_t beta) {
     const auto [p, q] = IResampler::simplify(p_, q_);
     if (p == q) {
         return x;
@@ -155,7 +155,7 @@ arr_real resample(const arr_real& x, int p_, int q_, int n, real_t beta) {
     return resample(x, p, q, h);
 }
 
-arr_real resample(const arr_real& x, int p_, int q_, const arr_real& h) {
+arr_real resample(span_real x, int p_, int q_, span_real h) {
     const auto [p, q] = IResampler::simplify(p_, q_);
     if (p == q) {
         return x;

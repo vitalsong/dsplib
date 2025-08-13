@@ -5,7 +5,11 @@
 namespace dsplib {
 
 //add white Gaussian noise to signal
-arr_real awgn(const arr_real& arr, real_t snr);
-arr_cmplx awgn(const arr_cmplx& arr, real_t snr);
+//in matlab: awgn(x, snr, 'measured')
+arr_real awgn(span_real arr, real_t snr);
+arr_cmplx awgn(span_cmplx arr, real_t snr);
 
-}   ///< dsplib
+void awgn(inplace_real arr, real_t snr);
+void awgn(inplace_cmplx arr, real_t snr);
+
+}   // namespace dsplib

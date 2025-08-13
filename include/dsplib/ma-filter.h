@@ -94,7 +94,7 @@ public:
      * Equivalent to sequential processing of each sample.
      * For better performance on large arrays, consider block processing optimization.
      */
-    base_array<T> process(const base_array<T>& in) noexcept {
+    base_array<T> process(span_t<T> in) noexcept {
         if (w_ == 1) {
             return in;
         }
@@ -125,7 +125,7 @@ public:
      * 
      * @see process()
      */
-    base_array<T> operator()(const base_array<T>& x) noexcept {
+    base_array<T> operator()(span_t<T> x) noexcept {
         return this->process(x);
     }
 

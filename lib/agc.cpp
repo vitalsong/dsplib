@@ -6,7 +6,6 @@
 
 namespace dsplib {
 
-//------------------------------------------------------------------------------------------
 struct AgcImpl
 {
     real_t trise{0.01};        ///< step size for gain updates (rise)
@@ -17,9 +16,8 @@ struct AgcImpl
     MAFilterR maflt{100};      ///< moving average filter (power)
 };
 
-//------------------------------------------------------------------------------------------
 template<typename T>
-static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
+static Agc::Result<T> _process(AgcImpl& agc, span_t<T> x) {
     static const auto e = dsplib::eps();
     const int nx = x.size();
     base_array<T> out(nx);
@@ -45,7 +43,6 @@ static Agc::Result<T> _process(AgcImpl& agc, const base_array<T>& x) {
     return {out, gain};
 }
 
-//------------------------------------------------------------------------------------------
 Agc::Agc(real_t target_level, real_t max_gain, int average_len, real_t t_rise, real_t t_fall) {
     _d = std::make_shared<AgcImpl>();
     DSPLIB_ASSERT(average_len > 0, "average_len must be greater 0");
@@ -56,13 +53,11 @@ Agc::Agc(real_t target_level, real_t max_gain, int average_len, real_t t_rise, r
     _d->maflt = MAFilterR(average_len);
 }
 
-//------------------------------------------------------------------------------------------
-Agc::Result<real_t> Agc::process(const arr_real& x) {
+Agc::Result<real_t> Agc::process(span_real x) {
     return _process(*_d, x);
 }
 
-//------------------------------------------------------------------------------------------
-Agc::Result<cmplx_t> Agc::process(const arr_cmplx& x) {
+Agc::Result<cmplx_t> Agc::process(span_cmplx x) {
     return _process(*_d, x);
 }
 

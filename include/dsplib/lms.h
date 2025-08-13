@@ -36,17 +36,17 @@ public:
         base_array<T> e;   //error
     };
 
-    Result operator()(const base_array<T>& x, const base_array<T>& d) {
+    Result operator()(span_t<T> x, span_t<T> d) {
         return this->process(x, d);
     }
 
-    Result process(const base_array<T>& x, const base_array<T>& d) {
+    Result process(span_t<T> x, span_t<T> d) {
         DSPLIB_ASSERT(x.size() == d.size(), "vector size error: len(x) != len(d)");
 
         int nx = x.size();
         base_array<T> y(nx);
         base_array<T> e(nx);
-        base_array<T> tu = _u | x;
+        base_array<T> tu = concatenate(_u, x);
         arr_real tu2 = (_method == LmsType::NLMS) ? abs2(tu) : arr_real{};
 
         //update delay
@@ -97,6 +97,7 @@ public:
         return _locked;
     }
 
+    //TODO: return span
     base_array<T> coeffs() const {
         return flip(_w);
     }

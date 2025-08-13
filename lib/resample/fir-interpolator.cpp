@@ -7,14 +7,14 @@ FIRInterpolator::FIRInterpolator(int interp)
   : FIRInterpolator{interp, design_multirate_fir(interp, 1)} {
 }
 
-FIRInterpolator::FIRInterpolator(int interp, const arr_real& h)
+FIRInterpolator::FIRInterpolator(int interp, span_real h)
   : interp_{interp} {
     h_ = polyphase(h, interp_, real_t(interp_), true);
     sublen_ = h_[0].size();
     d_ = zeros(sublen_ - 1);
 }
 
-arr_real FIRInterpolator::process(const arr_real& in) {
+arr_real FIRInterpolator::process(span_real in) {
     const int nx = in.size();
     const int nh = sublen_;
     const int nd = d_.size();

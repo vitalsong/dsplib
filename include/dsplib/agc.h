@@ -26,11 +26,15 @@ public:
         arr_real gain;
     };
 
-    Result<real_t> process(const arr_real& x);
-    Result<cmplx_t> process(const arr_cmplx& x);
+    Result<real_t> process(span_real x);
 
-    template<typename T>
-    Result<T> operator()(const base_array<T>& x) {
+    Result<cmplx_t> process(span_cmplx x);
+
+    Result<real_t> operator()(span_real x) {
+        return this->process(x);
+    }
+
+    Result<cmplx_t> operator()(span_cmplx x) {
         return this->process(x);
     }
 

@@ -29,7 +29,7 @@ public:
      * @param num_bands Number of frequency bands
      * @param decim_factor Decimation factor [1 : M-1]
      */
-    explicit Channelizer(const arr_real& filter, int num_bands, int decim_factor);
+    explicit Channelizer(span_real filter, int num_bands, int decim_factor);
 
     /**
      * @brief Construct Channelizer
@@ -54,9 +54,9 @@ public:
      * @param x Input broadband signal [num_bands / decim_factor]
      * @return arr_cmplx Subband signal [num_bands]
      */
-    [[nodiscard]] arr_cmplx process(const arr_real& x);
+    [[nodiscard]] arr_cmplx process(span_real x);
 
-    arr_cmplx operator()(const arr_real& x) {
+    arr_cmplx operator()(span_real x) {
         return this->process(x);
     }
 
@@ -92,7 +92,7 @@ public:
      * @param num_bands Number of frequency bands
      * @param decim_factor Decimation factor [1 : M-1]
      */
-    explicit ChannelSynthesizer(const arr_real& filter, int num_bands, int decim_factor);
+    explicit ChannelSynthesizer(span_real filter, int num_bands, int decim_factor);
 
     /**
      * @brief Construct ChannelSynthesizer
@@ -117,9 +117,9 @@ public:
      * @param x Input subband signal [num_bands]
      * @return arr_cmplx Restored broadband signal [num_bands / decim_factor]
      */
-    [[nodiscard]] arr_real process(const arr_cmplx& x);
+    [[nodiscard]] arr_real process(span_cmplx x);
 
-    arr_real operator()(const arr_cmplx& x) {
+    arr_real operator()(span_cmplx x) {
         return this->process(x);
     }
 

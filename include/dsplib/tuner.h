@@ -19,7 +19,7 @@ public:
         DSPLIB_ASSERT(std::abs(_freq) <= (_fs / 2), "tuner freq must be in range (-fs/2 : fs/2)");
     }
 
-    arr_cmplx process(const arr_cmplx& x) {
+    arr_cmplx process(span_cmplx x) {
         const int n = x.size();
         arr_cmplx r(n);
         for (int i = 0; i < n; i++) {
@@ -40,7 +40,7 @@ public:
         return _fs;
     }
 
-    arr_cmplx operator()(const arr_cmplx& x) {
+    arr_cmplx operator()(span_cmplx x) {
         return this->process(x);
     }
 

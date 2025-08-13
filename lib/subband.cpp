@@ -15,7 +15,7 @@ namespace {
 class MatView
 {
 public:
-    explicit MatView(const arr_real& x, int n, int m)
+    explicit MatView(span_t<real_t> x, int n, int m)
       : n_{n}
       , m_{m}
       , data_{x} {
@@ -38,7 +38,7 @@ private:
 class MutMatView
 {
 public:
-    explicit MutMatView(arr_real& x, int n, int m)
+    explicit MutMatView(mut_span_t<real_t> x, int n, int m)
       : n_{n}
       , m_{m}
       , data_{x} {
@@ -93,7 +93,7 @@ public:
         return smps_[time];
     }
 
-    void push(const arr_real& s, bool reverse = false) {
+    void push(span_real s, bool reverse = false) {
         DSPLIB_ASSERT(s.size() == len_, "input size error");
         sample_idx_ = (sample_idx_ + 1) % period_;
         auto next_frame = smps_[sample_idx_];
@@ -165,7 +165,7 @@ public:
       , fft_{fft_plan_r(num_bands)} {
     }
 
-    [[nodiscard]] arr_cmplx process(const arr_real& x) {
+    [[nodiscard]] arr_cmplx process(span_real x) {
         DSPLIB_ASSERT(x.size() == d_, "input vector size error");
 
         gsi_.push(x);
@@ -213,7 +213,7 @@ public:
       , ifft_{ifft_plan_r(num_bands)} {
     }
 
-    arr_real process(const dsplib::arr_cmplx& x) {
+    arr_real process(span_cmplx x) {
         DSPLIB_ASSERT(x.size() == nbands_, "input vector size error");
 
         auto xx = ifft_->solve(x);
@@ -258,7 +258,7 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------------------
-Channelizer::Channelizer(const arr_real& filter, int num_bands, int decim_factor)
+Channelizer::Channelizer(span_real filter, int num_bands, int decim_factor)
   : Channelizer(std::make_shared<dsplib::arr_real>(filter), num_bands, decim_factor) {
 }
 
@@ -274,7 +274,7 @@ Channelizer::Channelizer(int num_bands, int decim_factor, int num_taps)
   : Channelizer(_design_filter(num_bands, num_taps), num_bands, decim_factor) {
 }
 
-arr_cmplx Channelizer::process(const arr_real& x) {
+arr_cmplx Channelizer::process(span_real x) {
     return d_->process(x);
 }
 
@@ -283,7 +283,7 @@ int Channelizer::frame_len() const noexcept {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-ChannelSynthesizer::ChannelSynthesizer(const arr_real& filter, int num_bands, int decim_factor)
+ChannelSynthesizer::ChannelSynthesizer(span_real filter, int num_bands, int decim_factor)
   : ChannelSynthesizer(std::make_shared<dsplib::arr_real>(filter), num_bands, decim_factor) {
 }
 
@@ -299,7 +299,7 @@ ChannelSynthesizer::ChannelSynthesizer(int num_bands, int decim_factor, int num_
   : ChannelSynthesizer(_design_filter(num_bands, num_taps), num_bands, decim_factor) {
 }
 
-arr_real ChannelSynthesizer::process(const arr_cmplx& x) {
+arr_real ChannelSynthesizer::process(span_cmplx x) {
     return d_->process(x);
 }
 
