@@ -10,19 +10,19 @@ namespace dsplib {
 //TODO: mark noexcept
 
 //exponential
-arr_real exp(const arr_real& arr);
+arr_real exp(span_real arr);
 real_t exp(real_t v);
-arr_cmplx exp(const arr_cmplx& arr);
+arr_cmplx exp(span_cmplx arr);
 cmplx_t exp(cmplx_t v);
 
 //complex exponential for zero Re and non-zero Im
 //faster then exp()
-arr_cmplx expj(const arr_real& im);
-cmplx_t expj(real_t im);
+arr_cmplx expj(span_real w);
+cmplx_t expj(real_t w);
 
 //hyperbolic tangent
-arr_real tanh(arr_real x);
-arr_cmplx tanh(arr_cmplx x);
+arr_real tanh(span_real x);
+arr_cmplx tanh(span_cmplx x);
 
 //max element
 real_t max(span_real arr);
@@ -43,8 +43,8 @@ auto min(const T1& v1, const T2& v2) -> decltype(v1 + v2) {
 }
 
 // range of values (maximum - minimum)
-real_t peak2peak(const arr_real& arr);
-cmplx_t peak2peak(const arr_cmplx& arr);
+real_t peak2peak(span_real arr);
+cmplx_t peak2peak(span_cmplx arr);
 
 //max element index
 int argmax(span_real arr);
@@ -55,66 +55,66 @@ int argmin(span_real arr);
 int argmin(span_cmplx arr);
 
 //absolute value and complex magnitude
-arr_real abs(const arr_real& arr) noexcept;
+arr_real abs(span_real arr) noexcept;
 real_t abs(real_t v) noexcept;
-arr_real abs(const arr_cmplx& arr) noexcept;
+arr_real abs(span_cmplx arr) noexcept;
 real_t abs(cmplx_t v) noexcept;
 void abs(inplace_real arr) noexcept;
 
 //phase angle in the interval [-pi, pi] for each element of a complex array z
-arr_real angle(const arr_cmplx& arr);
+arr_real angle(span_cmplx arr);
 real_t angle(cmplx_t v);
 
 //round
 real_t round(const real_t& x) noexcept;
 cmplx_t round(const cmplx_t& x) noexcept;
-arr_real round(const arr_real& arr) noexcept;
-arr_cmplx round(const arr_cmplx& arr) noexcept;
+arr_real round(span_real arr) noexcept;
+arr_cmplx round(span_cmplx arr) noexcept;
 void round(inplace_real arr) noexcept;
 void round(inplace_cmplx arr) noexcept;
 
 //array sum
-real_t sum(const arr_real& arr);
-cmplx_t sum(const arr_cmplx& arr);
+real_t sum(span_real arr);
+cmplx_t sum(span_cmplx arr);
 int sum(const std::vector<bool>& arr);
 
 // cumulative sum
 // example: cumsum([1, 2, 3, 4, 5]) -> [1, 3, 6, 10, 15]
-arr_real cumsum(const arr_real& x, Direction dir = Direction::Forward);
-arr_cmplx cumsum(const arr_cmplx& x, Direction dir = Direction::Forward);
+arr_real cumsum(span_real x, Direction dir = Direction::Forward);
+arr_cmplx cumsum(span_cmplx x, Direction dir = Direction::Forward);
 
 //array dot
-real_t dot(const arr_real& x1, const arr_real& x2);
-cmplx_t dot(const arr_cmplx& x1, const arr_cmplx& x2);
+real_t dot(span_real x1, span_real x2);
+cmplx_t dot(span_cmplx x1, span_cmplx x2);
 
 //array mean
-real_t mean(const arr_real& arr);
-cmplx_t mean(const arr_cmplx& arr);
+real_t mean(span_real arr);
+cmplx_t mean(span_cmplx arr);
 
 //standard deviation
-real_t stddev(const arr_real& arr);
-real_t stddev(const arr_cmplx& arr);
+real_t stddev(span_real arr);
+real_t stddev(span_cmplx arr);
 
 //median
-real_t median(const arr_real& arr);
+real_t median(span_real arr);
 
 //linear or rank correlation
 //TODO: add p-value result
-real_t corr(const arr_real& x, const arr_real& y, Correlation type = Correlation::Pearson);
+real_t corr(span_real x, span_real y, Correlation type = Correlation::Pearson);
 
 //sort array elements
 //result: [sorted array, sort index]
 std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir = Direction::Ascend);
 
 //determine if array is sorted
-bool issorted(const arr_real& x, Direction dir = Direction::Ascend);
+bool issorted(span_real x, Direction dir = Direction::Ascend);
 
 //real part
-arr_real real(const arr_cmplx& x);
+arr_real real(span_cmplx x);
 real_t real(const cmplx_t& x);
 
 //imag part
-arr_real imag(const arr_cmplx& x);
+arr_real imag(span_cmplx x);
 real_t imag(const cmplx_t& x);
 
 //complex pairing
@@ -194,33 +194,33 @@ arr_cmplx power(const arr_cmplx& x, int n);
 //square root (only positive values)
 //TODO: add complex result for negative or complex input
 real_t sqrt(real_t x) noexcept;
-arr_real sqrt(const arr_real& arr) noexcept;
+arr_real sqrt(span_real arr) noexcept;
 void sqrt(inplace_real arr) noexcept;
 
 //array log
-arr_real log(const arr_real& arr);
-arr_real log2(const arr_real& arr);
-arr_real log10(const arr_real& arr);
+arr_real log(span_real arr);
+arr_real log2(span_real arr);
+arr_real log10(span_real arr);
 
 real_t log(const real_t& x);
 real_t log2(const real_t& x);
 real_t log10(const real_t& x);
 
 //array rms
-real_t rms(const arr_real& arr);
-real_t rms(const arr_cmplx& arr);
+real_t rms(span_real arr);
+real_t rms(span_cmplx arr);
 
 //trigonometric functions
-arr_real sin(const arr_real& arr);
-arr_real cos(const arr_real& arr);
+arr_real sin(span_real arr);
+arr_real cos(span_real arr);
 
 //decrease sample rate by integer factor
-arr_real downsample(const arr_real& arr, int n, int phase = 0);
-arr_cmplx downsample(const arr_cmplx& arr, int n, int phase = 0);
+arr_real downsample(span_real arr, int n, int phase = 0);
+arr_cmplx downsample(span_cmplx arr, int n, int phase = 0);
 
 //increase sample rate by integer factor
-arr_real upsample(const arr_real& arr, int n, int phase = 0);
-arr_cmplx upsample(const arr_cmplx& arr, int n, int phase = 0);
+arr_real upsample(span_real arr, int n, int phase = 0);
+arr_cmplx upsample(span_cmplx arr, int n, int phase = 0);
 
 //abs(x)^2
 arr_real abs2(const arr_cmplx& x) noexcept;
@@ -238,35 +238,27 @@ constexpr real_t abs2(const real_t& x) noexcept {
 }
 
 //from degrees to radians
-arr_real deg2rad(const arr_real& x);
+arr_real deg2rad(span_real x);
 real_t deg2rad(const real_t& x);
 
 //from radians to degrees
-arr_real rad2deg(const arr_real& x);
+arr_real rad2deg(span_real x);
 real_t rad2deg(const real_t& x);
 
 //vector norms
 //p=1, sum(abs(x))
 //p=2, euclidean norm of vector, sum(abs(x).^2)^(1/2)
 //p>0, sum(abs(x).^p)^(1/p)
-real_t norm(const arr_real& x, int p = 2);
-real_t norm(const arr_cmplx& x, int p = 2);
+real_t norm(span_real x, int p = 2);
+real_t norm(span_cmplx x, int p = 2);
 
 //Mean squared error
-inline real_t mse(const arr_real& x, const arr_real& y) {
-    return mean(abs2(x - y));
-}
-inline real_t mse(const arr_cmplx& x, const arr_cmplx& y) {
-    return mean(abs2(x - y));
-}
+real_t mse(span_real x, span_real y);
+real_t mse(span_cmplx x, span_cmplx y);
 
 //Normalized mean squared error
-inline real_t nmse(const arr_real& x, const arr_real& y) {
-    return mse(x, y) / sum(abs2(x));
-}
-inline real_t nmse(const arr_cmplx& x, const arr_cmplx& y) {
-    return mse(x, y) / sum(abs2(x));
-}
+real_t nmse(span_real x, span_real y);
+real_t nmse(span_cmplx x, span_cmplx y);
 
 //signum function
 constexpr int sign(const real_t& x) noexcept {
@@ -283,17 +275,17 @@ inline cmplx_t sign(const cmplx_t& x) noexcept {
 //----------------------------------------------------------------------------------------
 //convert power <-> decibels: db = 10 * log10(pow)
 real_t pow2db(real_t v) noexcept;
-arr_real pow2db(const arr_real& arr) noexcept;
+arr_real pow2db(span_real arr) noexcept;
 real_t db2pow(real_t v) noexcept;
-arr_real db2pow(const arr_real& arr) noexcept;
+arr_real db2pow(span_real arr) noexcept;
 void pow2db(inplace_real arr) noexcept;
 void db2pow(inplace_real arr) noexcept;
 
 //convert magnitude <-> decibels: db = 20 * log10(mag)
 real_t mag2db(real_t v) noexcept;
-arr_real mag2db(const arr_real& arr) noexcept;
+arr_real mag2db(span_real arr) noexcept;
 real_t db2mag(real_t v) noexcept;
-arr_real db2mag(const arr_real& arr) noexcept;
+arr_real db2mag(span_real arr) noexcept;
 void mag2db(inplace_real arr) noexcept;
 void db2mag(inplace_real arr) noexcept;
 
@@ -320,11 +312,11 @@ arr_int primes(uint32_t n);
 //missing data
 
 //determine if any array element is NaN
-bool anynan(const arr_real& x);
-bool anynan(const arr_cmplx& x);
+bool anynan(span_real x);
+bool anynan(span_cmplx x);
 
 //determine if any array element is Inf or -Inf
-bool anyinf(const arr_real& x);
-bool anyinf(const arr_cmplx& x);
+bool anyinf(span_real x);
+bool anyinf(span_cmplx x);
 
 }   // namespace dsplib

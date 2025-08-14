@@ -36,6 +36,7 @@ cpmaddpackage(NAME kissfft
 
 set(SOURCES
     main.cpp
+    audio.cpp
     fft.cpp
     ifft.cpp
     adaptive.cpp
