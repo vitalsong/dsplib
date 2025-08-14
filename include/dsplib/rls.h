@@ -26,11 +26,11 @@ public:
         base_array<T> e;   //error
     };
 
-    Result operator()(const base_array<T>& x, const base_array<T>& d) {
+    Result operator()(span_t<T> x, span_t<T> d) {
         return this->process(x, d);
     }
 
-    Result process(const base_array<T>& x, const base_array<T>& d);
+    Result process(span_t<T> x, span_t<T> d);
 
     void set_lock_coeffs(bool locked) {
         _locked = locked;
@@ -40,7 +40,7 @@ public:
         return _locked;
     }
 
-    const base_array<T>& coeffs() const {
+    span_t<T> coeffs() const {
         return _w;
     }
 
@@ -58,7 +58,7 @@ using RlsFilterC = RlsFilter<cmplx_t>;
 
 //-----------------------------------------------------------------------------------------------
 template<typename T>
-typename RlsFilter<T>::Result RlsFilter<T>::process(const base_array<T>& x, const base_array<T>& d) {
+typename RlsFilter<T>::Result RlsFilter<T>::process(span_t<T> x, span_t<T> d) {
     DSPLIB_ASSERT(x.size() == d.size(), "vector size error: len(x) != len(d)");
 
     const int nx = x.size();

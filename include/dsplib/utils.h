@@ -115,8 +115,8 @@ real_t peakloc(const arr_real& x, int idx, bool cyclic = true);
 real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
 
 //Estimate delay between signals
-int finddelay(const dsplib::arr_real& x1, const dsplib::arr_real& x2);
-int finddelay(const dsplib::arr_cmplx& x1, const dsplib::arr_cmplx& x2);
+int finddelay(span_real x1, span_real x2);
+int finddelay(span_cmplx x1, span_cmplx x2);
 
 struct PeakList
 {

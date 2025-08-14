@@ -70,12 +70,12 @@ private:
         return lg_;
     }
 
-    const real_t tlin_;   ///< threshold (linear domain)
-    const real_t wA_;     ///< attack time coefficient
-    const real_t wR_;     ///< release time coefficient
-    const int tH_;        ///< hold time (samples)
-    int cA_{0};           ///< hold counter for attack
-    real_t lg_{0};        ///< prev gain
+    real_t tlin_;    ///< threshold (linear domain)
+    real_t wA_;      ///< attack time coefficient
+    real_t wR_;      ///< release time coefficient
+    int tH_;         ///< hold time (samples)
+    int cA_{0};      ///< hold counter for attack
+    real_t lg_{0};   ///< prev gain
 };
 
 }   // namespace dsplib

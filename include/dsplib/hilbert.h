@@ -6,10 +6,10 @@
 namespace dsplib {
 
 // calculation of the analytical signal using DFT
-arr_cmplx hilbert(const arr_real& x);
+arr_cmplx hilbert(span_real x);
 
 // uses an n-point FFT
-arr_cmplx hilbert(const arr_real& x, int n);
+arr_cmplx hilbert(span_real x, int n);
 
 /*!
  * \brief Hilbert filter (FIR filter based)
@@ -24,15 +24,15 @@ public:
     //tw - transition bandwidth
     explicit HilbertFilter(int flen = 51, real_t tw = 0.01);
 
-    explicit HilbertFilter(const arr_real& h);
+    explicit HilbertFilter(span_real h);
 
     //main processing
-    arr_cmplx process(const arr_real& s);
+    arr_cmplx process(span_real s);
 
     //impulse response
-    [[nodiscard]] const arr_real& impz() const;
+    [[nodiscard]] span_real impz() const;
 
-    arr_cmplx operator()(const arr_real& x) {
+    arr_cmplx operator()(span_real x) {
         return this->process(x);
     }
 

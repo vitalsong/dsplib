@@ -9,13 +9,16 @@ namespace dsplib {
 namespace {
 
 template<typename T>
-arr_cmplx _xcorr(const base_array<T>& x1, const base_array<T>& x2) {
+arr_cmplx _xcorr(span_t<T> x1, span_t<T> x2) {
     const int N1 = x1.size();
     const int N2 = x2.size();
     const int M = 1L << nextpow2(N1 + N2 - 1);
 
-    auto y1 = x1 | zeros(M - x1.size());
-    auto y2 = zeros(M - x2.size()) | x2;
+    base_array<T> y1(M);
+    y1.slice(0, x1.size()).assign(x1);
+
+    base_array<T> y2(M);
+    y2.slice(M - x2.size(), M).assign(x2);
 
     auto z1 = fft(y1);
     conj(inplace(z1));
@@ -30,19 +33,19 @@ arr_cmplx _xcorr(const base_array<T>& x1, const base_array<T>& x2) {
 
 }   // namespace
 
-arr_cmplx xcorr(const arr_cmplx& x1, const arr_cmplx& x2) {
+arr_cmplx xcorr(span_cmplx x1, span_cmplx x2) {
     return _xcorr(x1, x2);
 }
 
-arr_real xcorr(const arr_real& x1, const arr_real& x2) {
+arr_real xcorr(span_real x1, span_real x2) {
     return real(_xcorr(x1, x2));
 }
 
-arr_real xcorr(const arr_real& x) {
+arr_real xcorr(span_real x) {
     return real(_xcorr(x, x));
 }
 
-arr_cmplx xcorr(const arr_cmplx& x) {
+arr_cmplx xcorr(span_cmplx x) {
     return _xcorr(x, x);
 }
 

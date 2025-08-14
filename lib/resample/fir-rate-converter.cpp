@@ -8,7 +8,7 @@ FIRRateConverter::FIRRateConverter(int interp, int decim)
   : FIRRateConverter{interp, decim, design_multirate_fir(interp, decim)} {
 }
 
-FIRRateConverter::FIRRateConverter(int interp, int decim, const arr_real& h)
+FIRRateConverter::FIRRateConverter(int interp, int decim, span_real h)
   : interp_{interp}
   , decim_{decim} {
     const auto th = polyphase(h, interp_, real_t(interp_), true);
@@ -34,7 +34,7 @@ FIRRateConverter::FIRRateConverter(int interp, int decim, const arr_real& h)
     assert(int(xidxs_.size()) == interp_);
 }
 
-arr_real FIRRateConverter::process(const arr_real& in) {
+arr_real FIRRateConverter::process(span_real in) {
     const int nx = in.size();
     const int nh = sublen_;
     const int nd = d_.size();

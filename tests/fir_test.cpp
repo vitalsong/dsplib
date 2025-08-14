@@ -267,12 +267,12 @@ TEST(Fir1Type, Bandstop) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, Firtype) {
-    ASSERT_EQ(firtype({0, 1, 2, 3}), FirType::NonlinearPhase);
-    ASSERT_EQ(firtype({0, 1, 2, 1, 0}), FirType::EvenSymm);
-    ASSERT_EQ(firtype({0, 1, 2, 2, 1, 0}), FirType::OddSym);
-    ASSERT_EQ(firtype({0, 1, 2, -1, 0}), FirType::NonlinearPhase);
-    ASSERT_EQ(firtype({0, 1, 0, -1, 0}), FirType::EvenAntiSym);
-    ASSERT_EQ(firtype({0, 1, 2, -2, -1, 0}), FirType::OddAntiSym);
+    ASSERT_EQ(firtype(arr_real{0, 1, 2, 3}), FirType::NonlinearPhase);
+    ASSERT_EQ(firtype(arr_real{0, 1, 2, 1, 0}), FirType::EvenSymm);
+    ASSERT_EQ(firtype(arr_real{0, 1, 2, 2, 1, 0}), FirType::OddSym);
+    ASSERT_EQ(firtype(arr_real{0, 1, 2, -1, 0}), FirType::NonlinearPhase);
+    ASSERT_EQ(firtype(arr_real{0, 1, 0, -1, 0}), FirType::EvenAntiSym);
+    ASSERT_EQ(firtype(arr_real{0, 1, 2, -2, -1, 0}), FirType::OddAntiSym);
 }
 
 //-------------------------------------------------------------------------------------------------

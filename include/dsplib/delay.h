@@ -17,14 +17,15 @@ public:
       : _buffer{initial} {
     }
 
-    dsplib::base_array<T> process(const dsplib::base_array<T>& x) {
+    dsplib::base_array<T> process(span_t<T> x) {
+        //TODO: use cycle buffer
         const int nd = _buffer.size();
-        const auto tmp = _buffer | x;
+        const auto tmp = concatenate(_buffer, x);
         _buffer.slice(0, nd) = tmp.slice(tmp.size() - nd, tmp.size());
         return tmp.slice(0, x.size());
     }
 
-    dsplib::base_array<T> operator()(const dsplib::base_array<T>& x) {
+    dsplib::base_array<T> operator()(span_t<T> x) {
         return this->process(x);
     }
 

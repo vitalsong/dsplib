@@ -32,7 +32,7 @@ public:
         arr_real gain;
     };
 
-    Result process(const arr_real& x) {
+    Result process(span_real x) {
         const int n = x.size();
         Result res(n);
         for (int i = 0; i < n; ++i) {
@@ -49,12 +49,12 @@ public:
         return res;
     }
 
-    Result operator()(const arr_real& x) {
+    Result operator()(span_real x) {
         return this->process(x);
     }
 
 private:
-    real_t _compute_gain(real_t x) const noexcept {
+    real_t _compute_gain(const real_t& x) const noexcept {
         const auto xdb = mag2db(dsplib::abs(x) + eps());
         auto xsc = xdb;
         if (xdb >= (T_ + W_ / 2)) {
@@ -65,11 +65,11 @@ private:
         return (xsc - xdb);
     }
 
-    const real_t T_{1};    ///< threshold
-    const real_t W_{0};    ///< knee width
-    const real_t wA_{1};   ///< attack time coeff
-    const real_t wR_{1};   ///< release time coeff
-    real_t gs_{0};         ///< smoothed gain
+    real_t T_{1};    ///< threshold
+    real_t W_{0};    ///< knee width
+    real_t wA_{1};   ///< attack time coeff
+    real_t wR_{1};   ///< release time coeff
+    real_t gs_{0};   ///< smoothed gain
 };
 
 }   // namespace dsplib
