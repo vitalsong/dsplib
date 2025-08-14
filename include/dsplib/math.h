@@ -253,20 +253,12 @@ real_t norm(span_real x, int p = 2);
 real_t norm(span_cmplx x, int p = 2);
 
 //Mean squared error
-inline real_t mse(span_real x, span_real y) {
-    return mean(abs2(arr_real(x) - arr_real(y)));
-}
-inline real_t mse(span_cmplx x, span_cmplx y) {
-    return mean(abs2(arr_cmplx(x) - arr_cmplx(y)));
-}
+real_t mse(span_real x, span_real y);
+real_t mse(span_cmplx x, span_cmplx y);
 
 //Normalized mean squared error
-inline real_t nmse(span_real x, span_real y) {
-    return mse(x, y) / sum(abs2(x));
-}
-inline real_t nmse(span_cmplx x, span_cmplx y) {
-    return mse(x, y) / sum(abs2(x));
-}
+real_t nmse(span_real x, span_real y);
+real_t nmse(span_cmplx x, span_cmplx y);
 
 //signum function
 constexpr int sign(const real_t& x) noexcept {

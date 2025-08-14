@@ -679,6 +679,51 @@ real_t norm(span_cmplx x, int p) {
 }
 
 //-------------------------------------------------------------------------------------------------
+namespace {
+
+template<typename T>
+real_t _mse(span_t<T> x, span_t<T> y) {
+    DSPLIB_ASSERT(x.size() == y.size(), "arrays sizes must be equal");
+    const int n = x.size();
+    real_t s = 0;
+    for (int i = 0; i < n; ++i) {
+        s += abs2(x[i] - y[i]);
+    }
+    return s / n;
+}
+
+template<typename T>
+real_t _nmse(span_t<T> x, span_t<T> y) {
+    DSPLIB_ASSERT(x.size() == y.size(), "arrays sizes must be equal");
+    const int n = x.size();
+    real_t s = 0;
+    real_t d = 0;
+    for (int i = 0; i < n; ++i) {
+        s += abs2(x[i] - y[i]);
+        d += abs2(x[i]);
+    }
+    return (s / n) / d;
+}
+
+}   // namespace
+
+real_t mse(span_real x, span_real y) {
+    return _mse(x, y);
+}
+
+real_t mse(span_cmplx x, span_cmplx y) {
+    return _mse(x, y);
+}
+
+real_t nmse(span_real x, span_real y) {
+    return _nmse(x, y);
+}
+
+real_t nmse(span_cmplx x, span_cmplx y) {
+    return _nmse(x, y);
+}
+
+//-------------------------------------------------------------------------------------------------
 arr_real deg2rad(span_real x) {
     auto y = arr_real(x);
     y *= (pi / 180);
