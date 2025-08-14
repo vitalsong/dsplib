@@ -40,18 +40,17 @@ TEST(Resampler, Interp) {
     dsplib::FIRInterpolator interp(L);
 
     const int frame_len = 512;
-    const int num_frames = 100;
-    auto tt = dsplib::arange(num_frames * frame_len);
+    auto tt = dsplib::arange(100 * frame_len);
     auto x_in = dsplib::sin(2 * dsplib::pi * 0.4 * tt);
     x_in = dsplib::awgn(x_in, 50);
 
     dsplib::arr_real x_out;
-    for (int i = 0; i < num_frames; ++i) {
-        dsplib::arr_real in = x_in.slice(i * frame_len, (i + 1) * frame_len);
-        auto out = interp.process(in);
-        ASSERT_EQ(out.size(), in.size() * L);
-        x_out |= dsplib::arr_real(out);
-    }
+    dsplib::ChunkBuffer<dsplib::real_t> buf(frame_len);
+    buf.write(x_in, [&](auto x) {
+        auto out = interp.process(x);
+        ASSERT_EQ(out.size(), x.size() * L);
+        x_out |= out;
+    });
 
     const int N = 8192;
     const int dl = interp.delay();
@@ -67,18 +66,17 @@ TEST(Resampler, Decim) {
     dsplib::FIRDecimator decim(D);
 
     const int frame_len = decim.prev_size(512);
-    const int num_frames = 100;
-    auto tt = dsplib::arange(num_frames * frame_len);
+    auto tt = dsplib::arange(100 * frame_len);
     auto x_in = dsplib::sin(2 * dsplib::pi * 0.2 * tt);
     x_in = dsplib::awgn(x_in, 50);
 
     dsplib::arr_real x_out;
-    for (int i = 0; i < num_frames; ++i) {
-        dsplib::arr_real in = x_in.slice(i * frame_len, (i + 1) * frame_len);
-        auto decim_out = decim.process(in);
-        ASSERT_EQ(decim_out.size(), in.size() / D);
-        x_out |= dsplib::arr_real(decim_out);
-    }
+    dsplib::ChunkBuffer<dsplib::real_t> buf(frame_len);
+    buf.write(x_in, [&](auto x) {
+        auto out = decim.process(x);
+        ASSERT_EQ(out.size(), x.size() / D);
+        x_out |= out;
+    });
 
     const int N = 8192;
     const int dl = decim.delay();
@@ -94,17 +92,16 @@ TEST(Resampler, Resamp) {
     dsplib::FIRResampler resamp(fs2, fs1);
 
     const int frame_len = resamp.prev_size(512);
-    const int num_frames = 100;
-    auto tt = dsplib::arange(num_frames * frame_len);
+    auto tt = dsplib::arange(100 * frame_len);
     auto x_in = dsplib::sin(2 * dsplib::pi * 0.4 * tt);
     x_in = dsplib::awgn(x_in, 50);
     dsplib::arr_real x_out;
 
-    for (int i = 0; i < num_frames; ++i) {
-        dsplib::arr_real in = x_in.slice(i * frame_len, (i + 1) * frame_len);
-        auto decim_out = resamp.process(in);
-        x_out |= dsplib::arr_real(decim_out);
-    }
+    dsplib::ChunkBuffer<dsplib::real_t> buf(frame_len);
+    buf.write(x_in, [&](auto x) {
+        auto out = resamp.process(x);
+        x_out |= out;
+    });
 
     const int N = 8192;
     const int dl = resamp.delay();
