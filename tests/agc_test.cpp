@@ -2,53 +2,50 @@
 
 #include <dsplib.h>
 
-namespace {
+using namespace dsplib;
 
-bool _anynan(const dsplib::arr_real& x) {
-    for (const auto& i : x) {
-        if (std::isnan(i)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool _anyinf(const dsplib::arr_real& x) {
-    for (const auto& i : x) {
-        if (std::isinf(i)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-}   // namespace
-//-------------------------------------------------------------------------------------------------
-TEST(AgcTest, TargetLevel) {
+TEST(AgcTest, TargetLevelR) {
     const int fs = 8000;
-    auto in = dsplib::sin(2 * dsplib::pi * 1000 * dsplib::arange(2 * fs) / fs);
-    in = dsplib::awgn(in, 70);
+    auto in = sin(2 * pi * 1000 * arange(2 * fs) / fs);
+    in = awgn(in, 70);
 
     const auto target_power = 10;
     const auto max_gain = 20;
-    auto agc = dsplib::Agc(dsplib::db2pow(target_power), max_gain);
+    auto agc = Agc(db2pow(target_power), max_gain);
     auto [out, gain] = agc(in);
 
-    auto amp_rate = dsplib::max(dsplib::abs(in)) / dsplib::max(dsplib::abs(out));
-    amp_rate = std::abs(dsplib::mag2db(amp_rate));
+    auto amp_rate = max(abs(in)) / max(abs(out));
+    amp_rate = std::abs(mag2db(amp_rate));
     ASSERT_LE(amp_rate, max_gain);
 
-    auto power = dsplib::mag2db(dsplib::rms(*out.slice(fs / 4, dsplib::indexing::end)));
+    auto power = mag2db(rms(out.slice(fs / 4, indexing::end)));
     ASSERT_NEAR(power, target_power, 1.0);
 }
 
-//-------------------------------------------------------------------------------------------------
+TEST(AgcTest, TargetLevelC) {
+    const int fs = 8000;
+    auto in = expj(2 * pi * 1000 * arange(2 * fs) / fs);
+    in = awgn(in, 70);
+
+    const auto target_power = 10;
+    const auto max_gain = 20;
+    auto agc = Agc(db2pow(target_power), max_gain);
+    auto [out, gain] = agc(in);
+
+    auto amp_rate = max(abs(in)) / max(abs(out));
+    amp_rate = std::abs(mag2db(amp_rate));
+    ASSERT_LE(amp_rate, max_gain);
+
+    auto power = mag2db(rms(out.slice(fs / 4, indexing::end)));
+    ASSERT_NEAR(power, target_power, 1.0);
+}
+
 TEST(AgcTest, ValidOnZeros) {
     const int fs = 8000;
-    auto in = dsplib::sin(2 * dsplib::pi * 1000 * dsplib::arange(fs) / fs);
-    in = in | dsplib::zeros(fs);
-    auto agc = dsplib::Agc(dsplib::db2pow(-10), 20);
+    auto in = sin(2 * pi * 1000 * arange(fs) / fs);
+    in = in | zeros(fs);
+    auto agc = Agc(db2pow(-10), 20);
     auto [out, gain] = agc(in);
-    ASSERT_FALSE(_anynan(out) || _anyinf(out));
-    ASSERT_FALSE(_anynan(gain) || _anyinf(gain));
+    ASSERT_FALSE(anynan(out) || anyinf(out));
+    ASSERT_FALSE(anynan(gain) || anyinf(gain));
 }

@@ -1,13 +1,12 @@
 #include "dsplib/array.h"
 #include "dsplib/keywords.h"
 #include "dsplib/math.h"
-#include "dsplib/utils.h"
 
 namespace dsplib {
 
 namespace {
 
-real_t _pearson_corr(const arr_real& x, const arr_real& y) noexcept {
+real_t _pearson_corr(span_real x, span_real y) noexcept {
     const int n = x.size();
     real_t sum_x = 0;
     real_t sum_y = 0;
@@ -30,7 +29,7 @@ real_t _pearson_corr(const arr_real& x, const arr_real& y) noexcept {
     return corr;
 }
 
-std::vector<int> _get_ranks(const arr_real& x) noexcept {
+std::vector<int> _get_ranks(span_real x) noexcept {
     const int n = x.size();
     const auto [_, x_idx] = sort(x);
     std::vector<int> rank(n);
@@ -40,19 +39,19 @@ std::vector<int> _get_ranks(const arr_real& x) noexcept {
     return rank;
 }
 
-real_t _spearman_corr(const arr_real& x, const arr_real& y) noexcept {
-    const auto x_rank = _get_ranks(x);
-    const auto y_rank = _get_ranks(y);
+real_t _spearman_corr(span_real x, span_real y) noexcept {
+    const arr_real x_rank = _get_ranks(x);
+    const arr_real y_rank = _get_ranks(y);
     //FIXIT: valid only for unique values
     const auto r = _pearson_corr(x_rank, y_rank);
     return r;
 }
 
 //TODO: N * log(N) optimization (combine nc/nd calculation with sort)
-real_t _kendall_corr(const arr_real& x, const arr_real& y) noexcept {
+real_t _kendall_corr(span_real x, span_real y) noexcept {
     const int n = x.size();
     const auto [_, x_idx] = sort(x);
-    const auto ybyx = y[x_idx];
+    const auto ybyx = arr_real(y)[x_idx];
 
     int n_c = 0;
     int n_d = 0;
@@ -72,7 +71,7 @@ real_t _kendall_corr(const arr_real& x, const arr_real& y) noexcept {
 
 }   // namespace
 
-real_t corr(const arr_real& x, const arr_real& y, Correlation type) {
+real_t corr(span_real x, span_real y, Correlation type) {
     DSPLIB_ASSERT(x.size() == y.size(), "Array size must be equal");
     switch (type) {
     case Correlation::Pearson:
