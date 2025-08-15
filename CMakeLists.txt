@@ -24,6 +24,7 @@ set(DSPLIB_SOURCES
     lib/detector.cpp
     lib/findpeaks.cpp
     lib/fir.cpp
+    lib/fft-filter.cpp
     lib/gccphat.cpp
     lib/hilbert.cpp
     lib/math.cpp

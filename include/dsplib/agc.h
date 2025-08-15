@@ -8,6 +8,7 @@ namespace dsplib {
 struct AgcImpl;
 
 //Adaptively adjust gain for constant signal level output
+//TODO: make as template
 class Agc
 {
 public:
