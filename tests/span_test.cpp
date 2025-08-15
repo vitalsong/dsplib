@@ -72,3 +72,19 @@ TEST(SpanTest, RealToCmplx) {
         ASSERT_EQ_ARR_CMPLX(x, y);
     }
 }
+
+TEST(SpanTest, Uint8) {
+    std::vector<uint8_t> bytes(100);
+    {
+        auto s = make_span(bytes);
+        ASSERT_EQ(s.size(), 100);
+    }
+    {
+        auto s = span_t<uint8_t>(bytes);
+        ASSERT_EQ(s.size(), 100);
+    }
+    {
+        auto s = span_t<uint8_t>(bytes.data(), bytes.size());
+        ASSERT_EQ(s.size(), 100);
+    }
+}
