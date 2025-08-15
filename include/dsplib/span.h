@@ -3,6 +3,7 @@
 #include <dsplib/assert.h>
 #include <dsplib/types.h>
 #include <dsplib/slice.h>
+#include <dsplib/traits.h>
 
 #include <cassert>
 #include <vector>
@@ -20,7 +21,6 @@ class span_t;
 
 //TODO: add concatenate syntax
 //TODO: add math operators (+,-,*,/)
-//TODO: remove slice_t inheritance
 
 //mutable span
 template<typename T>
@@ -28,6 +28,7 @@ class mut_span_t : public mut_slice_t<T>
 {
 public:
     static_assert(!std::is_same_v<std::remove_cv_t<T>, bool>, "`bool` type is not supported");
+    static_assert(std::is_trivially_copyable<T>(), "type must be trivially copyable");
 
     friend class span_t<T>;
 
@@ -39,6 +40,8 @@ public:
       : mut_span_t(v.data_, v.count_) {
     }
 
+    //disable for another trivially types (uint8_t, int16_t, long double etc)
+    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
     mut_span_t(base_array<T>& v)
       : mut_span_t(v.data(), v.size()) {
     }
@@ -88,6 +91,7 @@ public:
         return *this;
     }
 
+    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
     mut_span_t& operator=(const base_array<T>& rhs) {
         this->assign(rhs);
         return *this;
@@ -157,6 +161,7 @@ class span_t : public slice_t<T>
 {
 public:
     static_assert(!std::is_same_v<std::remove_cv_t<T>, bool>, "`bool` type is not supported");
+    static_assert(std::is_trivially_copyable<T>(), "type must be trivially copyable");
 
     friend class mut_span_t<T>;
 
@@ -170,6 +175,7 @@ public:
       : span_t(v.data(), v.size()) {
     }
 
+    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
     span_t(const base_array<T>& v)
       : span_t(v.data(), v.size()) {
     }
