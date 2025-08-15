@@ -31,6 +31,13 @@ TEST(Buffer, ChunkBufferTest) {
     buf.flush([&](auto v) {
         ASSERT_TRUE(v.empty());
     });
+
+    int ncall = 0;
+    buf.write(zeros(2 * chunk_size), [&](auto v) {
+        ASSERT_EQ_ARR_REAL(v, zeros(chunk_size));
+        ++ncall;
+    });
+    ASSERT_TRUE(ncall == 2);
 }
 
 TEST(Buffer, FIFOBufferTest) {

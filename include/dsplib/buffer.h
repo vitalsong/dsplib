@@ -189,17 +189,26 @@ public:
             in_write_ = false;
         });
 
-        buf_.insert(buf_.end(), data.begin(), data.end());
-        const auto* pdata = buf_.data();
-        int psize = buf_.size();
-        while (psize >= chunk_size_) {
-            fn(make_span(pdata, chunk_size_));
-            pdata += chunk_size_;
-            psize -= chunk_size_;
+        if (buf_.empty() && (data.size() % chunk_size_ == 0)) {
+            const auto* pdata = data.data();
+            int psize = data.size();
+            while (psize >= chunk_size_) {
+                fn(make_span(pdata, chunk_size_));
+                pdata += chunk_size_;
+                psize -= chunk_size_;
+            }
+        } else {
+            buf_.insert(buf_.end(), data.begin(), data.end());
+            const auto* pdata = buf_.data();
+            int psize = buf_.size();
+            while (psize >= chunk_size_) {
+                fn(make_span(pdata, chunk_size_));
+                pdata += chunk_size_;
+                psize -= chunk_size_;
+            }
+            std::memmove(buf_.data(), buf_.data() + buf_.size() - psize, psize * sizeof(T));
+            buf_.resize(psize);
         }
-
-        std::memmove(buf_.data(), buf_.data() + buf_.size() - psize, psize * sizeof(T));
-        buf_.resize(psize);
     }
 
     /**
