@@ -89,7 +89,7 @@ public:
 
     void reset() {
         _pow_flt.process(zeros(frame_len()));
-        _corr_flt.process(zeros(frame_len()));
+        _corr_flt.process(complex(zeros(frame_len())));
         _delay.reset();
     }
 
@@ -98,7 +98,7 @@ private:
         return flip(h) / (rms(h) * h.size());
     }
 
-    FftFilter _corr_flt;
+    FftFilterC _corr_flt;
     MAFilterR _pow_flt;
     real_t _threshold{1.0};
     CDelay<cmplx_t> _delay;

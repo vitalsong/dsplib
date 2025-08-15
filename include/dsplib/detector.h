@@ -17,6 +17,7 @@ class PreambleDetectorImpl;
 // corr = filter(conj(h) / (nh * rms(h)), 1, x);
 // pagg = filter(ones(1, nh) / nh, 1, abs(x).^2);
 // res = sqrt((abs(corr) .^ 2) ./ pagg);
+//TODO: add real type implementation
 class PreambleDetector
 {
 public:

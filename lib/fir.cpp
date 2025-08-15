@@ -119,52 +119,6 @@ void FirFilter<cmplx_t>::conv(mut_span_t<cmplx_t> x, span_t<cmplx_t> h) {
     _conv(x.data(), h.data(), h.size(), x.size());
 }
 
-//-------------------------------------------------------------------------------------------------
-FftFilter::FftFilter(span_cmplx h)
-  : _m{h.size()} {
-    const int fft_len = 1L << nextpow2(2 * h.size());
-    _n = fft_len - h.size() + 1;
-    assert(_n > _m);
-    _olap = complex(zeros(_m - 1));
-    _h = fft(conj(h), fft_len);
-    _x = complex(zeros(fft_len));
-}
-
-FftFilter::FftFilter(span_real h)
-  : FftFilter(complex(h)) {
-}
-
-arr_cmplx FftFilter::process(span_cmplx x) {
-    const int nr = (x.size() + _nx) / _n * _n;
-    arr_cmplx r(nr);
-    cmplx_t* pr = r.data();
-    for (const auto& val : x) {
-        _x[_nx] = val;
-        _nx += 1;
-        if (_nx == _n) {
-            const auto ry = ifft(fft(_x) * _h);
-
-            for (int i = 0; i < _n; i++) {
-                pr[i] = ry[i];
-            }
-
-            for (int i = 0; i < (_m - 1); i++) {
-                pr[i] += _olap[i];
-                _olap[i] = ry[i + _n];
-            }
-
-            pr += _n;
-            _nx = 0;
-        }
-    }
-    return r;
-}
-
-arr_real FftFilter::process(span_real x) {
-    //TODO: real optimization
-    return real(process(complex(x)));
-}
-
 //----------------------------------------------------------------------------------------------
 arr_real fir1(int n, real_t wn, FilterType ftype, const arr_real& win) {
     assert(n > 0);

@@ -2,6 +2,9 @@
 
 #include <dsplib/array.h>
 #include <dsplib/keywords.h>
+#include <dsplib/math.h>
+#include <dsplib/fft.h>
+#include <dsplib/ifft.h>
 
 namespace dsplib {
 
@@ -60,44 +63,36 @@ using FirFilterC = FirFilter<cmplx_t>;
 template<typename U>
 FirFilter(const base_array<U>&) -> FirFilter<U>;
 
+template<typename T>
+class FftFilterImpl;
+
 /*!
  * \brief FFT-based FIR filtering using overlap-add method
- * \details Fast fir implementation for IR len > 200
- * \todo make template (real version is faster)
+ * \details Fast fir implementation for large IR length (usually > 200)
  */
+template<typename T>
 class FftFilter
 {
 public:
-    FftFilter() = default;
-    explicit FftFilter(span_real h);
+    explicit FftFilter(span_t<T> h);
 
-    explicit FftFilter(span_cmplx h);
+    base_array<T> process(span_t<T> x);
 
-    //usually in.size() != out.size()
-    arr_real process(span_real x);
-    arr_cmplx process(span_cmplx x);
-
-    //optimal input size for y[nx] = process(x[nx])
-    [[nodiscard]] int block_size() const {
-        return _n;
-    }
-
-    arr_real operator()(span_real x) {
+    base_array<T> operator()(span_t<T> x) {
         return this->process(x);
     }
 
-    arr_cmplx operator()(span_cmplx x) {
-        return this->process(x);
-    }
+    [[nodiscard]] int block_size() const;
 
 private:
-    arr_cmplx _x;
-    arr_cmplx _h;
-    arr_cmplx _olap;
-    int _nx{0};
-    int _m{0};
-    int _n{0};
+    std::shared_ptr<FftFilterImpl<T>> d_;
 };
+
+using FftFilterR = FftFilter<real_t>;
+using FftFilterC = FftFilter<cmplx_t>;
+
+template<typename U>
+FftFilter(const base_array<U>&) -> FftFilter<U>;
 
 //Type of linear phase FIR filter
 FirType firtype(span_real h);
