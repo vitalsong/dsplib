@@ -168,7 +168,7 @@ arr_real resample(span_real x, int p_, int q_, span_real h) {
     const int mdl = dl * q / p;
     const int nn = IResampler::next_size(nx + mdl, p, q);
     const auto xx = zeropad(x, nn);
-    const auto y = *rsmp.process(xx).slice(dl, dl + ny);
+    const auto y = rsmp.process(xx).slice(dl, dl + ny).copy();
     return y;
 }
 

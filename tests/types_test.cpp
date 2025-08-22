@@ -65,3 +65,18 @@ TEST(Template, SupportTypeArray) {
     ASSERT_FALSE(support_type_for_array<std::complex<float>>());
     ASSERT_FALSE(support_type_for_array<std::complex<double>>());
 }
+
+TEST(Template, ResultType) {
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<real_t, real_t>, real_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<real_t, float>, real_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<float, real_t>, real_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<real_t, int>, real_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<real_t, double>, real_t>));
+
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<cmplx_t, real_t>, cmplx_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<cmplx_t, float>, cmplx_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<float, cmplx_t>, cmplx_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<cmplx_t, int>, cmplx_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<cmplx_t, double>, cmplx_t>));
+    ASSERT_TRUE(bool(std::is_same_v<ResultType<float, std::complex<float>>, cmplx_t>));
+}
