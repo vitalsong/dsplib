@@ -105,7 +105,7 @@ TEST(STFT, Sin) {
     ASSERT_EQ(x.size(), xr.size());
 
     //ignore first zero element
-    auto err = *abs(x - xr).slice(1, indexing::end);
+    auto err = abs(x - xr).slice(1, indexing::end).copy();
     auto max_err = max(abs(err));
     ASSERT_LE(max_err, 1e-8);
 }
@@ -128,7 +128,7 @@ TEST(STFT, Chirp) {
             const auto Y = stft(x, win, overlap, nfft, range);
             const auto xr = istft(Y, win, overlap, nfft, range, method);
             ASSERT_EQ(x.size(), xr.size());
-            auto err = *abs(x - xr).slice(1, indexing::end);   //ignore first zero element
+            auto err = abs(x - xr).slice(1, indexing::end).copy();   //ignore first zero element
             auto max_err = max(abs(err));
             ASSERT_LE(max_err, 1e-8);
         }
@@ -152,21 +152,21 @@ TEST(Coherence, Real) {
 
     {
         const auto coh = mscohere(x, y, winlen);
-        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 1.0, 1e-2);
-        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(0, tp1)), 1.0, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(tp2, indexing::end)), 0.0, 1e-2);
     }
 
     {
         const auto ny = awgn(y, 0);
         const auto coh = mscohere(x, ny, winlen);
-        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 0.91, 1e-2);
-        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(0, tp1)), 0.91, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(tp2, indexing::end)), 0.0, 1e-2);
     }
 
     {
         const auto ny = awgn(y, -10);
         const auto coh = mscohere(x, ny, winlen);
-        ASSERT_NEAR(mean(*coh.slice(0, tp1)), 0.5, 1e-2);
-        ASSERT_NEAR(mean(*coh.slice(tp2, indexing::end)), 0.0, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(0, tp1)), 0.5, 1e-2);
+        ASSERT_NEAR(mean(coh.slice(tp2, indexing::end)), 0.0, 1e-2);
     }
 }

@@ -65,13 +65,17 @@ public:
         return current;
     }
 
-    base_array<T> operator*() const noexcept {
+    [[deprecated("use `copy` instead")]] base_array<T> operator*() const noexcept {
         return base_array<T>(*this);
     }
 
     static slice_t make_slice(const T* data, int size, int i1, int i2, int step) {
         auto mdata = const_cast<T*>(data);
         return slice_t(mut_slice_t<T>::make_slice(mdata, size, i1, i2, step));
+    }
+
+    base_array<T> copy() const noexcept {
+        return base_array<T>(*this);
     }
 
 protected:
@@ -165,8 +169,11 @@ public:
         return current;
     }
 
-    //TODO: replace to `copy` or `to_arr` function
-    base_array<T> operator*() const noexcept {
+    [[deprecated("use `copy` instead")]] base_array<T> operator*() const noexcept {
+        return base_array<T>(*this);
+    }
+
+    base_array<T> copy() const noexcept {
         return base_array<T>(*this);
     }
 

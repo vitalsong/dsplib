@@ -1,4 +1,3 @@
-#include <functional>
 #include <gtest/gtest.h>
 
 #include <dsplib.h>
@@ -7,15 +6,6 @@
 using namespace dsplib;
 
 namespace {
-
-void _frame_apply(const arr_real& sig, int frame_len, std::function<void(const arr_real&)> fn) {
-    int num_frames = sig.size() / frame_len;
-    for (int i = 0; i < num_frames; ++i) {
-        const int t1 = i * frame_len;
-        const int t2 = (i + 1) * frame_len;
-        fn(*sig.slice(t1, t2));
-    }
-}
 
 int _align_arrays(arr_real& x1, arr_real& x2) {
     const int delay = finddelay(x1, x2);
@@ -50,7 +40,8 @@ TEST(Subband, ChannelizerRms) {
 
         real_t accum = 0;
         int processed = 0;
-        _frame_apply(x, chan.frame_len(), [&](const arr_real& x) {
+        ChunkBuffer<real_t> buf(chan.frame_len());
+        buf.write(x, [&](auto x) {
             const auto X = chan(x);
             accum += sum(abs2(X));
             processed += x.size();
@@ -74,15 +65,17 @@ TEST(Subband, Reconstruction) {
 
     auto in = randn(fs * 10);
     arr_real out;
-    _frame_apply(in, chan.frame_len(), [&](const arr_real& x) {
+
+    ChunkBuffer<real_t> buf(chan.frame_len());
+    buf.write(in, [&](auto x) {
         const auto X = chan(x);
         auto xx = synth(X);
         out = concatenate(out, xx);
     });
 
     int delay = _align_arrays(in, out);
-    auto x1 = *in.slice(-fs, indexing::end);
-    auto x2 = *out.slice(-fs, indexing::end);
+    auto x1 = in.slice(-fs, indexing::end);
+    auto x2 = out.slice(-fs, indexing::end);
     auto [_, R] = gccphat(x1, x2);
     auto aR = abs(R);
     auto corr_peak = max(aR);
@@ -109,8 +102,10 @@ TEST(Subband, Oversampled2x) {
     auto synth = ChannelSynthesizer(hptr, nbands, D);
 
     auto in = randn(fs * 10);
+
     arr_real out;
-    _frame_apply(in, chan.frame_len(), [&](const arr_real& x) {
+    ChunkBuffer<real_t> buf(chan.frame_len());
+    buf.write(in, [&](auto x) {
         auto X = chan.process(x);
         ASSERT_EQ(X.size(), nbands);
         out |= synth.process(X);

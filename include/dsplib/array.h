@@ -307,148 +307,54 @@ public:
     }
 
     //--------------------------------------------------------------------
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator+=(const T2& rhs) noexcept {
-        static_assert(is_scalar_v<T2>, "Type must be scalar");
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (auto& x : _vec) {
-            x += rhs;
-        }
+    template<class T2>
+    base_array<T>& operator+=(const T2& rhs) noexcept {
+        make_span(_vec) += rhs;
         return *this;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator-=(const T2& rhs) noexcept {
-        static_assert(is_scalar_v<T2>, "Type must be scalar");
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (auto& x : _vec) {
-            x -= rhs;
-        }
+    template<class T2>
+    base_array<T>& operator-=(const T2& rhs) noexcept {
+        make_span(_vec) -= rhs;
         return *this;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator*=(const T2& rhs) noexcept {
-        static_assert(is_scalar_v<T2>, "Type must be scalar");
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (auto& x : _vec) {
-            x *= rhs;
-        }
+    template<class T2>
+    base_array<T>& operator*=(const T2& rhs) noexcept {
+        make_span(_vec) *= rhs;
         return *this;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator/=(const T2& rhs) {
-        static_assert(is_scalar_v<T2>, "Type must be scalar");
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        for (auto& x : _vec) {
-            x /= rhs;
-        }
+    template<class T2>
+    base_array<T>& operator/=(const T2& rhs) {
+        make_span(_vec) /= rhs;
         return *this;
     }
 
     //--------------------------------------------------------------------
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator+(const T2& rhs) const {
-        auto temp = array_cast<R>(*this);
-        //TODO: optimize, not optimal for arr_cmplx + real_t
-        temp += rhs;
-        return temp;
+    //TODO: add lvalue + rvalue, rvalue + lvalue
+    template<class T2>
+    auto operator+(const T2& rhs) const {
+        return make_span(_vec) + rhs;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator-(const T2& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp -= rhs;
-        return temp;
+    template<class T2>
+    auto operator-(const T2& rhs) const {
+        return make_span(_vec) - rhs;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator*(const T2& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp *= rhs;
-        return temp;
+    template<class T2>
+    auto operator*(const T2& rhs) const {
+        return make_span(_vec) * rhs;
     }
 
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator/(const T2& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp /= rhs;
-        return temp;
+    template<class T2>
+    auto operator/(const T2& rhs) const {
+        return make_span(_vec) / rhs;
     }
 
-    //--------------------------------------------------------------------
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator+=(const base_array<T2>& rhs) {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] += rhs[i];
-        }
-        return *this;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator-=(const base_array<T2>& rhs) {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] -= rhs[i];
-        }
-        return *this;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator*=(const base_array<T2>& rhs) {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] *= rhs[i];
-        }
-        return *this;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator/=(const base_array<T2>& rhs) {
-        static_assert(std::is_same_v<T, R>, "The operation changes the type");
-        DSPLIB_ASSERT(this->size() == rhs.size(), "array lengths must be equal");
-        for (size_t i = 0; i < _vec.size(); ++i) {
-            _vec[i] /= rhs[i];
-        }
-        return *this;
-    }
-
-    //--------------------------------------------------------------------
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator+(const base_array<T2>& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp += rhs;
-        return temp;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator-(const base_array<T2>& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp -= rhs;
-        return temp;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator*(const base_array<T2>& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp *= rhs;
-        return temp;
-    }
-
-    template<class T2, class R = ResultType<T, T2>>
-    base_array<R> operator/(const base_array<T2>& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp /= rhs;
-        return temp;
-    }
-
-    //--------------------------------------------------------------------
-    //concatenate syntax
+    //concatenate syntax (deprecated)
+    //TODO: mark as deprecated?
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator|=(const base_array<T2>& rhs) {
         _vec.insert(_vec.end(), rhs.begin(), rhs.end());
@@ -507,34 +413,35 @@ protected:
 
 //--------------------------------------------------------------------------------
 //left oriented scalar * array
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = enable_scalar_t<Scalar>,
-         class C_ = enable_convertible_t<Scalar, R>>
-inline base_array<R> operator+(const Scalar& lhs, const base_array<T>& rhs) {
-    return rhs + R(lhs);
+template<class T, class Scalar, class = enable_scalar_t<Scalar>>
+auto operator+(const Scalar& lhs, const base_array<T>& rhs) {
+    using R = ResultType<T, Scalar>;
+    static_assert(std::is_convertible_v<Scalar, R>, "convertable type error");
+    return rhs + lhs;
 }
 
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = enable_scalar_t<Scalar>,
-         class C_ = enable_convertible_t<Scalar, R>>
-inline base_array<R> operator-(const Scalar& lhs, const base_array<T>& rhs) {
-    auto r = array_cast<R>(rhs);
+template<class T, class S, class = enable_scalar_t<S>>
+auto operator-(const S& lhs, const base_array<T>& rhs) {
+    using R = ResultType<T, S>;
+    static_assert(std::is_convertible_v<S, R>, "convertable type error");
+    return (-rhs) + lhs;
+}
+
+template<class T, class S, class = enable_scalar_t<S>>
+auto operator*(const S& lhs, const base_array<T>& rhs) {
+    using R = ResultType<T, S>;
+    static_assert(std::is_convertible_v<S, R>, "convertable type error");
+    return rhs * lhs;
+}
+
+template<class T, class S, class = enable_scalar_t<S>>
+auto operator/(const S& lhs, const base_array<T>& rhs) {
+    using R = ResultType<T, S>;
+    static_assert(std::is_convertible_v<S, R>, "convertable type error");
+    auto r = base_array<R>(rhs.size());
+    const auto d = R(lhs);
     for (int i = 0; i < r.size(); ++i) {
-        r[i] = R(lhs) - rhs[i];
-    }
-    return r;
-}
-
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = enable_scalar_t<Scalar>,
-         class C_ = enable_convertible_t<Scalar, R>>
-inline base_array<R> operator*(const Scalar& lhs, const base_array<T>& rhs) {
-    return rhs * R(lhs);
-}
-
-template<class T, class Scalar, class R = ResultType<T, Scalar>, class S_ = enable_scalar_t<Scalar>,
-         class C_ = enable_convertible_t<Scalar, R>>
-inline base_array<R> operator/(const Scalar& lhs, const base_array<T>& rhs) {
-    auto r = array_cast<R>(rhs);
-    for (int i = 0; i < r.size(); ++i) {
-        r[i] = R(lhs) / rhs[i];
+        r[i] = d / rhs[i];
     }
     return r;
 }

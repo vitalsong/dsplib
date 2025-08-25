@@ -88,3 +88,82 @@ TEST(SpanTest, Uint8) {
         ASSERT_EQ(s.size(), 100);
     }
 }
+
+TEST(SpanTest, MutOperator) {
+    {
+        auto x = arange(100);
+        x.slice(0, 10) += 10;
+        x.slice(0, 10) -= 10;
+        x.slice(0, 10) *= 10;
+        x.slice(0, 10) /= 10;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        x.slice(0, 10) += 10.0f;
+        x.slice(0, 10) -= 10.0f;
+        x.slice(0, 10) *= 10.0f;
+        x.slice(0, 10) /= 10.0f;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        auto y = arange(1, 11);
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        auto y = arange(1, 11).to_vec<int>();
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = complex(arange(100));
+        x.slice(0, 10) += 10;
+        x.slice(0, 10) -= 10;
+        x.slice(0, 10) *= 10;
+        x.slice(0, 10) /= 10;
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+    {
+        auto x = complex(arange(100));
+        x.slice(0, 10) += cmplx_t(10 + 10i);
+        x.slice(0, 10) -= cmplx_t(10 + 10i);
+        x.slice(0, 10) *= cmplx_t(10 + 10i);
+        x.slice(0, 10) /= cmplx_t(10 + 10i);
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+    {
+        auto x = complex(arange(100));
+        auto y = arange(1, 11).to_vec<int>();
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+}
+
+TEST(SpanTest, ConstOperator) {
+    {
+        auto x = arange(100);
+        auto t = x;
+
+        auto y1 = x.slice(0, 10) + 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y2 = y1.slice(0, 10) - 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y3 = y2.slice(0, 10) * 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y4 = y3.slice(0, 10) / 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        ASSERT_EQ_ARR_REAL(x.slice(0, 10), y4);
+    }
+}
