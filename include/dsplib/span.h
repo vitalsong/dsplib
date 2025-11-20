@@ -40,7 +40,7 @@ public:
     }
 
     //disable for another trivially types (uint8_t, int16_t, long double etc)
-    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, std::enable_if_t<support_type_for_array<U>(), bool> = true>
     mut_span_t(base_array<T>& v)
       : mut_span_t(v.data(), v.size()) {
     }
@@ -61,11 +61,12 @@ public:
         return this->count_;
     }
 
-    T& operator[](int i) noexcept {
-        assert((i >= 0) && (i < size()));
+    T& operator[](size_t i) noexcept {
+        assert(i < size());
         return this->data_[i];
     }
 
+    //=mut_span<T>
     mut_span_t& operator=(const mut_span_t& rhs) {
         if (this == &rhs) {
             return *this;
@@ -74,30 +75,55 @@ public:
         return *this;
     }
 
+    //=mut_span<T2>
+    template<typename T2, std::enable_if_t<std::is_convertible_v<T2, T>, bool> = true,
+             std::enable_if_t<is_scalar_v<T2>, bool> = true>
+    mut_span_t& operator=(const mut_span_t<T2>& rhs) {
+        this->assign(rhs);
+        return *this;
+    }
+
+    //=span_t<T>
     mut_span_t& operator=(const span_t<T>& rhs) {
         this->assign(rhs);
         return *this;
     }
 
-    //TODO: override fast implementation for span
+    //=span_t<T2>
+    template<typename T2, std::enable_if_t<std::is_convertible_v<T2, T>, bool> = true,
+             std::enable_if_t<is_scalar_v<T2>, bool> = true>
+    mut_span_t& operator=(const span_t<T2>& rhs) {
+        this->assign(rhs);
+        return *this;
+    }
+
+    //=base_array<T2>
+    template<typename T2, std::enable_if_t<support_type_for_array<T2>(), bool> = true>
+    mut_span_t& operator=(const base_array<T2>& rhs) {
+        this->assign(make_span(rhs));
+        return *this;
+    }
+
+    mut_span_t& operator=(const T& rhs) {
+        std::fill(this->data_, (this->data_ + this->count_), rhs);
+        return *this;
+    }
+
+    template<typename T2, std::enable_if_t<std::is_convertible_v<T2, T>, bool> = true,
+             std::enable_if_t<is_scalar_v<T2>, bool> = true>
+    mut_span_t& operator=(const T2& rhs) {
+        std::fill(this->data_, (this->data_ + this->count_), rhs);
+        return *this;
+    }
+
     mut_span_t& operator=(const slice_t<T>& rhs) {
+        //TODO: override fast implementation for span
         mut_slice_t<T>::operator=(rhs);
         return *this;
     }
 
     mut_span_t& operator=(const mut_slice_t<T>& rhs) {
         mut_slice_t<T>::operator=(rhs);
-        return *this;
-    }
-
-    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
-    mut_span_t& operator=(const base_array<T>& rhs) {
-        this->assign(rhs);
-        return *this;
-    }
-
-    mut_span_t& operator=(const T& rhs) {
-        std::fill(this->data_, (this->data_ + this->count_), rhs);
         return *this;
     }
 
@@ -126,11 +152,21 @@ public:
     }
 
     void assign(span_t<T> rhs) {
-        DSPLIB_ASSERT(this->size() == rhs.size(), "Span size is not equal");
+        DSPLIB_ASSERT(this->size() == rhs.size(), "span size is not equal");
         if (!is_same_memory(rhs)) {
             std::memcpy(this->data(), rhs.data(), size() * sizeof(T));
         } else {
             std::memmove(this->data(), rhs.data(), size() * sizeof(T));
+        }
+    }
+
+    template<typename T2, std::enable_if_t<std::is_convertible_v<T2, T>, bool> = true>
+    void assign(span_t<T2> rhs) {
+        DSPLIB_ASSERT(this->size() == rhs.size(), "span size is not equal");
+        auto* x = data();
+        const size_t n = size();
+        for (size_t i = 0; i < n; ++i) {
+            x[i] = rhs[i];
         }
     }
 
@@ -143,76 +179,76 @@ public:
 
     //---------------------------------------------------------------------------
     //arithmetic operators
-    template<typename U = T, class T2, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, class T2, std::enable_if_t<is_scalar_v<U>, bool> = true>
     mut_span_t& operator+=(const T2& rhs) noexcept(is_scalar_v<T2>) {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] += rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] += rhs[i];
             }
         }
         return *this;
     }
 
-    template<typename U = T, class T2, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, class T2, std::enable_if_t<is_scalar_v<U>, bool> = true>
     mut_span_t& operator-=(const T2& rhs) noexcept(is_scalar_v<T2>) {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] -= rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] -= rhs[i];
             }
         }
         return *this;
     }
 
-    template<typename U = T, class T2, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, class T2, std::enable_if_t<is_scalar_v<U>, bool> = true>
     mut_span_t& operator*=(const T2& rhs) noexcept(is_scalar_v<T2>) {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] *= rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] *= rhs[i];
             }
         }
         return *this;
     }
 
-    template<typename U = T, class T2, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, class T2, std::enable_if_t<is_scalar_v<U>, bool> = true>
     mut_span_t& operator/=(const T2& rhs) noexcept(is_scalar_v<T2>) {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         static_assert(std::is_same_v<T, R>, "The operation changes the type");
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] /= rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 x[i] /= rhs[i];
             }
         }
@@ -273,7 +309,7 @@ public:
       : span_t(v.data(), v.size()) {
     }
 
-    template<typename U = T, typename = std::enable_if_t<support_type_for_array<U>()>>
+    template<typename U = T, std::enable_if_t<support_type_for_array<U>(), bool> = true>
     span_t(const base_array<T>& v)
       : span_t(v.data(), v.size()) {
     }
@@ -290,8 +326,8 @@ public:
         return this->count_;
     }
 
-    const T& operator[](int i) const noexcept {
-        assert((i >= 0) && (i < size()));
+    const T& operator[](size_t i) const noexcept {
+        assert(i < size());
         return this->data_[i];
     }
 
@@ -316,16 +352,16 @@ public:
     template<class T2>
     auto operator+(const T2& rhs) const {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         base_array<R> res(n);
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] + rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] + rhs[i];
             }
         }
@@ -335,16 +371,16 @@ public:
     template<class T2>
     auto operator-(const T2& rhs) const {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         base_array<R> res(n);
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] - rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] - rhs[i];
             }
         }
@@ -354,16 +390,16 @@ public:
     template<class T2>
     auto operator*(const T2& rhs) const {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         base_array<R> res(n);
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] * rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] * rhs[i];
             }
         }
@@ -373,16 +409,16 @@ public:
     template<class T2>
     auto operator/(const T2& rhs) const {
         auto* x = data();
-        const int n = size();
+        const size_t n = size();
         using R = ResultType<T, T2>;
         base_array<R> res(n);
         if constexpr (is_scalar_v<T2>) {
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] / rhs;
             }
         } else {
             DSPLIB_ASSERT(n == rhs.size(), "Array lengths must be equal");
-            for (int i = 0; i < n; ++i) {
+            for (size_t i = 0; i < n; ++i) {
                 res[i] = x[i] / rhs[i];
             }
         }
@@ -392,12 +428,12 @@ public:
 
 //------------------------------------------------------------------------------------------------
 template<typename T>
-span_t<T> make_span(const T* x, int nx) noexcept {
+span_t<T> make_span(const T* x, size_t nx) noexcept {
     return span_t<T>(x, nx);
 }
 
 template<typename T>
-mut_span_t<T> make_span(T* x, int nx) noexcept {
+mut_span_t<T> make_span(T* x, size_t nx) noexcept {
     return mut_span_t<T>(x, nx);
 }
 
