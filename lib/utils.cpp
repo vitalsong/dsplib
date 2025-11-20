@@ -161,7 +161,7 @@ arr_real from_file(const std::string& file, dtype type, endian order, long offse
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t peakloc(const arr_real& x, int idx, bool cyclic) {
+real_t peakloc(span_real x, int idx, bool cyclic) {
     const int n = x.size();
     if (!cyclic && (idx == 0 || idx == n - 1)) {
         return idx;
@@ -177,7 +177,7 @@ real_t peakloc(const arr_real& x, int idx, bool cyclic) {
     return idx + q / (2 * a) - 1;
 }
 
-real_t peakloc(const arr_cmplx& x, int idx, bool cyclic) {
+real_t peakloc(span_cmplx x, int idx, bool cyclic) {
     const int n = x.size();
     if (!cyclic && (idx == 0 || idx == n - 1)) {
         return idx;
@@ -328,11 +328,11 @@ base_array<T> _zeropad(span_t<T> x, int n) {
 
 }   // namespace
 
-arr_real zeropad(span_t<real_t> x, int n) {
+arr_real zeropad(span_real x, int n) {
     return _zeropad<real_t>(x, n);
 }
 
-arr_cmplx zeropad(span_t<cmplx_t> x, int n) {
+arr_cmplx zeropad(span_cmplx x, int n) {
     return _zeropad<cmplx_t>(x, n);
 }
 
