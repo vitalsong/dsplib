@@ -214,3 +214,37 @@ TEST(ArrRealTest, UnaryOperators) {
         ASSERT_EQ_ARR_REAL(x3, dsplib::arange(32));
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(ArrRealTest, VecToArr) {
+    {
+        std::vector<real_t> x1 = {0, -1.1, 2.2, -3.3};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -1.1, 2.2, -3.3});
+    }
+    {
+        std::vector<float> x1 = {0, -1.1, 2.2, -3.3};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -1.1, 2.2, -3.3});
+    }
+    {
+        std::vector<double> x1 = {0, -1.1, 2.2, -3.3};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -1.1, 2.2, -3.3});
+    }
+    {
+        std::vector<int8_t> x1 = {0, -1, 2, -3};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -1, 2, -3});
+    }
+    {
+        std::vector<int32_t> x1 = {0, -1000, 2000, -3000};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -1000, 2000, -3000});
+    }
+    {
+        std::vector<int64_t> x1 = {0, -100000, 200000, -300000};
+        auto x2 = dsplib::arr_real(x1);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{0, -100000, 200000, -300000});
+    }
+}

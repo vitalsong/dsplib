@@ -26,31 +26,22 @@ class base_array
     static_assert(support_type_for_array<T>(), "type is not supported");
 
 public:
-    base_array() = default;
+    base_array() noexcept = default;
 
     explicit base_array(int n)
       : _vec(n, 0) {
-    }
-
-    base_array(const slice_t<T>& rhs)
-      : base_array(rhs.size()) {
-        this->slice(0, indexing::end) = rhs;
-    }
-
-    base_array(const mut_slice_t<T>& rhs)
-      : base_array(slice_t<T>(rhs)) {
     }
 
     base_array(const std::vector<T>& v)
       : _vec(v) {
     }
 
-    template<typename T2>
+    template<typename T2, std::enable_if_t<is_array_convertible<T2, T>(), bool> = true>
     base_array(const std::vector<T2>& v)
       : base_array(make_span(v)) {
     }
 
-    base_array(std::vector<T>&& v)
+    base_array(std::vector<T>&& v) noexcept
       : _vec(std::move(v)) {
     }
 
@@ -58,7 +49,7 @@ public:
       : _vec(v._vec) {
     }
 
-    template<class T2>
+    template<class T2, std::enable_if_t<is_array_convertible<T2, T>(), bool> = true>
     base_array(const base_array<T2>& v) {
         _vec.assign(v.begin(), v.end());
     }
@@ -71,16 +62,35 @@ public:
       : _vec(list) {
     }
 
-    template<typename T2>
-    explicit base_array(const span_t<T2>& v) {
-        static_assert(is_array_convertible<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+    base_array(const span_t<T>& v)
+      : _vec(v.data(), v.data() + v.size()) {
+    }
+
+    base_array(const mut_span_t<T>& v)
+      : _vec(v.data(), v.data() + v.size()) {
+    }
+
+    base_array(const slice_t<T>& rhs)
+      : base_array(rhs.size()) {
+        this->slice(0, indexing::end) = rhs;
+    }
+
+    base_array(const mut_slice_t<T>& rhs)
+      : base_array(slice_t<T>(rhs)) {
+    }
+
+    template<typename T2, std::enable_if_t<is_array_convertible<T2, T>(), bool> = true>
+    base_array(const span_t<T2>& v) {
         _vec.assign(v.begin(), v.end());
     }
 
-    template<typename T2>
-    explicit base_array(const mut_span_t<T2>& v) {
-        static_assert(is_array_convertible<T2, T>(), "Only real2real/cmplx2cmplx array cast support");
+    template<typename T2, std::enable_if_t<is_array_convertible<T2, T>(), bool> = true>
+    base_array(const mut_span_t<T2>& v) {
         _vec.assign(v.begin(), v.end());
+    }
+
+    explicit base_array(const T* ptr, size_t size)
+      : base_array(make_span(ptr, size)) {
     }
 
     //--------------------------------------------------------------------
@@ -101,27 +111,22 @@ public:
     }
 
     //--------------------------------------------------------------------
-    const T& operator[](int i) const noexcept {
-        const int idx = (i >= 0) ? (i) : (_vec.size() + i);
-        assert((idx >= 0) && (idx < int(_vec.size())));
-        return _vec[idx];
+    template<typename Index, std::enable_if_t<std::is_integral_v<Index>, bool> = true>
+    const T& operator[](Index i) const noexcept {
+        const size_t n = _vec.size();
+        if constexpr (std::is_signed_v<Index>) {
+            const size_t idx = (i >= 0) ? static_cast<size_t>(i) : (n + i);
+            DSPLIB_ASSUME(idx < n);
+            return _vec[idx];
+        } else {
+            DSPLIB_ASSUME(i < n);
+            return _vec[i];
+        }
     }
 
-    T& operator[](int i) noexcept {
-        const int idx = (i >= 0) ? (i) : (_vec.size() + i);
-        assert((idx >= 0) && (idx < int(_vec.size())));
-        return _vec[idx];
-    }
-
-    //--------------------------------------------------------------------
-    const T& operator[](size_t i) const noexcept {
-        assert(i < _vec.size());
-        return _vec[i];
-    }
-
-    T& operator[](size_t i) noexcept {
-        assert(i < _vec.size());
-        return _vec[i];
+    template<typename Index, std::enable_if_t<std::is_integral_v<Index>, bool> = true>
+    T& operator[](Index i) noexcept {
+        return const_cast<T&>(static_cast<const base_array<T>&>(*this)[i]);
     }
 
     //--------------------------------------------------------------------
@@ -300,7 +305,7 @@ public:
 
     base_array<T> operator-() const noexcept {
         base_array<T> r{_vec};
-        for (int i = 0; i < r.size(); ++i) {
+        for (size_t i = 0; i < r.size(); ++i) {
             r[i] = -r[i];
         }
         return r;
@@ -353,8 +358,8 @@ public:
         return make_span(_vec) / rhs;
     }
 
-    //concatenate syntax (deprecated)
-    //TODO: mark as deprecated?
+    //concatenate syntax
+    //TODO: mark as deprecated
     template<class T2, class R = ResultType<T, T2>>
     base_array<R>& operator|=(const base_array<T2>& rhs) {
         _vec.insert(_vec.end(), rhs.begin(), rhs.end());
@@ -440,7 +445,7 @@ auto operator/(const S& lhs, const base_array<T>& rhs) {
     static_assert(std::is_convertible_v<S, R>, "convertable type error");
     auto r = base_array<R>(rhs.size());
     const auto d = R(lhs);
-    for (int i = 0; i < r.size(); ++i) {
+    for (size_t i = 0; i < r.size(); ++i) {
         r[i] = d / rhs[i];
     }
     return r;
