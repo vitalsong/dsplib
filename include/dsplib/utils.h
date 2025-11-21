@@ -85,8 +85,8 @@ arr_real from_file(const std::string& file, dtype type = dtype::int16, endian or
                    long count = std::numeric_limits<long>::max());
 
 //add zeros to the end of the array
-arr_real zeropad(span_t<real_t> x, int n);
-arr_cmplx zeropad(span_t<cmplx_t> x, int n);
+arr_real zeropad(span_real x, int n);
+arr_cmplx zeropad(span_cmplx x, int n);
 
 //delays or advances the signal by the number of samples specified in delay
 //TODO: fractional delay support
@@ -111,8 +111,8 @@ base_array<T> delayseq(const base_array<T>& data, int delay) {
 }
 
 //peak localization
-real_t peakloc(const arr_real& x, int idx, bool cyclic = true);
-real_t peakloc(const arr_cmplx& x, int idx, bool cyclic = true);
+real_t peakloc(span_real x, int idx, bool cyclic = true);
+real_t peakloc(span_cmplx x, int idx, bool cyclic = true);
 
 //Estimate delay between signals
 int finddelay(span_real x1, span_real x2);

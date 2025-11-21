@@ -443,6 +443,37 @@ TEST(MathTest, Sort) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(MathTest, InplaceSort) {
+    {
+        arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        sort(inplace(x1));
+        ASSERT_EQ_ARR_REAL(x1, arr_real{1, 2, 3, 3, 4, 5, 6, 7});
+        ASSERT_TRUE(issorted(x1));
+    }
+    {
+        arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        sort(inplace(x1), Direction::Descend);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{7, 6, 5, 4, 3, 3, 2, 1});
+        ASSERT_TRUE(issorted(x1, Direction::Descend));
+        ASSERT_FALSE(issorted(x1, Direction::Ascend));
+    }
+    {
+        arr_real x1 = {0, 1, 2, 3, 4, 5};
+        sort(inplace(x1));
+        ASSERT_EQ_ARR_REAL(x1, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(x1));
+        ASSERT_FALSE(issorted(x1, Direction::Descend));
+    }
+    {
+        arr_real x1 = {5, 4, 3, 2, 1, 0};
+        sort(inplace(x1), Direction::Descend);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{5, 4, 3, 2, 1, 0});
+        ASSERT_TRUE(issorted(x1, Direction::Descend));
+        ASSERT_FALSE(issorted(x1, Direction::Ascend));
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(MathTest, Factor) {
     ASSERT_EQ_ARR_REAL(factor(0), arr_int{0});
     ASSERT_EQ_ARR_REAL(factor(1), arr_int{1});

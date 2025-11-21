@@ -188,6 +188,19 @@ std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir) {
     return std::make_pair(sorted, index);
 }
 
+void sort(inplace_real ix, Direction dir) {
+    auto x = ix.get();
+    if (issorted(x, dir)) {
+        return;
+    }
+
+    if (dir == Direction::Ascend) {
+        std::sort(x.begin(), x.end());
+    } else {
+        std::sort(x.begin(), x.end(), std::greater<int>());
+    }
+}
+
 bool issorted(span_real x, Direction dir) {
     if (dir == Direction::Descend) {
         auto comp = [&](auto lhs, auto rhs) {

@@ -106,6 +106,9 @@ real_t corr(span_real x, span_real y, Correlation type = Correlation::Pearson);
 //result: [sorted array, sort index]
 std::pair<arr_real, arr_int> sort(const arr_real& x, Direction dir = Direction::Ascend);
 
+//inplace sort
+void sort(inplace_real ix, Direction dir = Direction::Ascend);
+
 //determine if array is sorted
 bool issorted(span_real x, Direction dir = Direction::Ascend);
 
