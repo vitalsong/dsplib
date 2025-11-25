@@ -359,32 +359,42 @@ public:
     }
 
     //concatenate syntax
-    //TODO: mark as deprecated
     template<class T2, class R = ResultType<T, T2>>
-    base_array<R>& operator|=(const base_array<T2>& rhs) {
+    base_array& operator|=(const base_array<T2>& rhs) {
+        static_assert(std::is_same_v<T, R>, "not supported array cast");
         _vec.insert(_vec.end(), rhs.begin(), rhs.end());
         return *this;
     }
 
     template<class T2, class R = ResultType<T, T2>>
     base_array<R> operator|(const base_array<T2>& rhs) const {
-        auto temp = array_cast<R>(*this);
-        temp |= array_cast<R>(rhs);
-        return temp;
+        auto r = this->cast<R>();
+        r |= rhs;
+        return r;
     }
 
     template<typename R>
-    std::vector<R> to_vec() const {
+    [[nodiscard]] std::vector<R> to_vec() const noexcept {
         if constexpr (std::is_same_v<T, R>) {
             return _vec;
         } else {
-            static_assert(std::is_convertible_v<T, R>, "type is not convertible");
+            static_assert(std::is_convertible_v<T, R>, "type must be convertible");
             return std::vector<R>(_vec.begin(), _vec.end());
         }
     }
 
-    const std::vector<T>& to_vec() const noexcept {
+    [[nodiscard]] const std::vector<T>& to_vec() const noexcept {
         return _vec;
+    }
+
+    template<typename R>
+    [[nodiscard]] auto cast() const noexcept {
+        if constexpr (std::is_same_v<T, R>) {
+            return *this;
+        } else {
+            static_assert(std::is_convertible_v<T, R>, "type must be convertible");
+            return base_array<R>(this->to_vec<R>());
+        }
     }
 
     //apply per element function

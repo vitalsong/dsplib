@@ -471,7 +471,7 @@ arr_cmplx power(const arr_cmplx& x, real_t n) {
 template<typename T>
 static base_array<T> _power(const base_array<T>& x, int n) {
     if (n == 0) {
-        return array_cast<T>(ones(x.size()));
+        return ones(x.size()).template cast<T>();
     }
     if (n == 1) {
         return x;
