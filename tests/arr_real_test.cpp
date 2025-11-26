@@ -37,6 +37,17 @@ TEST(ArrRealTest, Cast) {
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
     {
+        const arr_int x1 = arange(0, 10).cast<int>();
+        const arr_real x2(x1);
+        ASSERT_EQ_ARR_REAL(x1, x2);
+    }
+    {
+        const arr_real x1 = arange(0, 10);
+        const arr_cmplx x2 = x1.cast<cmplx_t>();
+        ASSERT_EQ_ARR_REAL(real(x2), x1);
+        ASSERT_EQ_ARR_REAL(imag(x2), zeros(x1.size()));
+    }
+    {
         arr_real x1 = {1, 2, 3, 4, 5};
         x1 = x1;
         ASSERT_EQ_ARR_REAL(x1, arr_real{1, 2, 3, 4, 5});
