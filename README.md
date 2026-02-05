@@ -4,7 +4,7 @@
 ![testing](https://github.com/vitalsong/dsplib/actions/workflows/linux.yml/badge.svg)
 ![testing](https://github.com/vitalsong/dsplib/actions/workflows/windows.yml/badge.svg)
 
-C++ DSP library for MATLAB similar programming.
+A C++ DSP library with MATLAB-like syntax for readable and safe signal processing.
 
 This is a library for those who hate this kind of code:
 
@@ -37,7 +37,41 @@ auto r = x1 * x2;
 auto spec = fft(x);
 ```
 
+## Motivation
+
+`dsplib` is, essentially, my personal collection of DSP screwdrivers.
+
+It has been slowly assembled over several years and used across many projects.
+The reason is simple: a lot of C++ DSP code is painful to read, easy to misuse,
+and surprisingly good at reproducing the same bugs in slightly different forms.
+
+Raw pointers in public APIs, implicit assumptions about buffer sizes, and
+hand-written loops tend to age poorly.
+
+`dsplib` is an attempt to build a **1D DSP library with a human face**:
+modern C++ abstractions, explicit intent, and a syntax that does not fight the
+person writing the code.
+
+The library favors clarity and correctness first — and then works very hard to
+make it fast.
+
+
 ## Usage
+
+### Quick Taste
+
+```cpp
+// windowed FFT magnitude spectrum (dB)
+auto x = randn(1024);
+x *= window::hann(x.size());
+auto spec = pow2db(abs2(fft(x)));
+```
+
+### Conceptual Differences
+
+The table below highlights key conceptual differences between dsplib and
+MATLAB / NumPy, beyond simple syntax similarities.
+
 
 | dsplib      | matlab      | numpy       |
 | ----------- | ----------- | ----------- |
@@ -265,19 +299,44 @@ auto out = dsplib::resample(in, 2, 1);
 auto out = dsplib::resample(in, 32000, 16000);
 ```
 
-### Thread Safety Notice:
+### ⚠️ Thread Safety & Memory Notice
 
 The standard implementation is **thread-safe** because all caches (primarily FFT-related) use `thread_local` storage.  
 **Memory warning:** This may increase memory consumption if used carelessly – please avoid spreading processing across hundreds of threads.  
 
 The FFTW3 backend is wrapped with a **static mutex** (excluding `fftw_execute` calls) and is also thread-safe. 
 
+## Documentation
+
+Full API documentation is available here:
+
+📖 **https://vitalsong.github.io/dsplib/**
+
+The documentation is generated using Doxygen and reflects the current public API.
+
 ## Build
 
 ### Requires:
-- CMake (>=3.10)
+
+- CMake (>=3.15)
 - C++17 compiler (exceptions can be disabled)
 
+`dsplib` is designed with portability in mind and avoids platform-specific
+dependencies wherever possible.
+
+If your platform has a reasonably complete C++17 compiler and CMake support,
+there is a good chance dsplib will build there as well.
+
+In practice, it is often easier to list platforms where dsplib does not build.
+So far, I haven't found many :)
+
+Known to work in production on:
+- Android (API 27, 29, ARMv7 / ARMv8)
+- Linux (GCC, Clang, MinGW)
+- Windows (MSVC, MinGW)
+- macOS (Clang)
+- WebAssembly (Emscripten)
+- Custom Buildroot-based ARM toolchains
 
 ### Build and install:
 
@@ -296,7 +355,7 @@ CPMAddPackage(NAME dsplib
     GIT_REPOSITORY 
         "https://github.com/vitalsong/dsplib.git"
     VERSION 
-        0.55.3
+        1.0.0
     OPTIONS
         "DSPLIB_USE_FLOAT32 OFF"
         "DSPLIB_NO_EXCEPTIONS OFF"
@@ -366,7 +425,7 @@ BM_KISSFFT/11202/min_time:5.000           27936 us        27935 us          250
 BM_KISSFFT/16384/min_time:5.000            98.5 us         98.5 us        69101
 ```
 
-## TODO:
+## TODO (this is a wishlist, not a roadmap):
 - Add matrix syntax support;
 - Add custom allocator for `base_array<T>` type;
 - Add audioread/audiowrite functions (optional libsndfile?);
