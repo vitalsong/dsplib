@@ -71,10 +71,7 @@ public:
     [[nodiscard]] int decim_rate() const noexcept final;
 
 private:
-    std::vector<arr_real> h_;
-    arr_real d_;
-    int decim_;
-    int sublen_;
+    std::shared_ptr<IResampler> d_;
 };
 
 //------------------------------------------------------------------------------

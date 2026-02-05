@@ -10,12 +10,25 @@ option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
 set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
 option(DSPLIB_EXCLUDE_FFT "Exclude FFT (must be implemented external)" OFF)
 set(DSPLIB_FFT_BACKEND "dsplib" CACHE STRING "FFT backend type [dsplib, ne10, fftw]")
+option(DSPLIB_ENABLE_LTO "Enable link-time optimization (LTO)" OFF)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
 option(DSPLIB_BUILD_EXAMPLES "Build dsplib examples" OFF)
 option(DSPLIB_BUILD_BENCHS "Build dsplib benchs" OFF)
 option(DSPLIB_BUILD_DOXYGEN "Build dsplib documentation" OFF)
+
+if(DSPLIB_ENABLE_LTO)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+  if(ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
+    message(STATUS "LTO enabled (Release, RelWithDebInfo)")
+  else()
+    message(WARNING "LTO requested but not supported: ${ipo_error}")
+  endif()
+endif()
 
 set(DSPLIB_SOURCES
     lib/agc.cpp
@@ -81,7 +94,7 @@ elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
 endif()
 
 if (DSPLIB_EXCLUDE_FFT)
-    message(STATUS "dsplib: use custom fft implementation - ${DSPLIB_FFT_BACKEND}")
+    message(STATUS "use custom fft implementation - ${DSPLIB_FFT_BACKEND}")
 else()
     list(APPEND DSPLIB_SOURCES lib/fft/dsplib.cpp)
 endif()
@@ -114,13 +127,13 @@ endif()
 
 # base type select
 if (DSPLIB_USE_FLOAT32)
-    message(STATUS "dsplib: base type of real_t = float32")
+    message(STATUS "base type of real_t = float32")
 else()
-    message(STATUS "dsplib: base type of real_t = float64")
+    message(STATUS "base type of real_t = float64")
 endif()
 
 if (DSPLIB_NO_EXCEPTIONS)
-    message(STATUS "dsplib: disable exceptions")
+    message(STATUS "disable exceptions")
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
 endif()
 
@@ -129,7 +142,7 @@ configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
 
 # check warnings
 if (DSPLIB_IS_ROOT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    message(STATUS "dsplib: warnings guard enabled")
+    message(STATUS "warnings guard enabled")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-sign-compare)
 endif()
 

@@ -44,7 +44,8 @@
             "inherits": "default",
             "cacheVariables": {
                 "DSPLIB_BUILD_BENCHS": "ON",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "DSPLIB_ENABLE_LTO": "ON"
             }
         },
         {
@@ -53,7 +54,8 @@
             "cacheVariables": {
                 "DSPLIB_BUILD_BENCHS": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
-                "DSPLIB_USE_FLOAT32": "ON"
+                "DSPLIB_USE_FLOAT32": "ON",
+                "DSPLIB_ENABLE_LTO": "ON"
             }
         },
         {
