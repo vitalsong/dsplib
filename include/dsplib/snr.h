@@ -17,7 +17,7 @@ enum class SinadType
  * \param sig input signal
  * \param type input signal type
  */
-real_t sinad(const arr_real& sig, SinadType type = SinadType::Time);
+real_t sinad(span_real sig, SinadType type = SinadType::Time);
 
 struct ThdRes
 {
@@ -32,7 +32,7 @@ struct ThdRes
  * \param nharm number of harmonics
  * \param aliased use harmonics of the fundamental that are aliased into the Nyquist range
  */
-ThdRes thd(const arr_real& sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
+ThdRes thd(span_real sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
 
 /*!
  * \brief Signal-to-noise ratio
@@ -40,6 +40,6 @@ ThdRes thd(const arr_real& sig, int nharm = 6, bool aliased = false, SinadType t
  * \param nharm number of harmonics
  * \param aliased use harmonics of the fundamental that are aliased into the Nyquist range
  */
-real_t snr(const arr_real& sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
+real_t snr(span_real sig, int nharm = 6, bool aliased = false, SinadType type = SinadType::Time);
 
 }   // namespace dsplib

@@ -20,7 +20,7 @@ class IResampler
 public:
     virtual ~IResampler() = default;
 
-    virtual arr_real process(const arr_real& sig) = 0;
+    virtual arr_real process(span_real sig) = 0;
 
     [[nodiscard]] virtual int delay() const noexcept {
         return 0;
@@ -43,7 +43,7 @@ public:
     }
 
     //polyphase decomposition of multirate filter
-    static std::vector<arr_real> polyphase(arr_real h, int m, real_t gain = 1.0, bool flip_coeffs = false);
+    static std::vector<arr_real> polyphase(span_real h, int m, real_t gain = 1.0, bool flip_coeffs = false);
 
     //nearest multiple of frame size to process
     static int next_size(int size, int p, int q);
@@ -62,19 +62,16 @@ public:
 
     //decim - decimation factor
     //h - custom multirate fir filter
-    explicit FIRDecimator(int decim, const arr_real& h);
+    explicit FIRDecimator(int decim, span_real h);
 
     //in.size() must be a multiple of the decim
-    arr_real process(const arr_real& in) final;
+    arr_real process(span_real in) final;
 
     [[nodiscard]] int delay() const noexcept final;
     [[nodiscard]] int decim_rate() const noexcept final;
 
 private:
-    std::vector<arr_real> h_;
-    arr_real d_;
-    int decim_;
-    int sublen_;
+    std::shared_ptr<IResampler> d_;
 };
 
 //------------------------------------------------------------------------------
@@ -86,9 +83,9 @@ public:
 
     //interp - interpolation factor
     //h - custom multirate fir filter
-    explicit FIRInterpolator(int interp, const arr_real& h);
+    explicit FIRInterpolator(int interp, span_real h);
 
-    arr_real process(const arr_real& in) final;
+    arr_real process(span_real in) final;
 
     [[nodiscard]] int delay() const noexcept final;
     [[nodiscard]] int interp_rate() const noexcept final;
@@ -110,10 +107,10 @@ public:
     //interp - interpolation factor
     //decim - decimation factor
     //h - custom multirate fir filter
-    explicit FIRRateConverter(int interp, int decim, const arr_real& h);
+    explicit FIRRateConverter(int interp, int decim, span_real h);
 
     //in.size() must be a multiple of the decim
-    arr_real process(const arr_real& in) final;
+    arr_real process(span_real in) final;
 
     [[nodiscard]] int delay() const noexcept final;
     [[nodiscard]] int interp_rate() const noexcept final;
@@ -139,7 +136,7 @@ public:
     //in_fs - input sample rate (Hz)
     explicit FIRResampler(int out_fs, int in_fs);
 
-    explicit FIRResampler(int out_fs, int in_fs, const arr_real& h);
+    explicit FIRResampler(int out_fs, int in_fs, span_real h);
 
     enum class Mode
     {
@@ -149,7 +146,7 @@ public:
         Resampler
     };
 
-    arr_real process(const arr_real& sig) final;
+    arr_real process(span_real sig) final;
 
     [[nodiscard]] int delay() const noexcept final;
     [[nodiscard]] int interp_rate() const noexcept final;
@@ -166,9 +163,9 @@ private:
 
 //n - filter len, uses an antialiasing filter of order 2 × n × max(p,q)
 //beta - shape parameter of Kaiser window
-arr_real resample(const arr_real& x, int p, int q, int n = 10, real_t beta = 5.0);
+arr_real resample(span_real x, int p, int q, int n = 10, real_t beta = 5.0);
 
 //h - resample FIR filter coefficients
-arr_real resample(const arr_real& x, int p, int q, const arr_real& h);
+arr_real resample(span_real x, int p, int q, span_real h);
 
 }   // namespace dsplib

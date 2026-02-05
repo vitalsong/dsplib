@@ -2,24 +2,35 @@
 
 #include <dsplib/ifft.h>
 
-#include "fft/factory.h"
-
 namespace dsplib {
 
-class CmplxIfftPlan : public BaseIfftPlanC
+class CmplxIfftPlan : public IfftPlanC
 {
 public:
     explicit CmplxIfftPlan(int n)
-      : fft_{create_fft_plan(n)} {
+      : fft_{fft_plan_c(n)} {
     }
 
-    arr_cmplx solve(const arr_cmplx& x) const final {
-        const real_t m = real_t(1) / x.size();
-        arr_cmplx y = x * m;
-        _inplace_conj(y);
-        y = fft_->solve(y);
-        _inplace_conj(y);
-        return y;
+    arr_cmplx solve(span_t<cmplx_t> x) const final {
+        arr_cmplx r(x);
+        this->solve(x, r);
+        return r;
+    }
+
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final {
+        const int n = fft_->size();
+        DSPLIB_ASSERT(x.size() == n, "array size error");
+        DSPLIB_ASSERT(x.size() == r.size(), "array size error");
+        arr_cmplx t(n);
+        const real_t m = real_t(1) / n;
+        for (int i = 0; i < n; ++i) {
+            t[i].re = x[i].re * m;
+            t[i].im = -(x[i].im * m);
+        }
+        fft_->solve(t, r);
+        for (int i = 0; i < n; ++i) {
+            r[i].im = -r[i].im;
+        }
     }
 
     int size() const noexcept final {
@@ -27,13 +38,7 @@ public:
     }
 
 private:
-    static void _inplace_conj(arr_cmplx& x) {
-        for (auto& v : x) {
-            v.im = -v.im;
-        }
-    }
-
-    std::shared_ptr<BaseFftPlanC> fft_;
+    std::shared_ptr<FftPlanC> fft_;
 };
 
 }   // namespace dsplib

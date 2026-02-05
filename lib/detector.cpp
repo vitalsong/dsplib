@@ -57,7 +57,7 @@ private:
 class PreambleDetectorImpl
 {
 public:
-    explicit PreambleDetectorImpl(const arr_cmplx& h, real_t threshold)
+    explicit PreambleDetectorImpl(span_cmplx h, real_t threshold)
       : _corr_flt{_convert_impulse(h)}
       , _pow_flt{h.size()}
       , _threshold{threshold * threshold}
@@ -65,9 +65,7 @@ public:
     }
 
     std::optional<PreambleDetector::Result> process(const arr_cmplx& sig) {
-        if (sig.size() % frame_len() != 0) {
-            DSPLIB_THROW("Frame len not supported");
-        }
+        DSPLIB_ASSERT(sig.size() % frame_len() == 0, "Frame len not supported");
 
         const auto cx = _corr_flt.process(sig);
         const auto pwx = _pow_flt.process(abs2(sig));
@@ -91,28 +89,28 @@ public:
 
     void reset() {
         _pow_flt.process(zeros(frame_len()));
-        _corr_flt.process(zeros(frame_len()));
+        _corr_flt.process(complex(zeros(frame_len())));
         _delay.reset();
     }
 
 private:
-    static arr_cmplx _convert_impulse(const arr_cmplx& h) {
+    static arr_cmplx _convert_impulse(span_cmplx h) {
         return flip(h) / (rms(h) * h.size());
     }
 
-    FftFilter _corr_flt;
+    FftFilterC _corr_flt;
     MAFilterR _pow_flt;
     real_t _threshold{1.0};
     CDelay<cmplx_t> _delay;
 };
 
 //---------------------------------------------------------------------------------------------------------------
-PreambleDetector::PreambleDetector(const arr_cmplx& h, real_t threshold) {
+PreambleDetector::PreambleDetector(span_cmplx h, real_t threshold) {
     _d = std::make_shared<PreambleDetectorImpl>(h, threshold);
 }
 
-std::optional<PreambleDetector::Result> PreambleDetector::process(const arr_cmplx& sig) {
-    return _d->process(sig);
+std::optional<PreambleDetector::Result> PreambleDetector::process(span_cmplx x) {
+    return _d->process(x);
 }
 
 [[nodiscard]] int PreambleDetector::frame_len() const noexcept {

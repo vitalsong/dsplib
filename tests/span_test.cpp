@@ -1,0 +1,169 @@
+#include "tests_common.h"
+#include <gtest/gtest.h>
+
+using namespace dsplib;
+
+static real_t _first_span_elem(const span_real& x) {
+    return x[0];
+}
+
+TEST(SpanTest, Base) {
+    {
+        arr_real x1 = {-1, 2, -3, 4, -5};
+        x1.slice(0, 2) = 100;
+        ASSERT_EQ_ARR_REAL(x1, arr_real{100, 100, -3, 4, -5});
+    }
+}
+
+TEST(SpanTest, ConstMutable) {
+    {
+        arr_real x1 = {-1, 1, 2, 3};
+        auto span = x1.slice(0, indexing::end);
+        ASSERT_EQ(span.size(), 4);
+        arr_real x2(span);
+        ASSERT_EQ_ARR_REAL(x1, x2);
+        ASSERT_EQ(_first_span_elem(span), -1);
+        ASSERT_EQ(_first_span_elem(x1), -1);
+    }
+
+    {
+        arr_real x1 = {-1, 2, -3, 4, -5};
+        auto span = x1.slice(1, 3);
+        ASSERT_EQ(span.size(), 2);
+        arr_real x2(span);
+        ASSERT_EQ_ARR_REAL(x2, arr_real{2, -3});
+        ASSERT_EQ(_first_span_elem(span), 2);
+    }
+}
+
+TEST(SpanTest, NoTempValueUB) {
+    auto fn = [](span_real x) {
+        auto y = dsplib::fft(x);
+        return y;
+    };
+
+    auto y1 = fn(std::vector<real_t>{1, 2, 3, 4});
+    auto y2 = fft(arr_real(std::vector<real_t>{1, 2, 3, 4}));
+    ASSERT_EQ_ARR_CMPLX(y1, y2);
+}
+
+TEST(SpanTest, StdVector) {
+    {
+        std::vector<real_t> x = {-1, 1, 2, 3};
+        ASSERT_EQ(dsplib::max(x), x[3]);
+    }
+    {
+        std::vector<cmplx_t> x = {-1i, 1i, 2i, 3i};
+        ASSERT_CMPLX_EQ(dsplib::max(x), x[3]);
+    }
+}
+
+TEST(SpanTest, RealToCmplx) {
+    {
+        arr_cmplx x = {1i, 2i, 3i, 4i};
+        x.slice(0, 2) = 1;
+        arr_cmplx y = {1, 1, 3i, 4i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+    {
+        arr_cmplx x = {1i, 2i, 3i, 4i};
+        x.slice(1, 3) = zeros(2);
+        arr_cmplx y = {1i, 0, 0, 4i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+}
+
+TEST(SpanTest, Uint8) {
+    std::vector<uint8_t> bytes(100);
+    {
+        auto s = make_span(bytes);
+        ASSERT_EQ(s.size(), 100);
+    }
+    {
+        auto s = span_t<uint8_t>(bytes);
+        ASSERT_EQ(s.size(), 100);
+    }
+    {
+        auto s = span_t<uint8_t>(bytes.data(), bytes.size());
+        ASSERT_EQ(s.size(), 100);
+    }
+}
+
+TEST(SpanTest, MutOperator) {
+    {
+        auto x = arange(100);
+        x.slice(0, 10) += 10;
+        x.slice(0, 10) -= 10;
+        x.slice(0, 10) *= 10;
+        x.slice(0, 10) /= 10;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        x.slice(0, 10) += 10.0f;
+        x.slice(0, 10) -= 10.0f;
+        x.slice(0, 10) *= 10.0f;
+        x.slice(0, 10) /= 10.0f;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        auto y = arange(1, 11);
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = arange(100);
+        auto y = arange(1, 11).to_vec<int>();
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_REAL(x, arange(100));
+    }
+    {
+        auto x = complex(arange(100));
+        x.slice(0, 10) += 10;
+        x.slice(0, 10) -= 10;
+        x.slice(0, 10) *= 10;
+        x.slice(0, 10) /= 10;
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+    {
+        auto x = complex(arange(100));
+        x.slice(0, 10) += cmplx_t(10 + 10i);
+        x.slice(0, 10) -= cmplx_t(10 + 10i);
+        x.slice(0, 10) *= cmplx_t(10 + 10i);
+        x.slice(0, 10) /= cmplx_t(10 + 10i);
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+    {
+        auto x = complex(arange(100));
+        auto y = arange(1, 11).to_vec<int>();
+        x.slice(0, 10) += y;
+        x.slice(0, 10) -= y;
+        x.slice(0, 10) *= y;
+        x.slice(0, 10) /= y;
+        ASSERT_EQ_ARR_CMPLX(x, complex(arange(100)));
+    }
+}
+
+TEST(SpanTest, ConstOperator) {
+    {
+        auto x = arange(100);
+        auto t = x;
+
+        auto y1 = x.slice(0, 10) + 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y2 = y1.slice(0, 10) - 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y3 = y2.slice(0, 10) * 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        auto y4 = y3.slice(0, 10) / 10;
+        ASSERT_EQ_ARR_REAL(x, t);
+        ASSERT_EQ_ARR_REAL(x.slice(0, 10), y4);
+    }
+}

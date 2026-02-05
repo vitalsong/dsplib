@@ -4,11 +4,6 @@
 using namespace dsplib;
 
 //-------------------------------------------------------------------------------------------------
-static arr_cmplx zadoff_chu(int r, int n) {
-    return expj(-pi * r * power(arange(n), 2) / n);
-}
-
-//-------------------------------------------------------------------------------------------------
 TEST(PreambleDetector, SingleDetect) {
     auto ref = zadoff_chu(1, 199);
     auto dtc = PreambleDetector(ref, 0.5);
@@ -37,16 +32,14 @@ TEST(PreambleDetector, FlowDetect) {
 
     int detected = 0;
     const int frame_len = dtc.frame_len();
-    const int L = in.size() / frame_len;
-    for (int i = 0; i < L; i++) {
-        int t0 = i * frame_len;
-        int t1 = t0 + frame_len;
-        arr_cmplx x = in.slice(t0, t1);
+    ChunkBuffer<cmplx_t> buf(frame_len);
+    buf.write(in, [&](auto x) {
         auto result = dtc.process(x);
         if (result.has_value()) {
             detected++;
             ASSERT_EQ(finddelay(ref, result->preamble), 0);
         }
-    }
+    });
+
     ASSERT_EQ(detected, 2);
 }

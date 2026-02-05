@@ -3,9 +3,9 @@
 #include "dsplib/czt.h"
 #include "dsplib/fft.h"
 #include "dsplib/math.h"
+#include "dsplib/span.h"
 #include "dsplib/utils.h"
 
-#include <cassert>
 #include <cstring>
 
 namespace dsplib {
@@ -14,7 +14,7 @@ namespace dsplib {
 constexpr int MAX_DFT_SIZE = 41;
 
 //--------------------------------------------------------------------------------
-class PrimesFftC : public BaseFftPlanC
+class PrimesFftC : public FftPlanC
 {
 public:
     explicit PrimesFftC(int n)
@@ -29,19 +29,21 @@ public:
         }
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final {
-        arr_cmplx y(x.size());
-        _dft(x.data(), y.data(), y.size());
-        return y;
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final {
+        arr_cmplx r(n_);
+        this->solve(x, r);
+        return r;
+    }
+
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final {
+        DSPLIB_ASSERT(x.size() == n_, "array size error");
+        DSPLIB_ASSERT(r.size() == n_, "array size error");
+        //TODO: check x and r overlaped
+        _dft(x.data(), r.data(), n_);
     }
 
     [[nodiscard]] int size() const noexcept final {
         return n_;
-    }
-
-    void solve(const cmplx_t* restrict x, cmplx_t* restrict y, int n) const final {
-        DSPLIB_ASSERT(x != y, "Pointers must be restricted");
-        _dft(x, y, n);
     }
 
 private:
@@ -67,7 +69,7 @@ private:
     }
 
     void _dft(const cmplx_t* restrict x, cmplx_t* restrict y, int n) const {
-        assert(n == n_);
+        DSPLIB_ASSUME(n == n_);
 
         if (n <= MAX_DFT_SIZE) {
             assert(!w_.empty());
@@ -77,10 +79,8 @@ private:
 
         if (n > MAX_DFT_SIZE) {
             //TODO: noexcept?
-            //TODO: call without copy
             assert(czt_ && czt_->size() == n);
-            const auto r = czt_->solve(arr_cmplx(x, n));
-            std::memcpy(y, r.data(), n * sizeof(cmplx_t));
+            czt_->solve(make_span(x, n), make_span(y, n));
         }
     }
 
@@ -91,15 +91,19 @@ private:
 
 //--------------------------------------------------------------------------------
 //TODO: real optimization
-class PrimesFftR : public BaseFftPlanR
+class PrimesFftR : public FftPlanR
 {
 public:
     explicit PrimesFftR(int n)
       : plan_{n} {
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_real& x) const final {
+    [[nodiscard]] arr_cmplx solve(span_t<real_t> x) const final {
         return plan_.solve(complex(x));
+    }
+
+    void solve(span_t<real_t> x, mut_span_t<cmplx_t> r) const final {
+        plan_.solve(complex(x), r);
     }
 
     [[nodiscard]] int size() const noexcept final {

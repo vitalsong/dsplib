@@ -12,214 +12,256 @@ template<typename T>
 class base_array;
 
 template<typename T>
+class mut_slice_t;
+
+template<typename T>
 class slice_t;
 
+/**
+ * @brief Non-mutable slice object
+ * @todo add concatenate array = slice | array
+ * @tparam T real_t/cmplx_t
+ */
 template<typename T>
-class const_slice_t;
-
-//----------------------------------------------------------------------------------------
-class base_slice_t
+class slice_t
 {
 public:
-    explicit base_slice_t(int n, int i1, int i2, int m) {
-        DSPLIB_ASSERT(n != 0, "Slicing from an empty array");
-        DSPLIB_ASSERT(m != 0, "Slice stride cannot be zero");
-
-        _m = m;
-        _n = n;
-        _i1 = (i1 < 0) ? (_n + i1) : (i1);
-        _i2 = (i2 < 0) ? (_n + i2) : (i2);
-        const int d = std::abs(_i2 - _i1);
-        const int tm = std::abs(_m);
-        _nc = (d % tm != 0) ? (d / tm + 1) : (d / tm);
-
-        if ((_i1 < 0) || (_i1 >= _n)) {
-            DSPLIB_THROW("Left slice index out of range");
-        }
-
-        if ((_i2 < 0) || (_i2 > _n)) {
-            DSPLIB_THROW("Right slice index out of range");
-        }
-
-        if ((_m < 0) && (_i1 < _i2)) {
-            DSPLIB_THROW("First index is smaller for negative step");
-        }
-
-        if ((_m > 0) && (_i1 > _i2)) {
-            DSPLIB_THROW("First index is greater for positive step");
-        }
-
-        if (_nc > _n) {
-            DSPLIB_THROW("Slice range is greater vector size");
-        }
-    }
-
-protected:
-    int _i1{0};
-    int _i2{0};
-    int _m{0};
-    int _n{0};
-    int _nc{0};
-};
-
-//----------------------------------------------------------------------------------------
-//TODO: add concatenate array = slice | array
-template<typename T>
-class const_slice_t : public base_slice_t
-{
-public:
-    friend class base_array<T>;
-    friend class slice_t<T>;
+    friend class mut_slice_t<T>;
     using const_iterator = SliceIterator<const T>;
 
-    const_slice_t(const base_array<T>& arr, int i1, int i2, int m)
-      : base_slice_t(arr.size(), i1, i2, m)
-      , _base{arr} {
+    slice_t() = default;
+
+    slice_t(const slice_t& rhs)
+      : data_{rhs.data_}
+      , stride_{rhs.stride_}
+      , count_{rhs.count_} {
     }
 
-    const_slice_t(const const_slice_t& rhs)
-      : base_slice_t(rhs.size(), rhs._i1, rhs._i2, rhs._m)
-      , _base{rhs._base} {
-    }
-
-    const_slice_t(const slice_t<T>& rhs)
-      : base_slice_t(rhs._n, rhs._i1, rhs._i2, rhs._m)
-      , _base{rhs._base} {
+    slice_t(const mut_slice_t<T>& rhs)
+      : data_{rhs.data_}
+      , stride_{rhs.stride_}
+      , count_{rhs.count_} {
     }
 
     [[nodiscard]] int size() const noexcept {
-        return _nc;
+        return count_;
+    }
+
+    bool empty() const noexcept {
+        return count_ == 0;
     }
 
     [[nodiscard]] int stride() const noexcept {
-        return _m;
+        return stride_;
     }
 
     const_iterator begin() const noexcept {
-        return const_iterator(_base.data() + _i1, _m);
+        return const_iterator(data_, stride_);
     }
 
     const_iterator end() const noexcept {
         auto current = begin();
-        std::advance(current, _nc);
+        std::advance(current, count_);
         return current;
     }
 
-    base_array<T> operator*() const noexcept {
+    [[deprecated("use `copy` instead")]] base_array<T> operator*() const noexcept {
         return base_array<T>(*this);
     }
 
-private:
-    const base_array<T>& _base;
+    static slice_t make_slice(const T* data, int size, int i1, int i2, int step) {
+        auto mdata = const_cast<T*>(data);
+        return slice_t(mut_slice_t<T>::make_slice(mdata, size, i1, i2, step));
+    }
+
+    base_array<T> copy() const noexcept {
+        return base_array<T>(*this);
+    }
+
+protected:
+    explicit slice_t(const T* data, int stride, int count)
+      : data_{data}
+      , stride_{stride}
+      , count_{count} {
+        DSPLIB_ASSERT(count >= 0, "Count of elements must be positive");
+    }
+
+    const T* data_{nullptr};
+    int stride_{0};
+    int count_{0};
 };
 
-//----------------------------------------------------------------------------------------
+/**
+ * @brief Mutable slice object
+ * @tparam T real_t/cmplx_t
+ */
 template<typename T>
-class slice_t : public base_slice_t
+class mut_slice_t
 {
 public:
-    friend class base_array<T>;
-    friend class const_slice_t<T>;
+    friend class slice_t<T>;
     using iterator = SliceIterator<T>;
     using const_iterator = SliceIterator<const T>;
 
-    slice_t(base_array<T>& arr, int i1, int i2, int m)
-      : base_slice_t(arr.size(), i1, i2, m)
-      , _base{arr} {
-    }
+    mut_slice_t() = default;
 
-    slice_t(const slice_t& rhs)
-      : base_slice_t(rhs._n, rhs._i1, rhs._i2, rhs._m)
-      , _base{rhs._base} {
+    mut_slice_t(const mut_slice_t& rhs)
+      : data_{rhs.data_}
+      , stride_{rhs.stride_}
+      , count_{rhs.count_} {
     }
 
     [[nodiscard]] int size() const noexcept {
-        return _nc;
+        return count_;
+    }
+
+    bool empty() const noexcept {
+        return count_ == 0;
     }
 
     [[nodiscard]] int stride() const noexcept {
-        return _m;
+        return stride_;
     }
 
-    slice_t& operator=(const const_slice_t<T>& rhs) {
-        DSPLIB_ASSERT(this->size() == rhs.size(), "Slices size must be equal");
-        const int count = this->size();
-
-        //empty slice assign
-        if (count == 0) {
-            return *this;
-        }
-
-        //simple block copy/move (optimization)
-        const bool is_same_vec = (_base.data() == rhs._base.data());
-        if ((this->stride() == 1) && (rhs.stride() == 1)) {
-            const auto* src = &(*rhs.begin());
-            auto* dst = &(*begin());
-            if (!is_same_vec) {
-                std::memcpy(dst, src, count * sizeof(*src));
-            } else {
-                //TODO: check overlap and use memcpy
-                std::memmove(dst, src, count * sizeof(*src));
-            }
-            return *this;
-        }
-
-        //same array, specific indexing
-        if (is_same_vec) {
-            *this = base_array<T>(rhs);
-            return *this;
-        }
-
-        std::copy(rhs.begin(), rhs.end(), this->begin());
+    mut_slice_t& operator=(const slice_t<T>& rhs) {
+        this->assign(rhs);
         return *this;
     }
 
-    slice_t& operator=(const slice_t<T>& rhs) {
-        *this = const_slice_t<T>(rhs);
+    mut_slice_t& operator=(const mut_slice_t<T>& rhs) {
+        this->assign(slice_t<T>(rhs));
         return *this;
     }
 
-    slice_t& operator=(const base_array<T>& rhs) {
-        DSPLIB_ASSERT(&_base != &rhs, "Assigned array to same slice");
-        return (*this = rhs.slice(0, rhs.size()));
+    mut_slice_t& operator=(const base_array<T>& rhs) {
+        DSPLIB_ASSERT(!is_same_memory(rhs.slice(0, rhs.size())), "Assigned array to same slice");
+        *this = rhs.slice(0, rhs.size());
+        return *this;
     }
 
-    slice_t& operator=(const T& value) {
+    mut_slice_t& operator=(const T& value) {
         std::fill(begin(), end(), value);
         return *this;
     }
 
-    slice_t& operator=(const std::initializer_list<T>& rhs) {
+    mut_slice_t& operator=(const std::initializer_list<T>& rhs) {
         std::copy(rhs.begin(), rhs.end(), this->begin());
         return *this;
     }
 
     iterator begin() noexcept {
-        return iterator(_base.data() + _i1, _m);
+        return iterator(data_, stride_);
     }
 
     iterator end() noexcept {
         auto current = begin();
-        std::advance(current, _nc);
+        std::advance(current, count_);
         return current;
     }
 
     const_iterator begin() const noexcept {
-        return const_iterator(_base.data() + _i1, _m);
+        return const_iterator(data_, stride_);
     }
 
     const_iterator end() const noexcept {
         auto current = begin();
-        std::advance(current, _nc);
+        std::advance(current, count_);
         return current;
     }
 
-    base_array<T> operator*() const noexcept {
+    [[deprecated("use `copy` instead")]] base_array<T> operator*() const noexcept {
         return base_array<T>(*this);
     }
 
-private:
-    base_array<T>& _base;
+    base_array<T> copy() const noexcept {
+        return base_array<T>(*this);
+    }
+
+    void assign(slice_t<T> rhs) {
+        DSPLIB_ASSERT(size() == rhs.size(), "Slices size must be equal");
+        const int count = size();
+
+        //empty slice assign
+        if (count == 0) {
+            return;
+        }
+
+        //simple block copy/move (optimization)
+        const bool is_same = is_same_memory(rhs);
+
+        //check all slices is span
+        if ((stride() == 1) && (rhs.stride() == 1)) {
+            const auto* src = rhs.data_;
+            auto* dst = data_;
+            if (!is_same) {
+                std::memcpy(dst, src, count * sizeof(*src));
+            } else {
+                std::memmove(dst, src, count * sizeof(*src));
+            }
+            return;
+        }
+
+        //same array, specific indexing
+        if (is_same) {
+            *this = base_array<T>(rhs);
+            return;
+        }
+
+        std::copy(rhs.begin(), rhs.end(), begin());
+    }
+
+    static mut_slice_t make_slice(T* data, int size, int i1, int i2, int step) {
+        if (size == 0) {
+            return mut_slice_t();
+        }
+
+        i1 = (i1 < 0) ? (size + i1) : i1;
+        i2 = (i2 < 0) ? (size + i2) : i2;
+
+        const int d = std::abs(i2 - i1);
+        const int tm = std::abs(step);
+        int count = (d % tm != 0) ? (d / tm + 1) : (d / tm);
+
+        DSPLIB_ASSERT(step != 0, "Slice stride cannot be zero");
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < size), "Left slice index out of range");
+        DSPLIB_ASSERT((i2 >= 0) && (i2 <= size), "Right slice index out of range");
+        DSPLIB_ASSERT(!((step < 0) && (i1 < i2)), "First index is smaller for negative step");
+        DSPLIB_ASSERT(!((step > 0) && (i1 > i2)), "First index is greater for positive step");
+        DSPLIB_ASSERT(count <= size, "Slice range is greater array size");
+
+        return mut_slice_t(data + i1, step, count);
+    }
+
+protected:
+    explicit mut_slice_t(T* data, int stride, int count)
+      : data_{data}
+      , stride_{stride}
+      , count_{count} {
+        DSPLIB_ASSERT(count >= 0, "Count of elements must be positive");
+    }
+
+    bool is_same_memory(slice_t<T> rhs) noexcept {
+        if (empty() || rhs.empty()) {
+            return false;
+        }
+        auto start1 = rhs.data_;
+        auto end1 = start1 + (rhs.count_ * rhs.stride_);
+        if (start1 > end1) {
+            std::swap(start1, end1);
+        }
+
+        auto start2 = data_;
+        auto end2 = start2 + (count_ * stride_);
+        if (start2 > end2) {
+            std::swap(start2, end2);
+        }
+
+        return (start1 < end2) && (start2 < end1);
+    }
+
+    T* data_{nullptr};
+    int stride_{0};
+    int count_{0};
 };
 
 }   // namespace dsplib

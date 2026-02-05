@@ -15,7 +15,7 @@ public:
       : _n{n}
       , _m{m} {
         assert(abs(abs(w) - 1.0) < 2 * eps());
-        auto t = abs2(arange(1 - n, max(m, n))) / 2;
+        const auto t = abs2(arange(1 - n, max(m, n))) / 2;
         arr_cmplx chirp(t.size());
         const auto w_a = angle(w);
         for (int i = 0; i < t.size(); ++i) {
@@ -27,8 +27,10 @@ public:
         _cp = chirp.slice(n - 1, n + n - 1);
 
         assert(ispow2(n2));
-        _fft2 = std::make_shared<FftPlan>(n2);
-        _ifft2 = std::make_shared<IfftPlan>(n2);
+
+        //use only _fft2 with conj
+        _fft2 = fft_plan_c(n2);
+        _ifft2 = ifft_plan_c(n2);
 
         if (abs(a - 1) > eps(a.re)) {
             const auto pw = power(a, -arange(n));
@@ -36,22 +38,24 @@ public:
         }
 
         const arr_cmplx dp = chirp.slice(0, m + n - 1);
-        _ich = _fft2->solve((1.0 / dp) | zeros(n2 - m - n + 1));
+        _ich = _fft2->solve(zeropad((1.0 / dp), n2));
         _rp = chirp.slice(_n - 1, _m + _n - 1);
     }
 
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const {
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
         DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
         arr_cmplx xp(_fft2->size());
         for (int i = 0; i < _n; ++i) {
             xp[i] = x[i] * _cp[i];
         }
-        xp = _fft2->solve(xp);
+
+        _fft2->solve(inplace(xp));
         xp *= _ich;
-        xp = _ifft2->solve(xp);
-        arr_cmplx tr = xp.slice(_n - 1, _m + _n - 1);
-        tr *= _rp;
-        return tr;
+        _ifft2->solve(inplace(xp));
+
+        for (int i = 0; i < _n; ++i) {
+            r[i] = xp[_n - 1 + i] * _rp[i];
+        }
     }
 
     const int _n;
@@ -59,25 +63,31 @@ public:
     arr_cmplx _ich;
     arr_cmplx _cp;
     arr_cmplx _rp;
-    std::shared_ptr<FftPlan> _fft2;
-    std::shared_ptr<IfftPlan> _ifft2;
+    std::shared_ptr<FftPlanC> _fft2;
+    std::shared_ptr<IfftPlanC> _ifft2;
 };
 
 CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
   : _d{std::make_shared<CztPlanImpl>(n, m, w, a)} {
 }
 
-arr_cmplx CztPlan::solve(const arr_cmplx& x) const {
-    return _d->solve(x);
+arr_cmplx CztPlan::solve(span_t<cmplx_t> x) const {
+    arr_cmplx r(_d->_n);
+    _d->solve(x, r);
+    return r;
+}
+
+void CztPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+    _d->solve(x, r);
 }
 
 int CztPlan::size() const noexcept {
     return _d->_n;
 }
 
-arr_cmplx czt(const arr_cmplx& x, int m, cmplx_t w, cmplx_t a) {
+arr_cmplx czt(span_t<cmplx_t> x, int m, cmplx_t w, cmplx_t a) {
     CztPlan plan(x.size(), m, w, a);
-    return plan(x);
+    return plan.solve(x);
 }
 
 }   // namespace dsplib

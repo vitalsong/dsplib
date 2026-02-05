@@ -26,7 +26,8 @@ void ASSERT_EQ_ARR_INT(const T1& r1, const T2& r2) {
     if (x1.empty()) {
         return;
     }
-    const auto err = dsplib::max(dsplib::abs(x1 - x2));
+    auto err_int = dsplib::arr_real(x1 - x2);
+    const auto err = dsplib::max(dsplib::abs(err_int));
     ASSERT_EQ(err, 0);
 }
 

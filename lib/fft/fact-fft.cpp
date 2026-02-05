@@ -1,5 +1,4 @@
 #include "fft/fact-fft.h"
-#include "fft/factory.h"
 
 #include <dsplib/math.h>
 #include <dsplib/utils.h>
@@ -20,7 +19,7 @@ public:
 
         //use Pow2FFT solver
         if (ispow2(n)) {
-            _solver = create_fft_plan(n);
+            _solver = fft_plan_c(n);
             return;
         }
 
@@ -29,7 +28,7 @@ public:
         //use PrimeFFT solver
         if (fac.size() == 1) {
             //it is important to use the cache because there can be several identical FFTs
-            _solver = create_fft_plan(n);
+            _solver = fft_plan_c(n);
             return;
         }
 
@@ -60,12 +59,12 @@ public:
         return _n;
     }
 
-    [[nodiscard]] PlanTree* q_plan() const noexcept {
+    [[nodiscard]] const PlanTree* q_plan() const noexcept {
         assert(has_next());
         return _q;
     }
 
-    [[nodiscard]] PlanTree* p_plan() const noexcept {
+    [[nodiscard]] const PlanTree* p_plan() const noexcept {
         assert(has_next());
         return _p;
     }
@@ -74,7 +73,7 @@ public:
         return (_q != nullptr) && (_p != nullptr);
     }
 
-    [[nodiscard]] std::shared_ptr<BaseFftPlanC> solver() const noexcept {
+    [[nodiscard]] std::shared_ptr<FftPlanC> solver() const noexcept {
         assert(_solver != nullptr);
         return _solver;
     }
@@ -103,9 +102,9 @@ private:
     }
 
     const int _n;
-    PlanTree* _p{nullptr};
-    PlanTree* _q{nullptr};
-    std::shared_ptr<BaseFftPlanC> _solver;
+    const PlanTree* _p{nullptr};
+    const PlanTree* _q{nullptr};
+    std::shared_ptr<FftPlanC> _solver;
 };
 
 namespace {
@@ -132,8 +131,7 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
     const int n = plan->size();
 
     if (!plan->has_next()) {
-        plan->solver()->solve(x, mem, n);
-        std::memcpy(x, mem, n * sizeof(cmplx_t));
+        plan->solver()->solve(inplace(make_span(x, n)));
         return;
     }
 
@@ -175,17 +173,29 @@ void _facfft(const PlanTree* plan, cmplx_t* restrict x, cmplx_t* restrict mem, c
 //-----------------------------------------------------------------------------------------------------------------------------
 FactorFFTPlan::FactorFFTPlan(int n)
   : _n{n}
-  , _px(n) {
+  , _twiddle{expj(-2 * pi * arange(n) / n)}   //TODO: only part of the table is needed
+{
     DSPLIB_ASSERT(!isprime(n), "fft size must not be a prime number");
-    _twiddle = expj(-2 * pi * arange(n) / n);   //TODO: only part of the table is needed
     _plan = std::make_shared<PlanTree>(n);
 }
 
-[[nodiscard]] arr_cmplx FactorFFTPlan::solve(const arr_cmplx& x) const {
-    DSPLIB_ASSERT(x.size() == _n, "input vector size is not equal fft size");
-    arr_cmplx r(x);   //TODO: remove copy
-    _facfft(_plan.get(), r.data(), _px.data(), _twiddle.data(), _n);
+[[nodiscard]] arr_cmplx FactorFFTPlan::solve(span_t<cmplx_t> x) const {
+    arr_cmplx r(_n);
+    this->solve(x, r);
     return r;
+}
+
+void FactorFFTPlan::solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
+    DSPLIB_ASSERT(x.size() == r.size(), "output array size error");
+    r.assign(x);
+    this->solve(inplace(r));
+}
+
+void FactorFFTPlan::solve(inplace_span_t<cmplx_t> r) const {
+    auto x = r.get();
+    DSPLIB_ASSERT(x.size() == _n, "input array size is not equal fft size");
+    arr_cmplx tmp(_n);
+    _facfft(_plan.get(), x.data(), tmp.data(), _twiddle.data(), _n);
 }
 
 [[nodiscard]] int FactorFFTPlan::size() const noexcept {

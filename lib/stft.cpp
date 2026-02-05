@@ -15,7 +15,7 @@ arr_cmplx _convert_range_stft(const arr_cmplx& x, int nfft, StftRange range) {
         return x.slice(0, nfft / 2 + 1);
     }
     if (range == StftRange::Centered) {
-        return concatenate(*x.slice(nfft / 2 + 1, nfft), *x.slice(0, nfft / 2 + 1));   //TODO: concat for slices
+        return concatenate(x.slice(nfft / 2 + 1, nfft), x.slice(0, nfft / 2 + 1));   //TODO: concat for slices
     }
     return x;
 }
@@ -23,11 +23,11 @@ arr_cmplx _convert_range_stft(const arr_cmplx& x, int nfft, StftRange range) {
 arr_cmplx _convert_range_istft(const arr_cmplx& x, int nfft, StftRange range) {
     if (range == StftRange::Onesided) {
         DSPLIB_ASSERT(x.size() == nfft / 2 + 1, "Input size must be equal `nfft/2+1` for `onesided` range");
-        return concatenate(x, flip(conj(*x.slice(1, nfft / 2))));
+        return concatenate(x, flip(conj(x.slice(1, nfft / 2))));
     }
     if (range == StftRange::Centered) {
         DSPLIB_ASSERT(x.size() == nfft, "Input size must be equal `nfft` for `centered` range");
-        return concatenate(*x.slice(nfft / 2 - 1, nfft), *x.slice(0, nfft / 2 - 1));   //TODO: concat for slices
+        return concatenate(x.slice(nfft / 2 - 1, nfft), x.slice(0, nfft / 2 - 1));   //TODO: concat for slices
     }
     DSPLIB_ASSERT(x.size() == nfft, "Input size must be equal `nfft` for `twosided` range");
     return x;
@@ -50,7 +50,7 @@ bool iscola(const arr_real& win, int noverlap, OverlapMethod method) {
 
     const int rm = nwin % hop;
     if (rm != 0) {
-        cola_chk.slice(0, rm) = *cola_chk.slice(0, rm) + power(*win.slice(nwin - rm, nwin), pw);
+        cola_chk.slice(0, rm) += power(win.slice(nwin - rm, nwin), pw);
     }
 
     const auto nsumtotal = std::floor(nwin / hop) + double(rm != 0);
@@ -67,13 +67,13 @@ std::vector<arr_cmplx> stft(const arr_real& x, const arr_real& win, int overlap,
     const int nwin = win.size();
     const int hop = nwin - overlap;
     const int nseg = (nx - overlap) / (nwin - overlap);
-    const auto fftp = FftPlanR(nfft);
+    const auto fftp = fft_plan_r(nfft);
     arr_real px(nfft);
     for (int i = 0; i < nseg; ++i) {
         const int t1 = (i * hop);
         const int t2 = t1 + nwin;
-        px.slice(0, nwin) = *x.slice(t1, t2) * win;
-        y.emplace_back(_convert_range_stft(fftp(px), nfft, range));   //TODO: inplace
+        px.slice(0, nwin) = x.slice(t1, t2) * win;
+        y.emplace_back(_convert_range_stft(fftp->solve(px), nfft, range));   //TODO: inplace
     }
     return y;
 }
@@ -95,16 +95,16 @@ arr_real istft(const std::vector<arr_cmplx>& xx, const arr_real& win, int overla
     const auto win_nom = power(win, a);
     const auto win_den = power(win, a + 1);
 
-    const auto irfftp = IfftPlanR(nfft);
+    const auto irfftp = ifft_plan_r(nfft);
     arr_real x(xlen);
     for (int i = 0; i < nseg; ++i) {
         //TODO: copy optimmization for `_convert_range`
-        const arr_real y = irfftp(_convert_range_istft(xx[i], nfft, range)).slice(0, nwin);
+        const arr_real y = irfftp->solve(_convert_range_istft(xx[i], nfft, range)).slice(0, nwin);
         const int t1 = i * hop;
         const int t2 = t1 + nwin;
         //TODO: remove slice unpacking
-        x.slice(t1, t2) = *x.slice(t1, t2) + (y * win_nom);
-        norm_val.slice(t1, t2) = *norm_val.slice(t1, t2) + win_den;
+        x.slice(t1, t2) += y * win_nom;
+        norm_val.slice(t1, t2) += win_den;
     }
 
     //normalize

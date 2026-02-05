@@ -9,8 +9,10 @@ namespace dsplib {
 namespace {
 
 //insert new value in sorted list
-void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) noexcept {
+void _update_sort(mut_span_t<real_t> x, real_t v_new, real_t v_old) noexcept {
     int pos;
+    const int nx = x.size();
+    auto* px = x.data();
 
     //search old value
     pos = 0;
@@ -20,7 +22,7 @@ void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) noexcept {
 
     //erase old value
     if (pos != (nx - 1)) {
-        std::memmove((x + pos), (x + pos + 1), (nx - pos - 1) * sizeof(real_t));
+        std::memmove((px + pos), (px + pos + 1), (nx - pos - 1) * sizeof(real_t));
     }
 
     //search pos for new value
@@ -31,7 +33,7 @@ void _update_sort(real_t* x, int nx, real_t v_new, real_t v_old) noexcept {
 
     //prepare buffer for insert
     if (pos != (nx - 1)) {
-        std::memmove((x + pos + 1), (x + pos), (nx - pos - 1) * sizeof(real_t));
+        std::memmove((px + pos + 1), (px + pos), (nx - pos - 1) * sizeof(real_t));
     }
 
     //insert new value
@@ -52,7 +54,7 @@ MedianFilter::MedianFilter(int n, real_t init_value)
 }
 
 //------------------------------------------------------------------------------------------
-arr_real MedianFilter::process(const arr_real& x) noexcept {
+arr_real MedianFilter::process(span_real x) noexcept {
     auto y = zeros(x.size());
     for (int i = 0; i < x.size(); ++i) {
         y[i] = process(x[i]);
@@ -62,18 +64,18 @@ arr_real MedianFilter::process(const arr_real& x) noexcept {
 
 real_t MedianFilter::process(const real_t& x) noexcept {
     _i = (_i + 1) % _n;
-    _update_sort(_s.data(), _n, x, _d[_i]);
+    _update_sort(_s, x, _d[_i]);
     _d[_i] = x;
     auto y = (_n % 2 == 1) ? _s[_n / 2] : (_s[_n / 2] + _s[_n / 2 - 1]) / 2;
     return y;
 }
 
 //------------------------------------------------------------------------------------------
-arr_real medfilt(arr_real& x, int n) {
+arr_real medfilt(span_real x, int n) {
     auto flt = MedianFilter(n);
     const int n1 = (n / 2);
     const int n2 = (n % 2 == 1) ? (n / 2) : (n / 2 - 1);
-    arr_real xp = zeros(n1) | x | zeros(n2);
+    arr_real xp = concatenate(zeros(n1), x, zeros(n2));
     auto y = flt.process(xp);
     return y.slice(n - 1, indexing::end);
 }

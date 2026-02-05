@@ -39,6 +39,8 @@ constexpr std::complex<T> operator-(const std::complex<T>& lhs, const int& rhs) 
 
 namespace dsplib {
 
+using namespace std::complex_literals;
+
 //-------------------------------------------------------------------------------------------------
 //base scalar type
 #ifdef DSPLIB_USE_FLOAT32
@@ -259,5 +261,8 @@ template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t
 constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
     return cmplx_t(lhs) / rhs;
 }
+
+static_assert(std::is_trivially_copyable<real_t>(), "type must be trivially copyable");
+static_assert(std::is_trivially_copyable<cmplx_t>(), "type must be trivially copyable");
 
 }   // namespace dsplib

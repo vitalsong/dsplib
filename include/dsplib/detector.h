@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-#include <stdexcept>
 #include <memory>
 
 #include <dsplib/array.h>
@@ -18,10 +17,11 @@ class PreambleDetectorImpl;
 // corr = filter(conj(h) / (nh * rms(h)), 1, x);
 // pagg = filter(ones(1, nh) / nh, 1, abs(x).^2);
 // res = sqrt((abs(corr) .^ 2) ./ pagg);
+//TODO: add real type implementation
 class PreambleDetector
 {
 public:
-    explicit PreambleDetector(const arr_cmplx& h, real_t threshold = 0.5);
+    explicit PreambleDetector(span_cmplx h, real_t threshold = 0.5);
 
     PreambleDetector(const PreambleDetector&) = delete;
 
@@ -34,10 +34,10 @@ public:
 
     //TODO: add bypass mode
     //length of the 'sig' must be a multiple of 'frame_len()'
-    std::optional<Result> process(const arr_cmplx& sig);
+    std::optional<Result> process(span_cmplx x);
 
-    std::optional<Result> operator()(const arr_cmplx& sig) {
-        return this->process(sig);
+    std::optional<Result> operator()(span_cmplx x) {
+        return this->process(x);
     }
 
     [[nodiscard]] int frame_len() const noexcept;

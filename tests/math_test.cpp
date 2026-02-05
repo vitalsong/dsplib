@@ -244,6 +244,22 @@ TEST(MathTest, Abs2) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(MathTest, NextPow2) {
+    ASSERT_EQ(nextpow2(0), 0);
+    ASSERT_EQ(nextpow2(1), 0);
+    ASSERT_EQ(nextpow2(2), 1);
+    ASSERT_EQ(nextpow2(3), 2);
+    ASSERT_EQ(nextpow2(4), 2);
+    ASSERT_EQ(nextpow2(5), 3);
+    ASSERT_EQ(nextpow2(6), 3);
+    ASSERT_EQ(nextpow2(7), 3);
+    ASSERT_EQ(nextpow2(8), 3);
+    ASSERT_EQ(nextpow2(9), 4);
+    ASSERT_EQ(nextpow2(std::pow(2, 30)), 30);
+    ASSERT_EQ(nextpow2(std::pow(2, 30) + 1), 31);
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(MathTest, Deg2Rad) {
     arr_real deg = {0, 45, 90, 180, -45, -90, -180};
     arr_real rad = {0, pi / 4, pi / 2, pi, -pi / 4, -pi / 2, -pi};
@@ -329,10 +345,10 @@ TEST(MathTest, Pow2db) {
         ASSERT_EQ_ARR_REAL(mag2db(mag), db, 1e-3);
         ASSERT_EQ_ARR_REAL(pow2db(pow), db, 1e-3);
 
-        ASSERT_NEAR(db2pow(db(0)), pow(0), 1e-3);
-        ASSERT_NEAR(db2mag(db(0)), mag(0), 1e-3);
-        ASSERT_NEAR(mag2db(mag(0)), db(0), 1e-3);
-        ASSERT_NEAR(pow2db(pow(0)), db(0), 1e-3);
+        ASSERT_NEAR(db2pow(db[0]), pow[0], 1e-3);
+        ASSERT_NEAR(db2mag(db[0]), mag[0], 1e-3);
+        ASSERT_NEAR(mag2db(mag[0]), db[0], 1e-3);
+        ASSERT_NEAR(pow2db(pow[0]), db[0], 1e-3);
     }
 }
 
@@ -423,6 +439,37 @@ TEST(MathTest, Sort) {
         ASSERT_EQ_ARR_REAL(index, arr_real{0, 1, 2, 3, 4, 5});
         ASSERT_TRUE(issorted(sorted, Direction::Descend));
         ASSERT_FALSE(issorted(sorted, Direction::Ascend));
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, InplaceSort) {
+    {
+        arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        sort(inplace(x1));
+        ASSERT_EQ_ARR_REAL(x1, arr_real{1, 2, 3, 3, 4, 5, 6, 7});
+        ASSERT_TRUE(issorted(x1));
+    }
+    {
+        arr_real x1 = {4, 1, 2, 5, 6, 7, 3, 3};
+        sort(inplace(x1), Direction::Descend);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{7, 6, 5, 4, 3, 3, 2, 1});
+        ASSERT_TRUE(issorted(x1, Direction::Descend));
+        ASSERT_FALSE(issorted(x1, Direction::Ascend));
+    }
+    {
+        arr_real x1 = {0, 1, 2, 3, 4, 5};
+        sort(inplace(x1));
+        ASSERT_EQ_ARR_REAL(x1, arr_real{0, 1, 2, 3, 4, 5});
+        ASSERT_TRUE(issorted(x1));
+        ASSERT_FALSE(issorted(x1, Direction::Descend));
+    }
+    {
+        arr_real x1 = {5, 4, 3, 2, 1, 0};
+        sort(inplace(x1), Direction::Descend);
+        ASSERT_EQ_ARR_REAL(x1, arr_real{5, 4, 3, 2, 1, 0});
+        ASSERT_TRUE(issorted(x1, Direction::Descend));
+        ASSERT_FALSE(issorted(x1, Direction::Ascend));
     }
 }
 
@@ -524,4 +571,19 @@ TEST(MathTest, Sqrt) {
     arr_real x = {0, 1, 2, 3, 4, 5};
     arr_real y = dsplib::sqrt(abs2(x));
     ASSERT_EQ_ARR_REAL(y, x);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Round) {
+    {
+        arr_real x = {1.1, 2.2, 3.5, 4.6};
+        arr_real r = {1, 2, 4, 5};
+        ASSERT_EQ_ARR_REAL(round(x), r);
+    }
+
+    {
+        arr_cmplx x = {1 + 1.1i, 2.2 + 3.5i, 4 - 1.1i, 4.4999 - 4.6i};
+        arr_cmplx r = {1 + 1i, 2 + 4i, 4 - 1i, 4 - 5i};
+        ASSERT_EQ_ARR_CMPLX(round(x), r);
+    }
 }

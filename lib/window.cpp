@@ -157,8 +157,8 @@ arr_real kaiser(int nw, real_t beta) {
         const auto xi = 4 * abs2(i + 0.5 * (1 - odd));
         w[i] = besseli0(beta * std::sqrt(1 - (xi / xind))) / bes;
     }
-    const arr_real wl = flip(*w.slice(odd, n));
-    return (wl | w);
+    const arr_real wl = flip(w.slice(odd, n));
+    return concatenate(wl, w);
 }
 
 }   // namespace dsplib::window

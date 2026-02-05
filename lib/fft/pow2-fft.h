@@ -6,15 +6,12 @@
 
 namespace dsplib {
 
-class Pow2FftPlan : public BaseFftPlanC
+class Pow2FftPlan : public FftPlanC
 {
 public:
     explicit Pow2FftPlan(int n);
-
-    [[nodiscard]] arr_cmplx solve(const arr_cmplx& x) const final;
-
-    void solve(const cmplx_t* x, cmplx_t* y, int n) const final;
-
+    [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
+    void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
     [[nodiscard]] int size() const noexcept final;
 
 private:
@@ -22,8 +19,8 @@ private:
 
     const int n_;
     const int l_;
-    std::vector<int32_t> bitrev_;
-    std::vector<cmplx_t> coeffs_;
+    const std::vector<int32_t> bitrev_;
+    const std::vector<cmplx_t> coeffs_;
 };
 
 }   // namespace dsplib

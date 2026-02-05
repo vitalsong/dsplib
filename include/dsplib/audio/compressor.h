@@ -58,7 +58,7 @@ public:
      * @param x [in] Input audio frame
      * @return Result [out] Output pair processed and gain
      */
-    Result process(const arr_real& x) {
+    Result process(span_real x) {
         const int n = x.size();
         Result res(n);
         for (int i = 0; i < n; ++i) {
@@ -79,12 +79,12 @@ public:
      * @brief Process audio frame, obj(x) syntax
      * @see process
      */
-    Result operator()(const arr_real& x) {
+    Result operator()(span_real x) {
         return this->process(x);
     }
 
 private:
-    [[nodiscard]] real_t _compute_gain(real_t x) const noexcept {
+    [[nodiscard]] real_t _compute_gain(const real_t& x) const noexcept {
         //TODO: fast log10?
         const auto xdb = mag2db(dsplib::abs(x) + eps());
         auto xsc = xdb;
@@ -96,12 +96,12 @@ private:
         return (xsc - xdb);
     }
 
-    const real_t T_{1};   ///< threshold
-    const int R_{1};      ///< ratio
-    const real_t W_{0};   ///< knee width
-    real_t wA_{1};        ///< attack time coeff
-    real_t wR_{1};        ///< release time coeff
-    real_t gs_{0};        ///< smoothed gain
+    real_t T_{1};    ///< threshold
+    int R_{1};       ///< ratio
+    real_t W_{0};    ///< knee width
+    real_t wA_{1};   ///< attack time coeff
+    real_t wR_{1};   ///< release time coeff
+    real_t gs_{0};   ///< smoothed gain
 };
 
 }   // namespace dsplib

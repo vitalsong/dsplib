@@ -138,7 +138,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(int16_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s, 6);
+        auto x1 = arr_real(make_span(s, 6));
         arr_real x2 = from_file("test.dat", dtype::int16, endian::little);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
@@ -150,7 +150,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(uint16_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s + 1, 5);
+        auto x1 = arr_real(make_span(s + 1, 5));
         arr_real x2 = from_file("test.dat", dtype::uint16, endian::little, sizeof(uint16_t));
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
@@ -162,7 +162,7 @@ TEST(Utils, FromFile) {
         fwrite(s, sizeof(int32_t), 6, fid);
         fclose(fid);
 
-        auto x1 = arr_real(s + 1, 3);
+        auto x1 = arr_real(make_span(s + 1, 3));
         arr_real x2 = from_file("test.dat", dtype::int32, endian::little, sizeof(int32_t), 3);
         ASSERT_EQ_ARR_REAL(x1, x2);
     }
@@ -292,5 +292,32 @@ TEST(Utils, FftShift) {
         arr_real x1 = {1};
         arr_real x2 = fftshift(x1);
         ASSERT_EQ_ARR_REAL(x2, arr_real{1});
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(Utils, ZadoffChu) {
+    {
+        arr_cmplx x = zadoff_chu(1, 5);
+        arr_cmplx y = {1.00000000000000 + 0.00000000000000i, 0.309016994374947 - 0.951056516295154i,
+                       -0.809016994374948 + 0.587785252292473i, 0.309016994374948 - 0.951056516295154i,
+                       1.00000000000000 + 4.89858719658941e-16i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+    {
+        arr_cmplx x = zadoff_chu(1, 6);
+        arr_cmplx y = {1.00000000000000 + 0.00000000000000i,    0.866025403784439 - 0.500000000000000i,
+                       -0.500000000000000 - 0.866025403784439i, -1.83697019872103e-16 + 1.00000000000000i,
+                       -0.499999999999999 - 0.866025403784439i, 0.866025403784438 - 0.500000000000001i};
+        ASSERT_EQ_ARR_CMPLX(x, y);
+    }
+    {
+        const int n = nextprime(8192);
+        auto x = zadoff_chu(1, n);
+        auto y = zadoff_chu(n - 1, n);
+        ASSERT_EQ_ARR_CMPLX(x, conj(y));
+        //must be symmetry
+        ASSERT_EQ_ARR_CMPLX(x.slice(0, n / 2), flip(x.slice(n / 2 + 1, n)));
+        ASSERT_EQ_ARR_CMPLX(y.slice(0, n / 2), flip(y.slice(n / 2 + 1, n)));
     }
 }
