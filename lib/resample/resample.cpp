@@ -1,7 +1,6 @@
 #include "dsplib/resample.h"
 
 #include "dsplib/array.h"
-#include "dsplib/fir.h"
 #include "dsplib/window.h"
 #include "dsplib/utils.h"
 
@@ -21,20 +20,50 @@ public:
     }
 };
 
+//TODO: add to math module
+void _sinc(dsplib::inplace_real x) {
+    auto px = x.get();
+    const int n = px.size();
+    for (int i = 0; i < n; ++i) {
+        if (px[i] != 0) {
+            px[i] = std::sin(dsplib::pi * px[i]) / (dsplib::pi * px[i]);
+        } else {
+            px[i] = 1.0;
+        }
+    }
+}
+
+dsplib::arr_real _lowpasslband(int N, int L, dsplib::span_real win) {
+    DSPLIB_ASSUME(N % 2 == 0);
+
+    const dsplib::real_t M = N / 2;
+    dsplib::arr_real b = dsplib::arange(-M, M + 1);
+    b /= L;
+    _sinc(dsplib::inplace(b));
+    b *= (1.0 / L);
+    b *= win;
+
+    // force set sinc zeros
+    for (int i = M + L; i < b.size(); i += L) {
+        b[i] = 0;
+    }
+    for (int i = M - L; i >= 0; i -= L) {
+        b[i] = 0;
+    }
+
+    return b;
+}
+
 arr_real _multirate_fir(int interp, int decim, int hlen, real_t beta) {
     const int L = interp;
     const int M = decim;
     const int P = hlen;
     const int R = (L > 1) ? L : M;
-    const int N = ((M > L) && (L > 1) && (P * L % M != 0)) ? (2 * P * R + 1) : (2 * P * R);
-    const int maxLM = std::max(L, M);
-    const auto b = window::kaiser(N + 1, beta);
-    //TODO: use lowpasslband(N, maxLM, w)
-    auto num = L * fir1(N, (1.0 / maxLM), FilterType::Low, b);
-    if (!((L > 1) && (M > L) && (P * L % M != 0))) {
-        num = num.slice(0, num.size() - 1);
-    }
-    return num;
+    const int N = 2 * P * R;
+    const int band = std::max(L, M);
+    const auto win = window::kaiser(N + 1, beta);
+    auto h = _lowpasslband(N, band, win);
+    return h;
 }
 
 }   // namespace
@@ -55,10 +84,10 @@ arr_real design_multirate_fir(int interp, int decim, int hlen, real_t astop) {
     return _multirate_fir(p, q, hlen, beta);
 }
 
+//TODO: remove `flip_coeffs`?
 std::vector<arr_real> IResampler::polyphase(span_real h, int m, real_t gain, bool flip_coeffs) {
     const int nh = (h.size() % m == 0) ? (h.size()) : ((h.size() / m + 1) * m);
     auto ph = zeropad(h, nh);
-    ph /= sum(h);
     assert(nh % m == 0);
     const int n = nh / m;
     auto r = std::vector<arr_real>(m, zeros(n));
@@ -165,11 +194,11 @@ arr_real resample(span_real x, int p_, int q_, span_real h) {
     const int nx = IResampler::next_size(x.size(), p, q);
     const int ny = nx * p / q;
     const int dl = rsmp.delay();
-    const int mdl = dl * q / p;
+    const int mdl = dl * q / p + 1;
     const int nn = IResampler::next_size(nx + mdl, p, q);
     const auto xx = zeropad(x, nn);
-    const auto y = rsmp.process(xx).slice(dl, dl + ny).copy();
-    return y;
+    auto y = rsmp.process(xx);
+    return y.slice(dl, dl + ny).copy();
 }
 
 }   // namespace dsplib
