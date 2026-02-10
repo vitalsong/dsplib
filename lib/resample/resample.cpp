@@ -44,6 +44,7 @@ dsplib::arr_real _lowpasslband(int N, int L, dsplib::span_real win) {
     b *= win;
 
     // force set sinc zeros
+    //TODO: use slices
     for (int i = M + L; i < b.size(); i += L) {
         b[i] = 0;
     }
@@ -86,16 +87,14 @@ arr_real design_multirate_fir(int interp, int decim, int hlen, real_t astop) {
 
 //TODO: remove `flip_coeffs`?
 std::vector<arr_real> IResampler::polyphase(span_real h, int m, real_t gain, bool flip_coeffs) {
-    const int nh = (h.size() % m == 0) ? (h.size()) : ((h.size() / m + 1) * m);
-    auto ph = zeropad(h, nh);
-    assert(nh % m == 0);
-    const int n = nh / m;
+    const int nh = int(h.size());
+    const int n = (nh + m - 1) / m;   // ceil(Nh/m)
+
     auto r = std::vector<arr_real>(m, zeros(n));
     for (int i = 0; i < m; ++i) {
-        int ih = (m + i) % m;
         for (int k = 0; k < n; ++k) {
-            r[i][k] = ph[ih] * gain;
-            ih += m;
+            const int ih = i + k * m;
+            r[i][k] = (ih < nh) ? (h[ih] * gain) : real_t(0);
         }
     }
 

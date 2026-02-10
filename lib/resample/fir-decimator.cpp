@@ -12,7 +12,7 @@ public:
       , h_{polyphase(h, decim_, 1.0, false)}
       , flen_{h_[0].size()}   //TODO: flen can be const for typical `design_multirate_fir`
       , d_(decim_ * (flen_ - 1)) {
-        gdelay_ = (h.size() - 1) / 2;
+        dH_ = (h.size() - 1) / 2;
     }
 
     arr_real process(span_real in) final {
@@ -42,7 +42,8 @@ public:
     }
 
     [[nodiscard]] int delay() const noexcept final {
-        return gdelay_;
+        //TODO: return float value
+        return round(dH_ / decim_);
     }
 
     [[nodiscard]] int decim_rate() const noexcept final {
@@ -117,7 +118,7 @@ private:
     std::vector<arr_real> h_;
     const int flen_;
     arr_real d_;
-    int gdelay_{0};
+    real_t dH_{0};
 };
 
 }   // namespace
