@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(dsplib LANGUAGES CXX VERSION 1.0.0)
+project(dsplib LANGUAGES CXX VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,7 @@ set(DSPLIB_FFT_CACHE_SIZE "4" CACHE STRING "LRU cache size for FFT plans")
 option(DSPLIB_EXCLUDE_FFT "Exclude FFT (must be implemented external)" OFF)
 set(DSPLIB_FFT_BACKEND "dsplib" CACHE STRING "FFT backend type [dsplib, ne10, fftw]")
 option(DSPLIB_ENABLE_LTO "Enable link-time optimization (LTO)" OFF)
+option(DSPLIB_THREAD_SAFE "Build library with thread-safe caches (requires `thread_local` support)" ON)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -88,7 +89,7 @@ elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
         message(FATAL_ERROR "supported only with float32")
     endif()
     find_package(NE10 REQUIRED)
-    set(FFT_LIB "NE10")
+    set(FFT_LIB "NE10::NE10")
     list(APPEND DSPLIB_SOURCES lib/fft/ne10.cpp)
     set(DSPLIB_EXCLUDE_FFT ON)
 endif()
@@ -137,12 +138,15 @@ if (DSPLIB_NO_EXCEPTIONS)
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
 endif()
 
+if(NOT DSPLIB_THREAD_SAFE)
+    message(STATUS "thread-safe disabled")
+endif()
+
 # configure <dsplib/defs.h> file 
 configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
 
 # check warnings
 if (DSPLIB_IS_ROOT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    message(STATUS "warnings guard enabled")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-sign-compare)
 endif()
 

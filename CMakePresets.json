@@ -19,6 +19,7 @@
                 "DSPLIB_USE_FLOAT32": "OFF",
                 "DSPLIB_EXCLUDE_FFT": "OFF",
                 "DSPLIB_ASAN_ENABLED": "OFF",
+                "DSPLIB_THREAD_SAFE": "ON",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
             },
