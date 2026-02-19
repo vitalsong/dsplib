@@ -7,7 +7,7 @@ namespace dsplib {
 namespace {
 
 //use global generator engine
-thread_local std::mt19937 g_engine{0};
+DSPLIB_CACHE_T std::mt19937 g_engine{0};
 
 }   // namespace
 
