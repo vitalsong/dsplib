@@ -1,6 +1,6 @@
 #include "dsplib/subband.h"
 #include "dsplib/assert.h"
-#include "dsplib/resample.h"
+#include "dsplib/fir.h"
 #include "dsplib/fft.h"
 #include "dsplib/ifft.h"
 
@@ -148,8 +148,8 @@ public:
 
 arr_real _design_filter(int num_bands, int num_taps) {
     //TODO: cache last coeffs
-    assert(num_taps % 2 == 0);
-    return design_multirate_fir(1, num_bands, num_taps / 2, 80);
+    auto h = fir1(num_bands * num_taps - 1, 1.0 / num_bands, FilterType::Low);
+    return h;
 }
 
 }   // namespace
