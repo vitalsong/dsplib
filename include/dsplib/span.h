@@ -276,6 +276,10 @@ public:
         return span_t<T>(*this) / rhs;
     }
 
+    [[nodiscard]] std::vector<T> to_vec() const noexcept {
+        return std::vector<T>(data(), data() + size());
+    }
+
 private:
     bool is_same_memory(span_t<T> rhs) noexcept {
         if (this->size() == 0 || rhs.size() == 0) {
@@ -424,9 +428,18 @@ public:
         }
         return res;
     }
+
+    [[nodiscard]] std::vector<T> to_vec() const noexcept {
+        return std::vector<T>(data(), data() + size());
+    }
 };
 
 //------------------------------------------------------------------------------------------------
+template<typename T>
+span_t<T> make_span(mut_span_t<T> x) noexcept {
+    return span_t<T>(x);
+}
+
 template<typename T>
 span_t<T> make_span(const T* x, size_t nx) noexcept {
     return span_t<T>(x, nx);
