@@ -58,6 +58,23 @@ TEST(SpanTest, StdVector) {
     }
 }
 
+TEST(SpanTest, ToVec) {
+    {
+        arr_real x = {1, 2, 3, 4, 5};
+        ASSERT_EQ_ARR_REAL(x, x.slice(0, x.size()).to_vec());
+    }
+    {
+        const arr_real x = {1, 2, 3, 4, 5};
+        ASSERT_EQ_ARR_REAL(x, x.slice(0, x.size()).to_vec());
+    }
+    {
+        std::vector<uint8_t> d = {0, 1, 2, 3, 4, 5};
+        auto s = dsplib::make_span(d.data(), d.size());
+        auto dc = s.to_vec();
+        ASSERT_EQ(std::memcmp(d.data(), dc.data(), d.size()), 0);
+    }
+}
+
 TEST(SpanTest, RealToCmplx) {
     {
         arr_cmplx x = {1i, 2i, 3i, 4i};
