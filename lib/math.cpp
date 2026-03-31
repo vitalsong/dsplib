@@ -128,6 +128,20 @@ arr_cmplx round(span_cmplx arr) noexcept {
 }
 
 //-------------------------------------------------------------------------------------------------
+arr_real clip(span_real x, real_t lower, real_t upper) {
+    arr_real y(x);
+    clip(inplace(y), lower, upper);
+    return y;
+}
+
+void clip(inplace_real ix, real_t lower, real_t upper) {
+    auto x = ix.get();
+    for (int i = 0; i < x.size(); ++i) {
+        x[i] = std::clamp(x[i], lower, upper);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 int sum(const std::vector<bool>& arr) {
     return int(std::count(arr.begin(), arr.end(), true));
 }
