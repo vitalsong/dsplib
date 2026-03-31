@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
 #include <dsplib/assert.h>
 #include <dsplib/iterator.h>
@@ -47,7 +48,7 @@ public:
         return count_;
     }
 
-    bool empty() const noexcept {
+    [[nodiscard]] bool empty() const noexcept {
         return count_ == 0;
     }
 
@@ -74,8 +75,12 @@ public:
         return slice_t(mut_slice_t<T>::make_slice(mdata, size, i1, i2, step));
     }
 
-    base_array<T> copy() const noexcept {
+    [[nodiscard]] base_array<T> copy() const noexcept {
         return base_array<T>(*this);
+    }
+
+    [[nodiscard]] std::vector<T> to_vec() const noexcept {
+        return std::vector<T>(this->begin(), this->end());
     }
 
 protected:
@@ -115,7 +120,7 @@ public:
         return count_;
     }
 
-    bool empty() const noexcept {
+    [[nodiscard]] bool empty() const noexcept {
         return count_ == 0;
     }
 
@@ -134,7 +139,7 @@ public:
     }
 
     mut_slice_t& operator=(const base_array<T>& rhs) {
-        DSPLIB_ASSERT(!is_same_memory(rhs.slice(0, rhs.size())), "Assigned array to same slice");
+        DSPLIB_ASSERT(!is_overlaps(rhs.slice(0, rhs.size())), "Assigned array to same slice");
         *this = rhs.slice(0, rhs.size());
         return *this;
     }
@@ -145,6 +150,7 @@ public:
     }
 
     mut_slice_t& operator=(const std::initializer_list<T>& rhs) {
+        DSPLIB_ASSERT(rhs.size() == size(), "Slice size is not equal");
         std::copy(rhs.begin(), rhs.end(), this->begin());
         return *this;
     }
@@ -173,8 +179,12 @@ public:
         return base_array<T>(*this);
     }
 
-    base_array<T> copy() const noexcept {
+    [[nodiscard]] base_array<T> copy() const noexcept {
         return base_array<T>(*this);
+    }
+
+    [[nodiscard]] std::vector<T> to_vec() const noexcept {
+        return std::vector<T>(this->begin(), this->end());
     }
 
     void assign(slice_t<T> rhs) {
@@ -187,13 +197,13 @@ public:
         }
 
         //simple block copy/move (optimization)
-        const bool is_same = is_same_memory(rhs);
+        const bool is_olap = is_overlaps(rhs);
 
         //check all slices is span
         if ((stride() == 1) && (rhs.stride() == 1)) {
             const auto* src = rhs.data_;
             auto* dst = data_;
-            if (!is_same) {
+            if (!is_olap) {
                 std::memcpy(dst, src, count * sizeof(*src));
             } else {
                 std::memmove(dst, src, count * sizeof(*src));
@@ -202,7 +212,7 @@ public:
         }
 
         //same array, specific indexing
-        if (is_same) {
+        if (is_olap) {
             *this = base_array<T>(rhs);
             return;
         }
@@ -223,7 +233,7 @@ public:
         int count = (d % tm != 0) ? (d / tm + 1) : (d / tm);
 
         DSPLIB_ASSERT(step != 0, "Slice stride cannot be zero");
-        DSPLIB_ASSERT((i1 >= 0) && (i1 < size), "Left slice index out of range");
+        DSPLIB_ASSERT((i1 >= 0) && (i1 <= size), "Left slice index out of range");
         DSPLIB_ASSERT((i2 >= 0) && (i2 <= size), "Right slice index out of range");
         DSPLIB_ASSERT(!((step < 0) && (i1 < i2)), "First index is smaller for negative step");
         DSPLIB_ASSERT(!((step > 0) && (i1 > i2)), "First index is greater for positive step");
@@ -240,7 +250,7 @@ protected:
         DSPLIB_ASSERT(count >= 0, "Count of elements must be positive");
     }
 
-    bool is_same_memory(slice_t<T> rhs) noexcept {
+    bool is_overlaps(slice_t<T> rhs) noexcept {
         if (empty() || rhs.empty()) {
             return false;
         }
