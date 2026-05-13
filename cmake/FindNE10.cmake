@@ -10,15 +10,11 @@
 #
 # The following variables will be checked by the function
 #   NE10_ROOT               ... if set, the libraries are exclusively searched under this path
-#   NE10_LIBRARY            ... ne10 library to use
-#   NE10_INCLUDE_DIR        ... ne10 include directory
 #
 #If environment variable NE10DIR is specified, it has same effect as NE10_ROOT
 if( NOT NE10_ROOT AND ENV{NE10DIR} )
   set( NE10_ROOT $ENV{NE10DIR} )
 endif()
-
-include(CMakeFindDependencyMacro)
 
 # search only static lib
 set( CMAKE_FIND_LIBRARY_SUFFIXES_SAV ${CMAKE_FIND_LIBRARY_SUFFIXES} )
@@ -50,20 +46,22 @@ endif()
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_SAV})
 
-if(NOT TARGET NE10)
-    # create imported target
-    add_library(NE10 UNKNOWN IMPORTED)
-    set_target_properties(NE10 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${NE10_INCLUDES}"
-        IMPORTED_LOCATION "${NE10_LIB}"
-    )
-else()
-  get_target_property(NE10_INCLUDES NE10 INTERFACE_INCLUDE_DIRECTORIES)
-  set(NE10_LIB "NE10")
+if (TARGET NE10)
+  if(NOT TARGET ne10::ne10)
+    add_library(ne10::ne10 INTERFACE IMPORTED)
+    target_link_libraries(ne10::ne10 INTERFACE NE10)
+  endif()
+  set(NE10_LIBRARIES ne10::ne10)
 endif()
 
-set(NE10_LIBRARIES ${NE10_LIB})
+if(NE10_LIB AND NE10_INCLUDES AND NOT TARGET ne10::ne10)
+  add_library(ne10::ne10 UNKNOWN IMPORTED)
+  set_target_properties(ne10::ne10 PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${NE10_INCLUDES}"
+      IMPORTED_LOCATION "${NE10_LIB}"
+  )
+  set(NE10_LIBRARIES ne10::ne10)
+endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(NE10 DEFAULT_MSG NE10_INCLUDES NE10_LIBRARIES)
-mark_as_advanced(NE10_INCLUDES NE10_LIBRARIES)
+find_package_handle_standard_args(NE10 DEFAULT_MSG NE10_LIBRARIES)

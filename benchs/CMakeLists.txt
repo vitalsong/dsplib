@@ -62,11 +62,11 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(${PROJECT_NAME} dsplib benchmark kissfft pocketfft)
+target_link_libraries(${PROJECT_NAME} PRIVATE dsplib benchmark kissfft pocketfft)
 target_compile_definitions(${PROJECT_NAME} PRIVATE KISSFFT_SUPPORT POCKETFFT_SUPPORT)
 
-find_package(FFTW)
-if(FFTW_FOUND)
-  target_link_libraries(${PROJECT_NAME} FFTW::fftw3)
+find_package(FFTW3)
+if (FFTW3_FOUND)
+  target_link_libraries(${PROJECT_NAME} PRIVATE fftw::fftw)
   target_compile_definitions(${PROJECT_NAME} PRIVATE FFTW_SUPPORT)
 endif()

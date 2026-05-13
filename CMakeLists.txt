@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(dsplib LANGUAGES CXX VERSION 1.1.0)
+project(dsplib LANGUAGES CXX VERSION 1.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -70,17 +70,17 @@ set(DSPLIB_SOURCES
     lib/internal/besseli.cpp
 )
 
-list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # config fft backend
 set(FFT_LIB)
 if (DSPLIB_FFT_BACKEND STREQUAL "fftw")
-    find_package(FFTW REQUIRED)
+    find_package(FFTW3 REQUIRED)
     if (DSPLIB_USE_FLOAT32)
-        set(FFT_LIB "FFTW::fftw3f")
+        set(FFT_LIB "FFTW3::fftw3f")
         list(APPEND DSPLIB_SOURCES lib/fft/fftw3f.cpp)
     else()
-        set(FFT_LIB "FFTW::fftw3")
+        set(FFT_LIB "FFTW3::fftw3")
         list(APPEND DSPLIB_SOURCES lib/fft/fftw3.cpp)
     endif()
     set(DSPLIB_EXCLUDE_FFT ON)
@@ -89,7 +89,7 @@ elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
         message(FATAL_ERROR "supported only with float32")
     endif()
     find_package(NE10 REQUIRED)
-    set(FFT_LIB "NE10::NE10")
+    set(FFT_LIB "ne10::ne10")
     list(APPEND DSPLIB_SOURCES lib/fft/ne10.cpp)
     set(DSPLIB_EXCLUDE_FFT ON)
 endif()
