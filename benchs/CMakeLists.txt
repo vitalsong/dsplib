@@ -50,6 +50,7 @@ target_compile_definitions(pocketfft INTERFACE POCKETFFT_CACHE_SIZE=1 POCKETFFT_
 
 set(SOURCES
     main.cpp
+    math.cpp
     fft.cpp
     ifft.cpp
     audio.cpp

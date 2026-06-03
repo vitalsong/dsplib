@@ -41,22 +41,34 @@
             }
         },
         {
+            "name": "tests-fast-math",
+            "inherits": "default",
+            "cacheVariables": {
+                "DSPLIB_BUILD_TESTS": "ON",
+                "DSPLIB_ASAN_ENABLED": "ON",
+                "DSPLIB_SAFE_MATH": "OFF"
+            }
+        },
+        {
             "name": "benchs-float64",
             "inherits": "default",
             "cacheVariables": {
-                "DSPLIB_BUILD_BENCHS": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
-                "DSPLIB_ENABLE_LTO": "ON"
+                "DSPLIB_BUILD_BENCHS": "ON",
+                "DSPLIB_USE_FLOAT32": "OFF",
+                "DSPLIB_ENABLE_LTO": "ON",
+                "DSPLIB_SAFE_MATH": "OFF"
             }
         },
         {
             "name": "benchs-float32",
             "inherits": "default",
             "cacheVariables": {
-                "DSPLIB_BUILD_BENCHS": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
+                "DSPLIB_BUILD_BENCHS": "ON",
                 "DSPLIB_USE_FLOAT32": "ON",
-                "DSPLIB_ENABLE_LTO": "ON"
+                "DSPLIB_ENABLE_LTO": "ON",
+                "DSPLIB_SAFE_MATH": "OFF"
             }
         },
         {

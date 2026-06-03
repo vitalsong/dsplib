@@ -49,6 +49,7 @@ public:
     }
 
 private:
+    //TODO: enable unsafe math
     void _decimate(const real_t* restrict x, real_t* restrict y, int ny) noexcept {
         for (int i = 0; i < ny; ++i) {
             const real_t* restrict px = x + (decim_ * i);

@@ -348,21 +348,25 @@ cmake . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target=install
 ```
 
-### Use CPM manager:
+### Floating-point optimizations
 
-```cmake
-CPMAddPackage(NAME dsplib
-    GIT_REPOSITORY 
-        "https://github.com/vitalsong/dsplib.git"
-    VERSION 
-        1.0.0
-    OPTIONS
-        "DSPLIB_USE_FLOAT32 OFF"
-        "DSPLIB_NO_EXCEPTIONS OFF"
-    EXCLUDE_FROM_ALL ON
-)
-target_link_libraries(${PROJECT_NAME} dsplib)
+By default, dsplib uses conservative floating-point semantics:
+
+```sh
+-DDSPLIB_SAFE_MATH=ON
 ```
+
+This mode preserves backward compatibility and predictable numerical behavior across platforms and compilers.
+
+For performance-critical DSP workloads, you can enable:
+
+```sh
+-DDSPLIB_SAFE_MATH=OFF
+```
+
+In this mode, dsplib may apply additional compiler floating-point optimizations to selected low-level kernels (such as reductions and dot products). These optimizations are applied selectively and are not intended to affect the public API behavior.
+
+Small numerical differences may be observed due to changes in floating-point evaluation order.
 
 ## Performance
 
