@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(dsplib LANGUAGES CXX VERSION 1.2.0)
+project(dsplib LANGUAGES CXX VERSION 1.3.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,6 +12,7 @@ option(DSPLIB_EXCLUDE_FFT "Exclude FFT (must be implemented external)" OFF)
 set(DSPLIB_FFT_BACKEND "dsplib" CACHE STRING "FFT backend type [dsplib, ne10, fftw]")
 option(DSPLIB_ENABLE_LTO "Enable link-time optimization (LTO)" OFF)
 option(DSPLIB_THREAD_SAFE "Build library with thread-safe caches (requires `thread_local` support)" ON)
+option(DSPLIB_SAFE_MATH "Use strict/safe floating point semantics" ON)
 
 option(DSPLIB_BUILD_TESTS "Build dsplib tests" OFF)
 option(DSPLIB_ASAN_ENABLED "Address sanitizer enabled" OFF)
@@ -42,6 +43,7 @@ set(DSPLIB_SOURCES
     lib/gccphat.cpp
     lib/hilbert.cpp
     lib/math.cpp
+    lib/math_kernels.cpp
     lib/medfilt.cpp
     lib/mscohere.cpp
     lib/primes.cpp
@@ -69,6 +71,14 @@ set(DSPLIB_SOURCES
     lib/fft/real-ifft.cpp
     lib/internal/besseli.cpp
 )
+
+if (NOT DSPLIB_SAFE_MATH)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+        set_source_files_properties(lib/math_kernels.cpp PROPERTIES COMPILE_OPTIONS "-ffast-math;-ffp-contract=fast")
+    elseif (MSVC)
+        set_source_files_properties(lib/math_kernels.cpp PROPERTIES COMPILE_OPTIONS "/fp:fast")
+    endif()
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 

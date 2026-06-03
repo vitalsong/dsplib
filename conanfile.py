@@ -7,7 +7,7 @@ required_conan_version = ">=2.1.0"
 
 class DsplibConan(ConanFile):
     name = "dsplib"
-    version = "1.2.0"
+    version = "1.3.0"
     license = "MIT"
     package_type = "library"
     author = "Vitaly Yulis (vitaly.yulis@gmail.com)"

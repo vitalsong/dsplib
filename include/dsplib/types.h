@@ -52,7 +52,10 @@ static_assert(sizeof(real_t) == 8);
 #endif
 
 constexpr real_t pi = 3.141592653589793238463;
+
+#ifndef DSPLIB_NO_TYPES_FP_CONSTANTS
 constexpr real_t inf = std::numeric_limits<real_t>::infinity();
+#endif
 
 struct cmplx_t;
 
@@ -109,8 +112,9 @@ struct cmplx_t
 
     //scalar -> cmplx_t
     template<typename T, std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>* = nullptr>
-    constexpr cmplx_t(const T& v)
-      : re{static_cast<real_t>(v)} {
+    constexpr cmplx_t(T v)
+      : re{static_cast<real_t>(v)}
+      , im{0} {
     }
 
     //std::complex -> cmplx_t
@@ -131,102 +135,105 @@ struct cmplx_t
 
     cmplx_t& operator=(const cmplx_t&) = default;
 
-    const cmplx_t& operator+() const noexcept {
+    constexpr const cmplx_t& operator+() const noexcept {
         return *this;
     }
 
-    cmplx_t operator-() const noexcept {
+    constexpr cmplx_t operator-() const noexcept {
         return {-re, -im};
     }
 
-    cmplx_t& operator+=(const cmplx_t& rhs) noexcept {
-        *this = *this + rhs;
+    constexpr cmplx_t& operator+=(cmplx_t rhs) noexcept {
+        re += rhs.re;
+        im += rhs.im;
         return *this;
     }
 
-    cmplx_t& operator-=(const cmplx_t& rhs) noexcept {
-        *this = *this - rhs;
+    constexpr cmplx_t& operator-=(cmplx_t rhs) noexcept {
+        re -= rhs.re;
+        im -= rhs.im;
         return *this;
     }
 
-    cmplx_t& operator*=(const cmplx_t& rhs) noexcept {
+    constexpr cmplx_t& operator*=(cmplx_t rhs) noexcept {
         *this = *this * rhs;
         return *this;
     }
 
-    cmplx_t& operator/=(const cmplx_t& rhs) noexcept {
+    constexpr cmplx_t& operator/=(cmplx_t rhs) noexcept {
         *this = *this / rhs;
         return *this;
     }
 
-    constexpr cmplx_t operator+(const cmplx_t& rhs) const noexcept {
+    constexpr cmplx_t operator+(cmplx_t rhs) const noexcept {
         return {re + rhs.re, im + rhs.im};
     }
 
-    constexpr cmplx_t operator-(const cmplx_t& rhs) const noexcept {
+    constexpr cmplx_t operator-(cmplx_t rhs) const noexcept {
         return {re - rhs.re, im - rhs.im};
     }
 
-    constexpr cmplx_t operator*(const cmplx_t& rhs) const noexcept {
+    constexpr cmplx_t operator*(cmplx_t rhs) const noexcept {
         return {(re * rhs.re) - (im * rhs.im), (re * rhs.im) + (im * rhs.re)};
     }
 
-    constexpr cmplx_t operator/(const cmplx_t& rhs) const noexcept {
-        return {((re * rhs.re) + (im * rhs.im)) / rhs.abs2(), ((rhs.re * im) - (re * rhs.im)) / rhs.abs2()};
+    constexpr cmplx_t operator/(cmplx_t rhs) const noexcept {
+        const real_t den = rhs.abs2();
+        return {((re * rhs.re) + (im * rhs.im)) / den, ((rhs.re * im) - (re * rhs.im)) / den};
     }
 
     //cmplx * scalar
-    cmplx_t& operator+=(const real_t& rhs) noexcept {
+    constexpr cmplx_t& operator+=(real_t rhs) noexcept {
         re += rhs;
         return *this;
     }
 
-    constexpr cmplx_t operator+(const real_t& rhs) const noexcept {
+    constexpr cmplx_t operator+(real_t rhs) const noexcept {
         return {re + rhs, im};
     }
 
-    cmplx_t& operator-=(const real_t& rhs) noexcept {
+    constexpr cmplx_t& operator-=(real_t rhs) noexcept {
         re -= rhs;
         return *this;
     }
 
-    constexpr cmplx_t operator-(const real_t& rhs) const noexcept {
+    constexpr cmplx_t operator-(real_t rhs) const noexcept {
         return {re - rhs, im};
     }
 
-    cmplx_t& operator*=(const real_t& rhs) noexcept {
+    constexpr cmplx_t& operator*=(real_t rhs) noexcept {
         re *= rhs;
         im *= rhs;
         return *this;
     }
 
-    constexpr cmplx_t operator*(const real_t& rhs) const noexcept {
+    constexpr cmplx_t operator*(real_t rhs) const noexcept {
         return {re * rhs, im * rhs};
     }
 
-    cmplx_t& operator/=(const real_t& rhs) noexcept {
-        re = (re / rhs);
-        im = (im / rhs);
+    constexpr cmplx_t& operator/=(real_t rhs) noexcept {
+        re /= rhs;
+        im /= rhs;
         return *this;
     }
 
-    constexpr cmplx_t operator/(const real_t& rhs) const noexcept {
+    constexpr cmplx_t operator/(real_t rhs) const noexcept {
         return {re / rhs, im / rhs};
     }
 
-    constexpr bool operator>(const cmplx_t& rhs) const noexcept {
+    constexpr bool operator>(cmplx_t rhs) const noexcept {
         return abs2() > rhs.abs2();
     }
 
-    constexpr bool operator<(const cmplx_t& rhs) const noexcept {
+    constexpr bool operator<(cmplx_t rhs) const noexcept {
         return abs2() < rhs.abs2();
     }
 
-    constexpr bool operator==(const cmplx_t& rhs) const noexcept {
+    constexpr bool operator==(cmplx_t rhs) const noexcept {
         return (re == rhs.re) && (im == rhs.im);
     }
 
-    constexpr bool operator!=(const cmplx_t& rhs) const noexcept {
+    constexpr bool operator!=(cmplx_t rhs) const noexcept {
         return !(*this == rhs);
     }
 
@@ -241,28 +248,33 @@ struct cmplx_t
     friend std::ostream& operator<<(std::ostream& os, const cmplx_t& x);
 };
 
+static_assert(sizeof(cmplx_t) == 2 * sizeof(real_t));
+
 //left oriented real * cmplx
 template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
-constexpr cmplx_t operator+(const T& lhs, const cmplx_t& rhs) {
+constexpr cmplx_t operator+(T lhs, cmplx_t rhs) {
     return rhs + lhs;
 }
 
 template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
-constexpr cmplx_t operator-(const T& lhs, const cmplx_t& rhs) {
+constexpr cmplx_t operator-(T lhs, cmplx_t rhs) {
     return {lhs - rhs.re, -rhs.im};
 }
 
 template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
-constexpr cmplx_t operator*(const T& lhs, const cmplx_t& rhs) {
+constexpr cmplx_t operator*(T lhs, cmplx_t rhs) {
     return rhs * lhs;
 }
 
 template<class T, class S_ = enable_scalar_t<T>, class C_ = enable_convertible_t<T, cmplx_t>>
-constexpr cmplx_t operator/(const T& lhs, const cmplx_t& rhs) {
+constexpr cmplx_t operator/(T lhs, cmplx_t rhs) {
     return cmplx_t(lhs) / rhs;
 }
 
 static_assert(std::is_trivially_copyable<real_t>(), "type must be trivially copyable");
 static_assert(std::is_trivially_copyable<cmplx_t>(), "type must be trivially copyable");
+
+static_assert(std::is_standard_layout_v<real_t>);
+static_assert(std::is_standard_layout_v<cmplx_t>);
 
 }   // namespace dsplib

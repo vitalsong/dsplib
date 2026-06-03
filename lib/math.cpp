@@ -128,14 +128,6 @@ arr_cmplx round(span_cmplx arr) noexcept {
 }
 
 //-------------------------------------------------------------------------------------------------
-real_t sum(span_real arr) {
-    return std::accumulate(arr.begin(), arr.end(), real_t(0));
-}
-
-cmplx_t sum(span_cmplx arr) {
-    return std::accumulate(arr.begin(), arr.end(), cmplx_t(0));
-}
-
 int sum(const std::vector<bool>& arr) {
     return int(std::count(arr.begin(), arr.end(), true));
 }
@@ -210,25 +202,6 @@ bool issorted(span_real x, Direction dir) {
     }
 
     return std::is_sorted(x.begin(), x.end());
-}
-
-//-------------------------------------------------------------------------------------------------
-real_t dot(span_real x1, span_real x2) {
-    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
-    real_t acc = 0;
-    for (int i = 0; i < x1.size(); ++i) {
-        acc += x1[i] * x2[i];
-    }
-    return acc;
-}
-
-cmplx_t dot(span_cmplx x1, span_cmplx x2) {
-    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
-    cmplx_t acc = 0;
-    for (int i = 0; i < x1.size(); ++i) {
-        acc += x1[i] * x2[i];
-    }
-    return acc;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -348,26 +321,6 @@ real_t log2(const real_t& x) {
 
 real_t log10(const real_t& x) {
     return std::log10(x);
-}
-
-//-------------------------------------------------------------------------------------------------
-real_t rms(span_real arr) {
-    const int n = arr.size();
-    real_t sum = 0;
-    for (int i = 0; i < n; ++i) {
-        sum += (arr[i] * arr[i]);
-    }
-    return std::sqrt(sum / (n - 1));
-}
-
-real_t rms(span_cmplx arr) {
-    const int n = arr.size();
-    real_t sum = 0;
-    for (int i = 0; i < n; ++i) {
-        sum += (arr[i].re * arr[i].re);
-        sum += (arr[i].im * arr[i].im);
-    }
-    return std::sqrt(sum / (n - 1));
 }
 
 //-------------------------------------------------------------------------------------------------
