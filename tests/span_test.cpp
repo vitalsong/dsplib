@@ -184,3 +184,29 @@ TEST(SpanTest, ConstOperator) {
         ASSERT_EQ_ARR_REAL(x.slice(0, 10), y4);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+#if DSPLIB_HAS_STD_SPAN
+TEST(SpanTest, StdSpan) {
+    {
+        arr_real x1 = {0, 1, 2, 3};
+        std::span<real_t> x1_span(x1.data(), x1.size());
+        auto x2 = make_span(x1_span);
+
+        ASSERT_EQ(x2.size(), 4);
+        ASSERT_EQ(x2.data(), x1.data());
+
+        x2[1] = -1;
+        ASSERT_EQ_ARR_REAL(x1, arr_real{0, -1, 2, 3});
+    }
+    {
+        const arr_real x1 = {4, 5, 6, 7};
+        std::span<const real_t> x1_span(x1.data(), x1.size());
+        auto x2 = make_span(x1_span);
+
+        ASSERT_EQ(x2.size(), 4);
+        ASSERT_EQ(x2.data(), x1.data());
+        ASSERT_EQ_ARR_REAL(x2, x1);
+    }
+}
+#endif
