@@ -587,3 +587,16 @@ TEST(MathTest, Round) {
         ASSERT_EQ_ARR_CMPLX(round(x), r);
     }
 }
+
+//-------------------------------------------------------------------------------------------------
+TEST(MathTest, Clip) {
+    {
+        arr_real x = {1, 2, 3, 4};
+        ASSERT_EQ_ARR_REAL(clip(x, 0, 2), arr_real{1, 2, 2, 2});
+    }
+
+    {
+        arr_real x = {-1, 2, 3, 4, -5};
+        ASSERT_EQ_ARR_REAL(clip(x, -2, 2), arr_real{-1, 2, 2, 2, -2});
+    }
+}

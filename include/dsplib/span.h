@@ -8,6 +8,16 @@
 #include <cassert>
 #include <vector>
 
+#if __cplusplus >= 202002L && __has_include(<span>)
+#include <span>
+#endif
+
+#if defined(__cpp_lib_span) && (__cpp_lib_span >= 202002L)
+#define DSPLIB_HAS_STD_SPAN 1
+#else
+#define DSPLIB_HAS_STD_SPAN 0
+#endif
+
 namespace dsplib {
 
 template<class T>
@@ -153,7 +163,7 @@ public:
 
     void assign(span_t<T> rhs) {
         DSPLIB_ASSERT(this->size() == rhs.size(), "span size is not equal");
-        if (!is_same_memory(rhs)) {
+        if (!is_overlaps(rhs)) {
             std::memcpy(this->data(), rhs.data(), size() * sizeof(T));
         } else {
             std::memmove(this->data(), rhs.data(), size() * sizeof(T));
@@ -277,7 +287,7 @@ public:
     }
 
 private:
-    bool is_same_memory(span_t<T> rhs) noexcept {
+    bool is_overlaps(span_t<T> rhs) noexcept {
         if (this->size() == 0 || rhs.size() == 0) {
             return false;
         }
@@ -456,6 +466,21 @@ template<typename T>
 mut_span_t<T> make_span(base_array<T>& x) noexcept {
     return mut_span_t<T>(x.data(), x.size());
 }
+
+// C++20 interoperability with std::span
+#if DSPLIB_HAS_STD_SPAN
+
+template<typename T, std::size_t Extent>
+span_t<T> make_span(std::span<const T, Extent> x) noexcept {
+    return span_t<T>(x.data(), static_cast<int>(x.size()));
+}
+
+template<typename T, std::size_t Extent>
+mut_span_t<T> make_span(std::span<T, Extent> x) noexcept {
+    return mut_span_t<T>(x.data(), static_cast<int>(x.size()));
+}
+
+#endif
 
 using span_real = span_t<real_t>;
 using span_cmplx = span_t<cmplx_t>;

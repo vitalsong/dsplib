@@ -1,16 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
 project(dsplib-test LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include(${CMAKE_SOURCE_DIR}/cmake/CPM.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/CPM.cmake)
 
 option(DSPLIB_COVERAGE "Enable coverage compiler flags" OFF)
 
 CPMAddPackage(NAME googletest
     GIT_REPOSITORY "https://github.com/google/googletest.git"
-        VERSION 1.14.0
+        VERSION 1.17.0
     OPTIONS 
         "BUILD_GMOCK OFF"
         "INSTALL_GTEST OFF"
@@ -18,15 +14,15 @@ CPMAddPackage(NAME googletest
     EXCLUDE_FROM_ALL ON
 )
 
-file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
-add_executable(${PROJECT_NAME} ${SOURCES})
+file(GLOB_RECURSE TEST_SOURCES "*.cpp" "*.h")
+add_executable(${PROJECT_NAME} ${TEST_SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC 
+target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR} 
-    ${CMAKE_SOURCE_DIR}/lib
+    ${CMAKE_CURRENT_LIST_DIR}/../lib
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC dsplib gtest)
+target_link_libraries(${PROJECT_NAME} PRIVATE dsplib GTest::gtest_main)
 
 if (DSPLIB_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(STATUS "dsplib: coverage enabled")
@@ -34,3 +30,6 @@ if (DSPLIB_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
     target_link_libraries(${PROJECT_NAME} PRIVATE -fprofile-instr-generate)
 endif()
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})
