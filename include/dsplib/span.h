@@ -8,8 +8,14 @@
 #include <cassert>
 #include <vector>
 
-#if defined(__cpp_lib_span) && (__cpp_lib_span >= 202002L)
+#if __cplusplus >= 202002L && __has_include(<span>)
 #include <span>
+#endif
+
+#if defined(__cpp_lib_span) && (__cpp_lib_span >= 202002L)
+#define DSPLIB_HAS_STD_SPAN 1
+#else
+#define DSPLIB_HAS_STD_SPAN 0
 #endif
 
 namespace dsplib {
@@ -462,7 +468,7 @@ mut_span_t<T> make_span(base_array<T>& x) noexcept {
 }
 
 // C++20 interoperability with std::span
-#if defined(__cpp_lib_span) && (__cpp_lib_span >= 202002L)
+#if DSPLIB_HAS_STD_SPAN
 
 template<typename T, std::size_t Extent>
 span_t<T> make_span(std::span<const T, Extent> x) noexcept {

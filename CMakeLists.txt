@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15...3.31)
 project(dsplib LANGUAGES CXX VERSION 1.4.0)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+include(GNUInstallDirs)
 
 option(DSPLIB_USE_FLOAT32 "Use float32 for base type dsplib::real_t" OFF)
 option(DSPLIB_NO_EXCEPTIONS "Use the abort() function instead throw" OFF)
@@ -105,12 +105,14 @@ elseif (DSPLIB_FFT_BACKEND STREQUAL "ne10")
 endif()
 
 if (DSPLIB_EXCLUDE_FFT)
-    message(STATUS "use custom fft implementation - ${DSPLIB_FFT_BACKEND}")
+    message(STATUS "internal FFT implementation excluded; backend=${DSPLIB_FFT_BACKEND}")
 else()
     list(APPEND DSPLIB_SOURCES lib/fft/dsplib.cpp)
 endif()
 
 add_library(${PROJECT_NAME} ${DSPLIB_SOURCES})
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} 
     PRIVATE 
@@ -120,7 +122,7 @@ target_compile_definitions(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-        "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE 
         lib
@@ -153,7 +155,7 @@ if(NOT DSPLIB_THREAD_SAFE)
 endif()
 
 # configure <dsplib/defs.h> file 
-configure_file(cmake/defs.h.in ${CMAKE_BINARY_DIR}/dsplib/defs.h)
+configure_file(cmake/defs.h.in ${CMAKE_CURRENT_BINARY_DIR}/dsplib/defs.h)
 
 # check warnings
 if (DSPLIB_IS_ROOT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -165,6 +167,8 @@ if (DSPLIB_IS_ROOT AND DSPLIB_ASAN_ENABLED)
     include(cmake/sanitizer.cmake)
     enable_address_sanitizer(TARGET ${PROJECT_NAME})
 endif()
+
+include(CTest)
 
 if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_TESTS)
     add_subdirectory(tests)
@@ -179,14 +183,13 @@ if (DSPLIB_IS_ROOT AND DSPLIB_BUILD_BENCHS)
 endif()
 
 # install package
-include(GNUInstallDirs)
 
 install(TARGETS ${PROJECT_NAME})
 
 install(FILES "include/dsplib.h" 
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(FILES "${CMAKE_BINARY_DIR}/dsplib/defs.h" 
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/dsplib/defs.h" 
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
 install(DIRECTORY include/${PROJECT_NAME}
