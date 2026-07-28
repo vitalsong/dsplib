@@ -83,9 +83,14 @@ int sum(const std::vector<bool>& arr);
 arr_real cumsum(span_real x, Direction dir = Direction::Forward);
 arr_cmplx cumsum(span_cmplx x, Direction dir = Direction::Forward);
 
-//array dot
+//dot product of two arrays
+//warn: without using the complex conjugate
+//sum(x1 * x2)
 real_t dot(span_real x1, span_real x2);
 cmplx_t dot(span_cmplx x1, span_cmplx x2);
+
+//sum(conj(x1) * x2)
+cmplx_t vdot(span_cmplx x1, span_cmplx x2);
 
 //array mean
 real_t mean(span_real arr);

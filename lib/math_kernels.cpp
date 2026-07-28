@@ -18,6 +18,38 @@
 
 namespace dsplib {
 
+namespace {
+
+template<bool ConjFirst>
+cmplx_t _dot(span_cmplx x1, span_cmplx x2) {
+    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
+
+    const size_t n = x1.size();
+    real_t acc_re{0};
+    real_t acc_im{0};
+
+    for (size_t i = 0; i < n; ++i) {
+        const real_t ar = x1[i].re;
+        const real_t ai = x1[i].im;
+        const real_t br = x2[i].re;
+        const real_t bi = x2[i].im;
+
+        if constexpr (ConjFirst) {
+            // conj(a) * b
+            acc_re += ar * br + ai * bi;
+            acc_im += ar * bi - ai * br;
+        } else {
+            // a * b
+            acc_re += ar * br - ai * bi;
+            acc_im += ar * bi + ai * br;
+        }
+    }
+
+    return {acc_re, acc_im};
+}
+
+}   // namespace
+
 //-------------------------------------------------------------------------------------------------
 real_t sum(span_real arr) {
     const size_t n = arr.size();
@@ -51,19 +83,12 @@ real_t dot(span_real x1, span_real x2) {
 }
 
 cmplx_t dot(span_cmplx x1, span_cmplx x2) {
-    DSPLIB_ASSERT(x1.size() == x2.size(), "arrays sizes must be equal");
-    const size_t n = x1.size();
-    real_t acc_re{0};
-    real_t acc_im{0};
-    for (size_t i = 0; i < n; ++i) {
-        const real_t ar = x1[i].re;
-        const real_t ai = x1[i].im;
-        const real_t br = x2[i].re;
-        const real_t bi = x2[i].im;
-        acc_re += ar * br - ai * bi;
-        acc_im += ar * bi + ai * br;
-    }
-    return {acc_re, acc_im};
+    return _dot<false>(x1, x2);
+}
+
+//-------------------------------------------------------------------------------------------------
+cmplx_t vdot(span_cmplx x1, span_cmplx x2) {
+    return _dot<true>(x1, x2);
 }
 
 //-------------------------------------------------------------------------------------------------

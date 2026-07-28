@@ -300,9 +300,17 @@ TEST(MathTest, MSE) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Dot) {
-    arr_real x1 = {-1, 2, -3, 4};
-    arr_real x2 = {2, 3, 4, 5};
-    ASSERT_EQ(dot(x1, x2), sum(x1 * x2));
+    {
+        arr_cmplx x1 = complex(arange(100), arange(100));
+        arr_cmplx x2 = complex(arange(100), arange(100));
+        ASSERT_EQ(dot(x1, x2), sum(x1 * x2));
+    }
+    {
+        arr_cmplx x1 = complex(arange(100), arange(100));
+        arr_cmplx x2 = complex(arange(100), arange(100));
+        ASSERT_EQ(dot(x1, x2), sum(x1 * x2));
+        ASSERT_EQ(vdot(x1, x2), sum(conj(x1) * x2));
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
