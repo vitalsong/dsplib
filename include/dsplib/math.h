@@ -73,6 +73,10 @@ arr_cmplx round(span_cmplx arr) noexcept;
 void round(inplace_real arr) noexcept;
 void round(inplace_cmplx arr) noexcept;
 
+//clip signal to range
+arr_real clip(span_real x, real_t lower, real_t upper);
+void clip(inplace_real ix, real_t lower, real_t upper);
+
 //array sum
 real_t sum(span_real arr);
 cmplx_t sum(span_cmplx arr);

@@ -1,36 +1,57 @@
 #pragma once
 
 #include <dsplib/array.h>
+#include <utility>
 
 namespace dsplib {
 
 //Delay input signal by fixed samples
+//TODO: add fractional delay
+//TODO: rename to `FixedDelay`?
 template<typename T>
 class Delay
 {
 public:
     explicit Delay(int length)
-      : _buffer(length) {
+      : nd_{length}
+      , cbuf_(length) {
+        DSPLIB_ASSERT(length >= 0, "Delay length must be non-negative");
     }
 
-    explicit Delay(const dsplib::base_array<T>& initial)
-      : _buffer{initial} {
+    explicit Delay(span_t<T> initial)
+      : nd_{initial.size()}
+      , cbuf_{initial} {
     }
 
-    dsplib::base_array<T> process(span_t<T> x) {
-        //TODO: use cycle buffer
-        const int nd = _buffer.size();
-        const auto tmp = concatenate(_buffer, x);
-        _buffer.slice(0, nd) = tmp.slice(tmp.size() - nd, tmp.size());
-        return tmp.slice(0, x.size());
+    base_array<T> process(span_t<T> x) {
+        base_array<T> dx(x);
+        this->process(inplace(dx));
+        return dx;
     }
 
-    dsplib::base_array<T> operator()(span_t<T> x) {
+    void process(inplace_span_t<T> ix) {
+        if (nd_ == 0) {
+            return;
+        }
+        auto x = ix.get();
+        for (int i = 0; i < x.size(); ++i) {
+            std::swap(cbuf_[pos_], x[i]);
+            pos_ = (pos_ + 1) % nd_;
+        }
+    }
+
+    base_array<T> operator()(span_t<T> x) {
         return this->process(x);
     }
 
+    [[nodiscard]] int length() const noexcept {
+        return nd_;
+    }
+
 private:
-    dsplib::base_array<T> _buffer;
+    int nd_{0};
+    int pos_{0};
+    base_array<T> cbuf_;
 };
 
 using DelayReal = Delay<real_t>;
