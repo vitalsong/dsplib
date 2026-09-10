@@ -84,7 +84,7 @@ arr_real cumsum(span_real x, Direction dir = Direction::Forward);
 arr_cmplx cumsum(span_cmplx x, Direction dir = Direction::Forward);
 
 //dot product of two arrays
-//warn: without using the complex conjugate
+//warn: without using the complex conjugate (non-matlab style)
 //sum(x1 * x2)
 real_t dot(span_real x1, span_real x2);
 cmplx_t dot(span_cmplx x1, span_cmplx x2);

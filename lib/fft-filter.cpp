@@ -13,7 +13,7 @@ public:
       , _x(_nfft)
       , _olap(_m - 1) {
         assert(_n > _m);
-        _h = fft(conj(h), _nfft);
+        _h = fft(h, _nfft);
     }
 
     base_array<T> process(span_t<T> x) {

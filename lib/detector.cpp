@@ -95,7 +95,7 @@ public:
 
 private:
     static arr_cmplx _convert_impulse(span_cmplx h) {
-        return flip(h) / (rms(h) * h.size());
+        return conj(flip(h)) / (rms(h) * h.size());
     }
 
     FftFilterC _corr_flt;

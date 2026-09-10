@@ -26,6 +26,20 @@ TEST(FirTest, FftFirAndOne) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(FirTest, CmplxImpulseResponse) {
+    const arr_cmplx h = {1.0 + 2.0i, -0.5 + 0.25i, 0.75 - 1.5i};
+    auto fir = FirFilterC(h);
+    auto fft_fir = FftFilterC(h);
+    auto x = complex(zeros(fft_fir.block_size()));
+    x[0] = 1;
+    arr_cmplx expected(x.size());
+    expected.slice(0, h.size()) = h;
+
+    ASSERT_EQ_ARR_CMPLX(fir(x), expected);
+    ASSERT_EQ_ARR_CMPLX(fft_fir(x), expected);
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(FirTest, FftEqFir) {
     for (int nh = 1; nh <= 128; ++nh) {
         const auto ir_coeff = fir1(nh, 0.1);
@@ -114,34 +128,44 @@ TEST(FirTest, Rls) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, LmsCmplx) {
+    const real_t noise_std = 0.01;
+    const real_t mu = 0.5;
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
     auto flt = FirFilterC(h);
     arr_cmplx x = complex(randn(L), randn(L));
-    arr_cmplx n = 0.01 * complex(randn(L), randn(L));
+    arr_cmplx n = noise_std * complex(randn(L), randn(L));
     arr_cmplx d = flt(x) + n;
 
-    auto adapt = LmsFilterC(M, 0.5, LmsType::NLMS);
+    auto adapt = LmsFilterC(M, mu, LmsType::NLMS);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
-    ASSERT_LE(nmse(w, h), 0.1);
+    // Approximate coefficient MSE: (noise power / input power) * mu / ((2-mu) * M).
+    // Allow for finite-sample effects and random noise fluctuations.
+    const real_t max_mse = 10 * noise_std * noise_std * mu / ((2 - mu) * M);
+    ASSERT_LE(mse(w, h), max_mse);
 }
 
 //-------------------------------------------------------------------------------------------------
 TEST(FirTest, RlsCmplx) {
+    const real_t noise_std = 0.01;
+    const real_t mu = 0.98;
     auto h = _get_bandpass_fir(32, 0.1, 0.2);
     int M = h.size();
     int L = 10000;
     auto flt = FirFilterC(h);
     arr_cmplx x = complex(randn(L), randn(L));
-    arr_cmplx n = 0.01 * complex(randn(L), randn(L));
+    arr_cmplx n = noise_std * complex(randn(L), randn(L));
     arr_cmplx d = flt(x) + n;
 
-    auto adapt = RlsFilterC(M, 0.98);
+    auto adapt = RlsFilterC(M, mu);
     auto [y, e] = adapt(x, d);
     auto w = adapt.coeffs();
-    ASSERT_LE(nmse(w, h), 0.1);
+    // Approximate coefficient MSE: (noise power / input power) * (1-mu)/(1+mu).
+    // Allow for finite-sample covariance and random noise fluctuations.
+    const real_t max_mse = 10 * noise_std * noise_std * (1 - mu) / (1 + mu);
+    ASSERT_LE(mse(w, h), max_mse);
 }
 
 //-------------------------------------------------------------------------------------------------
