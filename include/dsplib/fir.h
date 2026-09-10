@@ -10,7 +10,8 @@ namespace dsplib {
 
 /*!
  * \brief FIR filter class
- * \todo complex type support
+ * \warning Coefficients are the impulse response h[0], h[1], ...: y[n] = sum(h[k] * x[n-k]).
+ * No complex conjugation is applied (MATLAB filter(h, 1, x) convention).
  */
 template<typename T>
 class FirFilter
@@ -69,6 +70,8 @@ class FftFilterImpl;
 /*!
  * \brief FFT-based FIR filtering using overlap-add method
  * \details Fast fir implementation for large IR length (usually > 200)
+ * \warning Coefficients are the impulse response h[0], h[1], ...: y[n] = sum(h[k] * x[n-k]).
+ * No complex conjugation is applied (MATLAB filter(h, 1, x) convention).
  */
 template<typename T>
 class FftFilter

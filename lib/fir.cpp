@@ -17,7 +17,7 @@ void _conv(T* restrict x, const T* restrict h, int nh, int nx) {
     for (int i = 0; i < nr; ++i) {
         T r = 0;
         for (int k = 0; k < nh; ++k) {
-            r += x[i + k] * conj(h[nh - k - 1]);
+            r += x[i + k] * h[nh - k - 1];
         }
         x[i] = r;
     }
