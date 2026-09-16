@@ -193,6 +193,17 @@ TEST(Resampler, ResampleFunc) {
         auto x_out = resample(x_in, fs2, fs1);
         ASSERT_EQ(x_out.size(), fs2);
     }
+
+    {
+        //long files
+        const int T = 10 * 60;   // 10 min
+        const int fs2 = 16000;
+        const int fs1 = 44100;
+        const int n = fs1 * T;
+        auto x_in = sin(2 * pi * 0.05 * arange(n));
+        auto x_out = resample(x_in, fs2, fs1);
+        ASSERT_EQ(x_out.size(), fs2 * T);
+    }
 }
 
 //TODO: check FIRDecimator equal FIRRateConverter
