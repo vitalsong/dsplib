@@ -13,9 +13,9 @@ class Delay
 {
 public:
     explicit Delay(int length)
-      : nd_{length}
-      , cbuf_(length) {
+      : nd_{length} {
         DSPLIB_ASSERT(length >= 0, "Delay length must be non-negative");
+        cbuf_ = base_array<T>(nd_);
     }
 
     explicit Delay(span_t<T> initial)

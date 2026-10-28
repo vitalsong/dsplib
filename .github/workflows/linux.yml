@@ -31,7 +31,7 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}/build-${{matrix.compiler}}/tests
-        run: ./dsplib-test
+        run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure --no-tests=error
 
   build-float32:
     runs-on: ubuntu-latest
@@ -69,8 +69,8 @@ jobs:
 
       - name: Create coverage report
         run: |
-          export LLVM_PROFILE_FILE=dsplib.profraw && ${{github.workspace}}/build/tests/dsplib-test
-          llvm-profdata merge dsplib.profraw -o dsplib.profdata
+          LLVM_PROFILE_FILE=${{github.workspace}}/dsplib-%p.profraw ctest --test-dir ${{github.workspace}}/build/tests -C Release --output-on-failure --no-tests=error
+          llvm-profdata merge dsplib-*.profraw -o dsplib.profdata
           llvm-cov report ${{github.workspace}}/build/tests/dsplib-test -ignore-filename-regex=tests/* -instr-profile=dsplib.profdata -use-color
           llvm-cov show ${{github.workspace}}/build/tests/dsplib-test -Xdemangler=c++filt -ignore-filename-regex=tests/* -instr-profile=dsplib.profdata > coverage.txt
 

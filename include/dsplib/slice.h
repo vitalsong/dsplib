@@ -228,15 +228,16 @@ public:
         i1 = (i1 < 0) ? (size + i1) : i1;
         i2 = (i2 < 0) ? (size + i2) : i2;
 
+        DSPLIB_ASSERT(step != 0, "Slice stride cannot be zero");
+        DSPLIB_ASSERT((i1 >= 0) && (i1 < size), "Left slice index out of range");
+        DSPLIB_ASSERT((i2 >= 0) && (i2 <= size), "Right slice index out of range");
+        DSPLIB_ASSERT(!((step < 0) && (i1 < i2)), "First index is smaller for negative step");
+        DSPLIB_ASSERT(!((step > 0) && (i1 > i2)), "First index is greater for positive step");
+
         const int d = std::abs(i2 - i1);
         const int tm = std::abs(step);
         int count = (d % tm != 0) ? (d / tm + 1) : (d / tm);
 
-        DSPLIB_ASSERT(step != 0, "Slice stride cannot be zero");
-        DSPLIB_ASSERT((i1 >= 0) && (i1 <= size), "Left slice index out of range");
-        DSPLIB_ASSERT((i2 >= 0) && (i2 <= size), "Right slice index out of range");
-        DSPLIB_ASSERT(!((step < 0) && (i1 < i2)), "First index is smaller for negative step");
-        DSPLIB_ASSERT(!((step > 0) && (i1 > i2)), "First index is greater for positive step");
         DSPLIB_ASSERT(count <= size, "Slice range is greater array size");
 
         return mut_slice_t(data + i1, step, count);
