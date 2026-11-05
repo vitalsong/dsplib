@@ -191,7 +191,8 @@ public:
 
     //--------------------------------------------------------------------
     //compare vector
-    std::vector<bool> operator>(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator>(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] > rhs._vec[i]);
@@ -199,7 +200,8 @@ public:
         return res;
     }
 
-    std::vector<bool> operator<(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator<(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] < rhs._vec[i]);
@@ -207,7 +209,8 @@ public:
         return res;
     }
 
-    std::vector<bool> operator==(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator==(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] == rhs._vec[i]);
@@ -215,7 +218,7 @@ public:
         return res;
     }
 
-    std::vector<bool> operator!=(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator!=(const base_array<T>& rhs) const {
         auto r = (*this == rhs);
         r.flip();
         return r;
