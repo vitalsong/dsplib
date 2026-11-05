@@ -47,3 +47,19 @@ TEST(Throw, InvalidIndexVector) {
     EXPECT_THROW((void)empty[std::vector<int>{0}], std::runtime_error);
     EXPECT_THROW((void)empty[arr_int{0}], std::runtime_error);
 }
+
+TEST(Throw, CztBufferSizes) {
+    const arr_cmplx x = {1, 2, 3};
+    for (int m : {2, 5}) {
+        CztPlan plan(x.size(), m, expj(-2 * pi / m));
+        for (int size : {0, m - 1, m + 1}) {
+            arr_cmplx output(size);
+            EXPECT_THROW(plan.solve(x, output), std::runtime_error);
+        }
+
+        const arr_cmplx wrong_input = {1, 2};
+        arr_cmplx output(m);
+        EXPECT_THROW((void)plan.solve(wrong_input), std::runtime_error);
+        EXPECT_THROW(plan.solve(wrong_input, output), std::runtime_error);
+    }
+}

@@ -160,6 +160,52 @@ TEST(FFT, Czt) {
 }
 
 //-------------------------------------------------------------------------------------------------
+TEST(FFT, CztDifferentLengths) {
+    for (int n : {3, 1, 7}) {
+        const arr_cmplx x = complex(arange(1, n + 1), -arange(n));
+        for (int m : {5, 1, 2, 9}) {
+            for (cmplx_t a : {cmplx_t(1), cmplx_t(1.1, 0.2)}) {
+                for (cmplx_t w : {expj(-2 * pi / m), expj(0.37)}) {
+                    SCOPED_TRACE(::testing::Message() << "n=" << n << ", m=" << m);
+                    arr_cmplx ref(m);
+                    for (int k = 0; k < m; ++k) {
+                        for (int j = 0; j < n; ++j) {
+                            ref[k] += x[j] * power(a, -j) * power(w, j * k);
+                        }
+                    }
+
+                    const auto y = czt(x, m, w, a);
+                    ASSERT_EQ(y.size(), m);
+                    ASSERT_EQ_ARR_CMPLX(y, ref);
+
+                    CztPlan plan(n, m, w, a);
+                    const auto planned = plan.solve(x);
+                    ASSERT_EQ(planned.size(), m);
+                    ASSERT_EQ_ARR_CMPLX(planned, ref);
+
+                    arr_cmplx output(m);
+                    plan.solve(x, output);
+                    ASSERT_EQ_ARR_CMPLX(output, ref);
+                }
+            }
+        }
+    }
+}
+
+TEST(FFT, CztShorterThanInput) {
+    const arr_cmplx x = {1, 2, 3};
+    // CZT uses all input samples, unlike fft(x, 2), which truncates the input.
+    ASSERT_EQ_ARR_CMPLX(czt(x, 2, expj(-pi)), arr_cmplx{6, 2});
+}
+
+TEST(FFT, CztPaddedFft) {
+    const arr_cmplx x = {1, 2, 3};
+    for (int m : {5, 8}) {
+        ASSERT_EQ_ARR_CMPLX(czt(x, m, expj(-2 * pi / m)), fft(x, m));
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
 TEST(FFT, CztPrime) {
     const int n = 31;
     arr_cmplx x = complex(arange(n));
