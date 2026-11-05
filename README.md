@@ -191,7 +191,8 @@ plan->solve(make_span(x.data(), n/2+1), make_span(y2.data(), n));
 const auto h = fir1(100, 0.1, FilterType::Low);
 auto flt = FftFilter(h);
 arr_real x = randn(10000);
-arr_real y = flt(x);
+arr_real y = flt(x); // emits complete blocks, buffering any remaining input
+y |= flt.flush();    // emits the remainder; y.size() == x.size()
 ```
 
 ### Hilbert filter:
