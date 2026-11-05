@@ -203,7 +203,7 @@ void sort(inplace_real ix, Direction dir) {
     if (dir == Direction::Ascend) {
         std::sort(x.begin(), x.end());
     } else {
-        std::sort(x.begin(), x.end(), std::greater<int>());
+        std::sort(x.begin(), x.end(), std::greater<real_t>());
     }
 }
 
