@@ -511,13 +511,7 @@ arr_real angle(span_cmplx arr) {
 }
 
 real_t angle(cmplx_t v) {
-    real_t d = 0;
-    if (v.re < 0) {
-        d = (v.im > 0) ? (pi) : (-pi);
-    } else {
-        d = 0;
-    }
-    return std::atan(v.im / v.re) + d;
+    return std::atan2(v.im, v.re);
 }
 
 //-------------------------------------------------------------------------------------------------

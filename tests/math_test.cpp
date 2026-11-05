@@ -112,9 +112,19 @@ TEST(MathTest, Power2) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(MathTest, Angle) {
-    arr_cmplx x1 = {1, 1i, 1 + 1i, -1};
-    arr_real y1 = {0, pi / 2, pi / 4, pi};
-    ASSERT_EQ_ARR_REAL(abs(angle(x1)), y1);
+    arr_cmplx x1 = {1, 1i, 1 + 1i, -1, -1 + 1i, -1 - 1i, 1 - 1i, -1i};
+    arr_real y1 = {0, pi / 2, pi / 4, pi, 3 * pi / 4, -3 * pi / 4, -pi / 4, -pi / 2};
+    ASSERT_EQ_ARR_REAL(angle(x1), y1);
+}
+
+TEST(MathTest, AngleNegativeRealAxis) {
+    ASSERT_FLOAT_EQ(angle(cmplx_t(-1, 0)), pi);
+    ASSERT_FLOAT_EQ(angle(cmplx_t(-1, -0.0)), -pi);
+}
+
+TEST(MathTest, AngleZero) {
+    ASSERT_EQ(angle(cmplx_t(0, 0)), 0);
+    ASSERT_EQ_ARR_REAL(angle(arr_cmplx{0}), arr_real{0});
 }
 
 //-------------------------------------------------------------------------------------------------
