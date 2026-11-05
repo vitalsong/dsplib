@@ -63,3 +63,20 @@ TEST(Throw, CztBufferSizes) {
         EXPECT_THROW(plan.solve(wrong_input, output), std::runtime_error);
     }
 }
+
+TEST(Throw, IrfftBufferSizes) {
+    for (int n : {1, 5, 9}) {
+        const auto plan = ifft_plan_r(n);
+        arr_real output(n);
+        for (int size : {0, n / 2, n + 1}) {
+            const arr_cmplx input(size);
+            EXPECT_THROW((void)plan->solve(input), std::runtime_error);
+            EXPECT_THROW(plan->solve(input, output), std::runtime_error);
+        }
+        const arr_cmplx input(n / 2 + 1);
+        for (int size : {0, n - 1, n + 1}) {
+            arr_real wrong_output(size);
+            EXPECT_THROW(plan->solve(input, wrong_output), std::runtime_error);
+        }
+    }
+}

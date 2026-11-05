@@ -47,9 +47,8 @@ std::vector<cmplx_t> _irfft_coeffs(int n) noexcept {
 
 RealIfftPlan::RealIfftPlan(int n)
   : n_{n}
-  , fft_{fft_plan_c(n / 2)}
-  , w_(_irfft_coeffs(n)) {
-    DSPLIB_ASSERT(n % 2 == 0, "ifft size must be even");
+  , fft_{n % 2 == 0 ? fft_plan_c(n / 2) : ifft_plan_c(n)}
+  , w_(n % 2 == 0 ? _irfft_coeffs(n) : std::vector<cmplx_t>{}) {
 }
 
 arr_real RealIfftPlan::solve(span_t<cmplx_t> x) const {
@@ -59,9 +58,22 @@ arr_real RealIfftPlan::solve(span_t<cmplx_t> x) const {
 }
 
 void RealIfftPlan::solve(span_t<cmplx_t> x, mut_span_t<real_t> r) const {
-    assert(n_ % 2 == 0);
     DSPLIB_ASSERT((x.size() == n_) || (x.size() == n_ / 2 + 1), "input size must be n/2+1 or n");
     DSPLIB_ASSERT(r.size() == n_, "output size must be n");
+
+    if (n_ % 2 != 0) {
+        arr_cmplx spectrum(n_);
+        spectrum[0] = x[0].re;
+        for (int i = 1; i <= n_ / 2; ++i) {
+            spectrum[i] = x[i];
+            spectrum[n_ - i] = x[i].conj();
+        }
+        const auto y = fft_->solve(spectrum);
+        for (int i = 0; i < n_; ++i) {
+            r[i] = y[i].re;
+        }
+        return;
+    }
 
     const real_t dn = real_t(1) / n_;
     std::vector<cmplx_t> Z(n_ / 2);

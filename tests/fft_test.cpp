@@ -139,13 +139,36 @@ TEST(FFT, Ifft) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, Irfft) {
-    for (auto nfft : {200, 101 * 2, 512 * 3, 1024, 1000}) {
+    for (auto nfft : {1, 3, 5, 9, 31, 101, 200, 101 * 2, 512 * 3, 1024, 1000}) {
         auto x = randn(nfft);
         auto y = fft(x);
         auto xc = ifft(y);
         auto xr = irfft(y);
         ASSERT_EQ_ARR_REAL(x, real(xc));
         ASSERT_EQ_ARR_REAL(x, xr);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, IrfftPlan) {
+    for (int n : {1, 2, 3, 4, 5, 9, 31, 101}) {
+        SCOPED_TRACE(::testing::Message() << "n=" << n);
+        const auto t = arange(n);
+        // Exercise DC and the highest positive-frequency bin, including its imaginary part.
+        const arr_real x = 2 + cos(2 * pi * (n / 2) * t / n) + sin(2 * pi * (n / 2) * t / n);
+        const auto spectrum = fft(x);
+        const auto reference = real(ifft(spectrum));
+        const auto plan = ifft_plan_r(n);
+        ASSERT_EQ(plan->size(), n);
+        for (int size : {n, n / 2 + 1}) {
+            const auto input = spectrum.slice(0, size);
+            ASSERT_EQ_ARR_REAL(irfft(input, n), reference);
+            ASSERT_EQ_ARR_REAL(plan->solve(input), reference);
+            arr_real output(n);
+            plan->solve(input, output);
+            ASSERT_EQ_ARR_REAL(output, reference);
+            ASSERT_EQ_ARR_REAL(output, x);
+        }
     }
 }
 
