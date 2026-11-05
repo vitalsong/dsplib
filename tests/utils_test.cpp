@@ -321,3 +321,27 @@ TEST(Utils, ZadoffChu) {
         ASSERT_EQ_ARR_CMPLX(y.slice(0, n / 2), flip(y.slice(n / 2 + 1, n)));
     }
 }
+
+TEST(Utils, DelayseqComplex) {
+    const arr_cmplx x = {1 + 2i, 3 - 4i, 5 + 6i};
+    ASSERT_EQ_ARR_CMPLX(delayseq(x, 0), x);
+    ASSERT_EQ_ARR_CMPLX(delayseq(x, 1), arr_cmplx{0, 1 + 2i, 3 - 4i});
+    ASSERT_EQ_ARR_CMPLX(delayseq(x, -1), arr_cmplx{3 - 4i, 5 + 6i, 0});
+    for (int delay : {-4, -3, 3, 4}) {
+        ASSERT_EQ_ARR_CMPLX(delayseq(x, delay), arr_cmplx{0, 0, 0});
+    }
+    for (int delay : {-1, 0, 1}) {
+        EXPECT_EQ(delayseq(arr_cmplx{}, delay).size(), 0);
+    }
+}
+
+TEST(Utils, DelayseqRealAndInt) {
+    const arr_real x = {1, 2, 3};
+    ASSERT_EQ_ARR_REAL(delayseq(x, 1), arr_real{0, 1, 2});
+    ASSERT_EQ_ARR_REAL(delayseq(x, -1), arr_real{2, 3, 0});
+    ASSERT_EQ_ARR_REAL(delayseq(x, 3), arr_real{0, 0, 0});
+    const arr_int xi = {1, 2, 3};
+    ASSERT_EQ_ARR_INT(delayseq(xi, 1), arr_int{0, 1, 2});
+    ASSERT_EQ_ARR_INT(delayseq(xi, -1), arr_int{2, 3, 0});
+    ASSERT_EQ_ARR_INT(delayseq(xi, 3), arr_int{0, 0, 0});
+}

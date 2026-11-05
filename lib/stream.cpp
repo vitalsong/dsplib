@@ -12,6 +12,11 @@ static std::ostream& format(std::ostream& os, const base_array<T>& x) {
 }
 
 template<>
+std::ostream& base_array<int>::_print(std::ostream& os) const {
+    return format(os, *this);
+}
+
+template<>
 std::ostream& base_array<real_t>::_print(std::ostream& os) const {
     return format(os, *this);
 }

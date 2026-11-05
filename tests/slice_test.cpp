@@ -1,4 +1,6 @@
 #include "tests_common.h"
+// Verify that iterator.h can also be included after slice.h.
+#include <dsplib/iterator.h>
 #include <gtest/gtest.h>
 
 using namespace dsplib;

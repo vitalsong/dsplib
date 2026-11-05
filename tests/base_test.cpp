@@ -1,4 +1,5 @@
 #include "tests_common.h"
+#include <sstream>
 
 using namespace dsplib;
 using namespace std::complex_literals;
@@ -72,4 +73,10 @@ TEST(BaseTest, LeftScalar) {
         ASSERT_EQ_ARR_CMPLX(d - x, arr_cmplx{-2 + 2i, -4 + 2i, -5 + 2i, -8 + 2i});
         ASSERT_EQ_ARR_CMPLX(d / x, arr_cmplx{1i, 0.5i, 0.4i, 0.25i});
     }
+}
+
+TEST(BaseTest, PrintIntArray) {
+    std::ostringstream stream;
+    stream << arr_int{1, -2, 0} << "; " << arr_int{7};
+    ASSERT_EQ(stream.str(), "1, -2, 0; 7");
 }
