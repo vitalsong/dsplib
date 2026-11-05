@@ -34,3 +34,16 @@ TEST(Throw, CompareArraySizes) {
         }
     }
 }
+
+TEST(Throw, InvalidIndexVector) {
+    const arr_real x = {1, 2, 3};
+    const std::vector<std::vector<int>> indices = {{-1, 0}, {-1}, {3}, {0, 3}};
+    for (const auto& idxs : indices) {
+        EXPECT_THROW((void)x[idxs], std::runtime_error);
+        EXPECT_THROW((void)x[arr_int(idxs)], std::runtime_error);
+    }
+
+    const arr_real empty;
+    EXPECT_THROW((void)empty[std::vector<int>{0}], std::runtime_error);
+    EXPECT_THROW((void)empty[arr_int{0}], std::runtime_error);
+}

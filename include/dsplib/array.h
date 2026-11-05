@@ -143,10 +143,9 @@ public:
     }
 
     base_array<T> operator[](const std::vector<int>& idxs) const {
-        const size_t max_i = *std::max_element(idxs.begin(), idxs.end());
-        DSPLIB_ASSERT(max_i < _vec.size(), "Index must not exceed the size of the vector");
         std::vector<T> res(idxs.size());
         for (size_t i = 0; i < idxs.size(); ++i) {
+            DSPLIB_ASSERT(idxs[i] >= 0 && size_t(idxs[i]) < _vec.size(), "Index out of range");
             res[i] = _vec[idxs[i]];
         }
         return res;
