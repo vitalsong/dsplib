@@ -22,7 +22,10 @@ arr_cmplx awgn(span_cmplx arr, real_t snr) {
 void awgn(inplace_real arr, real_t snr) {
     auto x = arr.get();
     const int n = x.size();
-    const real_t stddev = rms(x) * std::pow(10, ((-1) * snr / 20));
+    if (n == 0) {
+        return;
+    }
+    const real_t stddev = std::sqrt(dot(x, x) / n) * std::pow(10, ((-1) * snr / 20));
     const auto noise = randn(n);
     for (int i = 0; i < n; ++i) {
         x[i] += noise[i] * stddev;
@@ -32,7 +35,10 @@ void awgn(inplace_real arr, real_t snr) {
 void awgn(inplace_cmplx arr, real_t snr) {
     auto x = arr.get();
     const int n = x.size();
-    const real_t stddev = 0.5 * rms(x) * std::pow(10, ((-1) * snr / 20));
+    if (n == 0) {
+        return;
+    }
+    const real_t stddev = std::sqrt(vdot(x, x).re / n / 2) * std::pow(10, ((-1) * snr / 20));
     const auto noise = randn(2 * n);
     for (int i = 0; i < n; ++i) {
         x[i].re += noise[2 * i] * stddev;
