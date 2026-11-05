@@ -15,6 +15,7 @@ public:
 
 private:
     const int n_;
+    // Forward FFT of size n/2 for even n; inverse FFT of size n for odd n.
     std::shared_ptr<FftPlanC> fft_;
     const std::vector<cmplx_t> w_;   //exp(1i * 2 * pi / n)
 };

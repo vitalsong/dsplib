@@ -98,10 +98,10 @@ base_array<T> delayseq(const base_array<T>& data, int delay) {
 
     const int N = data.size();
     if (abs(delay) >= N) {
-        return zeros(N);
+        return base_array<T>(N);
     }
 
-    base_array<T> res = zeros(N);
+    base_array<T> res(N);
     if (delay > 0) {
         res.slice(delay, N) = data.slice(0, N - delay);
     } else {

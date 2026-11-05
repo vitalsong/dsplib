@@ -143,10 +143,9 @@ public:
     }
 
     base_array<T> operator[](const std::vector<int>& idxs) const {
-        const size_t max_i = *std::max_element(idxs.begin(), idxs.end());
-        DSPLIB_ASSERT(max_i < _vec.size(), "Index must not exceed the size of the vector");
         std::vector<T> res(idxs.size());
         for (size_t i = 0; i < idxs.size(); ++i) {
+            DSPLIB_ASSERT(idxs[i] >= 0 && size_t(idxs[i]) < _vec.size(), "Index out of range");
             res[i] = _vec[idxs[i]];
         }
         return res;
@@ -191,7 +190,8 @@ public:
 
     //--------------------------------------------------------------------
     //compare vector
-    std::vector<bool> operator>(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator>(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] > rhs._vec[i]);
@@ -199,7 +199,8 @@ public:
         return res;
     }
 
-    std::vector<bool> operator<(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator<(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] < rhs._vec[i]);
@@ -207,7 +208,8 @@ public:
         return res;
     }
 
-    std::vector<bool> operator==(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator==(const base_array<T>& rhs) const {
+        DSPLIB_ASSERT(_vec.size() == rhs._vec.size(), "Array sizes must be equal");
         std::vector<bool> res(_vec.size());
         for (size_t i = 0; i < _vec.size(); ++i) {
             res[i] = (_vec[i] == rhs._vec[i]);
@@ -215,7 +217,7 @@ public:
         return res;
     }
 
-    std::vector<bool> operator!=(const base_array<T>& rhs) const noexcept {
+    std::vector<bool> operator!=(const base_array<T>& rhs) const {
         auto r = (*this == rhs);
         r.flip();
         return r;

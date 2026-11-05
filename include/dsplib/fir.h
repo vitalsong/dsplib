@@ -79,12 +79,18 @@ class FftFilter
 public:
     explicit FftFilter(span_t<T> h);
 
+    // Returns complete blocks; buffers remaining input until the next call or flush().
     base_array<T> process(span_t<T> x);
 
     base_array<T> operator()(span_t<T> x) {
         return this->process(x);
     }
 
+    // Emits only buffered input samples, without the extra FIR tail.
+    // Preserves convolution state for continued processing; empty if nothing is buffered.
+    base_array<T> flush();
+
+    // Number of output samples per complete block.
     [[nodiscard]] int block_size() const;
 
 private:

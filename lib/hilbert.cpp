@@ -69,7 +69,14 @@ span_real HilbertFilter::impz() const {
 
 arr_cmplx hilbert(span_real x) {
     const int n = x.size();
+    if (n <= 2) {
+        return complex(x);
+    }
     arr_cmplx r = fft(x) * 2;
+    r[0] /= 2;
+    if (n % 2 == 0) {
+        r[n / 2] /= 2;
+    }
     r.slice(n / 2 + 1, n) = 0;
     r = ifft(r);
     return r;

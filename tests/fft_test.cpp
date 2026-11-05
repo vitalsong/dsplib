@@ -139,13 +139,36 @@ TEST(FFT, Ifft) {
 
 //-------------------------------------------------------------------------------------------------
 TEST(FFT, Irfft) {
-    for (auto nfft : {200, 101 * 2, 512 * 3, 1024, 1000}) {
+    for (auto nfft : {1, 3, 5, 9, 31, 101, 200, 101 * 2, 512 * 3, 1024, 1000}) {
         auto x = randn(nfft);
         auto y = fft(x);
         auto xc = ifft(y);
         auto xr = irfft(y);
         ASSERT_EQ_ARR_REAL(x, real(xc));
         ASSERT_EQ_ARR_REAL(x, xr);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, IrfftPlan) {
+    for (int n : {1, 2, 3, 4, 5, 9, 31, 101}) {
+        SCOPED_TRACE(::testing::Message() << "n=" << n);
+        const auto t = arange(n);
+        // Exercise DC and the highest positive-frequency bin, including its imaginary part.
+        const arr_real x = 2 + cos(2 * pi * (n / 2) * t / n) + sin(2 * pi * (n / 2) * t / n);
+        const auto spectrum = fft(x);
+        const auto reference = real(ifft(spectrum));
+        const auto plan = ifft_plan_r(n);
+        ASSERT_EQ(plan->size(), n);
+        for (int size : {n, n / 2 + 1}) {
+            const auto input = spectrum.slice(0, size);
+            ASSERT_EQ_ARR_REAL(irfft(input, n), reference);
+            ASSERT_EQ_ARR_REAL(plan->solve(input), reference);
+            arr_real output(n);
+            plan->solve(input, output);
+            ASSERT_EQ_ARR_REAL(output, reference);
+            ASSERT_EQ_ARR_REAL(output, x);
+        }
     }
 }
 
@@ -157,6 +180,52 @@ TEST(FFT, Czt) {
     cmplx_t w = expj(-2 * pi / m);
     auto czt_res = czt(complex(x), m, w);
     ASSERT_EQ_ARR_CMPLX(czt_res, dft_ref);
+}
+
+//-------------------------------------------------------------------------------------------------
+TEST(FFT, CztDifferentLengths) {
+    for (int n : {3, 1, 7}) {
+        const arr_cmplx x = complex(arange(1, n + 1), -arange(n));
+        for (int m : {5, 1, 2, 9}) {
+            for (cmplx_t a : {cmplx_t(1), cmplx_t(1.1, 0.2)}) {
+                for (cmplx_t w : {expj(-2 * pi / m), expj(0.37)}) {
+                    SCOPED_TRACE(::testing::Message() << "n=" << n << ", m=" << m);
+                    arr_cmplx ref(m);
+                    for (int k = 0; k < m; ++k) {
+                        for (int j = 0; j < n; ++j) {
+                            ref[k] += x[j] * power(a, -j) * power(w, j * k);
+                        }
+                    }
+
+                    const auto y = czt(x, m, w, a);
+                    ASSERT_EQ(y.size(), m);
+                    ASSERT_EQ_ARR_CMPLX(y, ref);
+
+                    CztPlan plan(n, m, w, a);
+                    const auto planned = plan.solve(x);
+                    ASSERT_EQ(planned.size(), m);
+                    ASSERT_EQ_ARR_CMPLX(planned, ref);
+
+                    arr_cmplx output(m);
+                    plan.solve(x, output);
+                    ASSERT_EQ_ARR_CMPLX(output, ref);
+                }
+            }
+        }
+    }
+}
+
+TEST(FFT, CztShorterThanInput) {
+    const arr_cmplx x = {1, 2, 3};
+    // CZT uses all input samples, unlike fft(x, 2), which truncates the input.
+    ASSERT_EQ_ARR_CMPLX(czt(x, 2, expj(-pi)), arr_cmplx{6, 2});
+}
+
+TEST(FFT, CztPaddedFft) {
+    const arr_cmplx x = {1, 2, 3};
+    for (int m : {5, 8}) {
+        ASSERT_EQ_ARR_CMPLX(czt(x, m, expj(-2 * pi / m)), fft(x, m));
+    }
 }
 
 //-------------------------------------------------------------------------------------------------

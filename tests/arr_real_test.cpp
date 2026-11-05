@@ -259,3 +259,15 @@ TEST(ArrRealTest, VecToArr) {
         ASSERT_EQ_ARR_REAL(x2, arr_real{0, -100000, 200000, -300000});
     }
 }
+
+TEST(ArrRealTest, IndexVector) {
+    const arr_real x = {1, 2, 3};
+    ASSERT_EQ_ARR_REAL(x[std::vector<int>{2, 0, 2}], arr_real{3, 1, 3});
+    ASSERT_EQ_ARR_REAL(x[arr_int{2, 0, 2}], arr_real{3, 1, 3});
+    EXPECT_EQ(x[std::vector<int>{}].size(), 0);
+    EXPECT_EQ(x[arr_int{}].size(), 0);
+
+    const arr_real empty;
+    EXPECT_EQ(empty[std::vector<int>{}].size(), 0);
+    EXPECT_EQ(empty[arr_int{}].size(), 0);
+}

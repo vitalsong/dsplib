@@ -19,29 +19,24 @@ public:
     base_array<T> process(span_t<T> x) {
         const int nr = (x.size() + _nx) / _n * _n;
         base_array<T> r(nr);
-        auto* pr = r.data();
+        int offset = 0;
         for (const auto& val : x) {
-            _x[_nx] = val;
-            _nx += 1;
+            _x[_nx++] = val;
             if (_nx == _n) {
-                base_array<T> ry;
-                if constexpr (std::is_same_v<T, real_t>) {
-                    ry = std::move(irfft(fft(_x) * _h));   //TODO: use n/2+1 multiply
-                } else {
-                    ry = std::move(ifft(fft(_x) * _h));
-                }
-                for (int i = 0; i < _n; i++) {
-                    pr[i] = ry[i];
-                }
-                for (int i = 0; i < (_m - 1); i++) {
-                    pr[i] += _olap[i];
-                    _olap[i] = ry[i + _n];
-                }
-                pr += _n;
-                _nx = 0;
+                const auto block = process_block(_n);
+                r.slice(offset, offset + _n) = block.slice(0, _n);
+                offset += _n;
             }
         }
         return r;
+    }
+
+    base_array<T> flush() {
+        if (_nx == 0) {
+            return {};
+        }
+        const int count = _nx;
+        return process_block(count).slice(0, count);
     }
 
     [[nodiscard]] int block_size() const {
@@ -49,6 +44,27 @@ public:
     }
 
 private:
+    base_array<T> process_block(int count) {
+        if (count < _nfft) {
+            _x.slice(count, _nfft) = 0;
+        }
+        base_array<T> ry;
+        if constexpr (std::is_same_v<T, real_t>) {
+            ry = irfft(fft(_x) * _h);   //TODO: use n/2+1 multiply
+        } else {
+            ry = ifft(fft(_x) * _h);
+        }
+        // A flushed block can be shorter than the saved convolution tail.
+        for (int i = 0; i < (_m - 1); ++i) {
+            ry[i] += _olap[i];
+        }
+        for (int i = 0; i < (_m - 1); ++i) {
+            _olap[i] = ry[count + i];
+        }
+        _nx = 0;
+        return ry;
+    }
+
     int _nx{0};
     int _nfft;
     int _m{0};
@@ -76,6 +92,16 @@ base_array<real_t> FftFilter<real_t>::process(span_t<real_t> x) {
 template<>
 base_array<cmplx_t> FftFilter<cmplx_t>::process(span_t<cmplx_t> x) {
     return d_->process(x);
+}
+
+template<>
+base_array<real_t> FftFilter<real_t>::flush() {
+    return d_->flush();
+}
+
+template<>
+base_array<cmplx_t> FftFilter<cmplx_t>::flush() {
+    return d_->flush();
 }
 
 template<>

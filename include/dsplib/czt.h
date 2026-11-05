@@ -14,6 +14,7 @@ public:
 
     [[nodiscard]] arr_cmplx solve(span_t<cmplx_t> x) const final;
 
+    // input must have n elements, output must have m elements.
     void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const final;
 
     [[nodiscard]] int size() const noexcept final;

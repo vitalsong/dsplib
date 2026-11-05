@@ -44,6 +44,7 @@ public:
 
     void solve(span_t<cmplx_t> x, mut_span_t<cmplx_t> r) const {
         DSPLIB_ASSERT(x.size() == _n, "input size must be equal CZT base");
+        DSPLIB_ASSERT(r.size() == _m, "output size must be equal CZT length");
         arr_cmplx xp(_fft2->size());
         for (int i = 0; i < _n; ++i) {
             xp[i] = x[i] * _cp[i];
@@ -53,7 +54,7 @@ public:
         xp *= _ich;
         _ifft2->solve(inplace(xp));
 
-        for (int i = 0; i < _n; ++i) {
+        for (int i = 0; i < _m; ++i) {
             r[i] = xp[_n - 1 + i] * _rp[i];
         }
     }
@@ -72,7 +73,7 @@ CztPlan::CztPlan(int n, int m, cmplx_t w, cmplx_t a)
 }
 
 arr_cmplx CztPlan::solve(span_t<cmplx_t> x) const {
-    arr_cmplx r(_d->_n);
+    arr_cmplx r(_d->_m);
     _d->solve(x, r);
     return r;
 }
